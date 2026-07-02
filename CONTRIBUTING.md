@@ -61,7 +61,7 @@ second reviewer to block the merge — the checklist is the gate.
 
 Use [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 <type>: <short summary>
 ```
 
