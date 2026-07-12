@@ -1,7 +1,7 @@
 # System Modules Brainstorming
 
 **Owner:** Product + Architecture
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-12
 **Status:** Draft
 
 This document is intentionally scoped. It is not a full module inventory.
@@ -19,7 +19,7 @@ re-litigation while the surrounding doc stays draft.
 
 ## 1. Goal Of The System
 
-Build a configurable inquiry-to-revenue platform where any inbound request becomes a managed opportunity, estimate, quote, and executable job with minimal manual coordination. Phase 1 goal is operational reliability and speed (intake to quote to execution), not full business-suite breadth.
+Build a configurable inquiry-to-revenue platform where any inbound request becomes a managed opportunity, estimate, quote, and executable job with minimal manual coordination. Phase 1 goal is operational reliability and speed (intake to quote to execution), not full business-suite breadth — with the capacity-scheduling (Work Orders & Scheduling) and workflow-automation layers staged just after the Phase-1 slice (§5), so Phase-1 execution ships with milestone/status tracking and manual coordination.
 
 ---
 
@@ -36,9 +36,9 @@ Only modules plausible for current phase are listed. Extra and duplicate concept
 | Estimation Engine (Configurable) | Structured costing with formulas, components, templates, versioning, and approvals. | Estimator | Must-have |
 | Quote Management | Turns estimates into commercial offers with versions, approvals, and acceptance tracking. | Sales rep | Must-have |
 | Project / Job / Order Execution | Converts won quotes into execution units with tasks, milestones, updates, and change control. | Ops coordinator and project manager | Must-have |
-| Work Orders & Scheduling | Capacity-aware assignment of people, machines, and time slots. | Operations scheduler | Must-have |
+| Work Orders & Scheduling | Capacity-aware assignment of people, machines, and time slots. | Operations scheduler | Later (staged) |
 | Unified Communication Timeline | Centralized, chronological history per account: synced emails, calls, messages, meetings, notes, file events, and linked orders. | Sales and support | Must-have |
-| Workflow Automation | Trigger-condition-action orchestration to eliminate manual handoffs. | Ops admin and sales manager | Must-have |
+| Workflow Automation | Trigger-condition-action orchestration to eliminate manual handoffs. | Ops admin and sales manager | Later (staged) |
 | User, Roles, Permissions & Custom Fields | Secure access control plus no-code data model adaptation. | Admin | Must-have |
 | AI Sales Assist | Cold-deal flagging plus follow-up / next-action drafting — the minimal in-scope AI slice (PRODUCT.md §4) required to meet the §5 success criteria. | Sales rep | Must-have |
 | Dashboards & Operational Reporting | Pipeline health, conversion, cycle time, and fulfillment bottlenecks. | Manager and owner | Must-have |
@@ -71,7 +71,7 @@ Only modules plausible for current phase are listed. Extra and duplicate concept
 - Why now: Core promise is converting all inquiry types into managed revenue opportunities.
 - Why module boundary is needed: Stage, probability, next action, and ownership need one consistent model.
 - Consequence if excluded: Intake remains unstructured and follow-up quality degrades.
-- Scope note: The pipeline renders as a configurable Kanban board over the opportunity stage model. A downstream production funnel is not a second set of stages inside the opportunity — it is the Project / Job / Order Execution board (a separate, linked model) shown alongside, joined by the Quote → Project win-event handoff (§4). Stage names are pipeline configuration; print production stages (prepress, press, bindery, shipping) ship as a vertical template, not platform code (mirrors the Service Catalog print-seed note). Stage transitions emit lifecycle events consumed by Workflow Automation (e.g. moving an opportunity to Approved triggers work-ticket creation) — the trigger engine is Workflow Automation, not a pipeline feature. Probability and expected value/date are captured here as fields; weighted revenue forecasting (win-rate × expected value, rolled up monthly) is a read-side aggregation in Dashboards & Operational Reporting (Must-have). Closed-lost capture: a lost opportunity records a structured loss reason (configurable dropdown — e.g. price, turnaround time, competitor) as a canonical close-lost outcome, not free-text, so losses are aggregatable. Reason values are custom-field / vertical-template configuration, not hardcoded platform enums (mirrors the account-type note under Customer & Relationship Management). The downstream loss-pattern and pricing-tier-optimization analysis is a read-side rollup in Dashboards & Operational Reporting (Must-have); pricing-tier changes themselves live in Service Catalog / Estimation Engine, not the pipeline.
+- Scope note: The pipeline renders as a configurable Kanban board over the opportunity stage model. A downstream production funnel is not a second set of stages inside the opportunity — it is the Project / Job / Order Execution board (a separate, linked model) shown alongside, joined by the Quote → Project win-event handoff (§4). Stage names are pipeline configuration; print production stages (prepress, press, bindery, shipping) ship as a vertical template, not platform code (mirrors the Service Catalog print-seed note). Stage transitions emit lifecycle events consumed by Workflow Automation (staged post-Phase-1, §5) — the pipeline emits these events in Phase-1, but the automated reaction (e.g. moving an opportunity to Approved auto-creating a work ticket) ships with Workflow Automation, the trigger engine, not as a pipeline feature. Probability and expected value/date are captured here as fields; weighted revenue forecasting (win-rate × expected value, rolled up monthly) is a read-side aggregation in Dashboards & Operational Reporting (Must-have). Closed-lost capture: a lost opportunity records a structured loss reason (configurable dropdown — e.g. price, turnaround time, competitor) as a canonical close-lost outcome, not free-text, so losses are aggregatable. Reason values are custom-field / vertical-template configuration, not hardcoded platform enums (mirrors the account-type note under Customer & Relationship Management). The downstream loss-pattern and pricing-tier-optimization analysis is a read-side rollup in Dashboards & Operational Reporting (Must-have); pricing-tier changes themselves live in Service Catalog / Estimation Engine, not the pipeline.
 
 ### Service Catalog
 
@@ -110,10 +110,10 @@ Only modules plausible for current phase are listed. Extra and duplicate concept
 
 ### Work Orders & Scheduling
 
-- Why now: Resource assignment is mandatory once execution starts.
+- Why now: Staged, not Must-have — PRODUCT.md §4 defers capacity-aware scheduling to just after the Phase-1 slice. Phase-1 job execution (committed) already tracks milestones and status; assigning resources against machine capacity is the added planning layer that ships next.
 - Why module boundary is needed: Capacity and assignment logic should not be hardcoded inside projects.
-- Consequence if excluded: Dispatch chaos and avoidable delays.
-- Scope note: The surface is a capacity-aware scheduling board — a Gantt / drag-and-drop calendar assigning jobs to specific resources (people, machines, stations) and time slots against each resource's speed/throughput. Named resource types (e.g. wide-format plotter, offset press) are vertical-template seeds, not platform enums (mirrors the Service Catalog print-seed note). Rush/priority routing — one-click queue re-sequencing — is in-scope; the rush-fee pricing that authorizes it lives in Estimation Engine / Quote, and the re-sequence fires as a Workflow Automation event. Depth is gated by Open Question §6: phase-1 may ship calendar + assignment only, with full machine-speed capacity modeling and Gantt as the "full capacity planning" end.
+- Consequence if excluded: Phase-1 runs job execution with status/milestones but without capacity scheduling; assignment stays manual until this ships. No Must-have module depends on it upstream, so deferral breaks no build order.
+- Scope note: The surface is a capacity-aware scheduling board — a Gantt / drag-and-drop calendar assigning jobs to specific resources (people, machines, stations) and time slots against each resource's speed/throughput. It layers on the committed Project / Job / Order Execution board (§4 dependency). Named resource types (e.g. wide-format plotter, offset press) are vertical-template seeds, not platform enums (mirrors the Service Catalog print-seed note). Rush/priority routing — one-click queue re-sequencing — ships with this module; the rush-fee pricing that authorizes it lives in Estimation Engine / Quote, and the re-sequence fires as a Workflow Automation event (also staged). Depth is gated by Open Question §6: the staged release may start at calendar + assignment only, with full machine-speed capacity modeling and Gantt as the "full capacity planning" end.
 
 ### Unified Communication Timeline
 
@@ -124,9 +124,9 @@ Only modules plausible for current phase are listed. Extra and duplicate concept
 
 ### Workflow Automation
 
-- Why now: Lean teams cannot scale manual transitions across modules.
+- Why now: Staged, not Must-have — PRODUCT.md §4 defers the trigger-condition-action engine to just after the Phase-1 slice. Phase-1 modules still emit stage/lifecycle events; the centralized engine that reacts to them (auto-tasks, notifications, stage handoffs) ships next.
 - Why module boundary is needed: Event-driven orchestration must be centralized for maintainability.
-- Consequence if excluded: High operational drag and higher error rate.
+- Consequence if excluded: Phase-1 handoffs are manual, with cold-deal follow-up covered narrowly by AI Sales Assist drafting; operational drag is accepted until this ships. The §5 follow-through metric is met via AI-drafted follow-ups plus manual logging, so it does not block on this module.
 
 ### User, Roles, Permissions & Custom Fields
 
@@ -197,6 +197,7 @@ Notes:
 
 - Circular dependencies are not allowed.
 - If a module depends on unstable events or undefined schema, it cannot be Must-have.
+- Work Orders & Scheduling (row: downstream of Project / Job / Order Execution) and Workflow Automation (row: downstream of Opportunity / Quote / Project) are downstream-only and staged post-Phase-1 (§5). No Must-have module depends on either as upstream, so deferring them breaks no build-order constraint.
 
 ---
 
@@ -211,14 +212,19 @@ Notes:
 - Estimation Engine (Configurable): Required to replace manual costing and accelerate response time.
 - Quote Management: Required to control commercial conversion lifecycle.
 - Project / Job / Order Execution: Required to execute accepted work.
-- Work Orders & Scheduling: Required to assign resources and avoid delivery bottlenecks.
 - Unified Communication Timeline: Required for contextual coordination and customer continuity.
-- Workflow Automation: Required to keep lean-team handoffs reliable.
 - User, Roles, Permissions & Custom Fields: Required for secure, configurable multi-business usage.
 - AI Sales Assist: Required to meet the PRODUCT.md §5 success criteria that name the AI assistant (first-response time, cold-deal follow-through). Minimal slice only — cold-deal flagging (hybrid: staleness rule at launch, learned model as data accumulates) plus follow-up / next-action drafting.
 - Dashboards & Operational Reporting: Required per PRODUCT.md §3–§4, which put pipeline and performance reporting in scope. Ships core operational views (pipeline health, conversion, cycle time) at launch; advanced analytics populate as transactional data accumulates.
 
 ### Later (Deferred)
+
+Staged (post Phase-1 slice — in scope, delivered just after the committed cut, ahead of the fully-deferred items below):
+
+- Work Orders & Scheduling: Staged per PRODUCT.md §4. Phase-1 job execution (Must-have) tracks milestones/status; capacity-aware resource assignment and calendar/Gantt scheduling layer on next. No Must-have module depends on it upstream, so deferral breaks no build order. Scheduling depth is Open Question §6.
+- Workflow Automation: Staged per PRODUCT.md §4. Phase-1 modules emit stage/lifecycle events, but the centralized trigger-condition-action engine that reacts to them ships just after the slice. The §5 follow-through metric is met via AI Sales Assist follow-up drafting plus manual logging, so it does not block on this module.
+
+Fully deferred:
 
 - Documents & Customer Portal: Defer external collaboration surface until internal flow is stable.
 - Inventory & Purchasing: Defer material planning until execution data is stable and a production-heavy vertical needs it.
@@ -237,7 +243,7 @@ Decision rule:
 | --- | --- | --- | --- | --- |
 | What is the minimum entity set in Customer & Relationship Management for launch (lead/contact/company only, or include vendors/partners too)? | Customer & Relationship Management | Product Owner | 2026-07-12 | Open |
 | Do we support project and job as separate models in phase 1, or one model with type flags? | Project / Job / Order Execution | Architecture Lead | 2026-07-14 | Open |
-| What is the minimum scheduling capability for launch (calendar + assignment only, or full capacity planning)? | Work Orders & Scheduling | Ops Lead | 2026-07-16 | Open |
+| What is the minimum scheduling capability for the staged Work Orders & Scheduling release (calendar + assignment only, or full capacity planning)? Module is now staged post-Phase-1 (§5). | Work Orders & Scheduling | Ops Lead | 2026-07-16 | Open |
 | Which dynamic custom field types are mandatory for phase 1? | User, Roles, Permissions & Custom Fields | Product + Engineering | 2026-07-13 | Open |
 | Phase-1 AI slice is decided (AI Sales Assist: cold-deal flagging + follow-up/next-action, per PRODUCT.md §4 — resolved 2026-07-06). Remaining: which advanced (Later) AI capabilities can run as a controlled pilot without increasing core risk? | AI Copilot & Document Intelligence | AI Lead | 2026-07-20 | Open |
 | Which one-click industry template ships first after phase 1 stabilization? | Integrations & Industry Templates | Product + GTM | 2026-07-25 | Open |
@@ -257,7 +263,7 @@ This table re-evaluates each rough-note item explicitly to avoid ambiguity.
 | 5. Project/Job Management | Keep | Project / Job / Order Execution | Required post-win execution control. |
 | 6. Work Orders | Merge | Work Orders & Scheduling | Dispatch and assignment coupled with scheduling. |
 | 7. Scheduling | Merge | Work Orders & Scheduling | Same planning domain as work orders. |
-| 8. Resource Management | Merge | Work Orders & Scheduling | Resource capacity belongs in scheduling domain for phase 1. |
+| 8. Resource Management | Merge | Work Orders & Scheduling | Resource capacity belongs in the scheduling domain (Work Orders & Scheduling, staged post-Phase-1 per §5). |
 | 9. Field Service Module | Defer | Documents & Customer Portal (later extension point) | Vertical-specific and mobile-heavy; not phase-1 core. |
 | 10. AI Estimator | Defer | AI Copilot & Document Intelligence | Strong differentiator, but depends on clean baseline data. |
 | 11. Customer Portal | Defer | Documents & Customer Portal | External surface deferred until internal reliability. |
@@ -274,7 +280,7 @@ This table re-evaluates each rough-note item explicitly to avoid ambiguity.
 | Order Status/Tracking — Granular Production Milestones | Merge | Project / Job / Order Execution | Production stage chain is a print vertical-template seed on the execution board, not new module code. |
 | Order Status/Tracking — Automated Barcode Job Tickets | Defer | Documents & Customer Portal + shop-floor scan capture (Later) | Printable job-jacket doc is a Later template; barcode/shop-floor scanning exceeds phase-1 intake-to-execution and violates no-vertical-code. |
 | Order History — Archived Specification Ledger | Merge | Project / Job / Order Execution + Customer & Relationship Management | Immutable completed-job spec snapshot feeds reorder acceleration; specs are custom fields, operator is historical metadata. |
-| Automated Invoicing & Payments — Trigger-Based Invoicing | Reject | Workflow Automation (trigger) + out of product (invoice generation) | Auto-generating an electronic invoice on a job status change (e.g. "QC Approved" or "Shipped") is invoicing, out of product per PRODUCT.md §4 ("not financials or collections"). The status-change trigger already exists in Workflow Automation; only the invoice generation is excluded. Detail retained for future revisit only if the product's financial-processing boundary changes. |
+| Automated Invoicing & Payments — Trigger-Based Invoicing | Reject | Workflow Automation (trigger) + out of product (invoice generation) | Auto-generating an electronic invoice on a job status change (e.g. "QC Approved" or "Shipped") is invoicing, out of product per PRODUCT.md §4 ("not financials or collections"). The status-change trigger lives in Workflow Automation (staged post-Phase-1, §5); only the invoice generation is excluded. Detail retained for future revisit only if the product's financial-processing boundary changes. |
 | Automated Invoicing & Payments — Deposit Lockouts | Reject | Workflow Automation (stage gate) + out of product (payment processing) | Blocking a job from entering a production stage until an upfront deposit (e.g. 50%) is paid online requires online payment processing, out of product per PRODUCT.md §4. The generic stage-entry gate is a valid Workflow Automation concept, but its deposit-paid precondition depends on the excluded payment layer; "prepress queues" would also need generalizing to a configurable stage gate under the no-vertical-code rule. Detail retained for future revisit only if the product's financial-processing boundary changes. |
 
 ---
@@ -287,13 +293,13 @@ A separate "Should Have — AI Automation & Omni-Channel Scaling" note was recon
 | --- | --- | --- | --- |
 | Centralized Omni-Inbox (SMS/email/WhatsApp/web in one thread) | Merge | Unified Communication Timeline (+ Inquiry Intake & Triage) | Merged conversation view is the timeline's job; adds a reply-capable inbox framing (captured in the Timeline scope note). Outbound on SMS/WhatsApp is a channel connector under Integrations & Industry Templates (Later). |
 | AI Reply Co-Pilot (drafts responses from stock + lead-time context) | Merge / Defer | AI Copilot & Document Intelligence (Later) | Contextual reply drafting already in ai-features.md (Communication Intelligence, Wave 1). Grounding on stock (Inventory, Later) and print lead-times (vertical config). Drafts only — no auto-send, per PRODUCT.md §6 anti-pattern. |
-| Stale Quote Reminders (24h / 3d / 7d cadence on unapproved quotes) | Merge | Workflow Automation + Quote Management | Automated follow-up cadence is an existing capability; the 24h/3d/7d schedule is per-tenant config, not platform code. Overlaps AI cold-deal flagging. |
+| Stale Quote Reminders (24h / 3d / 7d cadence on unapproved quotes) | Merge | Workflow Automation + Quote Management | Automated follow-up cadence is a Workflow Automation capability (staged post-Phase-1, §5); the 24h/3d/7d schedule is per-tenant config, not platform code. In Phase-1 the AI cold-deal flagging path covers stale-deal follow-up (drafts + manual send). |
 | Abandoned Cart / Draft Recovery (nudge on unfinished web order) | Defer | Documents & Customer Portal (Later) | Depends on the Later customer-facing web-order surface; "cart" is e-commerce framing and CuevikSync is not a webstore. The recovery nudge itself is a Workflow Automation event once the surface exists. |
-| Multi-Channel Status Alerts (proof ready / on press / labels printed) | Merge | Workflow Automation | Event-driven client notifications already covered; the named production states are print vertical-template seeds, not platform code (no-vertical-code rule). |
-| Internal Urgency Pings (alert reps/designers on proof comment or rush change) | Merge | Workflow Automation | Internal micro-alerts are trigger-condition-action events. The proof-comment source depends on portal/proofing (Later). |
+| Multi-Channel Status Alerts (proof ready / on press / labels printed) | Merge | Workflow Automation | Event-driven client notifications map to Workflow Automation (staged post-Phase-1, §5); the named production states are print vertical-template seeds, not platform code (no-vertical-code rule). |
+| Internal Urgency Pings (alert reps/designers on proof comment or rush change) | Merge | Workflow Automation | Internal micro-alerts are trigger-condition-action events (Workflow Automation, staged post-Phase-1, §5). The proof-comment source depends on portal/proofing (Later). |
 | ⚠ B2B Client Ordering Portals (password-protected repeat-order storefront over pre-negotiated catalogs) | Defer | Documents & Customer Portal (Later) | Deferred per PRODUCT.md §4 ("client portals"). A repeat-order storefront over static negotiated catalogs is a new commerce surface beyond the Later portal's tracking/approval scope — needs its own scoping if pursued. |
-| ⚠ On-the-Go Estimator (native mobile estimating for traveling reps) | Reject (this phase) | Estimation Engine (Configurable) | Estimation logic exists; a native mobile surface is out of scope per PRODUCT.md §4 ("no native mobile surface in this release"). Responsive web use of the existing estimator is fine; a mobile app is not phase-1. |
-| ⚠ Driver Pick-Up & Delivery Module (route optimization, digital signature, POD image capture) | Defer | Field Service Module (§7 — already Deferred) | Phase-1 slice is "pickup/delivery as a deal attribute" (PRODUCT.md §4). Route optimization + signature + proof-of-delivery capture is the deferred, mobile-heavy field-service module. |
+| ⚠ On-the-Go Estimator (native mobile estimating for traveling reps) | Reject (this phase) | Estimation Engine (Configurable) | Estimation logic exists; a native mobile surface is deferred (Later) per PRODUCT.md §4 ("no native mobile surface in this release"). Responsive web use of the existing estimator is fine; a mobile app is not phase-1. |
+| ⚠ Driver Pick-Up & Delivery Module (route optimization, digital signature, POD image capture) | Defer | Field Service Module (§7 — already Deferred) | Phase-1 slice is "pickup/delivery as a deal attribute" (PRODUCT.md §7, Phase 1 Vertical). Route optimization + signature + proof-of-delivery capture is the deferred, mobile-heavy field-service module. |
 | ⚠ Event-Driven Print Campaigns (seasonal outreach to behavior-filtered clients) | Reject (this phase) | Out of product scope | Marketing campaign / email-blast automation is deferred per PRODUCT.md §4. The behavioral customer filters that drive it are a Dashboards & Operational Reporting segmentation concern; the marketing-campaign use itself is deferred per PRODUCT.md §4. |
 
 ---

@@ -1,7 +1,7 @@
 # PRODUCT.md — Product Concept
 
 **Owner:** Product Owner
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-12
 **Source of truth for:** what CuevikSync is and why it exists — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, with MVP validated against Print & Signage operations.
 
 > Derived from: (none — starting point)
@@ -126,46 +126,32 @@ development.
 - Omnichannel inquiry capture and triage into a single shared queue
 - Unified contact/company relationship management with duplicate detection
 - Adaptive, configurable pipelines (no custom code)
-- AI sales assistant: follow-up/next-action drafting + cold-deal flagging
+- Configurable service catalog — attribute-matrix sellable units with modifier options
+- Structured estimation engine — formulas, quantity-tier price breaks, and a margin-floor guardrail
 - Structured quotation and order generation
+- Project/job/order execution — won quotes converted to trackable work with milestones and change control
+- AI sales assistant: follow-up/next-action drafting + cold-deal flagging
 - Unified per-contact communication timeline
 - Pipeline/performance reporting
 - Configurable custom fields and role-based access
 
+> **Phase-1 scope boundary:** Phase 1 ships configuration only — pipelines, custom
+> fields, templates, and quotation — and is validated against a single vertical
+> (Print & Signage; see §7). Any workflow that requires custom code is out of Phase 1 scope.
+
 ### In scope — staged (post Phase-1 slice)
 
+- Work Orders & Scheduling — capacity-aware resource assignment and calendar scheduling on
+  top of job execution (depth pending the scheduling-scope decision: calendar + assignment
+  vs. full capacity planning)
+- Workflow Automation — trigger-condition-action orchestration of lifecycle events;
+  Phase-1 emits stage/lifecycle events, but automated reactions ship here
 - Missed-call recovery (requires telephony connector)
 - AI-drafted quotes from unstructured inbound (demand-driven; built on concrete requirement)
 
-### Phase 1 Validation Vertical
+### In scope — deferred (Later / market-driven)
 
-The first production deployment targets **Print & Signage** operations — businesses
-providing digital printing, commercial offset printing, wide-format output, signage,
-promotional products, and design services. This vertical is selected because it
-concentrates every core platform challenge in one place: high inquiry volume across
-multiple channels, complex per-job quoting, artwork and specification approvals, and
-production scheduling — all managed today by phone, email, and spreadsheets.
-
-Building for this vertical first produces a hardened, battle-tested core. Every
-capability listed under Phase 1 (committed) above is exercised against real Print & Signage
-workflows before any horizontal expansion begins.
-
-Print & Signage-specific workflows validated in Phase 1:
-
-- Job quoting from unstructured inbound requests (phone, email, web form) —
-  rep-driven, using structured catalog + estimation (AI extraction is staged, not Phase 1)
-- Artwork and file specification capture at intake
-- Print production status tracking inside the pipeline
-- Substrate and finishing option configuration on quotes
-- Pickup / delivery coordination as a deal attribute
-
-> These workflows use only the platform's generic pipeline, custom fields, and
-> quotation features — no print-specific code is added. If a workflow requires
-> custom code, it is out of scope for Phase 1.
-
-### Out of scope
-
-Deferred to upcoming releases:
+Planned for later releases, demand-driven — not committed to a Phase:
 
 - AI scheduling / appointment booking
 - Mobile field-capture app (voice dictation) — no native mobile surface in this release
@@ -173,6 +159,8 @@ Deferred to upcoming releases:
   inquiry-to-revenue funnel)
 - White-label branding / client portals
 - Marketing campaign / email-blast automation
+
+### Out of scope
 
 Not part of the product:
 
@@ -222,6 +210,28 @@ custom field sets, and workflow templates, not different codebases.
 > served entirely through configuration — pipelines, custom fields, templates, and
 > role-based access. If serving a vertical requires writing code, that is a signal to
 > extend the generic platform, not to build a vertical fork.
+
+### Phase 1 Vertical — Print & Signage
+
+The first production deployment targets **Print & Signage** operations — businesses
+providing digital printing, commercial offset printing, wide-format output, signage,
+promotional products, and design services. This vertical is selected because it
+concentrates every core platform challenge in one place: high inquiry volume across
+multiple channels, complex per-job quoting, artwork and specification approvals, and
+production scheduling — all managed today by phone, email, and spreadsheets.
+
+Building for this vertical first produces a hardened, battle-tested core. Every
+capability listed under §4 Phase 1 (committed) is exercised against real Print & Signage
+workflows before any horizontal expansion begins.
+
+Print & Signage workflows validated in Phase 1:
+
+- Job quoting from unstructured inbound requests (phone, email, web form) —
+  rep-driven, using structured catalog + estimation (AI extraction is staged, not Phase 1)
+- Artwork and file specification capture at intake
+- Print production status tracking inside the pipeline
+- Substrate and finishing option configuration on quotes
+- Pickup / delivery coordination as a deal attribute
 
 | # | Vertical | Representative Workflows |
 |---|---|---|
