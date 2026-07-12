@@ -1,8 +1,8 @@
 # PRODUCT.md — Product Concept
 
 **Owner:** Product Owner
-**Last updated:** 2026-07-01
-**Source of truth for:** what CuevikSync is and why it exists — an AI-powered CRM that turns inquiries into revenue for lean businesses.
+**Last updated:** 2026-07-06
+**Source of truth for:** what CuevikSync is and why it exists — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, with MVP validated against Print & Signage operations.
 
 > Derived from: (none — starting point)
 > Downstream: PRD.md, README.md, BACKLOG.md
@@ -18,56 +18,77 @@
 | 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools |
 | 6 | README.md | Setup, env config, how to run |
 | 7 | BACKLOG.md | Epics/stories manifest |
+| 8 | brainstorming/system-modules.md | Module scope & Must-have/Later reconciliation (cites this doc by section) |
+| 9 | brainstorming/ai-features.md | AI sequencing & Phase-1 AI slice (cites this doc by section) |
+
+> Rows 8–9 are brainstorming docs reconciled against this file by section number.
+> When scope changes here (§4–§7), both must be re-reconciled before it is final.
 
 ---
 
 ## 1. Overview
 
-AI-powered CRM platform to accelerate inquiry-to-revenue workflows for modern businesses.
+### Vision
+
+An AI-powered platform that helps small and mid-sized businesses capture every inbound inquiry and turn it into revenue.
+
+### Problem Statement
+
+Small and mid-sized businesses don't lose revenue because they lack demand. They lose it
+because incoming inquiries slip through the cracks. Requests come in by phone, email, web
+form, and walk-in, and there's no single place to catch and track them all. Big CRM tools
+exist, but they're built for large corporate sales teams — too heavy, too rigid, and too
+expensive for a small team to actually use.
 
 ### Objective
 
-CuevikSync is a Customer Relationship Management (CRM) platform that helps businesses
-turn inquiries into prospects, manage contacts and companies, and send quotations — all
-in one place. It also includes AI-powered workflows that automate follow-ups, suggest
-next actions, and keep the sales process moving smoothly.
+CuevikSync must let a lean team run its entire inquiry-to-revenue process in one place:
+every inbound lead captured, moved through a pipeline the team controls, and closed
+without deals leaking or stalling — with no consultant and no custom code to get there.
 
 ### Description
 
-CuevikSync is an AI-powered CRM built for small and mid-sized businesses (SMBs) like
-professional practices, field-service teams, and order-fulfillment operations. It
-captures every client inquiry — calls, email, web forms, or walk-ins — into one
-dashboard, so no lead leaks and no revenue slips away. It adapts to how a business
-already runs instead of forcing it into a rigid tool. Built-in AI handles follow-ups,
-recommends the next move, and flags deals going cold, cutting admin time and freeing the
-team to close more business.
+CuevikSync is a single workspace where a business runs everything from the first customer
+inquiry to a closed order. Every inbound request — by phone, email, text, web form, or
+walk-in — lands in one shared queue, is logged as a record, and is prioritized so the team
+sees the most urgent and highest-intent leads first. Each inquiry then becomes a tracked
+contact and deal that moves through a pipeline the business shapes to match its own stages,
+with no code to write.
+
+Around that core, CuevikSync brings together the work a lean team usually spreads across
+separate tools and spreadsheets, so contacts, conversations, quotes, and follow-ups all
+live in one place. An AI assistant works alongside the team — drafting follow-ups,
+recovering missed calls, suggesting the next action, and flagging deals going cold — but it
+only suggests and drafts; a person approves anything a customer sees.
+
+Because pipelines, custom fields, templates, and permissions are all configurable, very
+different businesses — a professional practice, a field-service crew, an order-fulfillment
+shop — can each run their own process on the same system. A team of ten or fewer can be
+onboarded and working its live pipeline within days, with no consultant and no custom
+development.
 
 ## 2. Target Users
 
-- **Business owner / founder** — wears the sales hat but has no single view of the
-  pipeline, so inquiries slip through and revenue is left on the table.
-- **Sales manager** — lacks visibility into which deals are progressing or stalling, so
-  cannot coach the team or forecast reliably.
-- **Office administrator** — the person who captures inbound inquiries; needs every lead
-  logged at intake so nothing is lost.
+> In a lean team, one person often wears several of these hats — the owner may
+> also sell, the salesperson may also quote. These are roles, not headcount.
 
-## 3. Purpose
+- **Business owner** — runs the business and often closes deals too,
+  but has no single view of the pipeline, so inquiries slip through and revenue
+  is left on the table.
+- **Sales rep** — works the leads every day: qualifies them, sends
+  quotes, and chases follow-ups. Today this is spread across email, texts, and
+  sticky notes, so deals get forgotten and quotes go out late.
+- **Sales manager** — needs to see which deals are moving and which are stalling
+  to coach the team and forecast, but that view is scattered across people's
+  heads and spreadsheets.
+- **Office administrator** — the first person to catch an inbound
+  inquiry by phone, email, web form, or walk-in; needs every lead logged the
+  moment it arrives so nothing is lost.
+- **Operations staff** — the people who fulfill the order once it's
+  won; they update job status in the pipeline so sales and the customer always
+  know where things stand.
 
-Small and mid-sized businesses do not lose revenue from a lack of demand. They lose it
-because incoming customer inquiries slip through the cracks. Requests scatter across
-phone calls, emails, web forms, and walk-ins, with no single system to catch and track
-them. While large customer relationship tools exist, they are built for massive corporate
-sales teams. They are too heavy, too rigid, and too expensive for a lean team to actually
-use.
-
-CuevikSync changes this by giving businesses one simple place to capture every single
-inquiry and turn it into revenue. Instead of forcing you to change how you work, the
-platform adapts to your existing process. It seamlessly handles professional client
-cases, mobile field services, and high-volume order fulfillment. Best of all, CuevikSync
-uses built-in AI to handle the manual follow-up work that a busy, lean team simply does
-not have the time to do. It ensures no lead is ever forgotten.
-
-## 4. Features
+## 3. Features
 
 - **Omnichannel inquiry capture & triage** — a shared queue that pulls every lead (phone,
   email, text, web forms, walk-ins) into one place and auto-prioritizes urgent or
@@ -77,30 +98,70 @@ not have the time to do. It ensures no lead is ever forgotten.
   detection that keeps data clean and reveals cross-sell connections.
 - **Adaptive pipelines** — configurable pipelines that let one lean team run different
   processes side by side (case files, field estimates, batch orders) without custom code.
+- **Estimation & service catalog** — a configurable catalog of sellable units
+  (attribute-matrix products with modifier options) feeding a structured costing engine
+  with formulas, quantity-tier price breaks, and a margin-floor guardrail, so estimates are
+  fast, consistent, and protect margin — no spreadsheets.
 - **Quotation & order generation** — create, send, and track quotes and orders, including
   AI that drafts them from unstructured client messages and prior purchase history.
+- **Job execution & scheduling** — convert won quotes into trackable jobs with milestones
+  and change control, then assign people, machines, and time slots on a capacity-aware
+  schedule, so accepted work moves to delivery without re-entry or dispatch conflicts.
 - **Unified communication timeline** — one chronological feed per contact combining
   calls, emails, texts, and status updates, so staff have full context before they reply.
 - **AI sales assistant** — automated follow-ups, missed-call recovery, suggested next
   actions, and cold-deal flagging, so a busy team's follow-through runs itself.
+- **Workflow automation** — a trigger-condition-action engine that fires notifications,
+  task creation, and stage handoffs off lifecycle events, so routine handoffs across the
+  pipeline run without manual chasing.
 - **Visibility & reporting** — pipeline and performance insight so managers can forecast
   and coach.
 - **Configurability & permissions** — industry-specific custom fields plus role-based
   access that keeps interfaces simple and sensitive data hidden.
 
-## 5. Scope (In / Out)
+## 4. Scope (In / Out)
 
-### In scope
+### In scope — Phase 1 (committed)
 
 - Omnichannel inquiry capture and triage into a single shared queue
-- Unified contact and company relationship management with duplicate detection
+- Unified contact/company relationship management with duplicate detection
 - Adaptive, configurable pipelines (no custom code)
-- Quotation and order generation, including AI-drafted quotes
+- AI sales assistant: follow-up/next-action drafting + cold-deal flagging
+- Structured quotation and order generation
 - Unified per-contact communication timeline
-- AI sales assistant: follow-ups, missed-call recovery, next-action suggestions, and
-  cold-deal flagging
-- Pipeline and performance reporting
+- Pipeline/performance reporting
 - Configurable custom fields and role-based access
+
+### In scope — staged (post Phase-1 slice)
+
+- Missed-call recovery (requires telephony connector)
+- AI-drafted quotes from unstructured inbound (demand-driven; built on concrete requirement)
+
+### Phase 1 Validation Vertical
+
+The first production deployment targets **Print & Signage** operations — businesses
+providing digital printing, commercial offset printing, wide-format output, signage,
+promotional products, and design services. This vertical is selected because it
+concentrates every core platform challenge in one place: high inquiry volume across
+multiple channels, complex per-job quoting, artwork and specification approvals, and
+production scheduling — all managed today by phone, email, and spreadsheets.
+
+Building for this vertical first produces a hardened, battle-tested core. Every
+capability listed under Phase 1 (committed) above is exercised against real Print & Signage
+workflows before any horizontal expansion begins.
+
+Print & Signage-specific workflows validated in Phase 1:
+
+- Job quoting from unstructured inbound requests (phone, email, web form) —
+  rep-driven, using structured catalog + estimation (AI extraction is staged, not Phase 1)
+- Artwork and file specification capture at intake
+- Print production status tracking inside the pipeline
+- Substrate and finishing option configuration on quotes
+- Pickup / delivery coordination as a deal attribute
+
+> These workflows use only the platform's generic pipeline, custom fields, and
+> quotation features — no print-specific code is added. If a workflow requires
+> custom code, it is out of scope for Phase 1.
 
 ### Out of scope
 
@@ -118,22 +179,21 @@ Not part of the product:
 - Accounting / invoicing / payment processing — CuevikSync tracks quotes and orders, not
   financials or collections
 
-## 6. Success Criteria
+## 5. Success Criteria
 
-- **No dropped inquiries** — at least 99% of inbound inquiries across all channels are
-  captured as a record within 2 minutes of arrival.
+- **No dropped inquiries** — ≥99% of inquiries on connected digital channels (email, web form) captured as a record within 2 min; phone and walk-in logged same business day. A missed inquiry is the one failure the product exists to prevent.
 - **Faster response** — median time from inquiry received to first response drops below 1
   hour for teams using the AI assistant.
 - **Pipeline visibility** — 100% of active deals show a current stage and a next action;
   zero deals with no owner or next step.
-- **Follow-through** — at least 90% of AI-flagged cold deals get a follow-up action logged
+- **Follow-through** — at least 90% of flagged cold deals get a follow-up action logged
   within 3 days.
 - **Adoption** — a lean team (10 users or fewer) is fully onboarded and running its live
   pipeline within 3 days of signup, with no custom development.
 - **Quote velocity** — median time from inquiry to quote sent reduced by 50% versus the
   team's prior process.
 
-## 7. Anti-Patterns
+## 6. Anti-Patterns
 
 - **Do not rebuild an enterprise CRM.** The moment setup requires a consultant or an admin
   certification, we have become the heavy tool we are replacing. Every feature must be
@@ -150,3 +210,52 @@ Not part of the product:
   target-user problem in this document; no "nice to have" additions.
 - **Do not sacrifice zero-leak capture for polish.** Reliability of intake beats new
   surface area — a missed inquiry is the one failure the product exists to prevent.
+
+## 7. Target Verticals — Expansion Roadmap
+
+CuevikSync is architected as a single, horizontal platform. Phase 1 validates the
+core platform against a single vertical. Subsequent releases expand to the verticals
+below — each one runs the same platform engine with different pipeline configurations,
+custom field sets, and workflow templates, not different codebases.
+
+> **Rule:** No vertical-specific code enters the platform. Every vertical must be
+> served entirely through configuration — pipelines, custom fields, templates, and
+> role-based access. If serving a vertical requires writing code, that is a signal to
+> extend the generic platform, not to build a vertical fork.
+
+| # | Vertical | Representative Workflows |
+|---|---|---|
+| 1 | **Print Shops** *(Phase 1)* | Job quoting, artwork approval, print scheduling, substrate/ink inventory |
+| 2 | **Contractors** | Estimates, site measurements, change orders, crew scheduling, client approvals |
+| 3 | **Professional Services** | Client intake, proposal-to-contract, document collaboration |
+| 4 | **Manufacturing** | Job tickets, BOMs, production scheduling, quality checks, packaging specs |
+| 5 | **Agencies** | Campaign briefs, asset proofing, client approvals, time & resource tracking |
+| 6 | **Home & Industrial Services** | Dispatching, parts tracking, service scheduling |
+| 7 | **B2B Service Providers** | Contract tracking, SLA tracking, multi-site coordination |
+
+> Representative Workflows describe each vertical's real-world process. CuevikSync
+> covers the inquiry-to-order slice of each; billing, invoicing, and payments are
+> handled by the customer's external finance tools (see §4), never in-product.
+
+### What each vertical expansion requires
+
+- Pipeline template pre-configured for the vertical's deal stages
+- Custom field set covering the vertical's job/project attributes
+- Quote line-item templates for common service or product types
+- Onboarding checklist that gets a team live within 3 days (per Success Criteria)
+
+No vertical ships until the Phase 1 core is stable and the Success Criteria in
+Section 5 are met in production.
+
+## Glossary
+
+Canonical object names used across CuevikSync docs. Informal synonyms in parentheses are
+readable but not canonical — prefer the canonical term in specs.
+
+- **Inquiry** — an inbound request at intake/triage, before qualification (informal: "lead").
+- **Opportunity** — a qualified inquiry in the pipeline, with stage, owner, next action, and
+  expected value/date (informal: "deal").
+- **Quote** — a commercial offer generated from an estimate; tracks version and acceptance.
+- **Job / Order** — a won quote converted into execution work.
+- **Account / Customer** — the relationship entity that inquiries, opportunities, and jobs
+  attach to.
