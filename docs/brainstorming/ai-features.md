@@ -1,4 +1,4 @@
-# AI Features Strategy (Brainstorming Draft)
+﻿# AI Features Strategy (Brainstorming Draft)
 
 **Owner:** Product + Architecture
 **Last updated:** 2026-07-12
@@ -54,7 +54,7 @@ Terminology: this doc's "Lead" maps to the canonical objects in system-modules.m
 - Opportunity win probability prediction
 - Cross-sell / upsell / smart product recommendations
 - Reorder likelihood / dormant-customer flag (predicts repeat buyers overdue for their next order; feeds reorder acceleration in the Customer 360 profile — a one-click clone of the prior order into a new pipeline draft, i.e. a qualified opportunity, not a raw inquiry; system-modules.md)
-- Cold-deal / stalled-deal flagging (Phase-1 slice — see §5)
+- Cold-deal / stalled-deal flagging (Phase 1 slice — see §5)
 
 ### Communication Intelligence
 
@@ -80,7 +80,7 @@ Terminology: this doc's "Lead" maps to the canonical objects in system-modules.m
 ### Search, Analytics, and Leadership Insights
 
 - Natural language CRM search (example: "Show overdue quotes over $10,000")
-- Executive daily briefing with key metrics and priorities (depends on Dashboards & Operational Reporting, Must-have, plus accumulated transactional data; still not a Phase-1 quick win)
+- Executive daily briefing with key metrics and priorities (depends on Dashboards & Operational Reporting, Must-have, plus accumulated transactional data; still not a Phase 1 quick win)
 - AI-powered dashboard narratives explaining changes in sales, production, and revenue (depends on Dashboards & Operational Reporting, Must-have; the AI narrative layer itself is deferred — AI Copilot, Later)
 - Revenue forecasting (base weighted forecast is a deterministic Dashboards rollup per system-modules.md — win-rate × expected value; AI adds an optional predictive adjustment only)
 
@@ -150,19 +150,19 @@ The Wave 1–3 staging in §5 is deliberately hand-sequenced by data readiness a
 
 ## 5) Recommended Rollout Waves
 
-### Phase-1 Required Slice (AI Sales Assist)
+### Post-Thin-Core Candidate Slice (AI Sales Assist)
 
-Per PRODUCT.md §4 and §5, the minimal AI that must ship in Phase 1 (this is narrower than all of Wave 1):
+Per PRODUCT.md and PRD thin-core scoping, this is the minimal AI recommended for the next release after thin-core validation (this is narrower than all of Wave 1):
 
 - Cold-deal flagging — on a hybrid path: a deterministic staleness rule at launch (a new tenant has no closed-deal history to train on), upgrading to a learned risk model as outcome data accumulates. Labeled honestly per maturity — Phase 1 surfaces it as "auto-flagged" (a staleness rule, not yet AI); "AI-flagged" is reserved for the learned model. The PRODUCT.md §5 metric reads "flagged cold deals" so it does not hang on the label (Product decision, 2026-07-12).
 - Follow-up / next-action drafting.
 
-AI-drafted quotes and missed-call recovery are in scope (PRODUCT.md §4) but staged after this slice: missed-call recovery depends on a telephony connector (Later). AI-drafted quotes depend on RFQ / field extraction, which is demand-driven — not on the scheduled roadmap and built only if a concrete requirement arises (see §8). The Wave 1–3 lists below are the fuller AI roadmap — sequenced, but not all Phase-1.
+AI-drafted quotes and missed-call recovery remain staged after this slice: missed-call recovery depends on a telephony connector (Later). AI-drafted quotes depend on RFQ / field extraction, which is demand-driven — not on the scheduled roadmap and built only if a concrete requirement arises (see §8). The Wave 1–3 lists below are the fuller AI roadmap — sequenced, but not all near-term releases.
 
 ### Wave 1 (Quick Wins, High Adoption)
 
 - Lead summaries
-- Follow-up / next-action drafting (Phase-1 required slice — see above)
+- Follow-up / next-action drafting (Post-Thin-Core candidate slice — see above)
 - Natural language search
 
 ### Wave 2 (Decision Support)
@@ -208,12 +208,12 @@ AI-drafted quotes and missed-call recovery are in scope (PRODUCT.md §4) but sta
 
 ## 7) Success Metrics
 
-AI metrics ladder up to the PRODUCT.md §5 success criteria — each AI metric must move one of those committed targets:
+AI metrics ladder up to PRODUCT.md §5 outcomes — each AI metric must move one of the owned Post-Thin-Core targets:
 
 - First-response time: median inquiry-to-first-response < 1 hour for teams using the AI assistant (PRODUCT.md §5). Driver: follow-up / next-action drafting, cold-deal flagging.
-- Quote velocity: median inquiry-to-quote-sent reduced ≥ 50% vs the team's prior process (PRODUCT.md §5). Driver: the Must-have Service Catalog + Estimation Engine + Quote Management (structured quoting replacing spreadsheets) — a non-AI lever. AI-drafted quotes (demand-driven, not Phase-1) would add further gains but are not required to hit −50%.
-- Cold-deal follow-through: ≥ 90% of flagged cold deals get a follow-up logged within 3 days (PRODUCT.md §5). Driver: cold-deal flagging.
-- Capture reliability: AI extraction must not lower the ≥ 99% capture-within-2-min bar (PRODUCT.md §5) or add intake latency.
+- Quote velocity: median inquiry-to-quote-sent reduced >= 50% vs the team's prior process (PRODUCT.md §5). Driver: planned service-catalog depth + estimation + quote workflow improvements (structured quoting replacing spreadsheets) — a non-AI lever. AI-drafted quotes (demand-driven, Post-Thin-Core) would add further gains but are not required to hit a 50% reduction.
+- Cold-deal follow-through: >= 90% of flagged cold deals get a follow-up logged within 3 days (PRODUCT.md §5). Driver: cold-deal flagging.
+- Capture reliability: AI extraction must not lower the >= 99% capture-within-2-min bar (PRODUCT.md §5) or add intake latency.
 - Margin improvement on quoted deals (pricing / margin recommendations).
 - Conversion and win-rate uplift (lead scoring, win-probability).
 - Reduction in delivery and production delays (operational delay prediction).
@@ -224,7 +224,7 @@ AI metrics ladder up to the PRODUCT.md §5 success criteria — each AI metric m
 
 Resolved:
 
-- Mandatory Phase-1 AI Sales Assist slice (2): cold-deal flagging (rule-based staleness at launch — surfaced as "auto-flagged", not "AI-flagged" — upgrading to a learned model as data accumulates) and follow-up / next-action drafting (LLM). RFQ extraction and AI-drafted quotes are explicitly NOT Phase-1 — demand-driven future enhancements, built only if a concrete requirement arises. (Resolved 2026-07-06; RFQ scope confirmed 2026-07-12; cold-deal labeling corrected 2026-07-12.)
+- AI Sales Assist slice approved for Post-Thin-Core prioritization (2): cold-deal flagging (rule-based staleness at launch — surfaced as "auto-flagged", not "AI-flagged" — upgrading to a learned model as data accumulates) and follow-up / next-action drafting (LLM). RFQ extraction and AI-drafted quotes are explicitly out of thin-core — demand-driven future enhancements, built only if a concrete requirement arises. (Resolved 2026-07-06; RFQ scope confirmed 2026-07-12; cold-deal labeling corrected 2026-07-12.)
 
 Still open:
 
@@ -235,3 +235,5 @@ Still open:
 ## 9) Strategic Positioning Statement
 
 CuevikSync should position AI as an embedded productivity and intelligence layer across CRM, quoting, delivery, and operations. The goal is measurable operational leverage, not AI for novelty.
+
+
