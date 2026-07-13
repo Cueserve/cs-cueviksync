@@ -1,4 +1,4 @@
-# PRODUCT.md — Product Concept
+﻿# PRODUCT.md — Product Concept
 
 **Owner:** Product Owner
 **Last updated:** 2026-07-12
@@ -9,15 +9,17 @@
 
 ## Document References
 
-| # | Document | Role |
-| --- | --- | --- |
-| 1 | PRODUCT.md | What we are building and why |
-| 2 | PRD.md | Testable requirements |
-| 3 | ARCHITECTURE.md | System structure & design decisions |
-| 4 | TECH-STACK.md | Approved technologies & usage rules |
-| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools |
-| 6 | README.md | Setup, env config, how to run |
-| 7 | BACKLOG.md | Epics/stories manifest |
+Document availability and maturity are tracked in README.md (Documentation Status).
+
+| # | Document | Role | Status |
+| --- | --- | --- | --- |
+| 1 | PRODUCT.md | What we are building and why | Present |
+| 2 | PRD.md | Testable requirements | Present |
+| 3 | ARCHITECTURE.md | System structure & design decisions | Planned |
+| 4 | TECH-STACK.md | Approved technologies & usage rules | Planned |
+| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools | Planned |
+| 6 | README.md | Setup, env config, how to run | Present |
+| 7 | BACKLOG.md | Epics/stories manifest | Planned |
 
 ---
 
@@ -62,14 +64,16 @@ shop — can each run their own process on the same system. A team of ten or few
 onboarded and working its live pipeline within days, with no consultant and no custom
 development.
 
-This document describes the full product model and the intended end-state scope of
-**Phase 1**. PRD.md narrows that into the **Phase 1 thin-core release** — the first
-release inside Phase 1 — and later PRDs define the remaining committed Phase-1 slices.
+This document describes the full product model and the current committed scope for
+**Phase 1 thin-core**. Broader capabilities described here remain roadmap intent and
+become commitment only when captured in an approved PRD.
 
 ## 2. Target Users
 
 > In a lean team, one person often wears several of these hats — the owner may
 > also sell, the salesperson may also quote. These are roles, not headcount.
+> Thin-core baseline RBAC roles map to these personas: Owner/Admin, Sales Manager,
+> Sales Rep, and Office Administrator.
 
 - **Business owner** — runs the business and often closes deals too,
   but has no single view of the pipeline, so inquiries slip through and revenue
@@ -120,41 +124,38 @@ release inside Phase 1 — and later PRDs define the remaining committed Phase-1
 
 ## 4. Scope (In / Out)
 
-### In scope — Phase 1 end state (committed)
+### In scope — Phase 1 thin-core release (committed)
 
 - Omnichannel inquiry capture and triage into a single shared queue
 - Unified contact/company relationship management with duplicate detection
 - Adaptive, configurable pipelines (no custom code)
+- Basic quotation (manual line items from a flat catalog plus free-form lines)
+- Configurable custom fields and role-based access
+
+> **Commitment rule:** This section is the only committed Phase 1 scope.
+> Any broader capabilities described elsewhere in this document are roadmap intent
+> and become commitment only when promoted into an approved PRD.
+
+### Planned roadmap after thin-core (timing TBD)
+
 - Configurable service catalog — attribute-matrix sellable units with modifier options
 - Structured estimation engine — formulas, quantity-tier price breaks, and a margin-floor guardrail
-- Structured quotation and order generation
+- Structured quotation and order generation depth beyond thin-core
 - Project/job/order execution — won quotes converted to trackable work with milestones and change control
 - AI sales assistant: follow-up/next-action drafting + cold-deal flagging
 - Unified per-contact communication timeline
 - Pipeline/performance reporting
-- Configurable custom fields and role-based access
-
-> **Release slicing rule:** This section describes the intended Phase 1 end state.
-> PRD.md defines the **Phase 1 thin-core release** that ships first inside Phase 1:
-> inquiry capture, contact/company management, adaptive pipelines, basic quotation,
-> custom fields, and role-based access. The remaining committed Phase-1 items
-> ship in later Phase-1 releases.
-> **Phase-1 scope boundary:** Phase 1 ships configuration only — pipelines, custom
-> fields, templates, and quotation — and is validated against a single vertical
-> (Print & Signage; see §7). Any workflow that requires custom code is out of Phase 1 scope.
-
-### In scope — later Phase-1 releases
 
 - Work Orders & Scheduling — capacity-aware resource assignment and calendar scheduling on
   top of job execution (depth pending the scheduling-scope decision: calendar + assignment
   vs. full capacity planning)
 - Workflow Automation — trigger-condition-action orchestration of lifecycle events;
   the Phase 1 thin-core release emits the stage/lifecycle events, while automated
-  reactions ship in a later Phase-1 release
+  reactions ship in a later Phase 1 release
 - Missed-call recovery (requires telephony connector)
 - AI-drafted quotes from unstructured inbound (demand-driven; built on concrete requirement)
 
-### In scope — post-Phase-1 releases
+### In scope — post-Phase 1 releases
 
 Planned for releases after Phase 1, demand-driven — not committed to Phase 1:
 
@@ -174,17 +175,19 @@ Not part of the product:
 
 ## 5. Success Criteria
 
-- **No dropped inquiries** — ≥99% of inquiries on connected digital channels (email, web form) captured as a record within 2 min; phone and walk-in logged same business day. A missed inquiry is the one failure the product exists to prevent.
-- **Faster response** — median time from inquiry received to first response drops below 1
-  hour for teams using the AI assistant.
-- **Pipeline visibility** — 100% of active deals show a current stage and a next action;
-  zero deals with no owner or next step.
-- **Follow-through** — at least 90% of flagged cold deals get a follow-up action logged
-  within 3 days.
-- **Adoption** — a lean team (10 users or fewer) is fully onboarded and running its live
-  pipeline within 3 days of signup, with no custom development.
-- **Quote velocity** — median time from inquiry to quote sent reduced by 50% versus the
-  team's prior process.
+### Thin-Core Release Outcomes (Committed)
+
+- **No dropped inquiries** — >= 99% of inquiries on connected digital channels (email, web form) are captured as records within 2 min; for manual channels, >= 95% of phone and walk-in inquiries are logged the same business day (100% by next business day) and >= 95% of manually logged email inquiries are captured within 4 business hours. A missed inquiry is the one failure the product exists to prevent.
+- **Pipeline visibility** — 100% of active deals show a current stage and a next action; zero deals with no owner or next step.
+- **Adoption** — a lean team (10 users or fewer) is fully onboarded and running its live pipeline within 3 days of signup, with no custom development.
+
+### Post-Thin-Core Outcomes (Owned Roadmap Targets)
+
+- **Faster response** — median time from inquiry received to first response drops below 1 hour for teams using the AI assistant.
+- **Follow-through** — at least 90% of flagged cold deals get a follow-up action logged within 3 days.
+- **Quote velocity** — median time from inquiry to quote sent reduced by 50% versus the team's prior process.
+
+Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD carry-forward table.
 
 ## 6. Anti-Patterns
 
@@ -225,15 +228,15 @@ concentrates every core platform challenge in one place: high inquiry volume acr
 multiple channels, complex per-job quoting, artwork and specification approvals, and
 production scheduling — all managed today by phone, email, and spreadsheets.
 
-Building for this vertical first produces a hardened, battle-tested core. Every
-capability in the Phase 1 end state described in §4 is exercised against real Print & Signage
-workflows before any horizontal expansion begins.
+Building for this vertical first produces a hardened, battle-tested core. Thin-core
+capabilities from §4 are exercised first against real Print & Signage workflows,
+and broader roadmap capabilities are validated in later releases.
 
 Print & Signage workflows validated in Phase 1:
 
 - Job quoting from unstructured inbound requests (phone, email, web form) —
   rep-driven, using structured catalog + estimation (AI extraction is deferred to a
-  later Phase-1 release, not the Phase-1 thin-core release)
+  later Phase 1 release, not the Phase 1 thin-core release)
 - Artwork and file specification capture at intake
 - Print production status tracking inside the pipeline
 - Substrate and finishing option configuration on quotes
@@ -275,3 +278,5 @@ readable but not canonical — prefer the canonical term in specs.
 - **Job / Order** — a won quote converted into execution work.
 - **Account / Customer** — the relationship entity that inquiries, opportunities, and jobs
   attach to.
+
+

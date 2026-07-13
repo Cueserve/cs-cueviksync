@@ -1,4 +1,4 @@
-# PRD.md — Product Requirements Document
+﻿# PRD.md — Product Requirements Document
 
 **Owner:** Product Owner
 **Last updated:** 2026-07-13
@@ -9,15 +9,17 @@
 
 ## Document References
 
-| # | Document | Role |
-| --- | --- | --- |
-| 1 | PRODUCT.md | What we are building and why |
-| 2 | PRD.md | Testable requirements |
-| 3 | ARCHITECTURE.md | System structure & design decisions |
-| 4 | TECH-STACK.md | Approved technologies & usage rules |
-| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools |
-| 6 | README.md | Setup, env config, how to run |
-| 7 | BACKLOG.md | Epics/stories manifest |
+Document availability and maturity are tracked in README.md (Documentation Status).
+
+| # | Document | Role | Status |
+| --- | --- | --- | --- |
+| 1 | PRODUCT.md | What we are building and why | Present |
+| 2 | PRD.md | Testable requirements | Present |
+| 3 | ARCHITECTURE.md | System structure & design decisions | Planned |
+| 4 | TECH-STACK.md | Approved technologies & usage rules | Planned |
+| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools | Planned |
+| 6 | README.md | Setup, env config, how to run | Present |
+| 7 | BACKLOG.md | Epics/stories manifest | Planned |
 
 ---
 
@@ -31,7 +33,7 @@
 6. [Functional Requirements](#6-functional-requirements)
 7. [Non-Functional Requirements](#7-non-functional-requirements)
 8. [Acceptance Criteria](#8-acceptance-criteria)
-9. [Out of Scope (Phase 1 Thin-Core Release)](#9-out-of-scope-phase-1-thin-core-release)
+9. [Out of Scope (Phase 1 Thin-Core Release)](#9-out-of-scope-Phase 1-thin-core-release)
 10. [Dependencies & Assumptions](#10-dependencies--assumptions)
 11. [Constraints (Non-Architectural)](#11-constraints-non-architectural)
 12. [Risks & Edge Cases](#12-risks--edge-cases)
@@ -50,7 +52,11 @@ The Phase 1 thin-core release covers inquiry capture, contact/company management
 adaptive pipelines, basic quotation, custom fields, and role-based access. It is
 validated against Print & Signage operations (see PRODUCT.md §7). Estimation depth,
 job execution, the AI sales assistant, workflow automation, and reporting are
-deferred to later Phase-1 PRDs and listed in §9.
+deferred to later Phase 1 PRDs and listed in §9.
+
+This PRD defines the only committed Phase 1 release scope at this time (thin-core).
+Any broader capabilities mentioned in PRODUCT.md or brainstorming docs are roadmap
+intent, not a Phase 1 commitment, until a subsequent PRD is approved.
 
 Core goals for this release:
 
@@ -63,6 +69,8 @@ Core goals for this release:
 
 Canonical role definitions live in PRODUCT.md §2. This PRD uses the subset of
 those product roles that directly touch the thin-core capture-to-quote loop.
+The thin-core RBAC baseline uses these same four roles: Owner/Admin, Sales Manager,
+Sales Rep, and Office Administrator (see PRD-024).
 
 - **Office administrator** — capture inbound inquiries into the shared queue.
 - **Sales rep** — triage, qualify, own, and quote opportunities.
@@ -89,7 +97,7 @@ Every feature in §4 traces to one of these problems.
 - **PS-4 — Quoting is slow and ad hoc.** Quotes are assembled by hand in
   spreadsheets, so they go out late and inconsistently. This release addresses basic
   quote creation and tracking; speed gains from the estimation engine land in a later
-  Phase-1 PRD.
+  Phase 1 PRD.
 - **PS-5 — Sensitive data is over-exposed.** Without role-based access everyone sees
   everything; even a lean team needs to scope who can see and edit what.
 
@@ -178,6 +186,12 @@ MoSCoW priority (Must / Should / Could).
   qualify an inquiry into an opportunity, attaching it to a contact and a company.
   Qualification is the handoff from triage into the pipeline. The resulting
   opportunity links back to the originating inquiry for traceability.
+- **PRD-028** — ***Manual-channel logging SLA*** *(Must)* — The system MUST track
+  whether manually logged channels meet a same-business-day intake discipline.
+  For phone and walk-in channels, at least 95% of inquiries MUST be logged the same
+  business day and 100% by the next business day. For manually logged email, at least
+  95% MUST be logged within 4 business hours. This keeps non-automated channels from
+  becoming silent leak paths.
 
 ### Contact & Company Management
 
@@ -237,7 +251,9 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-020** — ***Quote issuance*** *(Must)* — The system MUST let a user produce a
   printable or shareable quote document, mark the quote as sent, and record the send
   timestamp. Sending is an explicit human action; nothing goes to a customer
-  automatically. This preserves human control over every customer-facing artifact.
+  automatically. Delivery MAY happen through an in-product email integration or an
+  external channel chosen by the user, but marking sent MUST always be an explicit
+  user action. This preserves human control over every customer-facing artifact.
 - **PRD-021** — ***Catalog maintenance*** *(Should)* — The system SHOULD let an
   administrator add, edit, and deactivate flat catalog items with a unit price. A
   deactivated item SHOULD no longer appear in the line-item picker. This keeps the
@@ -255,17 +271,30 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-023** — ***Authentication*** *(Must)* — The system MUST authenticate a user
   before granting access to any record. Unauthenticated requests MUST be denied.
   Access control has no meaning without a verified identity.
-- **PRD-024** — ***Distinct roles*** *(Must)* — The system MUST support at least two
-  roles with distinct permission sets, such as administrator and member. Assigning a
-  role MUST change what the user can see and do. Roles are the unit that scopes access.
+- **PRD-024** — ***Baseline thin-core roles*** *(Must)* — The system MUST support
+  these four roles with distinct permission sets: Owner/Admin, Sales Manager,
+  Sales Rep, and Office Administrator. Assigning one of these roles MUST change
+  what the user can see and do. Roles are the unit that scopes access.
+- **PRD-027** — ***Baseline permission boundaries*** *(Must)* — The system MUST enforce
+  this minimum permission baseline for thin-core roles:
+  - Owner/Admin: full read/write on inquiry, contact, company, opportunity, and quote
+    records; can configure pipelines, custom fields, catalog, users, and role assignments.
+  - Sales Manager: read/write on inquiry, contact, company, opportunity, and quote
+    records; can assign ownership and update stage/next action; cannot access admin
+    configuration or role assignment.
+  - Sales Rep: read/write on opportunities and quotes they own, plus shared inquiry queue
+    access for triage and qualification; cannot access admin configuration or role assignment.
+  - Office Administrator: create and update inquiry records and related contact/company
+    basics; view shared inquiry queue; cannot configure system structure, cannot assign roles,
+    and cannot administer pipeline/catalog settings.
 - **PRD-025** — ***Server-side enforcement*** *(Must)* — The system MUST enforce
   role-based visibility and edit rights on records server-side, not by hiding data in
   the client alone. A user whose role lacks access MUST be denied even if the client
   is bypassed. This prevents access rules from being trivially circumvented.
 - **PRD-026** — ***Admin-only configuration*** *(Must)* — The system MUST restrict
-  pipeline, custom-field, and catalog configuration to an administrator role.
-  Non-administrators MUST NOT reach those configuration screens or endpoints. This
-  keeps structural changes in trusted hands.
+  pipeline, custom-field, and catalog configuration to the Owner/Admin role.
+  Non-admin roles MUST NOT reach those configuration screens or endpoints. This keeps
+  structural changes in trusted hands.
 
 ## 7. Non-Functional Requirements
 
@@ -277,7 +306,7 @@ latency is written `p95` / `p99`.
 - **NFR-002 — Capture reliability.** At least 99% of web-form submissions received at
   the intake endpoint MUST be persisted as inquiry records, with no silent drops.
 - **NFR-003 — Capture availability.** The web-form intake endpoint MUST maintain
-  ≥ 99.5% monthly uptime, because a missed inquiry is the product's defining failure.
+  >= 99.5% monthly uptime, because a missed inquiry is the product's defining failure.
 - **NFR-004 — Onboarding time.** A team of 10 users or fewer MUST be able to configure
   a pipeline, custom fields, roles, and a flat catalog and begin logging live
   inquiries within 3 days of signup, with no custom development.
@@ -286,14 +315,14 @@ latency is written `p95` / `p99`.
 - **NFR-006 — Scale.** The system MUST support at least 10 concurrent users and 50,000
   inquiry records per tenant without breaching the NFR-005 latency targets.
 - **NFR-007 — Credential security.** User passwords MUST be stored using a memory-hard
-  hash (Argon2id, or bcrypt with work factor ≥ 12); no plaintext credentials are
+  hash (Argon2id, or bcrypt with work factor >= 12); no plaintext credentials are
   stored anywhere.
 - **NFR-008 — Access enforcement.** RBAC checks MUST be enforced server-side on every
   record read and write.
 - **NFR-009 — Transport security.** All traffic MUST be served over Transport Layer
   Security (TLS) 1.2 or higher.
 - **NFR-010 — Durability.** Committed inquiry, contact, opportunity, and quote records
-  MUST be recoverable with a Recovery Point Objective (RPO) of ≤ 24 hours.
+  MUST be recoverable with a Recovery Point Objective (RPO) of <= 24 hours.
 - **NFR-011 — Auditability.** Stage changes and quote status changes MUST record the
   acting user and a timestamp.
 - **NFR-012 — Accessibility.** Primary capture and pipeline screens SHOULD meet Web
@@ -305,10 +334,23 @@ Testable conditions that define "done" for each requirement.
 
 > **Success-criteria scope.** This release binds acceptance to PRODUCT.md §5 criteria
 > it can prove: zero-leak web-form capture (NFR-001, NFR-002), pipeline visibility
-> (PRD-012), and 3-day onboarding (NFR-004). The three criteria that depend on
+> (PRD-012), manual-channel discipline (PRD-028), and 3-day onboarding (NFR-004). The three criteria that depend on
 > deferred features — median first response < 1 hour (AI assistant), quote velocity
 > −50% (estimation engine), and 90% cold-deal follow-through (AI flagging) — are
-> **later Phase-1 release targets** and are not part of this release's definition of done.
+> **Post-Thin-Core release targets** and are not part of this release's definition of done.
+
+### Phase 1 Outcome Carry-Forward (Post-Thin-Core)
+
+Deferred outcomes remain owned and measurable. Any PRD that claims these outcomes MUST
+include mapped requirements and acceptance criteria before approval.
+
+| Outcome ID | Product outcome | Owner role | Target release PRD | Measurement method | Exit target |
+| --- | --- | --- | --- | --- | --- |
+| OUT-001 | Faster response | Product Owner + Sales Lead | Post-Thin-Core AI Sales Assist PRD | Median elapsed time from inquiry capture timestamp to first outbound response timestamp, measured weekly on production data | Median < 1 hour for teams using AI assist features |
+| OUT-002 | Quote velocity | Product Owner + Revenue Operations | Post-Thin-Core Estimation & Quotation Depth PRD | Median elapsed time from inquiry capture timestamp to quote-sent timestamp, measured against pre-implementation baseline cohort | Median time reduced by 50% versus prior process |
+| OUT-003 | Cold-deal follow-through | Product Owner + Sales Manager | Post-Thin-Core AI Sales Assist PRD | Percentage of flagged cold opportunities with a logged follow-up action within 3 calendar days, measured weekly | >= 90% follow-through within 3 days |
+
+Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish status in the release readiness checklist for each Post-Thin-Core PRD.
 
 | Requirement ID | Acceptance criteria |
 | --- | --- |
@@ -319,6 +361,7 @@ Testable conditions that define "done" for each requirement.
 | PRD-005 | A user can change an inquiry's priority between High and Normal and the change persists on reload. |
 | PRD-006 | With mixed inquiries present, the default queue order or filter places High-priority and unassigned inquiries above Normal or assigned ones. |
 | PRD-007 | A user can convert an inquiry into an opportunity and attach an existing or new contact and company; the opportunity links back to the originating inquiry. |
+| PRD-028 | Over a rolling 2-week sample, >= 95% of phone and walk-in inquiries are logged the same business day and 100% by next business day; >= 95% of manually logged email inquiries are logged within 4 business hours. |
 | PRD-008 | A user can create, view, edit, and delete a contact and a company; deleting a record that has linked opportunities warns before proceeding. |
 | PRD-009 | A contact can be linked to two or more companies and each association is visible from the contact record. |
 | PRD-010 | Creating a contact or company whose name or email matches an existing record shows a duplicate warning listing the suspected match; the user can proceed or cancel. |
@@ -331,16 +374,17 @@ Testable conditions that define "done" for each requirement.
 | PRD-017 | A quote line can be added from a catalog item (name and unit price pre-filled) or entered free-form; each line has an editable quantity and unit price. |
 | PRD-018 | The displayed quote total equals the sum of (quantity × unit price) across lines and updates when any line changes. |
 | PRD-019 | A quote status can move draft → sent → accepted or declined; an invalid transition (for example accepted → draft) is rejected. |
-| PRD-020 | A user can generate a printable or shareable quote document and mark the quote sent; the send timestamp is recorded and shown. |
+| PRD-020 | A user can generate a printable or shareable quote document and mark the quote sent; the send timestamp is recorded and shown whether delivery is done via in-app email integration or an external/manual channel. |
 | PRD-021 | An administrator can add, edit, and deactivate catalog items with a unit price; a deactivated item no longer appears in the line-item picker. |
 | PRD-022 | An administrator can add a custom field to a record type without a code deploy; the field appears on that record's form and its value persists. |
 | PRD-023 | An unauthenticated request for any record is denied and redirected to sign-in; no record data is returned. |
-| PRD-024 | At least two roles exist with different permission sets, and assigning a role changes what the user can see and do. |
+| PRD-024 | The system provides exactly the thin-core baseline roles (Owner/Admin, Sales Manager, Sales Rep, Office Administrator), and changing a user's role changes accessible screens and allowed actions accordingly. |
+| PRD-027 | Permission checks match the baseline boundaries: Owner/Admin can configure and assign roles; Sales Manager can manage pipeline work but cannot access admin configuration; Sales Rep can manage owned opportunities/quotes plus shared inquiry triage; Office Administrator can log/manage inquiries but cannot access configuration or role assignment. |
 | PRD-025 | A user whose role lacks read access to a record cannot retrieve it through the UI or a direct record request; the denial is enforced server-side, not merely hidden in the UI. |
-| PRD-026 | A non-administrator cannot open or call the pipeline, custom-field, or catalog configuration screens or endpoints. |
+| PRD-026 | A non-admin role cannot open or call the pipeline, custom-field, or catalog configuration screens or endpoints. |
 | NFR-001 | Under test, 99% of web-form submissions surface as records within 2 minutes (measured at p99). |
-| NFR-002 | In a batch of submissions to the intake endpoint, ≥ 99% are persisted as records and zero are dropped without an error being recorded. |
-| NFR-003 | Monitored over a calendar month, the intake endpoint reports ≥ 99.5% uptime. |
+| NFR-002 | In a batch of submissions to the intake endpoint, >= 99% are persisted as records and zero are dropped without an error being recorded. |
+| NFR-003 | Monitored over a calendar month, the intake endpoint reports >= 99.5% uptime. |
 | NFR-004 | A fresh 10-user team completes pipeline, field, role, and catalog setup and logs a live inquiry within 3 days, using configuration only. |
 | NFR-005 | Load test with 10 concurrent users shows queue, pipeline, and record views returning in p95 < 2 s and p99 < 5 s. |
 | NFR-006 | With 50,000 inquiry records and 10 concurrent users, NFR-005 latency targets still hold. |
@@ -353,8 +397,8 @@ Testable conditions that define "done" for each requirement.
 
 ## 9. Out of Scope (Phase 1 Thin-Core Release)
 
-Explicit exclusions for the Phase 1 thin-core release. Each moves to a later Phase-1
-PRD or a post-Phase-1 PRD unless noted as permanently out.
+Explicit exclusions for the Phase 1 thin-core release. Each moves to a later Phase 1
+PRD or a post-Phase 1 PRD unless noted as permanently out.
 
 - **Automated email and phone ingestion** — email-to-record parsing and telephony
   capture; only the web form auto-ingests this release, and email, phone, and
@@ -388,9 +432,9 @@ PRD or a post-Phase-1 PRD unless noted as permanently out.
 - **Web-form intake endpoint** — auto-capture depends on a hosted form or webhook
   receiver embedded in the customer's site; if it is not embedded, web-form
   auto-capture does not occur and all channels fall back to manual logging.
-- **Outbound email service** — sending a quote depends on a configured email or
-  transactional-mail provider; without it a quote can be produced but not delivered
-  from within the product.
+- **Outbound email service (optional for in-app delivery)** — in-product email delivery
+  depends on a configured email or transactional-mail provider. Without it, a quote
+  can still be shared through external/manual channels and then marked sent in-product.
 - **User identity / authentication** — accounts are provisioned and an authentication
   mechanism exists before RBAC can apply (see PRD-023).
 - **Assumption: SMB scale** — teams are 10 users or fewer; sizing, performance
@@ -421,14 +465,20 @@ PRD or a post-Phase-1 PRD unless noted as permanently out.
 
 ## 12. Risks & Edge Cases
 
-| Risk / edge case | Impact | Handling |
+Rows that cite PRD/NFR IDs are in-scope controls for this release. Rows without
+explicit requirement IDs are candidate mitigations for later PRDs and are not
+thin-core commitments.
+
+| Risk / edge case | Impact | Mapped control or candidate mitigation |
 | --- | --- | --- |
-| Duplicate or spam web-form submissions | Queue floods with junk and real leads are buried | Rate-limit and spam-filter the intake endpoint; dedup on submission; allow manual dismiss/merge |
-| Web-form endpoint downtime | Inbound inquiries lost during an outage — the one failure the product exists to prevent | NFR-003 uptime target; webhook retry/queue on the receiver; alert on intake failures |
-| Malformed or partial web-form payload | Record created with missing fields, or submission rejected and lost | Accept and flag incomplete records for manual completion; never reject and drop a lead |
-| Manual channels not logged | Email, phone, and walk-in still depend on staff discipline, so leaks persist | Fast manual-log UI; residual risk flagged explicitly; automated ingestion moves to the next PRD |
-| Duplicate-detection false positive/negative | Records wrongly merged or left fragmented | Warn, do not block, on create (PRD-010); provide manual merge; tune match rules |
-| Free-form quote line priced wrong | An incorrect total reaches the customer | Total auto-computed (PRD-018); explicit human send step (PRD-020) forces review |
-| RBAC misconfiguration | Sensitive data exposed, or legitimate work blocked | Default-deny for non-admin roles; server-side enforcement (NFR-008); admin-only config (PRD-026) |
-| Over-configuration at setup | An over-complex pipeline or field set blows the 3-day onboarding budget | Ship Print & Signage starter defaults and an onboarding checklist |
-| Concurrent edits to one opportunity | Two users move the same deal and one change is lost | Record actor and timestamp on every change (NFR-011); last-write-wins with visible history, or optimistic lock |
+| Duplicate or spam web-form submissions | Queue floods with junk and real leads are buried | Candidate: rate-limit/spam-filter intake, submission dedup, and manual dismiss/merge workflow in a later PRD. |
+| Web-form endpoint downtime | Inbound inquiries lost during an outage — the one failure the product exists to prevent | Mapped: NFR-003 uptime target (plus operational alerting/runbook design in implementation docs). |
+| Malformed or partial web-form payload | Record created with missing fields, or submission rejected and lost | Candidate: accept/flag incomplete payloads for manual completion and avoid silent drops, to be formalized in a later PRD if selected. |
+| Manual channels not logged | Email, phone, and walk-in still depend on staff discipline, so leaks persist | Mapped: PRD-028 manual-channel SLA metrics and escalation path. |
+| Duplicate-detection false positive/negative | Records wrongly merged or left fragmented | Mapped + candidate: PRD-010 warning-on-create is in scope; manual-merge/tuning rules are candidate later enhancements. |
+| Free-form quote line priced wrong | An incorrect total reaches the customer | Mapped: PRD-018 total auto-calculation plus PRD-020 explicit human send action. |
+| RBAC misconfiguration | Sensitive data exposed, or legitimate work blocked | Mapped: NFR-008 server-side enforcement and PRD-026 admin-only configuration scope. |
+| Over-configuration at setup | An over-complex pipeline or field set blows the 3-day onboarding budget | Candidate: starter defaults and onboarding checklist depth to be defined in implementation docs/later PRD. |
+| Concurrent edits to one opportunity | Two users move the same deal and one change is lost | Mapped + candidate: NFR-011 actor/timestamp audit is in scope; conflict strategy (last-write-wins vs optimistic lock) is candidate implementation design. |
+
+
