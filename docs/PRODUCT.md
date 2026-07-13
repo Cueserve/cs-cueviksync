@@ -2,7 +2,7 @@
 
 **Owner:** Product Owner
 **Last updated:** 2026-07-12
-**Source of truth for:** what CuevikSync is and why it exists — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, with MVP validated against Print & Signage operations.
+**Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
 
 > Derived from: (none — starting point)
 > Downstream: PRD.md, README.md, BACKLOG.md
@@ -62,6 +62,10 @@ shop — can each run their own process on the same system. A team of ten or few
 onboarded and working its live pipeline within days, with no consultant and no custom
 development.
 
+This document describes the full product model and the intended end-state scope of
+**Phase 1**. PRD.md narrows that into the **Phase 1 thin-core release** — the first
+release inside Phase 1 — and later PRDs define the remaining committed Phase-1 slices.
+
 ## 2. Target Users
 
 > In a lean team, one person often wears several of these hats — the owner may
@@ -116,7 +120,7 @@ development.
 
 ## 4. Scope (In / Out)
 
-### In scope — Phase 1 (committed)
+### In scope — Phase 1 end state (committed)
 
 - Omnichannel inquiry capture and triage into a single shared queue
 - Unified contact/company relationship management with duplicate detection
@@ -130,23 +134,29 @@ development.
 - Pipeline/performance reporting
 - Configurable custom fields and role-based access
 
+> **Release slicing rule:** This section describes the intended Phase 1 end state.
+> PRD.md defines the **Phase 1 thin-core release** that ships first inside Phase 1:
+> inquiry capture, contact/company management, adaptive pipelines, basic quotation,
+> custom fields, and role-based access. The remaining committed Phase-1 items
+> ship in later Phase-1 releases.
 > **Phase-1 scope boundary:** Phase 1 ships configuration only — pipelines, custom
 > fields, templates, and quotation — and is validated against a single vertical
 > (Print & Signage; see §7). Any workflow that requires custom code is out of Phase 1 scope.
 
-### In scope — staged (post Phase-1 slice)
+### In scope — later Phase-1 releases
 
 - Work Orders & Scheduling — capacity-aware resource assignment and calendar scheduling on
   top of job execution (depth pending the scheduling-scope decision: calendar + assignment
   vs. full capacity planning)
 - Workflow Automation — trigger-condition-action orchestration of lifecycle events;
-  Phase-1 emits stage/lifecycle events, but automated reactions ship here
+  the Phase 1 thin-core release emits the stage/lifecycle events, while automated
+  reactions ship in a later Phase-1 release
 - Missed-call recovery (requires telephony connector)
 - AI-drafted quotes from unstructured inbound (demand-driven; built on concrete requirement)
 
-### In scope — deferred (Later / market-driven)
+### In scope — post-Phase-1 releases
 
-Planned for later releases, demand-driven — not committed to a Phase:
+Planned for releases after Phase 1, demand-driven — not committed to Phase 1:
 
 - AI scheduling / appointment booking
 - Mobile field-capture app (voice dictation) — no native mobile surface in this release
@@ -197,7 +207,7 @@ Not part of the product:
 ## 7. Target Verticals — Expansion Roadmap
 
 CuevikSync is architected as a single, horizontal platform. Phase 1 validates the
-core platform against a single vertical. Subsequent releases expand to the verticals
+core platform against a single vertical. Releases after Phase 1 expand to the verticals
 below — each one runs the same platform engine with different pipeline configurations,
 custom field sets, and workflow templates, not different codebases.
 
@@ -216,20 +226,21 @@ multiple channels, complex per-job quoting, artwork and specification approvals,
 production scheduling — all managed today by phone, email, and spreadsheets.
 
 Building for this vertical first produces a hardened, battle-tested core. Every
-capability listed under §4 Phase 1 (committed) is exercised against real Print & Signage
+capability in the Phase 1 end state described in §4 is exercised against real Print & Signage
 workflows before any horizontal expansion begins.
 
 Print & Signage workflows validated in Phase 1:
 
 - Job quoting from unstructured inbound requests (phone, email, web form) —
-  rep-driven, using structured catalog + estimation (AI extraction is staged, not Phase 1)
+  rep-driven, using structured catalog + estimation (AI extraction is deferred to a
+  later Phase-1 release, not the Phase-1 thin-core release)
 - Artwork and file specification capture at intake
 - Print production status tracking inside the pipeline
 - Substrate and finishing option configuration on quotes
 - Pickup / delivery coordination as a deal attribute
 
 | # | Vertical | Representative Workflows |
-|---|---|---|
+| --- | --- | --- |
 | 1 | **Print Shops** *(Phase 1)* | Job quoting, artwork approval, print scheduling, substrate/ink inventory |
 | 2 | **Contractors** | Estimates, site measurements, change orders, crew scheduling, client approvals |
 | 3 | **Professional Services** | Client intake, proposal-to-contract, document collaboration |
@@ -249,7 +260,7 @@ Print & Signage workflows validated in Phase 1:
 - Quote line-item templates for common service or product types
 - Onboarding checklist that gets a team live within 3 days (per Success Criteria)
 
-No vertical ships until the Phase 1 core is stable and the Success Criteria in
+No additional vertical ships until the Phase 1 core is stable and the Success Criteria in
 Section 5 are met in production.
 
 ## Glossary

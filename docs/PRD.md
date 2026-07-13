@@ -2,7 +2,7 @@
 
 **Owner:** Product Owner
 **Last updated:** 2026-07-13
-**Source of truth for:** the testable requirements for the CuevikSync thin-core release — inquiry capture, configurable pipeline, and basic quoting.
+**Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
 > Downstream: docs/ARCHITECTURE.md, docs/TECH-STACK.md, README.md, docs/BACKLOG.md
@@ -31,7 +31,7 @@
 6. [Functional Requirements](#6-functional-requirements)
 7. [Non-Functional Requirements](#7-non-functional-requirements)
 8. [Acceptance Criteria](#8-acceptance-criteria)
-9. [Out of Scope (This Release)](#9-out-of-scope-this-release)
+9. [Out of Scope (Phase 1 Thin-Core Release)](#9-out-of-scope-phase-1-thin-core-release)
 10. [Dependencies & Assumptions](#10-dependencies--assumptions)
 11. [Constraints (Non-Architectural)](#11-constraints-non-architectural)
 12. [Risks & Edge Cases](#12-risks--edge-cases)
@@ -40,17 +40,17 @@
 
 ## 1. Overview
 
-CuevikSync is a single workspace where a lean small and mid-sized business (SMB)
-runs its inquiry-to-revenue process: every inbound inquiry captured in one queue,
-moved through a pipeline the team configures without code, and turned into a quote —
-without the weight, cost, or consultant setup of an enterprise Customer Relationship
-Management (CRM) system.
+PRODUCT.md defines the full product narrative and the intended end-state scope of
+Phase 1. This PRD defines the **Phase 1 thin-core release**: the first release
+inside Phase 1, limited to the smallest slice that proves the product's central
+promise — zero-leak capture — and a configurable path from an inquiry to a tracked
+quote.
 
-This PRD specifies the **thin-core release**: the smallest slice that proves the
-product's central promise — zero-leak capture — and a configurable path from an
-inquiry to a tracked quote. It is validated against Print & Signage operations (see
-PRODUCT.md §7). Estimation depth, job execution, the AI sales assistant, workflow
-automation, and reporting are deferred to later PRDs and listed in §9.
+The Phase 1 thin-core release covers inquiry capture, contact/company management,
+adaptive pipelines, basic quotation, custom fields, and role-based access. It is
+validated against Print & Signage operations (see PRODUCT.md §7). Estimation depth,
+job execution, the AI sales assistant, workflow automation, and reporting are
+deferred to later Phase-1 PRDs and listed in §9.
 
 Core goals for this release:
 
@@ -61,19 +61,17 @@ Core goals for this release:
 
 ## 2. Target Users
 
-Roles, not headcount — in a lean team one person often wears several hats. This
-release serves the roles that touch the capture-to-quote loop.
+Canonical role definitions live in PRODUCT.md §2. This PRD uses the subset of
+those product roles that directly touch the thin-core capture-to-quote loop.
 
-- **Office administrator** — first to catch inbound inquiries; needs every lead
-  logged the instant it arrives (web-form leads captured automatically; email,
-  phone, and walk-in logged in seconds) so nothing is lost.
-- **Sales rep** — works leads daily; needs one queue and one pipeline to triage,
-  qualify, own, and quote each opportunity instead of email and sticky notes.
-- **Business owner** — closes deals and needs a single current view of the pipeline
-  to see what is in flight and where revenue is stalling.
-- **Sales manager** — needs each active opportunity to carry a stage, an owner, and a
-  next action to coach the team. (Reporting and forecasting are deferred; this
-  release supplies the underlying per-deal visibility.)
+- **Office administrator** — capture inbound inquiries into the shared queue.
+- **Sales rep** — triage, qualify, own, and quote opportunities.
+- **Business owner** — inspect current pipeline state and control configuration.
+- **Sales manager** — coach active opportunities through stage, ownership, and next
+  action discipline.
+
+Operations staff are intentionally excluded from this release because job / order
+execution is out of scope (see §9).
 
 ## 3. Problem Statements
 
@@ -90,7 +88,8 @@ Every feature in §4 traces to one of these problems.
   cannot adopt them. Reflects every user's need for a tool usable out of the box.
 - **PS-4 — Quoting is slow and ad hoc.** Quotes are assembled by hand in
   spreadsheets, so they go out late and inconsistently. This release addresses basic
-  quote creation and tracking; speed gains from the estimation engine are a later PRD.
+  quote creation and tracking; speed gains from the estimation engine land in a later
+  Phase-1 PRD.
 - **PS-5 — Sensitive data is over-exposed.** Without role-based access everyone sees
   everything; even a lean team needs to scope who can see and edit what.
 
@@ -309,7 +308,7 @@ Testable conditions that define "done" for each requirement.
 > (PRD-012), and 3-day onboarding (NFR-004). The three criteria that depend on
 > deferred features — median first response < 1 hour (AI assistant), quote velocity
 > −50% (estimation engine), and 90% cold-deal follow-through (AI flagging) — are
-> **next-release targets** and are not part of this release's definition of done.
+> **later Phase-1 release targets** and are not part of this release's definition of done.
 
 | Requirement ID | Acceptance criteria |
 | --- | --- |
@@ -352,10 +351,10 @@ Testable conditions that define "done" for each requirement.
 | NFR-011 | Each stage change and quote status change shows the acting user and timestamp in the record history. |
 | NFR-012 | The capture and pipeline screens pass an automated WCAG 2.1 AA check with no critical violations. |
 
-## 9. Out of Scope (This Release)
+## 9. Out of Scope (Phase 1 Thin-Core Release)
 
-Explicit exclusions for the thin-core release. Each moves to a later PRD unless noted
-as permanently out.
+Explicit exclusions for the Phase 1 thin-core release. Each moves to a later Phase-1
+PRD or a post-Phase-1 PRD unless noted as permanently out.
 
 - **Automated email and phone ingestion** — email-to-record parsing and telephony
   capture; only the web form auto-ingests this release, and email, phone, and
