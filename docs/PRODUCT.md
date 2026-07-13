@@ -18,11 +18,6 @@
 | 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools |
 | 6 | README.md | Setup, env config, how to run |
 | 7 | BACKLOG.md | Epics/stories manifest |
-| 8 | brainstorming/system-modules.md | Module scope & Must-have/Later reconciliation (cites this doc by section) |
-| 9 | brainstorming/ai-features.md | AI sequencing & Phase-1 AI slice (cites this doc by section) |
-
-> Rows 8–9 are brainstorming docs reconciled against this file by section number.
-> When scope changes here (§4–§7), both must be re-reconciled before it is final.
 
 ---
 
