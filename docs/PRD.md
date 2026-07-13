@@ -145,36 +145,128 @@ Every feature in §4 maps to at least one story below.
 
 ## 6. Functional Requirements
 
-Each requirement has a unique ID and a MoSCoW priority (Must / Should / Could).
+Requirements are grouped by capability (mirroring §4). Each carries a unique ID and a
+MoSCoW priority (Must / Should / Could).
 
-| ID | Requirement | Priority |
-| --- | --- | --- |
-| PRD-001 | The system MUST create an inquiry record automatically from each web-form submission received at the configured intake endpoint. | Must |
-| PRD-002 | The system MUST let a user manually create an inquiry record with a channel tag (email, phone, or walk-in) and a priority (High or Normal). | Must |
-| PRD-003 | The system MUST present all open inquiries in a single shared queue viewable by any authorized user. | Must |
-| PRD-004 | The system MUST record, for every inquiry, its source channel, capture timestamp, and original message content where provided. | Must |
-| PRD-005 | The system MUST let a user set and change an inquiry's priority between High and Normal. | Must |
-| PRD-006 | The system SHOULD order or filter the shared queue so that High-priority and unassigned inquiries surface first. | Should |
-| PRD-007 | The system MUST let a user qualify an inquiry into an opportunity, attaching it to a contact and a company. | Must |
-| PRD-008 | The system MUST let a user create, view, edit, and delete contact and company records. | Must |
-| PRD-009 | The system SHOULD let a contact be associated with more than one company. | Should |
-| PRD-010 | The system MUST detect a potential duplicate when a user creates a contact or company whose name or email matches an existing record, and warn before saving. | Must |
-| PRD-011 | The system MUST let an administrator define, rename, reorder, and remove pipeline stages without code. | Must |
-| PRD-012 | The system MUST require every opportunity to have a current stage, an owner, and a next action. | Must |
-| PRD-013 | The system MUST let a user move an opportunity between stages, recording the acting user and timestamp. | Must |
-| PRD-014 | The system MUST support a terminal outcome stage that marks an opportunity Won or Lost and removes it from the active pipeline view. | Must |
-| PRD-015 | The system SHOULD support more than one configurable pipeline so a team can run parallel processes. | Should |
-| PRD-016 | The system MUST let a user create a quote associated with an opportunity, composed of line items. | Must |
-| PRD-017 | The system MUST let a line item be selected from a flat service catalog (named item plus unit price) or entered free-form, each with an editable quantity and unit price. | Must |
-| PRD-018 | The system MUST compute a quote total as the sum of (quantity × unit price) across its line items and update it when a line changes. | Must |
-| PRD-019 | The system MUST track a quote's status through draft → sent → accepted or declined, and reject invalid transitions. | Must |
-| PRD-020 | The system MUST let a user produce a printable or shareable quote document, mark the quote as sent, and record the send timestamp. | Must |
-| PRD-021 | The system SHOULD let an administrator maintain the flat service catalog (add, edit, and deactivate items with a unit price). | Should |
-| PRD-022 | The system MUST let an administrator add configurable custom fields to inquiry, contact, company, and opportunity records without code. | Must |
-| PRD-023 | The system MUST authenticate a user before granting access to any record. | Must |
-| PRD-024 | The system MUST support at least two roles with distinct permission sets (for example, administrator and member). | Must |
-| PRD-025 | The system MUST enforce role-based visibility and edit rights on records server-side, not by hiding data in the client alone. | Must |
-| PRD-026 | The system MUST restrict pipeline, custom-field, and catalog configuration to an administrator role. | Must |
+### Omnichannel Inquiry Capture & Triage
+
+- **PRD-001** — ***Automatic web-form capture*** *(Must)* — The system MUST create an
+  inquiry record automatically from each web-form submission received at the
+  configured intake endpoint. Capture happens without any staff action, so no online
+  lead depends on someone remembering to log it. This is the release's core proof of
+  zero-leak capture.
+- **PRD-002** — ***Manual inquiry logging*** *(Must)* — The system MUST let a user
+  manually create an inquiry record for an email, phone, or walk-in contact. Each
+  manual entry carries a channel tag and a priority of High or Normal. This keeps
+  non-digital channels in the same queue as web-form leads.
+- **PRD-003** — ***Single shared queue*** *(Must)* — The system MUST present all open
+  inquiries in one shared queue that any authorized user can view. A newly captured
+  inquiry — web or manual — appears there without a rebuild or deploy. The queue is
+  the single place the team triages incoming demand.
+- **PRD-004** — ***Inquiry provenance*** *(Must)* — The system MUST record, for every
+  inquiry, its source channel, capture timestamp, and original message content where
+  provided. This preserves the context a rep needs before responding. No inquiry is
+  stored without its origin.
+- **PRD-005** — ***Priority control*** *(Must)* — The system MUST let a user set and
+  change an inquiry's priority between High and Normal. Priority is a manual signal
+  this release, not an automated judgment. It lets staff mark urgent leads for faster
+  handling.
+- **PRD-006** — ***Queue ordering*** *(Should)* — The system SHOULD order or filter
+  the shared queue so that High-priority and unassigned inquiries surface first. This
+  helps the team act on the most urgent, unowned leads before older or already-handled
+  ones. Ordering is a convenience, never a precondition to capture.
+- **PRD-007** — ***Qualify into opportunity*** *(Must)* — The system MUST let a user
+  qualify an inquiry into an opportunity, attaching it to a contact and a company.
+  Qualification is the handoff from triage into the pipeline. The resulting
+  opportunity links back to the originating inquiry for traceability.
+
+### Contact & Company Management
+
+- **PRD-008** — ***Contact and company records*** *(Must)* — The system MUST let a
+  user create, view, edit, and delete contact and company records. Deleting a record
+  that has linked opportunities MUST warn before proceeding. These records are the
+  relationship backbone every inquiry and opportunity attaches to.
+- **PRD-009** — ***Multi-company contacts*** *(Should)* — The system SHOULD let a
+  contact be associated with more than one company. A single person often acts across
+  several organizations, and each association SHOULD be visible from the contact
+  record. This reveals cross-sell connections without duplicating the person.
+- **PRD-010** — ***Duplicate detection*** *(Must)* — The system MUST detect a potential
+  duplicate when a user creates a contact or company whose name or email matches an
+  existing record, and warn before saving. The warning lists the suspected match and
+  lets the user proceed or cancel. It keeps relationship data clean without blocking
+  legitimate entries.
+
+### Adaptive Pipelines
+
+- **PRD-011** — ***Configurable stages*** *(Must)* — The system MUST let an
+  administrator define, rename, reorder, and remove pipeline stages without code.
+  Changes MUST take effect without a deploy. This lets each team shape the pipeline to
+  its own process.
+- **PRD-012** — ***Mandatory opportunity fields*** *(Must)* — The system MUST require
+  every opportunity to have a current stage, an owner, and a next action. Saving
+  without all three MUST be blocked with a validation message. This guarantees no deal
+  sits in the pipeline without someone responsible and a defined next step.
+- **PRD-013** — ***Stage movement with audit*** *(Must)* — The system MUST let a user
+  move an opportunity between stages, recording the acting user and timestamp. The
+  movement history MUST be viewable on the opportunity. This makes pipeline changes
+  traceable and accountable.
+- **PRD-014** — ***Terminal outcomes*** *(Must)* — The system MUST support a terminal
+  outcome stage that marks an opportunity Won or Lost. Terminal opportunities MUST
+  drop out of the active pipeline view. This keeps the working pipeline focused on
+  live deals.
+- **PRD-015** — ***Parallel pipelines*** *(Should)* — The system SHOULD support more
+  than one configurable pipeline so a lean team can run different processes side by
+  side. Opportunities in each pipeline SHOULD remain independent. This serves teams
+  whose work splits into distinct flows without custom code.
+
+### Basic Quotation
+
+- **PRD-016** — ***Quote creation*** *(Must)* — The system MUST let a user create a
+  quote associated with an opportunity, composed of line items. A new quote starts in
+  draft. This turns a qualified opportunity into a tracked commercial offer.
+- **PRD-017** — ***Line-item entry*** *(Must)* — The system MUST let a line item be
+  selected from a flat service catalog (named item plus unit price) or entered
+  free-form. Each line MUST have an editable quantity and unit price. This covers both
+  catalog-based and one-off pricing without an estimation engine.
+- **PRD-018** — ***Quote total*** *(Must)* — The system MUST compute a quote total as
+  the sum of (quantity × unit price) across its line items. The total MUST update
+  whenever a line changes. Automatic calculation removes manual math errors from the
+  offer.
+- **PRD-019** — ***Quote status lifecycle*** *(Must)* — The system MUST track a quote's
+  status through draft → sent → accepted or declined. Invalid transitions MUST be
+  rejected. This tells the team which offers are live and which are closed.
+- **PRD-020** — ***Quote issuance*** *(Must)* — The system MUST let a user produce a
+  printable or shareable quote document, mark the quote as sent, and record the send
+  timestamp. Sending is an explicit human action; nothing goes to a customer
+  automatically. This preserves human control over every customer-facing artifact.
+- **PRD-021** — ***Catalog maintenance*** *(Should)* — The system SHOULD let an
+  administrator add, edit, and deactivate flat catalog items with a unit price. A
+  deactivated item SHOULD no longer appear in the line-item picker. This keeps the
+  sellable-item list current without altering past quotes.
+
+### Configurable Custom Fields
+
+- **PRD-022** — ***Custom fields*** *(Must)* — The system MUST let an administrator add
+  configurable custom fields to inquiry, contact, company, and opportunity records
+  without code. Added fields MUST appear on the record form and persist their values.
+  This lets a team capture the attributes its work needs without a code change.
+
+### Role-Based Access Control
+
+- **PRD-023** — ***Authentication*** *(Must)* — The system MUST authenticate a user
+  before granting access to any record. Unauthenticated requests MUST be denied.
+  Access control has no meaning without a verified identity.
+- **PRD-024** — ***Distinct roles*** *(Must)* — The system MUST support at least two
+  roles with distinct permission sets, such as administrator and member. Assigning a
+  role MUST change what the user can see and do. Roles are the unit that scopes access.
+- **PRD-025** — ***Server-side enforcement*** *(Must)* — The system MUST enforce
+  role-based visibility and edit rights on records server-side, not by hiding data in
+  the client alone. A user whose role lacks access MUST be denied even if the client
+  is bypassed. This prevents access rules from being trivially circumvented.
+- **PRD-026** — ***Admin-only configuration*** *(Must)* — The system MUST restrict
+  pipeline, custom-field, and catalog configuration to an administrator role.
+  Non-administrators MUST NOT reach those configuration screens or endpoints. This
+  keeps structural changes in trusted hands.
 
 ## 7. Non-Functional Requirements
 
