@@ -500,5 +500,3 @@ thin-core commitments.
 | RBAC misconfiguration | Sensitive data exposed, or legitimate work blocked | Mapped: NFR-008 server-side enforcement and PRD-026 admin-only configuration scope. |
 | Over-configuration at setup | An over-complex pipeline or field set blows the 3-day onboarding budget | Candidate: starter defaults and onboarding checklist depth to be defined in implementation docs/later PRD. |
 | Concurrent edits to one opportunity | Two users move the same deal and one change is lost | Mapped + candidate: NFR-011 actor/timestamp audit is in scope; conflict strategy (last-write-wins vs optimistic lock) is candidate implementation design. |
-
-

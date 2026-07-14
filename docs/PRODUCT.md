@@ -278,5 +278,3 @@ readable but not canonical — prefer the canonical term in specs.
 - **Job / Order** — a won quote converted into execution work.
 - **Account / Customer** — the relationship entity that inquiries, opportunities, and jobs
   attach to.
-
-
