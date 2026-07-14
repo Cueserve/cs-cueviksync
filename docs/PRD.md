@@ -15,7 +15,7 @@ Document availability and maturity are tracked in README.md (Documentation Statu
 | --- | --- | --- | --- |
 | 1 | PRODUCT.md | What we are building and why | Present |
 | 2 | PRD.md | Testable requirements | Present |
-| 3 | ARCHITECTURE.md | System structure & design decisions | Planned |
+| 3 | ARCHITECTURE.md | System structure & design decisions | Present |
 | 4 | TECH-STACK.md | Approved technologies & usage rules | Planned |
 | 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools | Planned |
 | 6 | README.md | Setup, env config, how to run | Present |
@@ -192,6 +192,20 @@ MoSCoW priority (Must / Should / Could).
   business day and 100% by the next business day. For manually logged email, at least
   95% MUST be logged within 4 business hours. This keeps non-automated channels from
   becoming silent leak paths.
+- **PRD-029** — ***Raw submission retention & purge*** *(Should)* — The system SHOULD
+  purge the raw web-form submission payload 30 days after its inquiry record is created.
+  A submission held in the dead-letter state (never transformed) MUST be retained until
+  resolved, to a hard cap of 90 days, after which it MUST be escalated and exported before
+  purge — never silently deleted. This minimizes retained personal data (GDPR, see §11)
+  while preserving forensics and reprocessing.
+- **PRD-030** — ***Capture retry & dead-letter handling*** *(Must)* — The system MUST
+  retry a failed submission transform. A deterministic failure (a malformed or
+  schema-invalid payload) MUST move the submission to a dead-letter state after at most 3
+  attempts and raise an alert; the raw submission MUST NOT be dropped. A transient failure
+  (for example a datastore outage) MUST be retried by redelivery from the durable buffer
+  with backoff until it succeeds, and MUST raise an alert on sustained processing lag. The
+  transform MUST be idempotent, so one submission yields at most one inquiry. This makes the
+  NFR-002 "no silent drops" guarantee concrete on the failure path.
 
 ### Contact & Company Management
 
@@ -327,6 +341,9 @@ latency is written `p95` / `p99`.
   acting user and a timestamp.
 - **NFR-012 — Accessibility.** Primary capture and pipeline screens SHOULD meet Web
   Content Accessibility Guidelines (WCAG) 2.1 level AA.
+- **NFR-013 — Recovery time.** After a disaster requiring a restore, the system MUST
+  return to full service within 8 business hours (Recovery Time Objective (RTO) <= 8
+  business hours). This complements the NFR-010 Recovery Point Objective.
 
 ## 8. Acceptance Criteria
 
@@ -393,7 +410,10 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | NFR-009 | All endpoints reject plaintext HTTP and serve only over TLS 1.2 or higher. |
 | NFR-010 | A restore from the most recent backup loses no more than 24 hours of committed records. |
 | NFR-011 | Each stage change and quote status change shows the acting user and timestamp in the record history. |
+| PRD-029 | A raw submission is no longer retrievable 30 days after its inquiry is created; a dead-lettered submission remains available until resolved and, at the 90-day cap, is escalated and exported before purge with a record retained — never dropped silently. |
+| PRD-030 | A malformed submission is retried up to 3 times, then appears in a dead-letter state with an alert raised and its raw content retained; during a simulated datastore outage, in-flight submissions are not dead-lettered but are redelivered and each produces exactly one inquiry once the datastore recovers. |
 | NFR-012 | The capture and pipeline screens pass an automated WCAG 2.1 AA check with no critical violations. |
+| NFR-013 | A disaster-recovery drill restores the system to full service within 8 business hours of the declared start. |
 
 ## 9. Out of Scope (Phase 1 Thin-Core Release)
 
@@ -473,7 +493,7 @@ thin-core commitments.
 | --- | --- | --- |
 | Duplicate or spam web-form submissions | Queue floods with junk and real leads are buried | Candidate: rate-limit/spam-filter intake, submission dedup, and manual dismiss/merge workflow in a later PRD. |
 | Web-form endpoint downtime | Inbound inquiries lost during an outage — the one failure the product exists to prevent | Mapped: NFR-003 uptime target (plus operational alerting/runbook design in implementation docs). |
-| Malformed or partial web-form payload | Record created with missing fields, or submission rejected and lost | Candidate: accept/flag incomplete payloads for manual completion and avoid silent drops, to be formalized in a later PRD if selected. |
+| Malformed or partial web-form payload | Record created with missing fields, or submission rejected and lost | Mapped: PRD-030 retries then dead-letters a malformed payload with its raw content retained and an alert raised — flagged for manual completion, never silently dropped. |
 | Manual channels not logged | Email, phone, and walk-in still depend on staff discipline, so leaks persist | Mapped: PRD-028 manual-channel SLA metrics and escalation path. |
 | Duplicate-detection false positive/negative | Records wrongly merged or left fragmented | Mapped + candidate: PRD-010 warning-on-create is in scope; manual-merge/tuning rules are candidate later enhancements. |
 | Free-form quote line priced wrong | An incorrect total reaches the customer | Mapped: PRD-018 total auto-calculation plus PRD-020 explicit human send action. |

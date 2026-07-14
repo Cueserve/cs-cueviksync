@@ -33,6 +33,7 @@ Document availability and maturity are tracked in README.md (Documentation Statu
 6. [Integration Points](#6-integration-points)
 7. [Security Posture & Data Classification](#7-security-posture--data-classification)
 8. [Non-Functional Approach](#8-non-functional-approach)
+9. [Observability & Operations](#9-observability--operations)
 
 ---
 
@@ -56,45 +57,31 @@ Splitting the Intake Receiver and Ingestion Worker from the Primary Application 
 inbound capture available even when the authenticated application is degraded, which the
 capture NFRs demand (NFR-002, NFR-003).
 
-```text
-                 ┌────────────────────┐
-  web form  ───▶ │  Intake Receiver   │  (public, unauthenticated)
- submission      │  persist raw + ack │
-                 └─────────┬──────────┘
-                           │ raw payload (persist-before-process)
-                           ▼
-                 ┌────────────────────┐
-                 │   Intake Buffer    │  (durable)
-                 └─────────┬──────────┘
-                           │ pull + retry
-                           ▼
-                 ┌────────────────────┐
-                 │  Ingestion Worker  │  transform → Inquiry
-                 └─────────┬──────────┘
-                           │ tenant-scoped write
-                           ▼
-  browser ─────▶ ┌──────────────────────────────────────────────┐
-   (SPA)  ◀───── │        Primary Application (JSON API)         │
-    HTTPS        │  ┌────────────────────────────────────────┐  │
-                 │  │  Authorization (auth · RBAC · tenant    │  │  cross-cutting
-                 │  │  scope) — every request passes through  │  │
-                 │  └────────────────────────────────────────┘  │
-                 │   Capture&Triage · CRM · Pipeline · Quoting   │
-                 │   · Configuration                             │
-                 └───────────────────────┬──────────────────────┘
-                                         │ all access via tenant-scoped
-                                         ▼ data-access layer
-                 ┌──────────────────────────────────────────────┐
-                 │   Shared Relational Datastore (one schema,    │
-                 │   row-level tenant_id): records · config ·    │
-                 │   history · JSON custom-field values · buffer │
-                 └──────────────────────────────────────────────┘
-                                         │ optional egress
-                                         ▼
-                 ┌────────────────────┐
-                 │  External email /  │  (optional quote delivery)
-                 │  mail provider     │
-                 └────────────────────┘
+```mermaid
+flowchart TB
+    form["web form submission"]
+    browser["Browser (SPA)"]
+
+    receiver["Intake Receiver<br/>persist raw + ack<br/>(public, unauthenticated)"]
+    buffer[("Intake Buffer<br/>(durable)")]
+    worker["Ingestion Worker<br/>transform → Inquiry"]
+
+    subgraph app["Primary Application (JSON API)"]
+        authz["Authorization — auth · RBAC · tenant scope<br/>cross-cutting: every request passes through"]
+        modules["Capture &amp; Triage · CRM · Pipeline · Quoting · Configuration"]
+        authz --> modules
+    end
+
+    store[("Shared Relational Datastore<br/>one schema · row-level tenant_id<br/>records · config · history · JSON custom fields · buffer")]
+    ext["External email / mail provider<br/>(optional quote delivery)"]
+
+    form -->|"submit"| receiver
+    receiver -->|"raw payload · persist-before-process"| buffer
+    buffer -->|"pull + retry"| worker
+    worker -->|"tenant-scoped write"| store
+    browser <-->|"HTTPS"| app
+    app -->|"tenant-scoped data-access layer"| store
+    app -.->|"optional egress · quote only"| ext
 ```
 
 Components:
@@ -166,16 +153,48 @@ Storage rules:
 **Zero-leak capture (web form).** The defining flow. The raw payload is durable before any
 processing occurs.
 
-```text
-Web form         Intake Receiver      Intake Buffer      Ingestion Worker     Datastore
-   │  submit          │                    │                    │                 │
-   ├─────────────────▶│  persist raw ─────▶│                    │                 │
-   │        200 OK ◀──┤ (ack after persist)│                    │                 │
-   │                  │                    │◀── pull (retry) ───┤                 │
-   │                  │                    │                    ├─ validate ──────┤
-   │                  │                    │                    ├─ Inquiry row ──▶│
-   │                  │                    │                    │ (tenant-scoped) │
+```mermaid
+sequenceDiagram
+    actor Form as Web form
+    participant R as Intake Receiver
+    participant B as Intake Buffer
+    participant W as Ingestion Worker
+    participant D as Datastore
+
+    Form->>R: submit (+ tenant intake key)
+    alt unknown or missing key
+        R-->>Form: 4xx reject — nothing persisted
+    else valid key
+        R->>B: persist raw IntakeSubmission (tenant_id stamped)
+        R-->>Form: 200 OK (ack only after durable persist)
+    end
+
+    loop until success or retry limit (at-least-once)
+        W->>B: pull submission
+        W->>W: validate + transform (idempotent on submission id)
+        alt transform succeeds
+            W->>D: write Inquiry row (tenant-scoped, exactly one)
+        else transient failure
+            Note over W,B: leave unacked → redelivered
+        end
+    end
+
+    opt retry limit exceeded (poison submission)
+        W->>D: park in dead-letter — surfaced for manual completion
+    end
 ```
+
+**Intake tenant resolution.** The public endpoint is unauthenticated but not
+untargeted: each tenant is issued a unique, unguessable intake key (embedded in its
+hosted form or webhook URL). The Intake Receiver resolves that key to a `tenant_id`,
+stamps it on the raw `IntakeSubmission` before buffering, and rejects an unknown or
+missing key before anything is persisted. Delivery from buffer to worker is
+at-least-once, so the transform is idempotent on the submission identifier — one
+`IntakeSubmission` yields exactly one Inquiry even when the worker retries. A deterministic
+failure (a malformed payload) is parked in a dead-letter state after at most 3 attempts and
+alerted; a transient failure (for example a datastore outage) is redelivered from the buffer
+with backoff until it succeeds. A submission is never silently dropped and never retried
+without limit. (PRD-001, PRD-030, NFR-002)
 
 Other flows all pass through the authenticated API and its authorization pipeline:
 
@@ -203,7 +222,7 @@ trade-off it accepts. Technology selection is deferred to TECH-STACK.md.
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Capture path | Durable intake buffer + async worker (persist-before-process) | Traces NFR-001/002/003, PRD-001. Persisting the raw payload before any processing makes a dropped submission physically hard, and isolating intake keeps capture up when the app is degraded. Rejected: pure synchronous write (a transform or datastore error silently drops the lead — violates NFR-002). Trade-off: one extra runtime role and eventual consistency (records land in seconds, inside the 2-minute p99 budget). |
+| Capture path | Durable intake buffer + async worker (persist-before-process) | Traces NFR-001/002/003, PRD-001. Persisting the raw payload before any processing makes a dropped submission physically hard, and isolating intake keeps capture up when the app is degraded. Rejected: pure synchronous write (a transform or datastore error silently drops the lead — violates NFR-002). Trade-off: one extra runtime role and eventual consistency (records land in seconds, inside the 2-minute p99 budget). Delivery is at-least-once; the transform is idempotent and poison submissions are dead-lettered (see §3), so retries neither drop nor duplicate a lead. |
 | Application topology | Modular monolith + intake receiver + worker (3 roles, 1 datastore) | Traces NFR-004/005/006. In-process module calls give low latency at 10 concurrent users and stay trivial to operate inside the 3-day onboarding budget. Rejected: distributed services per domain (network hops and distributed data add latency and ops load with no scale payoff at this size). Trade-off: module boundaries are a discipline, not network-enforced; scaling is coarse-grained. |
 | Tenant isolation | Shared schema, row-level `tenant_id`, centralized non-bypassable scope | Traces NFR-004/006, NFR-008. Cheapest, instant tenant provisioning suits lean SMB onboarding; a central scope plus server-side RBAC is fully adequate for GDPR personal data. Rejected: schema-per-tenant and database-per-tenant (heavier provisioning and per-tenant ops that fight NFR-004, with no requirement demanding physical isolation). Trade-off: isolation is logical, so a single unscoped query is a cross-tenant leak — the scope guard MUST be centralized. |
 | Custom-field storage | Field-definition catalog + one JSON value column per record | Traces PRD-022, NFR-005. A per-tenant catalog drives dynamic forms and validation; values in a JSON column add fields with no deploy and no shared-schema pollution. Rejected: Entity-Attribute-Value tables (many joins and weak typing risk NFR-005 at 50k records) and per-tenant physical columns (incompatible with the shared schema). Trade-off: filtering/sorting on a custom field relies on JSON indexing, and type validation lives in the application layer. |
@@ -211,9 +230,10 @@ trade-off it accepts. Technology selection is deferred to TECH-STACK.md.
 | Authorization structure | Centralized, layered checks on every request (tenant scope → auth → route guard → record ownership) | Traces PRD-023/025/026/027, NFR-008. One authorization module is the single source of truth, so no endpoint can be reached unchecked. Rejected: per-module ad-hoc checks (rules scatter and one omission is a leak). Trade-off: all request paths depend on one pipeline that must stay correct and fast. |
 | Role model | Static role→permission policy in code (the four PRD-024 roles) | Traces PRD-024, PRD-027. Exactly four roles with fixed boundaries match the PRD with no gold-plating and a small surface to test. Rejected: configurable per-tenant roles (capability beyond the PRD that enlarges the NFR-008 test surface). Trade-off: adding or changing a role later is a code change and deploy, not configuration. |
 | Audit model | Per-entity history tables written in the same transaction | Traces PRD-013, PRD-019, NFR-011. Dedicated `StageHistory` and `QuoteStatusHistory` tables target exactly the two required audit points and directly serve "viewable on the opportunity". Rejected: a single generic audit log (reconstructing one entity's history means filtering a mixed log). Trade-off: auditing a new entity later means adding a table. |
-| Authentication | First-party credentials, memory-hard hashed, session-based | Traces PRD-023, NFR-007. Storing password hashes means the system holds its own credentials; auth precedes RBAC on every request. Rejected: external Identity Provider (IdP) / Single Sign-On (no requirement asks for it this release). Trade-off: no enterprise SSO until a later release adds it. |
+| Authentication | First-party credentials, slow-hashed (memory-hard Argon2id preferred), session-based | Traces PRD-023, NFR-007. Storing password hashes means the system holds its own credentials; auth precedes RBAC on every request. Rejected: external Identity Provider (IdP) / Single Sign-On (no requirement asks for it this release). Trade-off: no enterprise SSO until a later release adds it. |
 | Quote & pipeline transitions | Domain state machine rejecting invalid transitions | Traces PRD-014, PRD-019. Enforcing `draft → sent → accepted/declined` and terminal Won/Lost in one place prevents illegal states. Rejected: ad-hoc status flags updated inline (invalid transitions slip through). Trade-off: transitions must be declared centrally, not set field-by-field. |
 | Customer-facing output | Explicit human "mark sent", decoupled from delivery | Traces PRD-020, PRD §11. Marking a quote sent is always a user action; delivery (in-app email or external channel) is separate, so nothing auto-sends. Rejected: automatic send on quote completion (violates the human-in-the-loop constraint). Trade-off: send state and delivery state are tracked separately. |
+| Concurrency control | Optimistic concurrency (per-record version) on Opportunity and Quote | Traces PRD-013, NFR-011. A version check rejects a stale write, so a concurrent edit cannot silently overwrite a stage move or the history row that records it. Rejected: last-write-wins (a lost update corrupts the audit trail the design relies on). Trade-off: a rejected write must be re-fetched and reapplied by the client. |
 
 ## 5. Implementation Conventions
 
@@ -250,7 +270,7 @@ Structural rules every contributor follows. These are how to build, not the code
 | Web-form intake | Inbound | Hosted form or webhook posts submissions to the public, unauthenticated Intake Receiver over HTTPS; raw payload persisted on receipt. If not embedded, all channels fall back to manual logging. (PRD-001, dep §10) |
 | Outbound email / quote delivery | Outbound (optional) | The API MAY hand a quote document to an external email or transactional-mail provider; delivery is optional and "mark sent" is independent of it, so quotes can also be shared through an external channel. (PRD-020, dep §10) |
 | Authentication | Internal | First-party credential store; no external IdP this release. Auth precedes RBAC on every request. (PRD-023, NFR-007) |
-| Managed hosting & backup | Platform | Availability (NFR-003) and durability (NFR-010) assume managed infrastructure; concrete platform and backup tooling are decided in TECH-STACK.md. (dep §10) |
+| Managed hosting & backup | Platform | Availability (NFR-003), durability (NFR-010), and recovery time (NFR-013) assume managed infrastructure; concrete platform, backup, and restore tooling are decided in TECH-STACK.md. (dep §10) |
 
 ## 7. Security Posture & Data Classification
 
@@ -258,7 +278,7 @@ Structural rules every contributor follows. These are how to build, not the code
 
 | Data category | Classification | Handling |
 | --- | --- | --- |
-| User credentials | Restricted | Stored only as memory-hard hashes (Argon2id, or bcrypt work factor ≥ 12); never logged or returned. (NFR-007) |
+| User credentials | Restricted | Stored only as slow, salted hashes — memory-hard Argon2id (preferred) or bcrypt at work factor ≥ 12; never logged or returned. (NFR-007) |
 | Contact / company personal data | Confidential | Personal data under GDPR; tenant-scoped, RBAC-gated, deletable with a linked-record warning. (PRD-008, PRD-025) |
 | Inquiry content & provenance | Confidential | May contain customer personal data; tenant-scoped and role-gated. (PRD-004) |
 | Opportunity & quote commercial data | Confidential | Business-sensitive; visible per role and ownership rules. (PRD-027) |
@@ -288,6 +308,54 @@ TECH-STACK.md decision.
 - **Outbound email** is the only egress to a third party and carries only what a quote
   contains.
 
+```mermaid
+flowchart TB
+    subgraph untrusted["Untrusted — public internet"]
+        form["Web form / webhook"]
+        browser["Browser SPA"]
+    end
+
+    subgraph edge["Edge — public, unauthenticated"]
+        receiver["Intake Receiver<br/>append-only · no business logic"]
+    end
+
+    subgraph appzone["Application zone — authenticated"]
+        api["Primary Application<br/>JSON API · authz pipeline"]
+        worker["Ingestion Worker"]
+    end
+
+    subgraph datazone["Data zone — internal only"]
+        buffer[("Intake Buffer")]
+        store[("Relational Datastore<br/>row-level tenant_id")]
+    end
+
+    ext["External mail provider"]
+
+    form -->|"HTTPS · intake key"| receiver
+    browser -->|"HTTPS · session · CSRF-guarded"| api
+    receiver -->|"persist raw"| buffer
+    worker -->|"pull + retry"| buffer
+    worker -->|"tenant-scoped write"| store
+    api -->|"tenant-scoped R/W"| store
+    api -.->|"optional egress · quote only"| ext
+```
+
+Each boundary is a trust step down: the untrusted public reaches only two surfaces
+(the intake key on the Receiver, an authenticated session on the API); the buffer,
+worker, and datastore are never publicly reachable; and the sole third-party egress
+carries quote content only.
+
+**Data lifecycle & retention.** Raw `IntakeSubmission` payloads are purged 30 days after
+their Inquiry is created; a submission stuck in the dead-letter state is retained until
+resolved, to a 90-day hard cap, then escalated and exported before purge — never silently
+deleted (PRD-029). Erasing a contact or company (PRD-008) removes or pseudonymizes personal
+data in the record and in any raw payload that references it, while the append-only
+`StageHistory` and `QuoteStatusHistory` keep their immutable event skeleton (actor,
+timestamp, transition) with personal data stripped — so audit integrity and the right to
+erasure hold together. Durability boundary: NFR-010 permits up to 24 h of committed data
+loss on a disaster restore, which applies to acknowledged captures too; the durable buffer
+narrows this window but does not eliminate it.
+
 **Compliance.** GDPR applies (contact data is personal data). The architecture answers with
 tenant isolation, server-side RBAC, explicit data classification, contact/company deletion
 supporting erasure requests, TLS in transit, and hashed credentials. No HIPAA, SOC 2, or
@@ -297,11 +365,16 @@ payment-card obligations are stated in PRD.md, and none are introduced here.
 
 - Cross-tenant access → centralized, non-bypassable tenant scope. (PRD-025)
 - RBAC bypass via a tampered client → server-side enforcement on every request. (NFR-008)
-- Credential theft → memory-hard hashing and TLS. (NFR-007, NFR-009)
+- Credential theft → slow salted password hashing and TLS. (NFR-007, NFR-009)
 - Anonymous intake abuse on the public endpoint → intake isolated from the app and buffered;
-  spam de-duplication and rate limiting are candidate mitigations for a later PRD (PRD §12),
+  a payload size cap and schema check apply at receipt as an in-scope floor. Spam
+  de-duplication and rate limiting are candidate mitigations for a later PRD (PRD §12),
   and the isolated design leaves room to add them without touching the app.
 - Privilege escalation into configuration → admin-only route guard. (PRD-026)
+- Cross-site request forgery against the session-authenticated API → anti-CSRF token and
+  `SameSite` cookie policy on every state-changing request. (PRD-023)
+- Stored cross-site scripting via rendered inquiry content → server-side input validation
+  and output encoding of all user-supplied and captured text. (PRD-004)
 
 ## 8. Non-Functional Approach
 
@@ -310,18 +383,48 @@ How the structure meets each PRD.md non-functional requirement.
 | Requirement | Structural response |
 | --- | --- |
 | NFR-001 capture latency (≤2 min p99) | Async worker processes buffered submissions in seconds; the 2-minute budget absorbs retries. |
-| NFR-002 capture reliability (≥99%, no silent drops) | Persist-before-process at the Intake Receiver plus worker retries; nothing is transformed before it is durable. |
+| NFR-002 capture reliability (≥99%, no silent drops) | Persist-before-process at the Intake Receiver plus worker retries; nothing is transformed before it is durable. Bounded retries with an idempotent transform prevent duplicates, and poison submissions are dead-lettered rather than dropped. |
 | NFR-003 capture availability (≥99.5%) | Intake Receiver isolated from the authenticated app so its uptime is independent; managed hosting assumed. |
 | NFR-004 onboarding (≤3 days, no code) | Configuration-driven behavior and instant shared-schema tenant provisioning; no deploy to configure. |
 | NFR-005 interactive performance (p95<2 s, p99<5 s) | In-process modular-monolith calls, indexed relational reads, and tenant-scoped queries at 10 concurrent users. |
 | NFR-006 scale (10 users, 50k records/tenant) | Row-level tenancy with indexing keeps per-tenant volumes within the latency targets; JSON custom fields indexed where filtered. |
-| NFR-007 credential security | Memory-hard password hashing in the authentication module; no plaintext anywhere. |
+| NFR-007 credential security | Slow, salted password hashing (memory-hard Argon2id preferred) in the authentication module; no plaintext anywhere. |
 | NFR-008 access enforcement | Centralized authorization pipeline runs server-side on every read and write. |
 | NFR-009 transport security | TLS 1.2+ terminated in front of every role; plaintext rejected. |
 | NFR-010 durability (RPO ≤24 h) | Managed datastore with a backup cadence ≤24 h; the durable buffer also protects in-flight submissions. |
 | NFR-011 auditability | Per-entity history tables written in the same transaction as the change. |
 | NFR-012 accessibility (WCAG 2.1 AA) | Capture and pipeline screens in the SPA built to meet WCAG 2.1 AA; verified by automated checks. |
+| NFR-013 recovery time (RTO ≤8 business hours) | Managed-infrastructure restore returns full service within 8 business hours; the isolated intake path and durable buffer let capture resume ahead of the full app. |
 
 Resilience overall comes from decoupling intake from processing (buffer + retries), a single
 enforced access path, and centrally declared state transitions that keep records in valid
 states.
+
+## 9. Observability & Operations
+
+The capture NFRs are measurable service levels, so the structure exposes the signals that
+prove them and the recovery paths for when they slip. Concrete tooling is a TECH-STACK.md
+decision; the signals and thresholds below are architectural.
+
+**Service-level signals.**
+
+| Signal | Serves | Alert when |
+| --- | --- | --- |
+| Capture success rate (persisted ÷ received) | NFR-002 | Below 99% over a rolling window |
+| Intake endpoint uptime | NFR-003 | Below 99.5% monthly |
+| Capture latency (submission → Inquiry, p99) | NFR-001 | p99 approaches the 2-minute budget |
+| Intake buffer depth & worker lag | NFR-001, NFR-002 | Depth or lag grows monotonically |
+| Dead-letter count | NFR-002 | Any sustained non-zero rate |
+| Interactive latency (p95/p99 per view) | NFR-005 | p95 > 2 s or p99 > 5 s |
+
+**Health & readiness.** Each runtime role exposes a health/readiness probe so managed hosting
+can gate traffic and restarts. The Intake Receiver's probe is independent of the Primary
+Application's, preserving capture availability when the app is degraded. (NFR-003)
+
+**Logging.** Logs are structured and tenant-tagged for per-tenant triage. Credentials and
+custom-field/personal-data values are never logged (§7); durable audit facts live in the
+history tables, not the application log. (NFR-007, NFR-011)
+
+**Operational runbooks.** Buffer backlog, worker stall, and dead-letter growth each have a
+defined response; runbooks and concrete alert thresholds are maintained with the deployment
+configuration (TECH-STACK.md / operations docs).
