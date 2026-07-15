@@ -100,3 +100,63 @@ Branch protection on `main` (block direct push / require a PR before merge) is
 **best-effort**. Enable it in GitHub repository settings if the plan allows; on free-plan
 private repos it may be unavailable. If it cannot be set, the self-review checklist above
 is the gate that matters — its absence does not weaken the process.
+
+---
+
+# Tooling layer
+
+Added in Step-05 once the stack was locked. Every command below uses only technologies
+approved in [`docs/TECH-STACK.md`](docs/TECH-STACK.md). Do not introduce a command for a
+tool that is not listed there — add it to `TECH-STACK.md` first.
+
+## Required versions
+
+Match the versions pinned in `docs/TECH-STACK.md`:
+
+- **Node.js** >= 22 Long-Term Support (LTS) — the Vercel runtime line.
+- **npm** — bundled with Node.js 22; the project package manager. Do not use pnpm or yarn.
+- **Supabase CLI** — for local Postgres, Auth, Storage, and Edge Functions.
+
+## Run commands
+
+| Task | Command |
+| --- | --- |
+| Install dependencies | `npm install` |
+| Start local Supabase (Postgres, Auth, Storage, Edge Functions) | `npx supabase start` |
+| Run the app in development | `npm run dev` |
+| Build for production | `npm run build` |
+| Start the production build | `npm run start` |
+| Lint | `npm run lint` |
+| Format | `npm run format` |
+| Unit tests (Vitest) | `npm run test` |
+| End-to-end + WCAG 2.1 AA checks (Playwright) | `npm run test:e2e` |
+| Deploy an Edge Function (Intake Receiver / Ingestion Worker) | `npx supabase functions deploy <name>` |
+
+The `dev`, `build`, `start`, and `lint` scripts wrap Next.js (`next dev` / `next build` /
+`next start` / `next lint`); `format` wraps Prettier; `test` wraps Vitest; `test:e2e`
+wraps Playwright.
+
+## Pre-commit hooks
+
+Husky + lint-staged run on every commit:
+
+- **lint-staged** runs Prettier (format) and ESLint (fix) on staged files.
+- A commit MUST NOT be pushed if lint or format fails; fix and re-stage.
+
+Install the hooks once after `npm install`:
+
+```bash
+npm run prepare
+```
+
+## Environment
+
+The app and the capture path require these before `npm run dev`:
+
+- Supabase project URL and keys — the **service-role key is server-side only** and MUST
+  NOT be exposed to the browser.
+- `pgmq` and `pg_cron` extensions enabled on the Supabase Postgres instance.
+- Resend API key (optional — required only for in-app quote-email delivery).
+- Sentry and PostHog keys (optional in local development).
+
+Concrete environment-variable names and setup steps are documented in `README.md` (Step-07).
