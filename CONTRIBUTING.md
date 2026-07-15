@@ -22,9 +22,6 @@ author completes before merging.
 
 ### Branch naming
 
-- Initiation work uses `init/<step>`:
-  - `init/repo-setup` · `init/product` · `init/prd` · `init/architecture` ·
-    `init/techstack` · `init/aitoolguide` · `init/readme` · `init/backlog`
 - Ongoing work uses a short, descriptive prefix matching the commit type:
   `feat/<slug>`, `fix/<slug>`, `chore/<slug>`, `docs/<slug>`.
 
@@ -42,9 +39,23 @@ Open PRs from the CLI (`gh pr create`) or the GitHub web UI.
 
 ---
 
-## The gate: self-review checklist
+<!-- BEGIN INITIATION-ONLY -->
+## Initiation branching & self-review gate
 
-Before merging any PR, the author self-certifies:
+_This section governs producing the initiation documents only. Step-09
+(`/proj-init-finalize`) removes everything between the `INITIATION-ONLY` markers,
+markers included, once initiation completes._
+
+### Initiation branch naming
+
+Initiation work uses `init/<step>`:
+
+- `init/repo-setup` · `init/product` · `init/prd` · `init/architecture` ·
+  `init/techstack` · `init/aitoolguide` · `init/readme` · `init/backlog`
+
+### Self-review checklist
+
+Before merging any initiation PR, the author self-certifies:
 
 - [ ] At least a few hours — ideally a full day — have passed since writing the change
       (fresh-eyes pass).
@@ -54,6 +65,7 @@ Before merging any PR, the author self-certifies:
 
 Solo / process-enforced: the author completes this checklist before merging. There is no
 second reviewer to block the merge — the checklist is the gate.
+<!-- END INITIATION-ONLY -->
 
 ---
 
