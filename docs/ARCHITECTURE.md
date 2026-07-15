@@ -55,8 +55,9 @@ datastore:
    (SPA) over a server JSON Application Programming Interface (API). It holds the domain modules
    and the cross-cutting authorization layer. Authentication is delegated to
    **Supabase Auth (GoTrue)**; tenant scoping and row ownership are enforced in **Postgres by
-   Row-Level Security (RLS)** on every authenticated user request, with the application
-   forwarding the caller's Supabase JSON Web Token (JWT) to the database. (PRD-023, PRD-025, NFR-008)
+   Row-Level Security (RLS)** on every authenticated user request, with the caller's Supabase
+   JSON Web Token (JWT) carried in an httpOnly cookie and forwarded by the application to the
+   database. (PRD-023, PRD-025, NFR-008)
 
 Splitting the Intake Receiver and Ingestion Worker from the Primary Application keeps
 inbound capture available even when the authenticated application is degraded, which the
@@ -238,7 +239,7 @@ trade-off it accepts. Technology selection is deferred to TECH-STACK.md.
 | Tenant isolation | Shared schema, row-level `tenant_id`, enforced by Postgres RLS on authenticated user paths | Traces NFR-004/006, NFR-008. Instant shared-schema provisioning suits lean SMB onboarding; RLS makes tenant scope a database guarantee, so a forgotten filter on an authenticated user path cannot leak across tenants. Rejected: schema-per-tenant and database-per-tenant (heavier provisioning that fights NFR-004, with no requirement demanding physical isolation) and app-layer-only scope (a single unscoped query leaks). Trade-off: RLS keys on the request's Supabase JWT, so the three identity-less system paths — Intake Receiver, Ingestion Worker, tenant provisioning — run under the Supabase service-role (RLS bypassed) and MUST re-enforce tenant scope in code from a server-resolved `tenant_id`, never from caller input. |
 | Custom-field storage | Field-definition catalog + one JSON value column per record | Traces PRD-022, NFR-005. A per-tenant catalog drives dynamic forms and validation; values in a JSON column add fields with no deploy and no shared-schema pollution. Rejected: Entity-Attribute-Value tables (many joins and weak typing risk NFR-005 at 50k records) and per-tenant physical columns (incompatible with the shared schema). Trade-off: filtering/sorting on a custom field relies on JSON indexing, and type validation lives in the application layer. |
 | Client/server boundary | SPA + server JSON API; API is the sole access authority | Traces PRD-025, NFR-008, NFR-005. A rich client serves the quote builder, pipeline board, and dynamic custom-field forms; the API is the single server-side enforcement point. Rejected: server-rendered multi-page app (live totals and board interactions need extra work) — the SPA better fits the interaction model. Trade-off: heavier client and first-load bundle, and WCAG 2.1 AA (NFR-012) becomes a client responsibility. |
-| Authorization structure | Database-enforced RLS on every authenticated request (tenant scope + row ownership), fronted by Supabase-Auth authentication and app-side route guards; service-role confined to system paths | Traces PRD-023/025/026/027, NFR-008. The app forwards the caller's JWT so Postgres RLS decides tenant scope and record ownership — the enforcement locus is the database, non-bypassable for user traffic; admin-only route guards sit in the app in front of RLS. Rejected: per-module ad-hoc app-layer checks (rules scatter and one omission is a leak). Trade-off: RLS policies plus JWT claims are now load-bearing and must be correct and fast; the service-role system paths are the only escape and are deliberately few, isolated (§7), and audited. |
+| Authorization structure | Database-enforced RLS on every authenticated request (tenant scope + row ownership), fronted by Supabase-Auth authentication and app-side route guards; service-role confined to system paths | Traces PRD-023/025/026/027, NFR-008. The caller's JWT rides in an httpOnly cookie, which the app forwards to Postgres so RLS decides tenant scope and record ownership — the enforcement locus is the database, non-bypassable for user traffic; admin-only route guards sit in the app in front of RLS. Rejected: per-module ad-hoc app-layer checks (rules scatter and one omission is a leak). Trade-off: RLS policies plus JWT claims are now load-bearing and must be correct and fast; the service-role system paths are the only escape and are deliberately few, isolated (§7), and audited. |
 | Role model | Static four-role policy (PRD-024) expressed as JWT claims + RLS policies and app-side route guards | Traces PRD-024, PRD-027. Exactly four roles with fixed boundaries match the PRD with no gold-plating; the role travels as a JWT claim and is enforced by RLS at the row level and by admin-only route guards for configuration. Rejected: configurable per-tenant roles (capability beyond the PRD that enlarges the NFR-008 test surface). Trade-off: adding or changing a role later means editing code and RLS policies plus a deploy, not per-tenant configuration. |
 | Audit model | Per-entity history tables written in the same transaction | Traces PRD-013, PRD-019, NFR-011. Dedicated `StageHistory` and `QuoteStatusHistory` tables target exactly the two required audit points and directly serve "viewable on the opportunity". Rejected: a single generic audit log (reconstructing one entity's history means filtering a mixed log). Trade-off: auditing a new entity later means adding a table. |
 | Authentication | Managed first-party auth — Supabase Auth (GoTrue), JWT-based | Traces PRD-023, NFR-007. Supabase Auth stores our own users' credentials in our Supabase Postgres (first-party, not a third-party IdP) and issues a JWT that authenticates every request and drives RLS. GoTrue hashes passwords with bcrypt at a work factor ≥ 12, which satisfies NFR-007's slow-salted-hash requirement. Rejected: a hand-rolled credential store (re-implements what the managed service provides) and external Identity Provider (IdP) / third-party Single Sign-On (no requirement asks for it this release). Trade-off: auth behavior is bounded by what Supabase Auth supports, and no enterprise SSO until a later release adds it. |
@@ -251,7 +252,8 @@ trade-off it accepts. Technology selection is deferred to TECH-STACK.md.
 Structural rules every contributor follows. These are how to build, not the code itself.
 
 - **Tenant scope is enforced by the database.** All authenticated user requests carry the
-  caller's Supabase JWT to Postgres, where RLS filters every row by `tenant_id`; no user-path
+  caller's Supabase JWT — held in an httpOnly cookie — to Postgres, where RLS filters every row
+  by `tenant_id`; no user-path
   query may bypass it. The Intake Receiver, Ingestion Worker, and provisioning run under the
   service-role and MUST re-apply `tenant_id` in code from a server-resolved value.
   (PRD-025, NFR-008)
@@ -305,8 +307,8 @@ Payment instruments and financial data are **never stored** — permanently out 
 which keeps the system out of payment-card compliance scope by design. (PRD §11)
 
 **Authentication & authorization.** Supabase Auth (GoTrue) authenticates every request and
-issues a JWT (PRD-023). The application forwards that JWT to Postgres, where **RLS** decides
-tenant scope and record ownership at the database, in front of which an app-side admin-only
+issues a JWT (PRD-023). The application forwards that JWT — carried in an httpOnly cookie — to
+Postgres, where **RLS** decides tenant scope and record ownership at the database, in front of which an app-side admin-only
 route guard gates configuration — enforced server-side on every authenticated read and write,
 so a bypassed client is still denied. The three identity-less system paths (Intake Receiver,
 Ingestion Worker, provisioning) run under the Supabase **service-role** and re-enforce tenant
