@@ -84,11 +84,15 @@ Minimum: state secrets live in **Vercel Environment Variables + Supabase Vault**
 
 ### 6. No CI pipeline named
 
+> **✅ RESOLVED 2026-07-18 — with a corrected rationale.** The original justification ("Husky enforces nothing on a contributor who skips the hook") was weak here: CONTRIBUTING.md establishes this is a **solo / process-enforced** repo — no other contributor to police. The real value for a solo dev is (a) running the *full* suite on the *actual merge state* (pre-commit hooks only see staged files), (b) auto-running the Playwright E2E + WCAG check (NFR-012) that's too slow to gate a commit, and (c) a clean-environment build check (Supabase + `pgmq`/`pg_cron`). Chose the **split model**: a fast blocking gate (lint + `tsc --noEmit` + Vitest) + an advisory/nightly E2E+WCAG job (E2E is flaky and needs app+Supabase, so it must not block a solo merge). **Docs-only** (like #1–5): added to TECH-STACK §3 + §6 and CONTRIBUTING's tooling layer; the `.github/workflows/*.yml` is deferred to scaffolding (no `package.json` yet). CI complements, does not replace, the self-review checklist. *(Original finding retained below for the record.)*
+
 Vitest, Playwright, ESLint, Prettier, Husky, lint-staged — all local. **Husky enforces nothing on a contributor who skips the hook**, and hooks don't run migrations or deploy gates. No GitHub Actions (or equivalent) running the suite, the WCAG check (NFR-012), and type-checking on PRs before merge. For a 2–3 person team this is the net that lets you move fast without breaking `main`. Vercel preview deploys are part of this but don't run your test suite by themselves.
 
 **Action:** Add GitHub Actions to §3/§4.
 
 ### 7. PDF generation for quotes is hand-waved
+
+> **✅ RESOLVED 2026-07-18.** First checked whether a server PDF is even required — PRD-020 says "printable **or** shareable," which browser print-to-PDF satisfies with no library. But §2 already commits Supabase Storage to holding "generated quote documents," and the decision is to email the quote **as a PDF attachment** via Resend, which needs a server-generated file. Chose **`@react-pdf/renderer`** (`renderToBuffer` in a route handler): verified it runs on Vercel's Node runtime with no headless Chrome, ~2 MB vs. ~100 MB Chromium — and Chromium *exceeds* Vercel's 50 MB function limit, so browser-render was not merely heavier but non-viable. Added a **MUST**: fonts bundled/embedded locally, never fetched at render time (a serverless cold-start font fetch can time out or silently substitute, producing a wrong customer-facing doc). §4 gets the library; §2 unchanged. *(Original finding retained below for the record.)*
 
 PRD-020 requires a "printable or shareable quote document"; §2 says Supabase Storage holds it; **nothing says what generates the PDF.** Real trade-off on serverless:
 
@@ -99,6 +103,8 @@ PRD-020 requires a "printable or shareable quote document"; §2 says Supabase St
 **Action:** Name the approach (recommend `@react-pdf/renderer`) in §4.
 
 ### 8. Input validation / schema library missing
+
+> **✅ RESOLVED 2026-07-18.** Confirmed the demand is real (4 existing mandates: custom-field validation PRD-022, mandatory opportunity fields PRD-012, XSS input validation ARCH §7, intake payload schema check) with no library named. Chose **Zod** over Valibot: validation here is server-weighted (RLS-primary / API-as-authority), so Valibot's client-bundle edge mostly evaporates, while Zod's ecosystem (React Hook Form resolver for the dynamic custom-field forms, broadest Supabase/Next patterns) wins. §4 adds the library; §6 makes it the **single** validation tool of record (no ad-hoc validation), with the intake schema defined once and shared by Receiver + Worker. Explicitly noted Zod validates *input* but does **not** encode *output* — stored-XSS still needs output encoding at render (ARCH §7), a boundary worth stating so "Zod covers XSS" isn't assumed. *(Original finding retained below for the record.)*
 
 You validate custom fields against FieldDefinition, enforce mandatory opportunity fields server-side, and run a quote state machine — no validation library named. In TypeScript this is almost always **Zod**, conspicuous by its absence. Also serves the XSS mitigation (ARCHITECTURE §7 "server-side input validation") and the intake payload schema check.
 
@@ -147,9 +153,9 @@ No unnecessary complexity, duplication, or conflicting responsibilities **at the
 | 3 | ✅ ~~Migration tool (Supabase CLI)~~ **Resolved 2026-07-18** | §4, §6 | 🔴 |
 | 4 | ✅ ~~Intake rate-limiting floor~~ **Resolved 2026-07-18** (Postgres-native ceiling; filtering stays deferred) | §3, §5, §6 | 🟠 |
 | 5 | ✅ ~~Secrets management + rotation~~ **Resolved 2026-07-18** | §6 | 🟠 |
-| 6 | CI pipeline (GitHub Actions) | §3, §4 | 🟠 |
-| 7 | PDF generation library | §4 | 🟠 |
-| 8 | Zod (validation) | §4 | 🟠 |
+| 6 | ✅ ~~CI pipeline (GitHub Actions)~~ **Resolved 2026-07-18** (split gate; docs-only, .yml deferred to scaffold) | §3, §6 + CONTRIBUTING | 🟠 |
+| 7 | ✅ ~~PDF generation library~~ **Resolved 2026-07-18** (`@react-pdf/renderer`; local-font MUST) | §4 | 🟠 |
+| 8 | ✅ ~~Zod (validation)~~ **Resolved 2026-07-18** (single tool of record; input≠output-encoding noted) | §4, §6 | 🟠 |
 | 9 | `next lint` deprecated in Next 16 | §4, §6 | 🟡 |
 | 10 | bcrypt-is-platform-constrained note | §6 | 🟡 |
 | 11 | PostHog session replay PII masking | §3 | 🟡 |
