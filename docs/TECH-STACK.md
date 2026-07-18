@@ -55,7 +55,8 @@ plane, keeping one managed vendor for all persistence.
 | Supabase Platform | Managed Postgres, Auth, Storage, and Edge Functions. | Managed infrastructure underpins the availability (NFR-003) and durability (NFR-010) targets; Point-in-Time Recovery (PITR) is a required add-on (see §6). |
 | Supabase Edge Functions | Runs the public, unauthenticated **Intake Receiver** and the **Ingestion Worker**. | Deployed separately from the Vercel app so the receiver's uptime is independent of the authenticated application (NFR-002, NFR-003). Receiver persists raw payloads only — no business logic. |
 | `pg_cron` | Schedules the Ingestion Worker to drain `pgmq` on an interval. | Idempotent transform on submission id; bounded retries then dead-letter (PRD-001, PRD-030). |
-| Supabase Auth (GoTrue) | First-party credential store and identity for Role-Based Access Control (RBAC). | Passwords hashed with bcrypt (meets NFR-007 fallback: work factor ≥ 12). Sessions carried as httpOnly cookies via `@supabase/ssr` (see §5 reconciliation note). |
+| Supavisor (connection pooler) | Pools direct Postgres connections. | **Not on the app's hot path** — `supabase-js`/PostgREST and the Edge Functions reach Postgres over REST/RPC and bypass Supavisor. Relevant only to direct-TCP clients (the Supabase CLI migration connection, §6), which MUST use transaction mode. |
+| Supabase Auth (GoTrue) | First-party credential store and identity for Role-Based Access Control (RBAC). | Passwords hashed with bcrypt (meets NFR-007 fallback: work factor ≥ 12). Sessions carried as httpOnly cookies via `@supabase/ssr`; cookie flags in §6. |
 | Resend | Optional outbound delivery of a quote document by email. | Delivery is optional per PRD-020; "mark sent" is an explicit user action decoupled from delivery. The only third-party egress; carries quote content only. |
 | Sentry | Application error tracking and interactive-latency monitoring. | Serves NFR-005 (p95/p99 per view) and surfaces worker/receiver exceptions. |
 | PostHog | Product analytics — onboarding funnel and session replay. | Serves NFR-004 (3-day onboarding measurement) and UX debugging of capture/pipeline screens. |
@@ -107,6 +108,15 @@ plane, keeping one managed vendor for all persistence.
   Worker, provisioning), which re-scope `tenant_id` in code.
 - The Supabase session cookie (issued via `@supabase/ssr`) MUST carry the `httpOnly`,
   `Secure`, and `SameSite` flags; these back the anti-CSRF posture in ARCHITECTURE §7.
+- Authenticated application traffic reaches Postgres over PostgREST/`supabase-js` (REST),
+  which pools internally and does **not** use Supavisor; no direct-TCP client is on the
+  request path. The Intake Receiver enqueues to `pgmq` via a `supabase-js` RPC call, not a
+  direct connection.
+- Any direct Postgres (TCP) connection — the Supabase CLI migration path (§4), or any future
+  raw-SQL / query-builder client — MUST use **Supavisor transaction mode (port 6543)** with
+  prepared statements disabled (`prepare: false`). Session mode (port 5432) is for persistent
+  backends only; direct connections are IPv6-only (Supavisor is IPv4). Adding a
+  direct-connection client to the request path requires updating this file first.
 - No browser-to-Postgres direct Create/Read/Update/Delete (CRUD). Every authenticated
   record read and write carries the caller's JWT to Postgres through PostgREST as the
   `authenticated` role, where RLS enforces tenant scope and row ownership (PRD-025,
