@@ -59,7 +59,7 @@ plane, keeping one managed vendor for all persistence.
 | Supabase Auth (GoTrue) | First-party credential store and identity for Role-Based Access Control (RBAC). | Passwords hashed with bcrypt (meets NFR-007 fallback: work factor ≥ 12). Sessions carried as httpOnly cookies via `@supabase/ssr`; cookie flags in §6. |
 | Resend | Optional outbound delivery of a quote document by email. | Delivery is optional per PRD-020; "mark sent" is an explicit user action decoupled from delivery. The only third-party egress; carries quote content only. |
 | Sentry | Application error tracking and interactive-latency monitoring. | Serves NFR-005 (p95/p99 per view) and surfaces worker/receiver exceptions. |
-| PostHog | Product analytics — onboarding funnel and session replay. | Serves NFR-004 (3-day onboarding measurement) and UX debugging of capture/pipeline screens. |
+| PostHog | Product analytics — onboarding funnel and session replay. | Serves NFR-004 (3-day onboarding measurement) and UX debugging of capture/pipeline screens. Session replay MUST mask input fields and any element rendering contact/inquiry personal data (Confidential, ARCHITECTURE §7); replay MUST NOT capture PII in the clear. |
 | GitHub Actions | Continuous integration on every PR to `main`. | A fast blocking job (lint + type-check + Vitest unit) gates merges; a separate Playwright E2E + WCAG 2.1 AA job (NFR-012) runs advisory/nightly so a flaky browser test never blocks a merge. A self-discipline net for the solo/process-enforced model (CONTRIBUTING) — the full suite runs on the real merge state, not just staged files. Workflow file authored at scaffold time. |
 
 ## 4. Key Libraries / Tools
@@ -78,7 +78,7 @@ plane, keeping one managed vendor for all persistence.
 | `@react-pdf/renderer` | 4.x | Server-side generation of the printable/shareable quote document (PRD-020). `renderToBuffer` in a Next.js route handler produces the `.pdf` stored in Supabase Storage (§2) and attachable to the Resend email. Chosen over browser-render (Puppeteer): ~2 MB vs. ~100 MB Chromium, which exceeds Vercel's 50 MB function limit — pure-JS, no headless browser. |
 | `@sentry/nextjs` | 9.x | Sentry integration for the Next.js app and Edge Functions. |
 | `posthog-js` / `posthog-node` | 1.x | PostHog event capture (client and server). |
-| ESLint | 9.x | Linting, run through `next lint` (Next-bundled config). |
+| ESLint | 9.x | Linting via the ESLint CLI (`eslint`) with flat config (`eslint.config.mjs`). Next 16 removed `next lint` and `next build` no longer lints. |
 | Prettier | 3.x | Code formatting; the single formatter of record. |
 | Vitest | 3.x | Unit tests. |
 | Playwright | 1.x | End-to-end tests and the automated WCAG 2.1 AA check (NFR-012). |
@@ -121,8 +121,15 @@ plane, keeping one managed vendor for all persistence.
   a documented runbook step, performed on suspected compromise. No fixed rotation cadence is
   set for thin-core (no NFR or compliance obligation requires one — ARCHITECTURE §7); a
   scheduled policy is revisited if a future compliance scope (e.g. SOC 2) demands it.
+- Vercel preview deployments MUST NOT connect to the production Supabase project; previews use
+  a separate Supabase project or database branch. Production credentials are never exposed to
+  a preview environment.
 - The Supabase session cookie (issued via `@supabase/ssr`) MUST carry the `httpOnly`,
   `Secure`, and `SameSite` flags; these back the anti-CSRF posture in ARCHITECTURE §7.
+- The password hash is bcrypt because Supabase Auth (GoTrue) provides it; the algorithm is
+  not independently configurable. NFR-007 lists Argon2id first and bcrypt (work factor ≥ 12)
+  as the accepted fallback — this stack takes the fallback by platform constraint. A future
+  Argon2id mandate would require a platform-level change, not a config toggle.
 - Authenticated application traffic reaches Postgres over PostgREST/`supabase-js` (REST),
   which pools internally and does **not** use Supavisor; no direct-TCP client is on the
   request path. The Intake Receiver enqueues to `pgmq` via a `supabase-js` RPC call, not a
@@ -170,11 +177,17 @@ plane, keeping one managed vendor for all persistence.
   configuration.
 - The package manager is `npm` (bundled with the approved Node.js 22 LTS); a different
   package manager MUST NOT be introduced without updating this file.
-- ESLint 9.x + Prettier 3.x are the only linter and formatter. Vitest 3.x runs unit tests;
-  Playwright 1.x runs end-to-end tests and the automated WCAG 2.1 AA check (NFR-012).
-  Husky 9.x + lint-staged 16.x enforce format/lint at commit time.
+- ESLint 9.x + Prettier 3.x are the only linter and formatter. ESLint runs via the ESLint
+  CLI (`eslint`, flat config); `next lint` was removed in Next 16 and `next build` no longer
+  lints, so linting is an explicit script/CI step. Vitest 3.x runs unit tests; Playwright 1.x
+  runs end-to-end tests and the automated WCAG 2.1 AA check (NFR-012). Husky 9.x + lint-staged
+  16.x enforce format/lint at commit time.
 - Exact patch versions are pinned in the lockfile at scaffold time. This file records the
   approved major/minor line; changing a line requires updating this file first.
 - Large Language Model (LLM) and vector-store technologies are **out of the approved
   stack** for the thin-core release — the AI sales assistant is out of scope (PRD §9).
-  Adding them requires an approved PRD update and an update to this file first.
+  Adding them requires an approved PRD update and an update to this file first. For
+  forward reference only: when an approved PRD adds AI, the vector path is `pgvector`
+  (enable-on-demand in the same Postgres — no new vendor, no provisioning cost to deferring),
+  so it MUST NOT be enabled in the thin-core release. This records the intended path without
+  importing anything into scope.

@@ -132,9 +132,9 @@ Match the versions pinned in `docs/TECH-STACK.md`:
 | End-to-end + WCAG 2.1 AA checks (Playwright) | `npm run test:e2e` |
 | Deploy an Edge Function (Intake Receiver / Ingestion Worker) | `npx supabase functions deploy <name>` |
 
-The `dev`, `build`, `start`, and `lint` scripts wrap Next.js (`next dev` / `next build` /
-`next start` / `next lint`); `format` wraps Prettier; `test` wraps Vitest; `test:e2e`
-wraps Playwright.
+The `dev`, `build`, and `start` scripts wrap Next.js (`next dev` / `next build` /
+`next start`); `lint` wraps the ESLint CLI (`eslint`) — Next 16 removed `next lint`;
+`format` wraps Prettier; `test` wraps Vitest; `test:e2e` wraps Playwright.
 
 ## Pre-commit hooks
 
