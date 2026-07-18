@@ -70,6 +70,8 @@ plane, keeping one managed vendor for all persistence.
 | TanStack Query (React Query) | 5.x | Client-side server-state cache for the queue, pipeline board, and quote views; keeps perceived interaction latency low (NFR-005). |
 | `@supabase/supabase-js` | 2.x | Postgres and Storage access. Authenticated user requests use the user-scoped client (session cookie via `@supabase/ssr`) so RLS applies. The service-role key is used **server-side only**, confined to the three system paths (Intake Receiver, Ingestion Worker, provisioning), and is **never shipped to the browser**. |
 | `@supabase/ssr` | 0.x | Supabase Auth session handling via httpOnly cookies in the Next.js server. |
+| Supabase CLI | latest | Database migrations (`supabase/migrations/*.sql`), local dev stack, and Edge Function deploys. Schema, RLS policies, extensions (`pgmq`/`pg_cron`), and history tables are versioned as SQL migrations. |
+| `supabase gen types typescript` | (Supabase CLI) | Generates TypeScript types from the database schema for typed `supabase-js` access — the type-safety path in the no-ORM stack. Regenerated after each schema migration. |
 | `resend` (SDK) | 4.x | Resend API client for quote-email delivery. |
 | `@sentry/nextjs` | 9.x | Sentry integration for the Next.js app and Edge Functions. |
 | `posthog-js` / `posthog-node` | 1.x | PostHog event capture (client and server). |
@@ -117,6 +119,13 @@ plane, keeping one managed vendor for all persistence.
   prepared statements disabled (`prepare: false`). Session mode (port 5432) is for persistent
   backends only; direct connections are IPv6-only (Supavisor is IPv4). Adding a
   direct-connection client to the request path requires updating this file first.
+- All schema changes — tables, indexes, RLS policies, extension enablement, and history
+  tables — MUST be authored as Supabase CLI migrations in `supabase/migrations/` and applied
+  via `supabase db push`. Applying schema or RLS changes by hand in the Supabase dashboard is
+  prohibited; the migration files are the authoritative schema (and the definition a PITR/DR
+  restore rebuilds against, NFR-010/NFR-013).
+- TypeScript types for database access are generated with `supabase gen types typescript` and
+  regenerated after any schema migration; there is no ORM in the stack.
 - No browser-to-Postgres direct Create/Read/Update/Delete (CRUD). Every authenticated
   record read and write carries the caller's JWT to Postgres through PostgREST as the
   `authenticated` role, where RLS enforces tenant scope and row ownership (PRD-025,
