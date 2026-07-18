@@ -39,33 +39,14 @@ Open PRs from the CLI (`gh pr create`) or the GitHub web UI.
 
 ---
 
-<!-- BEGIN INITIATION-ONLY -->
-## Initiation branching & self-review gate
+<!-- BEGIN DEVELOPMENT-PHASE-GOVERNANCE -->
+## Development-phase governance
 
-_This section governs producing the initiation documents only. Step-09
-(`/proj-init-finalize`) removes everything between the `INITIATION-ONLY` markers,
-markers included, once initiation completes._
-
-### Initiation branch naming
-
-Initiation work uses `init/<step>`:
-
-- `init/repo-setup` · `init/product` · `init/prd` · `init/architecture` ·
-  `init/techstack` · `init/aitoolguide` · `init/readme` · `init/backlog`
-
-### Self-review checklist
-
-Before merging any initiation PR, the author self-certifies:
-
-- [ ] At least a few hours — ideally a full day — have passed since writing the change
-      (fresh-eyes pass).
-- [ ] The change covers everything its step guide / task requires.
-- [ ] No upstream document changed after this branch was created.
-- [ ] A PR was opened — no direct push to `main`.
-
-Solo / process-enforced: the author completes this checklist before merging. There is no
-second reviewer to block the merge — the checklist is the gate.
-<!-- END INITIATION-ONLY -->
+_Initiation is complete. The branching, review, and contribution rules for ongoing
+development are the team's to define once dev-phase realities are known — team size,
+review model, CI gates, release/versioning, environments. Fill this section in and
+remove this note via `/proj-init-doc-update CONTRIBUTING.md`._
+<!-- END DEVELOPMENT-PHASE-GOVERNANCE -->
 
 ---
 
