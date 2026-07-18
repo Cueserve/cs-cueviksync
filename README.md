@@ -10,21 +10,15 @@
 
 ## Project Overview
 
-Small and mid-sized businesses lose revenue not from lack of demand but because
-inquiries slip through the cracks across phone, email, web form, and walk-in — and
-enterprise CRMs are too heavy, rigid, and expensive for a lean team to actually use.
-CuevikSync is a single workspace where every inbound request lands in one shared queue,
-becomes a tracked record, and moves through a configurable pipeline until it is won —
-so no deal leaks or stalls. The Phase 1 thin-core release delivers omnichannel inquiry
-capture and triage, unified contact/company management with duplicate detection,
-adaptive pipelines, basic quotation, and configurable custom fields with role-based
-access. A team of ten or fewer can be onboarded and running its live pipeline within
-three days.
-
-The system is a Next.js modular monolith on Supabase, with the inbound-capture path
-deliberately split into two isolated runtime roles so a lead is never dropped even when
-the main application is degraded. See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for the
-full design.
+CuevikSync is a single workspace where a lean team captures every inbound inquiry —
+phone, email, web form, or walk-in — into one shared queue and moves it through a
+configurable pipeline until it is won, so no deal leaks or stalls. The Phase 1
+thin-core release covers omnichannel capture and triage, unified contact/company
+management, adaptive pipelines, basic quotation, and role-based custom fields. See
+[PRODUCT.md](docs/PRODUCT.md) for the full product concept and scope. Architecturally
+it is a Next.js modular monolith on Supabase, with the inbound-capture path split into
+two isolated runtime roles so a lead is never dropped even when the main app is
+degraded — see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Key Concepts
 
