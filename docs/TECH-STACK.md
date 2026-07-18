@@ -69,11 +69,13 @@ plane, keeping one managed vendor for all persistence.
 | Tailwind CSS | 4.x | Utility styling system for all SPA screens. |
 | shadcn/ui | CLI-pinned (Radix-based) | Accessible component primitives; the Radix foundation carries the keyboard/ARIA behavior that WCAG 2.1 AA (NFR-012) depends on. |
 | TanStack Query (React Query) | 5.x | Client-side server-state cache for the queue, pipeline board, and quote views; keeps perceived interaction latency low (NFR-005). |
+| Zod | 3.x | Schema validation of record — one declaration yields the runtime check and the inferred TypeScript type. Backs custom-field validation against FieldDefinition (PRD-022), mandatory opportunity fields (PRD-012), input validation for the stored-XSS mitigation (ARCHITECTURE §7), and the intake payload schema shared by the Receiver check and the Worker transform. |
 | `@supabase/supabase-js` | 2.x | Postgres and Storage access. Authenticated user requests use the user-scoped client (session cookie via `@supabase/ssr`) so RLS applies. The service-role key is used **server-side only**, confined to the three system paths (Intake Receiver, Ingestion Worker, provisioning), and is **never shipped to the browser**. |
 | `@supabase/ssr` | 0.x | Supabase Auth session handling via httpOnly cookies in the Next.js server. |
 | Supabase CLI | latest | Database migrations (`supabase/migrations/*.sql`), local dev stack, and Edge Function deploys. Schema, RLS policies, extensions (`pgmq`/`pg_cron`), and history tables are versioned as SQL migrations. |
 | `supabase gen types typescript` | (Supabase CLI) | Generates TypeScript types from the database schema for typed `supabase-js` access — the type-safety path in the no-ORM stack. Regenerated after each schema migration. |
 | `resend` (SDK) | 4.x | Resend API client for quote-email delivery. |
+| `@react-pdf/renderer` | 4.x | Server-side generation of the printable/shareable quote document (PRD-020). `renderToBuffer` in a Next.js route handler produces the `.pdf` stored in Supabase Storage (§2) and attachable to the Resend email. Chosen over browser-render (Puppeteer): ~2 MB vs. ~100 MB Chromium, which exceeds Vercel's 50 MB function limit — pure-JS, no headless browser. |
 | `@sentry/nextjs` | 9.x | Sentry integration for the Next.js app and Edge Functions. |
 | `posthog-js` / `posthog-node` | 1.x | PostHog event capture (client and server). |
 | ESLint | 9.x | Linting, run through `next lint` (Next-bundled config). |
@@ -149,6 +151,18 @@ plane, keeping one managed vendor for all persistence.
   CI complements the local Husky/lint-staged hooks; it does not replace the CONTRIBUTING
   self-review checklist, which remains the human gate. The workflow file is authored at
   scaffold time.
+- Quote-document fonts MUST be bundled/embedded locally and registered from local assets;
+  `@react-pdf/renderer` MUST NOT fetch fonts over the network at render time. A runtime font
+  fetch can time out or silently substitute a fallback on a serverless cold start, producing
+  a wrong customer-facing document — a failure the PRD-020 human-send gate should not have to
+  catch.
+- Zod is the single schema-validation tool of record; ad-hoc hand-rolled validation MUST NOT
+  be introduced in its place. All external input — API request bodies, the intake payload, and
+  custom-field values — MUST be validated against a Zod schema server-side before it reaches a
+  domain module or the datastore. The intake payload schema is defined once and shared by the
+  Receiver's schema check and the Worker's transform. Validation is paired with output encoding
+  of user-supplied and captured text at render (the stored-XSS mitigation, ARCHITECTURE §7);
+  Zod validates input but does not by itself encode output.
 - No browser-to-Postgres direct Create/Read/Update/Delete (CRUD). Every authenticated
   record read and write carries the caller's JWT to Postgres through PostgREST as the
   `authenticated` role, where RLS enforces tenant scope and row ownership (PRD-025,
