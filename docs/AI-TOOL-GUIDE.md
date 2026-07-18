@@ -74,13 +74,13 @@ the authority whenever this summary is not enough.
 module, writing Vitest/Playwright tests, adding Zod schemas, wiring API route handlers behind
 the existing authorization path, and building SPA screens with shadcn/ui + Tailwind.
 
-**Out of bounds** without explicit human instruction — stop and get approval (see §7):
+**Out of bounds** without explicit human instruction — stop and get approval (see §7). This
+covers every area enumerated in §9 (Off-Limits Boundaries), plus the design-level contracts
+below that aren't file paths:
 
-- The three service-role system paths (Intake Receiver, Ingestion Worker, provisioning) — any
-  change that touches how they re-scope `tenant_id` in code.
-- RLS policies and JWT role claims — the load-bearing authorization locus.
+- Any change to how the three service-role system paths (Intake Receiver, Ingestion Worker,
+  provisioning) re-scope `tenant_id` in code.
 - The capture path contract (`pgmq` enqueue, `pg_cron` drain, dead-letter handling).
-- Anything under §9 (Off-Limits Boundaries).
 
 When a task appears to need an out-of-bounds change, flag it and propose the change — do not
 make it silently.
@@ -138,7 +138,11 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 - Do not mock away the security boundary (RLS, authorization) to make a test pass — a test that
   green-lights a bypassed client is invalid.
 - The blocking Continuous Integration (CI) gate is `lint` + `tsc --noEmit` + Vitest; E2E runs
-  advisory/nightly. New feature work MUST land with unit tests in the gate.
+  advisory/nightly. New feature work MUST land with unit tests in the gate. **There is no numeric
+  line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
+  adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
+  cases in this section that apply (tenant isolation, worker idempotency, state-machine
+  rejections) are asserted. A single happy-path test does not satisfy this.
 
 ## 6. Documentation Rules
 
@@ -154,19 +158,16 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 ## 7. Decision Escalation
 
 Stop and get explicit human approval before doing any of the following — state the change and
-its reason first:
+its reason first. **Touching anything in §9 (Off-Limits Boundaries) always requires this**; the
+triggers below are the ones that aren't file-scoped or are broader than a single path:
 
 - **Adding or removing a package** — name the package, the reason, and the alternative
   rejected; wait for approval (also updates [TECH-STACK.md](TECH-STACK.md) first).
 - **Any schema or migration change** — new/edited/dropped tables, indexes, RLS policies,
-  extensions, or history tables.
-- **Any change to authorization** — RLS policies, JWT role claims, route guards, or the
-  service-role system paths.
+  extensions, or history tables (broader than the `supabase/migrations/` files in §9).
 - **Breaking changes to a public API, database schema, or shared contract** — require sign-off
   before commit.
-- **Anything touching CI/CD or deployment config** — `.github/workflows/`, Vercel
-  configuration, Supabase project settings.
-- **Adding a direct-Transport Control Protocol (TCP) Postgres client** — must use Supavisor
+- **Adding a direct-Transmission Control Protocol (TCP) Postgres client** — must use Supavisor
   transaction mode and updates TECH-STACK.md first.
 - **Introducing a new runtime role, LLM/vector technology, or any capability beyond the
   thin-core PRD.**
@@ -175,8 +176,9 @@ its reason first:
 
 - **Plan before execute** — for any non-trivial task, show a plan and wait for approval before
   writing code or editing files.
-- **Ask, don't assume** — if the task is ambiguous, ask one clarifying question. Never guess
-  intent and proceed.
+- **Ask, don't assume** — if the task is ambiguous, ask before proceeding rather than guessing.
+  Keep clarifying questions minimal and batched, not a drip of one-at-a-time round trips. Never
+  guess intent and proceed.
 - **Scope discipline** — touch only what was explicitly asked. Flag out-of-scope issues without
   acting on them.
 - **Stop and report** — if blocked or on a wrong path, say so immediately. Do not burn cycles on
