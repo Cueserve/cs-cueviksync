@@ -149,6 +149,22 @@ Install the hooks once after `npm install`:
 npm run prepare
 ```
 
+## Continuous integration
+
+GitHub Actions runs on every PR to `main` (see `docs/TECH-STACK.md` §3). Two jobs:
+
+- **Gate (blocking):** `npm run lint`, a TypeScript type-check (`tsc --noEmit`), and
+  `npm run test` (Vitest). A failure here means the PR is not ready to merge.
+- **E2E + accessibility (advisory / nightly):** `npm run test:e2e` (Playwright end-to-end
+  plus the WCAG 2.1 AA check). It stands up the app and a Supabase instance, so it is the
+  slower, flakier surface and does **not** block a merge on its own — review its result as
+  part of the self-review checklist.
+
+CI is a self-discipline net: it runs the full suite on the actual merge state, catching what
+the staged-files-only pre-commit hooks miss. It complements — does not replace — the
+self-review checklist, which remains the merge gate for this solo / process-enforced repo.
+The workflow file (`.github/workflows/`) is added when the repository is scaffolded.
+
 ## Environment
 
 The app and the capture path require these before `npm run dev`:

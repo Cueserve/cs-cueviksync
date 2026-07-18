@@ -60,6 +60,7 @@ plane, keeping one managed vendor for all persistence.
 | Resend | Optional outbound delivery of a quote document by email. | Delivery is optional per PRD-020; "mark sent" is an explicit user action decoupled from delivery. The only third-party egress; carries quote content only. |
 | Sentry | Application error tracking and interactive-latency monitoring. | Serves NFR-005 (p95/p99 per view) and surfaces worker/receiver exceptions. |
 | PostHog | Product analytics — onboarding funnel and session replay. | Serves NFR-004 (3-day onboarding measurement) and UX debugging of capture/pipeline screens. |
+| GitHub Actions | Continuous integration on every PR to `main`. | A fast blocking job (lint + type-check + Vitest unit) gates merges; a separate Playwright E2E + WCAG 2.1 AA job (NFR-012) runs advisory/nightly so a flaky browser test never blocks a merge. A self-discipline net for the solo/process-enforced model (CONTRIBUTING) — the full suite runs on the real merge state, not just staged files. Workflow file authored at scaffold time. |
 
 ## 4. Key Libraries / Tools
 
@@ -141,6 +142,13 @@ plane, keeping one managed vendor for all persistence.
   infrastructure self-protection for the NFR-003 SLA and Edge quota — not spam/dedup
   filtering, which stays deferred (PRD §12). It MUST NOT block or slow a within-limit
   submission (persist-before-process, NFR-002 is unaffected).
+- Continuous integration runs on GitHub Actions for every PR to `main`, in two jobs: a
+  blocking job (`lint` + `tsc --noEmit` type-check + Vitest unit) that gates the merge, and a
+  Playwright E2E + WCAG 2.1 AA job (NFR-012) that runs advisory or nightly (E2E requires a
+  running app + Supabase and is the flaky surface, so it MUST NOT block a merge on its own).
+  CI complements the local Husky/lint-staged hooks; it does not replace the CONTRIBUTING
+  self-review checklist, which remains the human gate. The workflow file is authored at
+  scaffold time.
 - No browser-to-Postgres direct Create/Read/Update/Delete (CRUD). Every authenticated
   record read and write carries the caller's JWT to Postgres through PostgREST as the
   `authenticated` role, where RLS enforces tenant scope and row ownership (PRD-025,
