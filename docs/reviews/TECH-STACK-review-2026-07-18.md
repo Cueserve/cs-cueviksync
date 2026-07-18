@@ -119,13 +119,15 @@ You validate custom fields against FieldDefinition, enforce mandatory opportunit
 - **PostHog session replay + GDPR.** §3 enables session replay; you classify contact/inquiry data as Confidential personal data and commit to GDPR. **Session replay can capture on-screen PII** unless masked. Note the masking requirement or it's a GDPR hole in the analytics layer.
 - **No staging/preview data isolation stated.** Vercel preview deploys point at *some* database. If production Supabase, every PR branch can read tenant data. State that previews use a separate Supabase project/branch (Supabase database branching pairs with Vercel previews).
 
+> **✅ #9–12 RESOLVED 2026-07-18.** #9 — corrected: `next lint` is **removed** in Next 16 (not just deprecated) and `next build` no longer lints, so the docs' "run through `next lint`" was a factual error; fixed to the ESLint CLI (flat config) in TECH-STACK §4/§6 **and** CONTRIBUTING. #10 — §6 note added: bcrypt is a platform constraint of GoTrue, not a preference; Argon2id would need a platform change. #11 — §3 PostHog row now MUSTs input/PII masking on session replay (closes the GDPR hole). #12 — §6 rule: preview deploys MUST NOT hit the production Supabase project; separate project/branch, prod creds never in a preview.
+
 ---
 
 ## AI-readiness
 
 Stack is **correctly scoped to exclude AI for thin-core** (§6 bans LLM/vector tech behind a PRD gate). Keep that. Two low-cost decisions now keep the door open cleanly for the AI sales assistant PRODUCT.md §3 intends:
 
-1. **Enable `pgvector` at provision time (don't use it yet).** Supabase extension, free dormant, keeps future embeddings in the same managed Postgres — consistent with "one vendor for persistence." Signals the architecture is vector-ready without a vector-DB vendor.
+1. ~~**Enable `pgvector` at provision time (don't use it yet).**~~ **↩ REVERSED 2026-07-18 (#13).** Verification showed pgvector enables **anytime** (dashboard / CLI / one SQL line) with zero cost or lock-in to deferring — so pre-enabling buys nothing and nudges the PRD's hard "no AI/vector in thin-core" line for no benefit. **Resolved instead as documentation-only:** §6's AI-exclusion clause now records that the future vector path is `pgvector` (enable-on-demand, same Postgres, no vendor) and MUST NOT be enabled in thin-core. AI-readiness is documented without importing anything into scope.
 2. **When AI lands, `vercel/ai-gateway` + Vercel AI SDK are already in the platform's orbit** — the natural provider-routing/failover layer. Nothing to add now; just don't reach for a separate LLM-ops vendor later.
 
 Append-only `StageHistory`/`QuoteStatusHistory` is already exactly what a future "cold-deal flagging" model needs.
@@ -156,10 +158,16 @@ No unnecessary complexity, duplication, or conflicting responsibilities **at the
 | 6 | ✅ ~~CI pipeline (GitHub Actions)~~ **Resolved 2026-07-18** (split gate; docs-only, .yml deferred to scaffold) | §3, §6 + CONTRIBUTING | 🟠 |
 | 7 | ✅ ~~PDF generation library~~ **Resolved 2026-07-18** (`@react-pdf/renderer`; local-font MUST) | §4 | 🟠 |
 | 8 | ✅ ~~Zod (validation)~~ **Resolved 2026-07-18** (single tool of record; input≠output-encoding noted) | §4, §6 | 🟠 |
-| 9 | `next lint` deprecated in Next 16 | §4, §6 | 🟡 |
-| 10 | bcrypt-is-platform-constrained note | §6 | 🟡 |
-| 11 | PostHog session replay PII masking | §3 | 🟡 |
-| 12 | Preview/staging DB isolation | §6 | 🟡 |
-| 13 | Enable `pgvector` at provision (AI-readiness) | §6 | 🟡 |
+| 9 | ✅ ~~`next lint` deprecated in Next 16~~ **Resolved** (it's *removed*; fixed §4/§6 + CONTRIBUTING) | §4, §6, CONTRIBUTING | 🟡 |
+| 10 | ✅ ~~bcrypt-is-platform-constrained note~~ **Resolved** | §6 | 🟡 |
+| 11 | ✅ ~~PostHog session replay PII masking~~ **Resolved** | §3 | 🟡 |
+| 12 | ✅ ~~Preview/staging DB isolation~~ **Resolved** | §6 | 🟡 |
+| 13 | ↩ ~~Enable `pgvector` at provision~~ **Reversed → documented path only** (enables anytime; don't pre-enable) | §6 | 🟡 |
 
 **Items 1–3 cause rework or a security incident if skipped.** The rest are cheaper to add now than to retrofit.
+
+---
+
+## Resolution summary (2026-07-18)
+
+All 13 findings addressed. 3 🔴 + 5 🟠 + 5 🟡. Two findings had their severity/rationale corrected on verification (#2 pooler 🔴→🟠, #6 CI rationale), one was reversed (#13 pgvector), and one surfaced an upstream contradiction that was reconciled (#4 → ARCHITECTURE §7). Changes committed to `main` across TECH-STACK.md, ARCHITECTURE.md, CONTRIBUTING.md, and the reconciliation log.
