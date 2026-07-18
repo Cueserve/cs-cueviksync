@@ -12,3 +12,4 @@
 ## Completed
 
 - [x] `TECH-STACK.md` — required-update **done (2026-07-18)**: session mechanism now recorded — `@supabase/ssr` cookie-based handling (§4) and the `httpOnly`/`Secure`/`SameSite` cookie flags (§6). The §5 authorization-locus decision was also reconciled to RLS-primary, matching ARCHITECTURE §4; the former §5 reconciliation note was retired as no contradiction remains.
+- [x] `ARCHITECTURE.md §7` — reconciled **done (2026-07-18)**: the TECH-STACK review (#4) moved a coarse per-intake-key abuse **ceiling** into thin-core scope; ARCHITECTURE §7 previously lumped "de-duplication and rate limiting" as deferred, contradicting it. §7's threat-vector row now lists the ceiling alongside the payload cap + schema check as the in-scope floor, and defers only spam **de-duplication and content filtering** to a later PRD (PRD §12). No open ARCHITECTURE↔TECH-STACK contradiction on intake abuse.

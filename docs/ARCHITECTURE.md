@@ -392,9 +392,11 @@ payment-card obligations are stated in PRD.md, and none are introduced here.
   request; the SPA holds no authority. (NFR-008)
 - Credential theft → Supabase Auth bcrypt (≥ 12) hashing and TLS. (NFR-007, NFR-009)
 - Anonymous intake abuse on the public endpoint → intake isolated from the app and buffered;
-  a payload size cap and schema check apply at receipt as an in-scope floor. Spam
-  de-duplication and rate limiting are candidate mitigations for a later PRD (PRD §12),
-  and the isolated design leaves room to add them without touching the app.
+  a payload size cap, schema check, and a coarse per-intake-key request ceiling apply at
+  receipt as an in-scope floor (the ceiling is infrastructure self-protection for the NFR-003
+  SLA and Edge quota; see TECH-STACK.md §5/§6). Spam de-duplication and content filtering
+  remain candidate mitigations for a later PRD (PRD §12), and the isolated design leaves room
+  to add them without touching the app.
 - Privilege escalation into configuration → admin-only route guard. (PRD-026)
 - Cross-site request forgery against the cookie-stored Supabase session (Next.js SSR) →
   anti-CSRF token and `SameSite` cookie policy on every state-changing request. (PRD-023)
