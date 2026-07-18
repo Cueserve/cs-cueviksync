@@ -53,7 +53,7 @@ plane, keeping one managed vendor for all persistence.
 | --- | --- | --- |
 | Vercel | Hosts the Next.js app (SPA + JSON API), the authenticated Primary Application. | Deployed independently of the intake path; region co-located with the Supabase project to keep NFR-005 latency in budget. |
 | Supabase Platform | Managed Postgres, Auth, Storage, and Edge Functions. | Managed infrastructure underpins the availability (NFR-003) and durability (NFR-010) targets; Point-in-Time Recovery (PITR) is a required add-on (see §6). |
-| Supabase Edge Functions | Runs the public, unauthenticated **Intake Receiver** and the **Ingestion Worker**. | Deployed separately from the Vercel app so the receiver's uptime is independent of the authenticated application (NFR-002, NFR-003). Receiver persists raw payloads only — no business logic. |
+| Supabase Edge Functions | Runs the public, unauthenticated **Intake Receiver** and the **Ingestion Worker**. | Deployed separately from the Vercel app so the receiver's uptime is independent of the authenticated application (NFR-002, NFR-003). Receiver persists raw payloads only — no business logic. Applies a coarse per-intake-key abuse ceiling (Postgres-native counter, §6) before enqueueing. |
 | `pg_cron` | Schedules the Ingestion Worker to drain `pgmq` on an interval. | Idempotent transform on submission id; bounded retries then dead-letter (PRD-001, PRD-030). |
 | Supavisor (connection pooler) | Pools direct Postgres connections. | **Not on the app's hot path** — `supabase-js`/PostgREST and the Edge Functions reach Postgres over REST/RPC and bypass Supavisor. Relevant only to direct-TCP clients (the Supabase CLI migration connection, §6), which MUST use transaction mode. |
 | Supabase Auth (GoTrue) | First-party credential store and identity for Role-Based Access Control (RBAC). | Passwords hashed with bcrypt (meets NFR-007 fallback: work factor ≥ 12). Sessions carried as httpOnly cookies via `@supabase/ssr`; cookie flags in §6. |
@@ -91,6 +91,7 @@ plane, keeping one managed vendor for all persistence.
 | Supabase Auth as-is (JSON Web Token (JWT), bcrypt) | Roll-own Argon2id session auth; external Identity Provider (IdP) / Auth0 | Reuse the managed auth already in the platform; bcrypt satisfies the NFR-007 fallback. The session posture is a cookie-carried JWT (httpOnly, via `@supabase/ssr`), reconciled into ARCHITECTURE §1/§4/§5/§7. External IdP stays rejected per ARCHITECTURE §4. |
 | Database-enforced RLS as the authorization locus + app-side route guards for admin config | App-layer-primary authz (service-role + manual `tenant_id` scoping on every query); browser-direct database access; RLS dropped entirely | ARCHITECTURE §4/§5/§7 makes Postgres RLS the enforcement locus: the caller's JWT (httpOnly cookie, via `@supabase/ssr`) reaches Postgres through PostgREST as the `authenticated` role, and RLS decides tenant scope + row ownership. App-side route guards sit in front only to gate admin-only configuration (PRD-026). App-layer-primary was rejected — a single forgotten `tenant_id` filter is a silent cross-tenant leak, whereas under RLS the same bug returns zero rows. Browser-direct DB access was rejected (PRD-025 requires the server as sole authority). Dropping RLS was rejected — it removes the non-bypassable tenant guarantee. The PRD-027 ownership matrix is expressed in RLS policies plus JWT role claims. |
 | `pgmq` + `pg_cron` for the capture path | Vercel stateless functions as the buffer; external queue (SQS / Upstash) | Vercel functions are stateless and ephemeral, so they cannot *be* the durable buffer. `pgmq` keeps the buffer in the same managed Postgres — no new vendor — and satisfies persist-before-process (NFR-002). |
+| Postgres-native per-intake-key abuse ceiling at the Receiver | Upstash Redis rate-limiter; no intake limit at all (defer entirely per PRD §12) | A coarse per-key request cap protects the NFR-003 intake SLA, the Edge Function quota, and cost from an anonymous flood — infrastructure self-protection, distinct from the spam/dedup *filtering* that PRD §12 correctly defers to a later PRD. A Postgres counter reuses the round-trip the Receiver already makes to enqueue, adding no vendor — consistent with the `pgmq` rejection of Upstash above. Upstash was rejected here for the same vendor-minimalism reason and no perf need at thin-core scale; it becomes a candidate only if intake volume makes the Postgres check a measured bottleneck. This is a ceiling, not precision traffic-shaping. |
 | Resend for email | Amazon SES; raw SMTP relay; SendGrid | A simple transactional API is enough because delivery is optional (PRD-020); heavier providers add setup the release does not need. |
 | Sentry + PostHog for observability | Single-vendor Application Performance Monitoring (Datadog); platform logs only | Sentry covers app errors and interactive latency (NFR-005); PostHog covers the onboarding funnel (NFR-004). **Gap:** neither covers the capture service-level signals — buffer depth, worker lag, dead-letter count (ARCHITECTURE §9); those come from Supabase observability plus custom alerts on the `pgmq`/dead-letter tables. |
 
@@ -108,6 +109,15 @@ plane, keeping one managed vendor for all persistence.
 - The Supabase service-role key MUST be used server-side only and MUST NOT be exposed to
   the browser; its use is confined to the three system paths (Intake Receiver, Ingestion
   Worker, provisioning), which re-scope `tenant_id` in code.
+- Secrets (service-role key, Resend/Sentry/PostHog keys, intake keys, DB credentials) live
+  in Vercel Environment Variables (Vercel-hosted app) and Supabase Vault / project secrets
+  (Edge Functions); they MUST NOT be committed to the repository. The service-role key — and
+  any other server-only secret — MUST NOT carry the `NEXT_PUBLIC_` prefix, which would inline
+  it into the client bundle. Only the Supabase URL and anon key may be public.
+- Supabase anon and service-role keys are rotatable from the Supabase dashboard; rotation is
+  a documented runbook step, performed on suspected compromise. No fixed rotation cadence is
+  set for thin-core (no NFR or compliance obligation requires one — ARCHITECTURE §7); a
+  scheduled policy is revisited if a future compliance scope (e.g. SOC 2) demands it.
 - The Supabase session cookie (issued via `@supabase/ssr`) MUST carry the `httpOnly`,
   `Secure`, and `SameSite` flags; these back the anti-CSRF posture in ARCHITECTURE §7.
 - Authenticated application traffic reaches Postgres over PostgREST/`supabase-js` (REST),
@@ -126,6 +136,11 @@ plane, keeping one managed vendor for all persistence.
   restore rebuilds against, NFR-010/NFR-013).
 - TypeScript types for database access are generated with `supabase gen types typescript` and
   regenerated after any schema migration; there is no ORM in the stack.
+- The Intake Receiver MUST enforce a coarse per-intake-key request ceiling (a Postgres-native
+  counter) and reject requests over the cap before enqueueing to `pgmq`. This is
+  infrastructure self-protection for the NFR-003 SLA and Edge quota — not spam/dedup
+  filtering, which stays deferred (PRD §12). It MUST NOT block or slow a within-limit
+  submission (persist-before-process, NFR-002 is unaffected).
 - No browser-to-Postgres direct Create/Read/Update/Delete (CRUD). Every authenticated
   record read and write carries the caller's JWT to Postgres through PostgREST as the
   `authenticated` role, where RLS enforces tenant scope and row ownership (PRD-025,
