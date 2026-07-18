@@ -67,7 +67,7 @@ plane, keeping one managed vendor for all persistence.
 | Tailwind CSS | 4.x | Utility styling system for all SPA screens. |
 | shadcn/ui | CLI-pinned (Radix-based) | Accessible component primitives; the Radix foundation carries the keyboard/ARIA behavior that WCAG 2.1 AA (NFR-012) depends on. |
 | TanStack Query (React Query) | 5.x | Client-side server-state cache for the queue, pipeline board, and quote views; keeps perceived interaction latency low (NFR-005). |
-| `@supabase/supabase-js` | 2.x | Server-side Postgres and Storage access using the service-role key. **Server only** — never shipped to the browser. |
+| `@supabase/supabase-js` | 2.x | Postgres and Storage access. Authenticated user requests use the user-scoped client (session cookie via `@supabase/ssr`) so RLS applies. The service-role key is used **server-side only**, confined to the three system paths (Intake Receiver, Ingestion Worker, provisioning), and is **never shipped to the browser**. |
 | `@supabase/ssr` | 0.x | Supabase Auth session handling via httpOnly cookies in the Next.js server. |
 | `resend` (SDK) | 4.x | Resend API client for quote-email delivery. |
 | `@sentry/nextjs` | 9.x | Sentry integration for the Next.js app and Edge Functions. |
@@ -85,17 +85,11 @@ plane, keeping one managed vendor for all persistence.
 | --- | --- | --- |
 | Next.js on Vercel (SPA + JSON API in one app) | Server-rendered Multi-Page Application (MPA); split SPA + standalone API services | ARCHITECTURE §4 chose an SPA with the API as sole access authority; a modular monolith on one host keeps ops trivial at 10 concurrent users (NFR-004/005). |
 | Supabase managed platform | Self-hosted Postgres + hand-rolled auth/storage; Firebase | One managed vendor delivers the NFR-003/010 posture for Postgres, Auth, Storage, and Edge Functions. Firebase's document model was rejected — the domain is a relational graph (ARCHITECTURE §2). |
-| Supabase Auth as-is (JSON Web Token (JWT), bcrypt) | Roll-own Argon2id session auth; external Identity Provider (IdP) / Auth0 | Reuse the managed auth already in the platform; bcrypt satisfies the NFR-007 fallback. Trade-off: shifts the architecture's session posture toward JWT — **requires a reconciliation update to ARCHITECTURE §4/§7** (see note below). External IdP stays rejected per ARCHITECTURE §4. |
-| App-layer authz + Postgres Row-Level Security (RLS) as backstop | Supabase RLS-primary with browser-direct database access; app-layer authz with no RLS | ARCHITECTURE §4/§5 makes a centralized app-layer authorization pipeline the authority; RLS on `tenant_id` is defense-in-depth only. RLS-primary was rejected — it scatters rules and cannot express the PRD-027 ownership matrix cleanly. Dropping RLS entirely was rejected — it removes the database backstop against an unscoped query (the cross-tenant leak ARCHITECTURE §4 warns about). |
+| Supabase Auth as-is (JSON Web Token (JWT), bcrypt) | Roll-own Argon2id session auth; external Identity Provider (IdP) / Auth0 | Reuse the managed auth already in the platform; bcrypt satisfies the NFR-007 fallback. The session posture is a cookie-carried JWT (httpOnly, via `@supabase/ssr`), reconciled into ARCHITECTURE §1/§4/§5/§7. External IdP stays rejected per ARCHITECTURE §4. |
+| Database-enforced RLS as the authorization locus + app-side route guards for admin config | App-layer-primary authz (service-role + manual `tenant_id` scoping on every query); browser-direct database access; RLS dropped entirely | ARCHITECTURE §4/§5/§7 makes Postgres RLS the enforcement locus: the caller's JWT (httpOnly cookie, via `@supabase/ssr`) reaches Postgres through PostgREST as the `authenticated` role, and RLS decides tenant scope + row ownership. App-side route guards sit in front only to gate admin-only configuration (PRD-026). App-layer-primary was rejected — a single forgotten `tenant_id` filter is a silent cross-tenant leak, whereas under RLS the same bug returns zero rows. Browser-direct DB access was rejected (PRD-025 requires the server as sole authority). Dropping RLS was rejected — it removes the non-bypassable tenant guarantee. The PRD-027 ownership matrix is expressed in RLS policies plus JWT role claims. |
 | `pgmq` + `pg_cron` for the capture path | Vercel stateless functions as the buffer; external queue (SQS / Upstash) | Vercel functions are stateless and ephemeral, so they cannot *be* the durable buffer. `pgmq` keeps the buffer in the same managed Postgres — no new vendor — and satisfies persist-before-process (NFR-002). |
 | Resend for email | Amazon SES; raw SMTP relay; SendGrid | A simple transactional API is enough because delivery is optional (PRD-020); heavier providers add setup the release does not need. |
 | Sentry + PostHog for observability | Single-vendor Application Performance Monitoring (Datadog); platform logs only | Sentry covers app errors and interactive latency (NFR-005); PostHog covers the onboarding funnel (NFR-004). **Gap:** neither covers the capture service-level signals — buffer depth, worker lag, dead-letter count (ARCHITECTURE §9); those come from Supabase observability plus custom alerts on the `pgmq`/dead-letter tables. |
-
-**Reconciliation note (auth).** Adopting Supabase Auth as-is moves the session posture
-from the server-session model described in ARCHITECTURE §4 (and the anti-Cross-Site
-Request Forgery (CSRF) / `SameSite` wording in §7) toward a cookie-carried JWT. This
-TECH-STACK.md is the approved decision; ARCHITECTURE.md MUST be reconciled via
-`/proj-init-doc-update` so the upstream document no longer contradicts it.
 
 ## 6. Versions & Constraints
 
@@ -109,10 +103,15 @@ TECH-STACK.md is the approved decision; ARCHITECTURE.md MUST be reconciled via
 - Transport Layer Security (TLS) 1.2 or higher MUST be enforced at both the Vercel and
   Supabase edges; plaintext HTTP MUST be rejected (NFR-009).
 - The Supabase service-role key MUST be used server-side only and MUST NOT be exposed to
-  the browser.
-- No browser-to-Postgres direct Create/Read/Update/Delete (CRUD). Every record read and
-  write MUST pass through the Next.js server authorization pipeline (PRD-025, NFR-008);
-  RLS is a backstop, not the primary control.
+  the browser; its use is confined to the three system paths (Intake Receiver, Ingestion
+  Worker, provisioning), which re-scope `tenant_id` in code.
+- The Supabase session cookie (issued via `@supabase/ssr`) MUST carry the `httpOnly`,
+  `Secure`, and `SameSite` flags; these back the anti-CSRF posture in ARCHITECTURE §7.
+- No browser-to-Postgres direct Create/Read/Update/Delete (CRUD). Every authenticated
+  record read and write carries the caller's JWT to Postgres through PostgREST as the
+  `authenticated` role, where RLS enforces tenant scope and row ownership (PRD-025,
+  NFR-008); RLS is the primary control, fronted by app-side route guards for admin-only
+  configuration.
 - The package manager is `npm` (bundled with the approved Node.js 22 LTS); a different
   package manager MUST NOT be introduced without updating this file.
 - ESLint 9.x + Prettier 3.x are the only linter and formatter. Vitest 3.x runs unit tests;

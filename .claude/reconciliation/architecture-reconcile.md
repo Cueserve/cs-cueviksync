@@ -6,10 +6,9 @@
 
 ## Downstream checklist
 
-- [ ] `TECH-STACK.md` — required-update: The httpOnly cookie-carried JWT is now an architectural fact; TECH-STACK.md must record the concrete session mechanism — `@supabase/ssr` for cookie-based session handling and the cookie flags that back the posture (`httpOnly`, `Secure`, `SameSite`). Currently `Planned`.
-      Next action: feeds Step-05 directly when TECH-STACK.md is generated; if it already exists, run `/proj-init-doc-update TECH-STACK.md`.
 - [ ] `AI-TOOL-GUIDE.md` — review-only: The cookie-transport detail adds no new AI-tool constraint beyond the existing rules (never use service-role on authenticated user paths; JWT drives RLS). Validate no update is needed when it is authored; if a session-handling usage rule is warranted, that belongs in TECH-STACK.md, not here. Currently `Planned`.
       Next action: confirm during Step-06 authoring; if it already exists, run `/proj-init-doc-update AI-TOOL-GUIDE.md`.
 
 ## Completed
-<!-- Move items here once resolved -->
+
+- [x] `TECH-STACK.md` — required-update **done (2026-07-18)**: session mechanism now recorded — `@supabase/ssr` cookie-based handling (§4) and the `httpOnly`/`Secure`/`SameSite` cookie flags (§6). The §5 authorization-locus decision was also reconciled to RLS-primary, matching ARCHITECTURE §4; the former §5 reconciliation note was retired as no contradiction remains.
