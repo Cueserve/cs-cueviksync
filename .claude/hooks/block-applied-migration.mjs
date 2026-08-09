@@ -7,7 +7,7 @@
  * migration that the linked project has already applied is skipped silently on the next
  * push while reading as though it landed — the repo and the hosted schema diverge with
  * no error. CuevikSync develops against a hosted Supabase project, so there is no
- * `db reset` to recover with (AI-TOOL-GUIDE §9 puts `supabase/migrations/` off-limits
+ * `db reset` to recover with (CLAUDE.md "Off-limits" puts `supabase/migrations/` off-limits
  * for the same reason).
  *
  * "Applied" proxy: present in `origin/main` (or local `main`). CuevikSync's workflow is

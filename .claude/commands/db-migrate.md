@@ -16,8 +16,8 @@ Migrations are applied **after** merging to `main`, never before (CONTRIBUTING.m
 ordering). If the migration you are about to push is not yet on `main`, stop and say so.
 
 **A schema or migration change requires explicit human approval before it is authored at all**
-([AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §7), and `supabase/migrations/` is off-limits to
-autonomous edits (§9). This command applies migrations a human has already approved — it is not a
+([CLAUDE.md](../../CLAUDE.md) "Decision escalation"), and `supabase/migrations/` is off-limits to
+autonomous edits (CLAUDE.md "Off-limits"). This command applies migrations a human has already approved — it is not a
 license to write them.
 
 Arguments (optional): `$ARGUMENTS` — pass `dry-run` to stop after step 3 and report only.
@@ -30,11 +30,11 @@ Arguments (optional): `$ARGUMENTS` — pass `dry-run` to stop after step 3 and r
    pending file. Never push a migration the user has not seen.
 2. Confirm the project is linked: `supabase/.temp/project-ref` exists. If not, stop — the user
    must run `npx supabase link` themselves (it needs their credentials, and
-   [AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §9 keeps credentials out of scope).
+   [CLAUDE.md](../../CLAUDE.md) "Off-limits" keeps credentials out of scope).
 3. **Read every pending migration file before pushing it.** A migration is irreversible against a
    hosted database. Specifically flag, and stop for confirmation, if any contains:
    - `drop table`, `drop column`, `truncate`, `alter column ... type`, or `delete from`
-   - a change to a file already committed to `HEAD` — the `block-applied-migration` hook denies
+   - a change to a file already present in `origin/main` — the `block-applied-migration` hook denies
      that edit for a reason; if one reached the working tree anyway, treat it as a divergence
      and stop.
    - **an RLS policy change** — CuevikSync's tenant isolation is a database guarantee
@@ -66,13 +66,13 @@ Read the output. Common failures and what they mean:
 
 - **Naming rejected** — the CLI expects a 14-digit UTC timestamp prefix. If the repo has settled
   on a different scheme, rename all files to one consistent scheme in a single change rather than
-  mixing the two — and record the convention in a docs change of its own
-  ([AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §6), never inline here.
+  mixing the two — and record the convention in a documentation change of its own
+  ([CONTRIBUTING.md](../../CONTRIBUTING.md) "Documentation changes"), never inline here.
 - **Connection refused / project paused** — Supabase free-plan projects pause after a week idle.
   Tell the user to resume it in the dashboard; do not retry in a loop.
 - **`pgmq` / `pg_cron` missing** — the capture path depends on both extensions
   ([CONTRIBUTING.md](../../CONTRIBUTING.md) — Environment). Enabling an extension is itself a
-  schema change requiring approval (§7). Stop and report.
+  schema change requiring approval (CLAUDE.md "Decision escalation"). Stop and report.
 
 Stop here if `$ARGUMENTS` contains `dry-run`.
 
@@ -85,7 +85,7 @@ npx supabase gen types typescript --linked > <generated-types-path>
 
 Type regeneration is not optional — [TECH-STACK.md](../../docs/TECH-STACK.md) §4 makes the
 generated types the type-safety path in a no-ORM stack, and
-[AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §2 requires regenerating after any schema change.
+[ENGINEERING-RULES.md](../../docs/ENGINEERING-RULES.md) §1 requires regenerating after any schema change.
 A schema that moved without its types leaves every `supabase-js` call lying about its shape.
 
 > `<generated-types-path>` is not fixed yet — it is set when the app is scaffolded. Read the
@@ -94,8 +94,8 @@ A schema that moved without its types leaves every `supabase-js` call lying abou
 >
 > Neither `supabase db push` nor `supabase gen types typescript` appears in the
 > [CONTRIBUTING.md](../../CONTRIBUTING.md) Tooling-layer command table. That is a documentation
-> gap, not permission to invent an `npm` script — report it so it can be fixed as its own docs
-> change (§6).
+> gap, not permission to invent an `npm` script — report it so it can be fixed as its own
+> documentation change (CONTRIBUTING.md "Documentation changes").
 
 ## 5. Verify
 
@@ -105,7 +105,7 @@ A schema that moved without its types leaves every `supabase-js` call lying abou
    [CONTRIBUTING.md](../../CONTRIBUTING.md): `npm run lint`, `tsc --noEmit`, `npm run test`.
    A type regeneration that breaks the type-check is the whole reason this step exists.
 4. If the migration touched RLS, state explicitly whether a tenant-isolation test covers it —
-   [AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §5 makes cross-tenant read/write coverage
+   [ENGINEERING-RULES.md](../../docs/ENGINEERING-RULES.md) §3 makes cross-tenant read/write coverage
    mandatory, not optional.
 
 ## 6. Report — do not commit or push
@@ -114,5 +114,5 @@ Summarize: files applied, extensions/policies touched, types regenerated (yes/no
 gate result, and anything left pending.
 
 **Do not commit, and do not push to any remote.** Both are human actions
-([AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §10). State the suggested Conventional Commit
+([CLAUDE.md](../../CLAUDE.md) "Workflow"). State the suggested Conventional Commit
 message and stop.

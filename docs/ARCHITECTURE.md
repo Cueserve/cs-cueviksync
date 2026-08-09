@@ -5,7 +5,7 @@
 **Source of truth for:** the system structure, component boundaries, and design decisions that satisfy the CuevikSync Phase 1 thin-core PRD.
 
 > Derived from: docs/PRD.md
-> Downstream: docs/TECH-STACK.md, docs/AI-TOOL-GUIDE.md, README.md, docs/BACKLOG.md
+> Downstream: docs/TECH-STACK.md, docs/ENGINEERING-RULES.md, README.md, docs/BACKLOG.md
 
 ---
 

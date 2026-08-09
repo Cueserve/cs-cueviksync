@@ -45,7 +45,7 @@ Open PRs from the CLI (`gh pr create`) or the GitHub web UI.
 _Initiation is complete. The branching, review, and contribution rules for ongoing
 development are the team's to define once dev-phase realities are known — team size,
 review model, CI gates, release/versioning, environments. Fill this section in and
-remove this note as a standalone documentation change (AI-TOOL-GUIDE §6)._
+remove this note as a standalone documentation change (see Documentation changes below)._
 <!-- END DEVELOPMENT-PHASE-GOVERNANCE -->
 
 ---
@@ -65,6 +65,22 @@ Examples:
 - `docs: add repo governance baseline`
 - `feat: add sync retry queue`
 - `fix: handle empty payload on push`
+
+---
+
+## Documentation changes
+
+The source-of-truth documents in `docs/`, plus this file and `CLAUDE.md`, are authoritative.
+Changing one is a **standalone change, never folded into feature work**:
+
+1. Propose the edit as a diff.
+2. Name the downstream documents it affects — each document's header carries a `Downstream:`
+   line listing them.
+3. Get explicit approval.
+4. Land it in its own commit.
+
+Keep acronyms defined on first use in any new document, and match the writing standard already
+in `docs/`.
 
 ---
 

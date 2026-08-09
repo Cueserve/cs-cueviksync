@@ -50,10 +50,10 @@ here means wrong in every session.
   — **read-only**, and it may not exist yet. A memory that contradicts the repo is a finding;
   never edit one during an audit. Report it and let the user decide.
 
-**Tier 2 — permanent source of truth.** The seven numbered documents:
+**Tier 2 — permanent source of truth.**
 `docs/PRODUCT.md`, `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/TECH-STACK.md`,
-`docs/AI-TOOL-GUIDE.md`, `README.md`, `docs/BACKLOG.md` — plus `CONTRIBUTING.md`, which
-`AI-TOOL-GUIDE.md` §10 names the **governance authority**.
+`docs/ENGINEERING-RULES.md`, `README.md`, `docs/BACKLOG.md` — plus `CONTRIBUTING.md`, the
+**governance authority**, and `CLAUDE.md`, which owns every agent-behavior rule.
 
 **Tier 3 — pre-decision and post-hoc artifacts.** `docs/brainstorming/*.md`, `docs/reviews/*.md`.
 These are **not** authoritative and never win a tie. Brainstorming records options considered
@@ -85,7 +85,7 @@ PRODUCT.md  (starting point — owns vision, scope, non-goals)
    └─> PRD.md  (owns requirements PRD-NNN and NFR-NNN, acceptance criteria)
          ├─> ARCHITECTURE.md  (owns structure, boundaries, invariants)
          │     └─> TECH-STACK.md  (owns approved technologies and versions)
-         │           └─> AI-TOOL-GUIDE.md  (owns conventions, banned patterns, testing rules)
+         │           └─> ENGINEERING-RULES.md  (owns conventions, banned patterns, testing)
          └─> README.md, BACKLOG.md  (own nothing — they restate)
 ```
 
@@ -93,12 +93,14 @@ Apply top-down. The higher entry is right by construction; the lower one is the 
 
 1. **Filesystem and git.** A doc claiming a file exists loses to `ls`. No exceptions.
 2. **CONTRIBUTING.md** for governance — branching, commits, review flow, the tooling command table.
-   `AI-TOOL-GUIDE.md` §10 explicitly subordinates itself here and says it MUST NOT diverge.
+   `CLAUDE.md` "Workflow" explicitly subordinates itself here and says it MUST NOT diverge.
 3. **Tier 2 docs among themselves, by the graph above.** A fact loses to the doc that derives
    *upstream* of it. Scope loses to PRODUCT; a requirement number loses to PRD; a structural
    invariant loses to ARCHITECTURE; a version or package loses to TECH-STACK.
-4. **CLAUDE.md** — an adapter over the docs plus the Claude-Code-specific rules it *does* own.
-   Where it restates a doc, the doc wins; where it states a working rule, CLAUDE.md is the owner.
+4. **CLAUDE.md** — owns every agent-behavior rule: scope boundaries, decision escalation,
+   off-limits paths, and workflow constraints. It also *imports* `docs/ENGINEERING-RULES.md`.
+   Where it restates an imported or upstream doc, that doc wins; on agent behavior CLAUDE.md is
+   the sole owner and nothing in `docs/` may contradict it.
 5. **README.md and BACKLOG.md** — own nothing. They lose every tie.
 6. **Tier 3** — never authoritative.
 
@@ -152,7 +154,7 @@ invent a canon).
 - Every `PRD-NNN` and `NFR-NNN` has acceptance criteria, and they are **testable** — a number, a
   state, or an observable behavior. "Fast", "intuitive", "reliable" are findings.
 - **Every requirement ID cited anywhere resolves.** `PRD-025`, `NFR-008`, `NFR-010` and friends are
-  cited across ARCHITECTURE, TECH-STACK, AI-TOOL-GUIDE, and `.claude/commands/`. A citation to a
+  cited across ARCHITECTURE, TECH-STACK, ENGINEERING-RULES, and `.claude/commands/`. A citation to a
   renumbered or non-existent ID is worse than a broken link — it reads as verified.
 - Numbers agree across files: the 24-hour Recovery Point Objective (NFR-010), the 8-business-hour
   recovery target (NFR-013), 50,000 records / 10 concurrent users (NFR-006), the 50 MB Vercel
@@ -167,8 +169,8 @@ Pass B only compares things that exist. This is where a *gap* gets caught.
 
 - A requirement with no acceptance criteria.
 - A `Downstream:` document that never actually reflects the upstream fact.
-- A banned pattern in AI-TOOL-GUIDE §4 with no decision in ARCHITECTURE or TECH-STACK behind it —
-  §4 claims every entry traces to one.
+- A banned pattern in ENGINEERING-RULES §2 with no decision in ARCHITECTURE or TECH-STACK behind
+  it — §2 claims every entry traces to one.
 - A command in `CONTRIBUTING.md`'s tooling table with no tool backing it in TECH-STACK, or a tool
   in TECH-STACK with no way to invoke it.
 - A deferred/blocked decision with no named decider and no statement of what unblocks it.
@@ -228,11 +230,11 @@ where this repo has drifted or is structurally likely to:
   against the table, not against the caller.
 - **Approved stack and versions.** Next.js 16 / React 19 / Node 22 LTS / TypeScript 5.x /
   Postgres 17 and the rest. TECH-STACK owns these; a version stated elsewhere loses.
-- **Banned patterns and off-limits paths.** AI-TOOL-GUIDE §4 and §9 vs what `CLAUDE.md` and
+- **Banned patterns and off-limits paths.** ENGINEERING-RULES §2 and CLAUDE.md "Off-limits" vs what
   `.claude/settings.json` actually enforce. A rule stated in prose but not machine-enforced is not
   automatically a defect — but a rule *claimed* to be enforced that isn't, is.
 - **Governance.** Branch prefixes, Conventional Commit types, the never-push-to-`main` rule, the
-  self-review gate. CONTRIBUTING owns all of it; AI-TOOL-GUIDE §10 restates it and says so.
+  self-review gate. CONTRIBUTING owns all of it; CLAUDE.md "Workflow" points at it and says so.
 - **Cross-references.** Every relative link and every `§` / `PRD-NNN` / `NFR-NNN` citation: does
   the target file exist, and does the cited section say what the citing file claims?
 
@@ -275,8 +277,7 @@ copies of one fact drift on the next edit and only one gets updated.
 
 For each fact class in 4A, ask: how many files *state* it, versus the one that *owns* it (ladder
 rung 3)? Flag any fact stated substantively in two or more places. The usual sources here are
-`README.md` restating `docs/`, `CLAUDE.md` restating `AI-TOOL-GUIDE.md`, and `AI-TOOL-GUIDE.md` §10
-restating `CONTRIBUTING.md` — the last one self-declares the duplication in its own text.
+`README.md` restating `docs/`, and `CLAUDE.md` restating a `docs/` file it imports rather than owns.
 
 Not every restatement is a defect — a one-line pointer with a link is the correct pattern. The line
 is **whether a reader could act on the copy alone**. If yes, it is a duplicate and will drift.
@@ -312,27 +313,25 @@ Propose both halves or neither.
 
 ## 6. Known-open findings, for calibration
 
-Confirmed open on **2026-08-09**. Re-verify each still reproduces before reporting it, and
-**delete an entry once fixed** — a stale calibration list is the exact failure this command exists
-to catch.
+**No known-open findings as of 2026-08-09.** That is not a claim the corpus is clean — it means
+every finding this list has carried was resolved. Start each run from the filesystem, never from
+this section.
 
-1. **[B-P1] Reference-table `Status` column is stale.** `docs/PRD.md:20` and
-   `docs/ARCHITECTURE.md:20` mark TECH-STACK.md and AI-TOOL-GUIDE.md as **Planned**; both files
-   exist on disk. `docs/TECH-STACK.md`, `docs/AI-TOOL-GUIDE.md`, and `docs/BACKLOG.md` carry the
-   same table with **no** `Status` column at all. **Ruling:** filesystem wins (rung 1); the column
-   shape also needs one answer, not two.
-2. **[C-DUPLICATE] `AI-TOOL-GUIDE.md` §10 restates `CONTRIBUTING.md`.** Self-declared at
-   `AI-TOOL-GUIDE.md:212`. `CLAUDE.md:15-23` likewise restates AI-TOOL-GUIDE §6 and §9 inline.
-   Both are actionable-from-the-copy-alone, so both will drift.
-3. **[A-MISSING] `CLAUDE.md` asks Claude to read `docs/AI-TOOL-GUIDE.md` rather than importing
-   it.** "Read it first" is a request that can be skipped, and skipping it silently drops every
-   rule in the file. An `@docs/AI-TOOL-GUIDE.md` import would load it unconditionally. Open
-   decision, not yet made.
+**Resolved on 2026-08-09 — do not re-report these as new discoveries.** If one reappears it is a
+**regression**, and should be reported as one:
 
-**Fixed on 2026-08-09 — do not re-report:** the Supabase environment posture (development is a
-linked hosted project, the local stack is test/CI only, migrations apply merge-then-push) and the
-`CONTRIBUTING.md` tooling-table gaps (`link`, `db push --linked`, `gen types --linked`). If any of
-that reads as undifferentiated again, it is a regression, not a rediscovery.
+- **Supabase environment posture.** Development targets a linked hosted project; the local stack
+  (`npx supabase start`) serves automated tests and CI only; migrations apply merge-then-push.
+  Recorded in `CONTRIBUTING.md` § Environment.
+- **Tooling-table gaps.** `npx supabase link`, `db push --linked`, and
+  `gen types typescript --linked` are rows in the `CONTRIBUTING.md` command table.
+- **Duplicate Document References tables.** Five copies deleted; `README.md` § Further Reading is
+  the single index.
+- **`AI-TOOL-GUIDE.md`.** Split and deleted — agent-behavior rules moved into `CLAUDE.md`,
+  engineering rules became `docs/ENGINEERING-RULES.md`, and the documentation-change process moved
+  to `CONTRIBUTING.md`. **No file by that name should exist**, and no doc should cite it.
+- **CLAUDE.md asking Claude to read its own rules.** It imports them with
+  `@docs/ENGINEERING-RULES.md`. A reversion to "read this file first" is a regression.
 
 ## 7. Report format
 
@@ -374,7 +373,7 @@ copy the owner's wording. README owns nothing, so correcting it is transcription
 
 **Approval** (never auto-applied, even under `fix`): anything editing `docs/`, `CONTRIBUTING.md`,
 `CLAUDE.md`, or `.claude/**`; every terminology rename; and **every Pass C finding without
-exception**. [AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §6 is explicit — a change to a
+exception**. [CONTRIBUTING.md](../../CONTRIBUTING.md) "Documentation changes" is explicit — a change to a
 source-of-truth document is a standalone approved change with its downstream documents named,
 never folded into other work. This command is other work.
 

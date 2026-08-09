@@ -5,7 +5,7 @@
 **Source of truth for:** the technologies approved for the CuevikSync Phase 1 thin-core release and the rules for how each may be used.
 
 > Derived from: docs/PRD.md, docs/ARCHITECTURE.md
-> Downstream: docs/AI-TOOL-GUIDE.md, README.md, docs/BACKLOG.md
+> Downstream: docs/ENGINEERING-RULES.md, README.md, docs/BACKLOG.md
 
 ---
 

@@ -4,7 +4,7 @@
 **Last updated:** 2026-07-18
 **Source of truth for:** The epics/stories manifest and host item IDs — intentionally deferred; to be built incrementally at development start.
 
-> Derived from: docs/PRODUCT.md, docs/PRD.md, docs/ARCHITECTURE.md, docs/TECH-STACK.md, docs/AI-TOOL-GUIDE.md, README.md
+> Derived from: docs/PRODUCT.md, docs/PRD.md, docs/ARCHITECTURE.md, docs/TECH-STACK.md, docs/ENGINEERING-RULES.md, README.md
 > Downstream: (none — final initiation step)
 
 ---
