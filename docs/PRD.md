@@ -7,20 +7,6 @@
 > Derived from: docs/PRODUCT.md
 > Downstream: docs/ARCHITECTURE.md, docs/TECH-STACK.md, README.md, docs/BACKLOG.md
 
-## Document References
-
-Document availability and maturity are tracked in README.md (Documentation Status).
-
-| # | Document | Role | Status |
-| --- | --- | --- | --- |
-| 1 | PRODUCT.md | What we are building and why | Present |
-| 2 | PRD.md | Testable requirements | Present |
-| 3 | ARCHITECTURE.md | System structure & design decisions | Present |
-| 4 | TECH-STACK.md | Approved technologies & usage rules | Planned |
-| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools | Planned |
-| 6 | README.md | Setup, env config, how to run | Present |
-| 7 | BACKLOG.md | Epics/stories manifest | Planned |
-
 ---
 
 ## Contents

@@ -71,8 +71,9 @@ the target doc; if not, that is a real Pass B finding.
   `.github/workflows/`, `.env.example`). Read `.env.example` only — **never** `.env` or
   `.env*.local`; they are denied in `.claude/settings.json`.
 
-If a file exists under `docs/` but appears in no Document References table and no `Downstream:`
-line, that is itself a finding — the corpus claims a closed, numbered set.
+If a file exists under `docs/` but appears in neither `README.md` § Further Reading nor any
+`Downstream:` line, that is itself a finding — Further Reading is the single index of the document
+set, and every document declares its own place in the lineage graph.
 
 ## 2. Authority ladder — who wins when two files disagree
 
@@ -212,9 +213,11 @@ decisions are not coding tasks; say so rather than proposing a default) · **rep
 For each fact class, extract every statement across the corpus and compare. These are the classes
 where this repo has drifted or is structurally likely to:
 
-- **The Document References table.** Seven numbered rows, repeated in most Tier 2 docs. Check the
-  numbering, the role text, **and the column shape** — some copies carry a `Status` column and some
-  don't, and a `Status` value must match what is actually on disk (Tier 4 wins).
+- **The document index.** `README.md` § Further Reading is the **only** index of the document set —
+  the per-document `## Document References` tables were deleted on 2026-08-09 precisely because
+  five copies of one list is five things to keep in sync. Check that the index is complete and
+  every link resolves. **If a copy of that table reappears in any `docs/` file, that is a
+  regression finding**, not a fact to reconcile.
 - **The lineage headers.** Every `Derived from:` / `Downstream:` pair must be reciprocal: if A
   lists B downstream, B must list A as derived-from. A one-way edge is a finding.
 - **Supabase environment posture.** Local stack vs linked hosted project. This determines whether
@@ -301,8 +304,9 @@ target is deletable; one with an open finding is not.
 Also flag the reverse: a Tier 3 section contradicting what actually landed. The landed doc wins,
 and the Tier 3 text needs a resolution note before anyone reads it as current.
 
-Deleting any file means removing every reference to it — Document References tables, `Downstream:`
-lines, README links — **in the same change**. Propose both halves or neither.
+Deleting any file means removing every reference to it — `README.md` § Further Reading, every
+`Derived from:` / `Downstream:` line naming it, and any inline link — **in the same change**.
+Propose both halves or neither.
 
 ---
 

@@ -7,18 +7,6 @@
 > Derived from: docs/PRODUCT.md, docs/PRD.md, docs/ARCHITECTURE.md, docs/TECH-STACK.md, docs/AI-TOOL-GUIDE.md, README.md
 > Downstream: (none — final initiation step)
 
-## Document References
-
-| # | Document | Role |
-| --- | --- | --- |
-| 1 | PRODUCT.md | What we are building and why |
-| 2 | PRD.md | Testable requirements |
-| 3 | ARCHITECTURE.md | System structure & design decisions |
-| 4 | TECH-STACK.md | Approved technologies & usage rules |
-| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools |
-| 6 | README.md | Setup, env config, how to run |
-| 7 | BACKLOG.md | Epics/stories manifest |
-
 ---
 
 ## 1. Summary

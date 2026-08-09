@@ -129,10 +129,18 @@ CLAUDE.md    Claude Code project rules — the primary AI coding tool for this r
 
 ## Further Reading
 
-- [PRD.md](docs/PRD.md) — requirements and feature scope
+The complete document set, listed in the order each derives from the one above it:
+
+- [PRODUCT.md](docs/PRODUCT.md) — what we are building and why
+- [PRD.md](docs/PRD.md) — testable requirements and feature scope
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system structure and design decisions
 - [TECH-STACK.md](docs/TECH-STACK.md) — approved technologies and usage rules
 - [AI-TOOL-GUIDE.md](docs/AI-TOOL-GUIDE.md) — rules and constraints for AI tools
+- [BACKLOG.md](docs/BACKLOG.md) — epics and stories manifest
+- [CONTRIBUTING.md](CONTRIBUTING.md) — branching, commits, review flow, and run commands
+
+Every document names its own upstream and downstream files in its header (`Derived from:` /
+`Downstream:`). Check those before changing one — this list is an index, not a dependency map.
 
 ---
 
