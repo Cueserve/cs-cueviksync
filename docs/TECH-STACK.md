@@ -5,19 +5,7 @@
 **Source of truth for:** the technologies approved for the CuevikSync Phase 1 thin-core release and the rules for how each may be used.
 
 > Derived from: docs/PRD.md, docs/ARCHITECTURE.md
-> Downstream: docs/AI-TOOL-GUIDE.md, README.md, docs/BACKLOG.md
-
-## Document References
-
-| # | Document | Role |
-| --- | --- | --- |
-| 1 | PRODUCT.md | What we are building and why |
-| 2 | PRD.md | Testable requirements |
-| 3 | ARCHITECTURE.md | System structure & design decisions |
-| 4 | TECH-STACK.md | Approved technologies & usage rules |
-| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools |
-| 6 | README.md | Setup, env config, how to run |
-| 7 | BACKLOG.md | Epics/stories manifest |
+> Downstream: docs/ENGINEERING-RULES.md, README.md, docs/BACKLOG.md
 
 ---
 
@@ -72,7 +60,7 @@ plane, keeping one managed vendor for all persistence.
 | Zod | 3.x | Schema validation of record — one declaration yields the runtime check and the inferred TypeScript type. Backs custom-field validation against FieldDefinition (PRD-022), mandatory opportunity fields (PRD-012), input validation for the stored-XSS mitigation (ARCHITECTURE §7), and the intake payload schema shared by the Receiver check and the Worker transform. |
 | `@supabase/supabase-js` | 2.x | Postgres and Storage access. Authenticated user requests use the user-scoped client (session cookie via `@supabase/ssr`) so RLS applies. The service-role key is used **server-side only**, confined to the three system paths (Intake Receiver, Ingestion Worker, provisioning), and is **never shipped to the browser**. |
 | `@supabase/ssr` | 0.x | Supabase Auth session handling via httpOnly cookies in the Next.js server. |
-| Supabase CLI | latest | Database migrations (`supabase/migrations/*.sql`), local dev stack, and Edge Function deploys. Schema, RLS policies, extensions (`pgmq`/`pg_cron`), and history tables are versioned as SQL migrations. |
+| Supabase CLI | latest | Database migrations (`supabase/migrations/*.sql`) and Edge Function deploys, both against a **linked hosted Supabase project** (`--linked`). Also provides the **local stack (`supabase start`), used only by automated tests and CI** — not for development. Schema, RLS policies, extensions (`pgmq`/`pg_cron`), and history tables are versioned as SQL migrations. |
 | `supabase gen types typescript` | (Supabase CLI) | Generates TypeScript types from the database schema for typed `supabase-js` access — the type-safety path in the no-ORM stack. Regenerated after each schema migration. |
 | `resend` (SDK) | 4.x | Resend API client for quote-email delivery. |
 | `@react-pdf/renderer` | 4.x | Server-side generation of the printable/shareable quote document (PRD-020). `renderToBuffer` in a Next.js route handler produces the `.pdf` stored in Supabase Storage (§2) and attachable to the Resend email. Chosen over browser-render (Puppeteer): ~2 MB vs. ~100 MB Chromium, which exceeds Vercel's 50 MB function limit — pure-JS, no headless browser. |
@@ -141,7 +129,7 @@ plane, keeping one managed vendor for all persistence.
   direct-connection client to the request path requires updating this file first.
 - All schema changes — tables, indexes, RLS policies, extension enablement, and history
   tables — MUST be authored as Supabase CLI migrations in `supabase/migrations/` and applied
-  via `supabase db push`. Applying schema or RLS changes by hand in the Supabase dashboard is
+  to the linked hosted project via `supabase db push --linked`. Applying schema or RLS changes by hand in the Supabase dashboard is
   prohibited; the migration files are the authoritative schema (and the definition a PITR/DR
   restore rebuilds against, NFR-010/NFR-013).
 - TypeScript types for database access are generated with `supabase gen types typescript` and

@@ -5,21 +5,7 @@
 **Source of truth for:** the system structure, component boundaries, and design decisions that satisfy the CuevikSync Phase 1 thin-core PRD.
 
 > Derived from: docs/PRD.md
-> Downstream: docs/TECH-STACK.md, docs/AI-TOOL-GUIDE.md, README.md, docs/BACKLOG.md
-
-## Document References
-
-Document availability and maturity are tracked in README.md (Documentation Status).
-
-| # | Document | Role | Status |
-| --- | --- | --- | --- |
-| 1 | PRODUCT.md | What we are building and why | Present |
-| 2 | PRD.md | Testable requirements | Present |
-| 3 | ARCHITECTURE.md | System structure & design decisions | Present |
-| 4 | TECH-STACK.md | Approved technologies & usage rules | Planned |
-| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools | Planned |
-| 6 | README.md | Setup, env config, how to run | Present |
-| 7 | BACKLOG.md | Epics/stories manifest | Planned |
+> Downstream: docs/TECH-STACK.md, docs/ENGINEERING-RULES.md, README.md, docs/BACKLOG.md
 
 ---
 

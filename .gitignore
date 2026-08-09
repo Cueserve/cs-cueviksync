@@ -28,6 +28,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# claude code — per-developer overrides (plugins, marketplaces); shared config is .claude/settings.json
+.claude/settings.local.json
+
 # vercel
 .vercel
 

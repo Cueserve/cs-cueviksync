@@ -50,9 +50,12 @@ roles, so a lead is never dropped even when the main app is degraded — see
 
 - Node.js 22 LTS or higher
 - npm (bundled with Node.js 22 LTS) — the only approved package manager; do not use pnpm or yarn
-- Supabase CLI (latest) — for the local dev stack, migrations, and Edge Function deploys
+- Supabase CLI (latest) — links this clone to the hosted project, applies migrations, deploys
+  Edge Functions, and runs the local test stack
+- Docker — required only to run the test suite (`npx supabase start`); not needed for development
 - Git
 - A Supabase account and project (Postgres 17, with the `pgmq` and `pg_cron` extensions enabled)
+  — this is your **development** database, not just a deploy target
 - A Vercel account (hosts the Next.js app)
 - Optional accounts, only if the corresponding feature is enabled: Resend (quote-email
   delivery), Sentry (error tracking), PostHog (product analytics)
@@ -93,9 +96,9 @@ Supabase URL and anon key may be public.
 
 ```bash
 npm install
-supabase start        # local Supabase stack (Postgres, Auth, Edge Functions)
-supabase db push      # apply migrations from supabase/migrations/
-npm run dev           # start the Next.js app locally
+npx supabase link              # link this clone to the hosted project (once)
+npx supabase db push --linked  # apply migrations from supabase/migrations/
+npm run dev                    # start the Next.js app locally
 ```
 
 ## Run Tests
@@ -112,25 +115,34 @@ npm run test:e2e      # Playwright end-to-end + WCAG 2.1 AA check (advisory / ni
 
 ## Project Structure
 
-> The app directories (`app/`, `supabase/`) are the intended layout from
-> [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [AI-TOOL-GUIDE.md](docs/AI-TOOL-GUIDE.md)
-> §2. They are created when we scaffold the app. `docs/`, `.github/`, and `.claude/`
-> exist today.
+> The app directories (`app/`, `supabase/`) and `.github/` are the intended layout from
+> [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md)
+> §1. They are created when we scaffold the app. `docs/`, `.claude/`, and `CLAUDE.md` exist today.
 
 ```text
 app/         Next.js App Router application — SPA client, server JSON API, and domain modules
 supabase/    Supabase CLI migrations (migrations/*.sql) and Edge Functions (Intake Receiver, Ingestion Worker)
-docs/        Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, AI-TOOL-GUIDE, BACKLOG)
-.github/     GitHub Actions CI workflows and Copilot instructions
-.claude/     Claude Code project configuration and rules
+docs/        Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, ENGINEERING-RULES, BACKLOG)
+.github/     GitHub Actions CI workflows
+.claude/     Claude Code settings, migration guard hook, and slash commands
+CLAUDE.md    Claude Code rules — agent behavior, scope, escalation, and off-limits paths
 ```
 
 ## Further Reading
 
-- [PRD.md](docs/PRD.md) — requirements and feature scope
+The complete document set, listed in the order each derives from the one above it:
+
+- [PRODUCT.md](docs/PRODUCT.md) — what we are building and why
+- [PRD.md](docs/PRD.md) — testable requirements and feature scope
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system structure and design decisions
 - [TECH-STACK.md](docs/TECH-STACK.md) — approved technologies and usage rules
-- [AI-TOOL-GUIDE.md](docs/AI-TOOL-GUIDE.md) — rules and constraints for AI tools
+- [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md) — coding conventions, banned patterns, testing
+- [BACKLOG.md](docs/BACKLOG.md) — epics and stories manifest
+- [CONTRIBUTING.md](CONTRIBUTING.md) — branching, commits, review flow, and run commands
+- [CLAUDE.md](CLAUDE.md) — how Claude Code must behave in this repository
+
+Every document names its own upstream and downstream files in its header (`Derived from:` /
+`Downstream:`). Check those before changing one — this list is an index, not a dependency map.
 
 ---
 
