@@ -1,25 +1,13 @@
 ﻿# PRODUCT.md — Product Concept
 
-**Owner:** Product Owner
-**Last updated:** 2026-07-12
-**Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
+**Owner:** Viral Parikh (Product Owner)
+**Last updated:** 2026-08-08
+**Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
+Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, 
+validated first against Print & Signage operations.
 
 > Derived from: (none — starting point)
 > Downstream: README.md, docs/PRD.md, docs/BACKLOG.md
-
-## Document References
-
-Document availability and maturity are tracked in README.md (Documentation Status).
-
-| # | Document | Role | Status |
-| --- | --- | --- | --- |
-| 1 | PRODUCT.md | What we are building and why | Present |
-| 2 | PRD.md | Testable requirements | Present |
-| 3 | ARCHITECTURE.md | System structure & design decisions | Planned |
-| 4 | TECH-STACK.md | Approved technologies & usage rules | Planned |
-| 5 | AI-TOOL-GUIDE.md | Rules & constraints for AI tools | Planned |
-| 6 | README.md | Setup, env config, how to run | Present |
-| 7 | BACKLOG.md | Epics/stories manifest | Planned |
 
 ---
 
@@ -36,6 +24,19 @@ because incoming inquiries slip through the cracks. Requests come in by phone, e
 form, and walk-in, and there's no single place to catch and track them all. Big CRM tools
 exist, but they're built for large corporate sales teams — too heavy, too rigid, and too
 expensive for a small team to actually use.
+
+Closing that gap has to be backed by software the team can trust — specifically:
+
+- **Zero-leak capture** — an inbound request that reaches the business must become a
+  record. Losing one is the single failure this product exists to prevent, so intake
+  reliability outranks every other property here.
+- **One record per inquiry** — a retry, a redelivery, or the same customer reaching out
+  twice must not fragment into duplicate leads that staff have to reconcile by hand.
+- **Configuration, not code** — a team must be able to shape pipelines, fields, catalog,
+  and roles to its own process without a developer or a consultant. If serving a customer
+  needs code, the platform is wrong, not the customer.
+- **A human owns anything the customer sees** — AI drafts and suggests; a person approves.
+  Nothing reaches a customer that someone did not explicitly send.
 
 ### Objective
 
@@ -122,6 +123,30 @@ become commitment only when captured in an approved PRD.
 - **Configurability & permissions** — industry-specific custom fields plus role-based
   access that keeps interfaces simple and sensitive data hidden.
 
+## 3A. Decision Placeholders
+
+Open product decisions that block implementation. Each names what is undecided, what it
+blocks, and who resolves it. A placeholder is closed only by an approved PRD — never by an
+implementation quietly picking a default.
+
+- **Estimation formula and price-break structure** — undefined. The estimation engine
+  (costing formulas, quantity-tier price breaks, margin-floor guardrail) is deferred to a
+  later PRD (PRD §9). Until that PRD is approved, no implementation may invent or infer
+  calculation order, rounding points, tier boundaries, or margin-floor behavior — and no
+  thin-core quote field may be shaped to anticipate one. **Decided by:** Product Owner.
+- **Work-orders and scheduling depth** — undecided between calendar plus resource
+  assignment and full capacity planning. Blocks the scheduling roadmap item in §4 and any
+  data model that would presume capacity. Until resolved, no implementation may introduce
+  capacity, machine, or time-slot concepts. **Decided by:** Product Owner, informed by the
+  Phase 1 Print & Signage validation partner (PRD §10).
+- **Trigger for AI-drafted quotes** — described as demand-driven, but the concrete
+  requirement that unblocks it is not written down. Until it exists as an approved
+  requirement, no implementation may add inbound-message parsing for quote drafting.
+  **Decided by:** Product Owner.
+
+When a placeholder closes, mark it **resolved YYYY-MM-DD** and cite the requirement that
+now owns it. The entry stays in place, resolved — it is the record of the decision.
+
 ## 4. Scope (In / Out)
 
 ### In scope — Phase 1 thin-core release (committed)
@@ -139,7 +164,8 @@ become commitment only when captured in an approved PRD.
 ### Planned roadmap after thin-core (timing TBD)
 
 - Configurable service catalog — attribute-matrix sellable units with modifier options
-- Structured estimation engine — formulas, quantity-tier price breaks, and a margin-floor guardrail
+- Structured estimation engine — formulas, quantity-tier price breaks, and a margin-floor
+  guardrail (formula undefined — see §3A)
 - Structured quotation and order generation depth beyond thin-core
 - Project/job/order execution — won quotes converted to trackable work with milestones and change control
 - AI sales assistant: follow-up/next-action drafting + cold-deal flagging
@@ -147,13 +173,13 @@ become commitment only when captured in an approved PRD.
 - Pipeline/performance reporting
 
 - Work Orders & Scheduling — capacity-aware resource assignment and calendar scheduling on
-  top of job execution (depth pending the scheduling-scope decision: calendar + assignment
-  vs. full capacity planning)
+  top of job execution (depth is an open decision — see §3A)
 - Workflow Automation — trigger-condition-action orchestration of lifecycle events;
   the Phase 1 thin-core release emits the stage/lifecycle events, while automated
   reactions ship in a later Phase 1 release
 - Missed-call recovery (requires telephony connector)
-- AI-drafted quotes from unstructured inbound (demand-driven; built on concrete requirement)
+- AI-drafted quotes from unstructured inbound (unblocking requirement is an open decision —
+  see §3A)
 
 ### In scope — post-Phase 1 releases
 
@@ -168,10 +194,19 @@ Planned for releases after Phase 1, demand-driven — not committed to Phase 1:
 
 ### Out of scope
 
-Not part of the product:
+Permanently excluded — not deferred. Each carries the reason it stays out, so the decision
+does not get re-argued every release:
 
-- Accounting / invoicing / payment processing — CuevikSync tracks quotes and orders, not
-  financials or collections
+- **Accounting, invoicing, and payment processing** — CuevikSync tracks quotes and orders
+  through acceptance; financials and collections stay in the customer's existing finance
+  tools. Owning them would pull the product into regulated payment handling and reconciliation
+  work that has nothing to do with capturing an inquiry and closing it.
+- **Consultant-led or code-dependent setup** — any capability that the customer's own team
+  cannot configure is out, however valuable. The moment setup needs custom code or a
+  certified admin, CuevikSync has become the heavy tool it exists to replace (§6).
+- **Vertical-specific code paths** — verticals are served entirely through configuration;
+  a vertical that needs code is a signal to extend the generic platform, never to fork it
+  (see the rule in §7).
 
 ## 5. Success Criteria
 
@@ -180,6 +215,25 @@ Not part of the product:
 - **No dropped inquiries** — >= 99% of inquiries on connected digital channels (email, web form) are captured as records within 2 min; for manual channels, >= 95% of phone and walk-in inquiries are logged the same business day (100% by next business day) and >= 95% of manually logged email inquiries are captured within 4 business hours. A missed inquiry is the one failure the product exists to prevent.
 - **Pipeline visibility** — 100% of active deals show a current stage and a next action; zero deals with no owner or next step.
 - **Adoption** — a lean team (10 users or fewer) is fully onboarded and running its live pipeline within 3 days of signup, with no custom development.
+
+### Structural Criteria (Verifiable Before Launch)
+
+Binary properties — true or false on any build, with no adoption data required. Stated at
+product level; the mechanism that delivers each is ARCHITECTURE.md's to choose, but the
+property itself is not negotiable.
+
+- **One record per inbound submission** — a retried or redelivered submission resolves to
+  the one inquiry it represents: never a duplicate, never a lost original.
+- **Nothing is silently discarded** — a submission that cannot be processed surfaces for a
+  human with its original content intact, rather than being dropped to keep the queue clean.
+- **Permissions hold outside the UI** — a role restriction denies a direct request for the
+  record, not merely hides the control that would have made it.
+- **Every stage change is attributable** — who moved an opportunity, and when, is recorded
+  and readable on the record.
+- **Customer-facing output requires a human action** — no artifact reaches a customer
+  without a person explicitly sending it.
+- **A vertical ships without code** — pipelines, custom fields, templates, and roles are
+  sufficient to configure one.
 
 ### Post-Thin-Core Outcomes (Owned Roadmap Targets)
 
