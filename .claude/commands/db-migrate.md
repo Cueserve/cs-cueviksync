@@ -7,9 +7,13 @@ allowed-tools: Bash, Read, Glob, Grep
 Apply CuevikSync's pending `supabase/migrations/*.sql` to the **linked hosted Supabase project**
 and leave the repo in a verified, type-synced state.
 
-Development runs against a hosted Supabase project with no local Docker stack
-([docs/ENVIRONMENTS.md](../../docs/ENVIRONMENTS.md) §1). There is no local stack to `db reset`, so
-every push is irreversible against real data and the pre-flight below is not optional ceremony.
+Development runs against a linked hosted Supabase project
+([CONTRIBUTING.md](../../CONTRIBUTING.md) § Environment); the local stack exists for tests and CI
+only. There is no `db reset` on the hosted project, so every push is irreversible against real
+data and the pre-flight below is not optional ceremony.
+
+Migrations are applied **after** merging to `main`, never before (CONTRIBUTING.md § Migration
+ordering). If the migration you are about to push is not yet on `main`, stop and say so.
 
 **A schema or migration change requires explicit human approval before it is authored at all**
 ([AI-TOOL-GUIDE.md](../../docs/AI-TOOL-GUIDE.md) §7), and `supabase/migrations/` is off-limits to

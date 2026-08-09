@@ -308,30 +308,27 @@ lines, README links — **in the same change**. Propose both halves or neither.
 
 ## 6. Known-open findings, for calibration
 
-Confirmed on **2026-08-08**. Re-verify each still reproduces before reporting it, and **delete an
-entry once fixed** — a stale calibration list is the exact failure this command exists to catch.
+Confirmed open on **2026-08-09**. Re-verify each still reproduces before reporting it, and
+**delete an entry once fixed** — a stale calibration list is the exact failure this command exists
+to catch.
 
 1. **[B-P1] Reference-table `Status` column is stale.** `docs/PRD.md:20` and
    `docs/ARCHITECTURE.md:20` mark TECH-STACK.md and AI-TOOL-GUIDE.md as **Planned**; both files
    exist on disk. `docs/TECH-STACK.md`, `docs/AI-TOOL-GUIDE.md`, and `docs/BACKLOG.md` carry the
    same table with **no** `Status` column at all. **Ruling:** filesystem wins (rung 1); the column
    shape also needs one answer, not two.
-2. **[B-P0] Supabase environment posture is undifferentiated.** The corpus documents one Supabase
-   environment. The decision (2026-08-09) is **two**: development runs against a **linked hosted**
-   project; the **local** stack (`npx supabase start`) exists only for automated tests and CI.
-   `docs/TECH-STACK.md:75`, `CONTRIBUTING.md:99`, `CONTRIBUTING.md:106`, and `README.md:53`/`:96`
-   each name the local stack with no scope attached, and no file names the hosted project at all.
-   **Impact:** a reader stands up Docker for day-to-day development, and the merge-then-push
-   migration workflow the `block-applied-migration` hook depends on is written down nowhere.
-3. **[A-MISSING] Tooling table is incomplete.** `CONTRIBUTING.md`'s command table has no entry for
-   `supabase db push` or `supabase gen types typescript`, though `README.md:97` uses the first and
-   `AI-TOOL-GUIDE.md:56` mandates the second. `CLAUDE.md` says to run only commands defined in that
-   table — so the table's gaps are load-bearing.
-4. **[C-DUPLICATE] `AI-TOOL-GUIDE.md` §10 restates `CONTRIBUTING.md`.** Self-declared at
+2. **[C-DUPLICATE] `AI-TOOL-GUIDE.md` §10 restates `CONTRIBUTING.md`.** Self-declared at
    `AI-TOOL-GUIDE.md:212`. `CLAUDE.md:15-23` likewise restates AI-TOOL-GUIDE §6 and §9 inline.
    Both are actionable-from-the-copy-alone, so both will drift.
-5. **[B-P1] Broken relative link.** `.claude/commands/db-migrate.md` cites
-   `docs/ENVIRONMENTS.md` §1; no such file exists in this repository.
+3. **[A-MISSING] `CLAUDE.md` asks Claude to read `docs/AI-TOOL-GUIDE.md` rather than importing
+   it.** "Read it first" is a request that can be skipped, and skipping it silently drops every
+   rule in the file. An `@docs/AI-TOOL-GUIDE.md` import would load it unconditionally. Open
+   decision, not yet made.
+
+**Fixed on 2026-08-09 — do not re-report:** the Supabase environment posture (development is a
+linked hosted project, the local stack is test/CI only, migrations apply merge-then-push) and the
+`CONTRIBUTING.md` tooling-table gaps (`link`, `db push --linked`, `gen types --linked`). If any of
+that reads as undifferentiated again, it is a regression, not a rediscovery.
 
 ## 7. Report format
 
