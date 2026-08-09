@@ -96,20 +96,26 @@ Match the versions pinned in `docs/TECH-STACK.md`:
 
 - **Node.js** >= 22 Long-Term Support (LTS) — the Vercel runtime line.
 - **npm** — bundled with Node.js 22; the project package manager. Do not use pnpm or yarn.
-- **Supabase CLI** — for local Postgres, Auth, Storage, and Edge Functions.
+- **Supabase CLI** — links the repo to the hosted project, applies migrations, deploys Edge
+  Functions, and runs the local stack used by tests.
+- **Docker** — required only to run the test suite (`npx supabase start`). Not needed for
+  day-to-day development, which targets the hosted project.
 
 ## Run commands
 
 | Task | Command |
 | --- | --- |
 | Install dependencies | `npm install` |
-| Start local Supabase (Postgres, Auth, Storage, Edge Functions) | `npx supabase start` |
+| Link the repo to the hosted Supabase project (once, per clone) | `npx supabase link` |
+| Apply pending migrations to the hosted project | `npx supabase db push --linked` |
+| Regenerate database types after a migration | `npx supabase gen types typescript --linked` |
 | Run the app in development | `npm run dev` |
 | Build for production | `npm run build` |
 | Start the production build | `npm run start` |
 | Lint | `npm run lint` |
 | Format | `npm run format` |
 | Unit tests (Vitest) | `npm run test` |
+| Start the local Supabase stack — **tests / CI only** | `npx supabase start` |
 | End-to-end + WCAG 2.1 AA checks (Playwright) | `npm run test:e2e` |
 | Deploy an Edge Function (Intake Receiver / Ingestion Worker) | `npx supabase functions deploy <name>` |
 
@@ -148,12 +154,36 @@ The workflow file (`.github/workflows/`) is added when the repository is scaffol
 
 ## Environment
 
+CuevikSync uses **two** Supabase environments. They are not interchangeable.
+
+| Environment | What it is | Used for | Reset available |
+| --- | --- | --- | --- |
+| **Development** | A linked hosted Supabase project (`npx supabase link`) | All day-to-day development | **No.** A bad migration is repaired by a new migration, never by editing the applied one. |
+| **Test / CI** | The local stack (`npx supabase start`, Docker) | Vitest, Playwright, and the GitHub Actions jobs | Yes — CI resets freely, which is why the mandatory tenant-isolation and worker-idempotency tests run here rather than against the hosted project. |
+
+**Accepted risk:** tests prove behavior on the local stack while `pgmq` and `pg_cron` run in
+production on the hosted one. Revisit once the capture path is implemented.
+
+### Migration ordering
+
+Migrations are applied **after** a change merges to `main`, never before:
+
+1. Author the migration on a branch and open the PR.
+2. Merge to `main`.
+3. From an up-to-date `main`, run `npx supabase db push --linked`, then regenerate types.
+
+A migration present on `main` is therefore treated as **already applied and immutable**. This is
+enforced mechanically by `.claude/hooks/block-applied-migration.mjs`, which refuses edits to any
+migration file already in `origin/main`.
+
+### Required configuration
+
 The app and the capture path require these before `npm run dev`:
 
 - Supabase project URL and keys — the **service-role key is server-side only** and MUST
   NOT be exposed to the browser.
 - `pgmq` and `pg_cron` extensions enabled on the Supabase Postgres instance.
 - Resend API key (optional — required only for in-app quote-email delivery).
-- Sentry and PostHog keys (optional in local development).
+- Sentry and PostHog keys (optional outside production).
 
 Concrete environment-variable names and setup steps are documented in `README.md` (Step-07).

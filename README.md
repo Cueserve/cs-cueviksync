@@ -50,9 +50,12 @@ roles, so a lead is never dropped even when the main app is degraded — see
 
 - Node.js 22 LTS or higher
 - npm (bundled with Node.js 22 LTS) — the only approved package manager; do not use pnpm or yarn
-- Supabase CLI (latest) — for the local dev stack, migrations, and Edge Function deploys
+- Supabase CLI (latest) — links this clone to the hosted project, applies migrations, deploys
+  Edge Functions, and runs the local test stack
+- Docker — required only to run the test suite (`npx supabase start`); not needed for development
 - Git
 - A Supabase account and project (Postgres 17, with the `pgmq` and `pg_cron` extensions enabled)
+  — this is your **development** database, not just a deploy target
 - A Vercel account (hosts the Next.js app)
 - Optional accounts, only if the corresponding feature is enabled: Resend (quote-email
   delivery), Sentry (error tracking), PostHog (product analytics)
@@ -93,9 +96,9 @@ Supabase URL and anon key may be public.
 
 ```bash
 npm install
-supabase start        # local Supabase stack (Postgres, Auth, Edge Functions)
-supabase db push      # apply migrations from supabase/migrations/
-npm run dev           # start the Next.js app locally
+npx supabase link              # link this clone to the hosted project (once)
+npx supabase db push --linked  # apply migrations from supabase/migrations/
+npm run dev                    # start the Next.js app locally
 ```
 
 ## Run Tests
