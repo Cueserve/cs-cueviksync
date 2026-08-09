@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env*.local)",
+      "Read(./.env.production)",
+      "Edit(./.env)",
+      "Edit(./.env*.local)",
+      "Edit(./.env.production)",
+      "Bash(npx supabase db reset *)",
+      "Bash(supabase db reset *)"
+    ],
+    "ask": [
+      "Bash(npm run db:push)",
+      "Bash(npm run db:push *)",
+      "Bash(npx supabase db push)",
+      "Bash(npx supabase db push *)",
+      "Bash(supabase db push)",
+      "Bash(supabase db push *)",
+      "Bash(npx supabase functions deploy *)",
+      "Bash(supabase functions deploy *)",
+      "Bash(git push *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/block-applied-migration.mjs",
+            "timeout": 10,
+            "statusMessage": "Checking migration immutability"
+          }
+        ]
+      }
+    ]
+  }
+}
