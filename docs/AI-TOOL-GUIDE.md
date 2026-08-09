@@ -197,18 +197,14 @@ AI tools MUST NOT touch the following without explicit human instruction:
 
 ## 10. Workflow Conventions
 
-These mirror [`CONTRIBUTING.md`](../CONTRIBUTING.md); it is the governance authority — this
-section MUST NOT diverge from it.
+[`CONTRIBUTING.md`](../CONTRIBUTING.md) is the governance authority for branch naming, commit
+messages, the review flow, and the self-review gate. Those rules are **not restated here** — read
+them there, so there is only one copy to keep current.
 
-- **Branch creation** — a human action, not autonomous. Branch off an up-to-date `main` using
-  the type prefix: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`, `docs/<slug>`.
-- **Commit messages** — Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`,
-  `test:`, `build:`, `ci:`).
-- **Never push to `main`** — all changes land through a Pull Request (PR), one PR per branch.
-- **PRs** — AI tools do not open, close, or comment on PRs without explicit instruction.
-- **Pushing to remote** — never push to any remote branch without explicit human approval.
-- **Self-review gate** — CuevikSync is solo / process-enforced: the author completes the
-  `CONTRIBUTING.md` self-review checklist before merging. There is no second reviewer; the
-  checklist is the gate.
-- **Breaking changes** — any change to a public API, database schema, or shared contract requires
-  human sign-off before commit.
+Below are the AI-specific constraints that `CONTRIBUTING.md` does not cover:
+
+- **Branch creation is a human action** — never create a branch autonomously. The naming
+  convention lives in `CONTRIBUTING.md`.
+- **PRs** — AI tools do not open, close, or comment on Pull Requests without explicit instruction.
+- **Pushing to remote** — never push to any remote branch without explicit human approval. This
+  includes the branch you are currently working on, not just `main`.
