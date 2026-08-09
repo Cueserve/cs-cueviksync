@@ -14,8 +14,9 @@ duplicate those rules here; if a rule changes, update `docs/AI-TOOL-GUIDE.md`, n
 - **Context sources:** treat `docs/ARCHITECTURE.md`, `docs/TECH-STACK.md`, and
   `docs/AI-TOOL-GUIDE.md` as the source of truth. Read the relevant one before proposing a
   change; never derive architecture or stack decisions from memory.
-- **Editing source-of-truth docs:** changes to anything in `docs/` or `CONTRIBUTING.md` go
-  through `/proj-init-doc-update <document>`, not inline edits during feature work.
+- **Editing source-of-truth docs:** changes to anything in `docs/` or `CONTRIBUTING.md`
+  follow AI-TOOL-GUIDE §6 — a standalone, approved change, never an inline edit during
+  feature work.
 - **Commands:** run only the commands defined in `CONTRIBUTING.md` (Tooling layer). Do not
   invent scripts or introduce a tool not in `docs/TECH-STACK.md`.
 - **Secrets:** never read, print, or write `.env*` or any file holding the Supabase

@@ -150,8 +150,9 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
   not narrate code the reader can see.
 - The source-of-truth documents in `docs/` (and `CONTRIBUTING.md`) are authoritative. Do not
   contradict them in code comments or inline notes.
-- Changing a source-of-truth document is done through `/proj-init-doc-update <document>`, which
-  runs the same review gate — not by editing it inline during feature work.
+- Changing a source-of-truth document is a standalone change, never folded into feature work:
+  propose the edit as a diff, name the downstream documents it affects (per the document's
+  `Downstream:` line), get explicit approval, then land it in its own commit.
 - Keep acronyms defined on first use in any new document; match the writing standard already in
   `docs/`.
 

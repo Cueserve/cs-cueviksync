@@ -45,7 +45,7 @@ Open PRs from the CLI (`gh pr create`) or the GitHub web UI.
 _Initiation is complete. The branching, review, and contribution rules for ongoing
 development are the team's to define once dev-phase realities are known — team size,
 review model, CI gates, release/versioning, environments. Fill this section in and
-remove this note via `/proj-init-doc-update CONTRIBUTING.md`._
+remove this note as a standalone documentation change (AI-TOOL-GUIDE §6)._
 <!-- END DEVELOPMENT-PHASE-GOVERNANCE -->
 
 ---
