@@ -112,17 +112,16 @@ npm run test:e2e      # Playwright end-to-end + WCAG 2.1 AA check (advisory / ni
 
 ## Project Structure
 
-> The app directories (`app/`, `supabase/`) are the intended layout from
+> The app directories (`app/`, `supabase/`) and `.github/` are the intended layout from
 > [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [AI-TOOL-GUIDE.md](docs/AI-TOOL-GUIDE.md)
-> §2. They are created when we scaffold the app. `docs/`, `.github/`, and `.claude/`
-> exist today.
+> §2. They are created when we scaffold the app. `docs/` and `CLAUDE.md` exist today.
 
 ```text
 app/         Next.js App Router application — SPA client, server JSON API, and domain modules
 supabase/    Supabase CLI migrations (migrations/*.sql) and Edge Functions (Intake Receiver, Ingestion Worker)
 docs/        Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, AI-TOOL-GUIDE, BACKLOG)
-.github/     GitHub Actions CI workflows and Copilot instructions
-.claude/     Claude Code project configuration and rules
+.github/     GitHub Actions CI workflows
+CLAUDE.md    Claude Code project rules — the primary AI coding tool for this repo
 ```
 
 ## Further Reading
