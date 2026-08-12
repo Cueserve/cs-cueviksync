@@ -8,6 +8,17 @@
 
 ---
 
+## Contents
+
+- [Verdict](#verdict)
+- [🔴 Blockers — resolve before writing code](#blockers-resolve-before-writing-code)
+- [🟠 Gaps — decide before or during early development](#gaps-decide-before-or-during-early-development)
+- [🟡 Worth a look — lower stakes](#worth-a-look-lower-stakes)
+- [AI-readiness](#ai-readiness)
+- [What's genuinely right (don't over-correct)](#whats-genuinely-right-dont-over-correct)
+- [Short list — priority order](#short-list-priority-order)
+- [Resolution summary (2026-07-18)](#resolution-summary-2026-07-18)
+
 ## Verdict
 
 The core stack is sound and well-matched to a thin-core SaaS at this scale. Choices are conservative in the right way — one managed vendor, a modular monolith, relational-first. Trade-offs are documented honestly. **Nothing major is wrong; nothing major needs swapping.**

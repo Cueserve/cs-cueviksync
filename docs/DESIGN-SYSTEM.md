@@ -1,0 +1,485 @@
+# DESIGN-SYSTEM.md — Brand Tokens & UI Rules
+
+**Owner:** Viral Parikh
+**Last updated:** 2026-08-08
+**Source of truth for:** CuevikSync's design tokens, the rules for using them, and the
+accessibility floor every color must clear.
+
+> **The three Tier-1 brand anchors in §1 are PROVISIONAL.** Everything else in this file —
+> the three-tier architecture, the semantic token names, the scales, the dark-mode derivation,
+> and the "compute the contrast, don't eyeball it" rule — is settled and is shared verbatim
+> with `RedyQuote:docs/DESIGN-SYSTEM.md`. Replacing the anchors is a three-value edit plus a
+> re-solve of the two derived steps in §4; nothing structural moves.
+> Depends on: [PRD.md](PRD.md) **NFR-012** for the WCAG 2.1 AA obligation this file's floor
+> implements.
+> Implemented in: `src/app/globals.css`, `src/app/layout.tsx`, `src/components/ui/`,
+> `eslint.config.mjs`
+
+---
+
+## Contents
+
+- [1. Where the brand values came from](#1-where-the-brand-values-came-from)
+- [2. The three tiers](#2-the-three-tiers)
+- [3. The one rule: semantic tokens only](#3-the-one-rule-semantic-tokens-only)
+- [4. Accessibility floor](#4-accessibility-floor)
+- [5. Dark mode is derived, not designed](#5-dark-mode-is-derived-not-designed)
+- [6. Decisions worth not re-litigating](#6-decisions-worth-not-re-litigating)
+- [7. The editable-vs-calculated convention](#7-the-editable-vs-calculated-convention)
+- [8. Typography](#8-typography)
+- [9. Scales](#9-scales)
+- [10. Chart series](#10-chart-series)
+- [11. Voice](#11-voice)
+- [12. Token map — design system → CuevikSync](#12-token-map-design-system-cueviksync)
+- [13. Adding a component](#13-adding-a-component)
+
+## 1. Where the brand values came from
+
+**Provisional.** CuevikSync has no ratified brand palette. The three Tier-1 anchors below were
+chosen during the 2026-08-11 convergence work to satisfy two constraints and nothing else:
+clear the WCAG 2.1 AA floor in §4, and sit far enough from RedyQuote's brand that the two
+products are not mistaken for one another.
+
+| Anchor                 | Value     | White-on-color        | Note                                                                  |
+| ---------------------- | --------- | --------------------- | --------------------------------------------------------------------- |
+| Primary — `--clay-600` | `#0F6E6E` | 6.04:1                | Teal, OKLCH hue 194.9°. Provisional.                                  |
+| Ink — `--stone-900`    | `#1A1A1A` | 16.67:1 on the canvas | A neutral near-black, shared with RedyQuote. Not a brand-owned value. |
+| Accent — `--moss-600`  | `#5B3FA8` | 7.72:1                | Violet, OKLCH hue 291.0°. Provisional.                                |
+
+**Why violet and not amber.** The first accent considered was an amber `#B45309`. It was
+rejected on the same grounds §6 rejects a same-hue destructive: `--warning` is 58.8° and
+`--destructive` is 37.6°, so an amber accent would have put three warm hues in one system and
+collapsed exactly the separation this file insists on. Violet at 291° is 96° off the brand teal
+and further still from every status hue.
+
+**How the ramps were built.** Each ten-step ramp preserves RedyQuote's lightness ladder exactly
+and substitutes hue, with chroma scaled so the 600 step lands on the anchor. That is what makes
+the two products structurally identical without sharing a palette: same perceptual spacing, same
+step semantics, different color. Both ramps were verified monotonic in OKLCH lightness —
+`DESIGN-SYSTEM.md` history records that RedyQuote had to repair exactly that property in its
+stone ramp, and it is not a property to assume.
+
+| Value                                       | Source                                                                           |
+| ------------------------------------------- | -------------------------------------------------------------------------------- |
+| Brand anchors (teal / ink / violet)         | Provisional, chosen for contrast and separation. Not from a brand exercise.      |
+| Clay and Moss ramp steps                    | Re-solved from the anchors, preserving RedyQuote's lightness ladder. See above.  |
+| Stone ramp                                  | Shared with RedyQuote verbatim — ink-based neutral, no brand content.            |
+| Status triads (success/warning/danger/info) | Shared with RedyQuote verbatim. Their hues are independent of the brand anchors. |
+| Archivo + IBM Plex Mono                     | Shared with RedyQuote verbatim.                                                  |
+| Radius, type, spacing, shadow scales        | Shared with RedyQuote verbatim.                                                  |
+| Editable-vs-calculated field convention     | Shared with RedyQuote verbatim — amber/warning-tinted, not brand-tinted. See §7. |
+
+**What replacing the anchors costs.** Three hex values in `src/app/globals.css`, a re-solve of
+`--clay-550` and `--moss-550` (§4), a re-solve of the chart series if the new hues collide with
+it (§10), and this table. Nothing else — every other token is a `var()` reference.
+
+## 2. The three tiers
+
+| Tier                   | Where                                         | May components use it?                            |
+| ---------------------- | --------------------------------------------- | ------------------------------------------------- |
+| 1 — Brand primitives   | `:root` in `globals.css`, **not** in `@theme` | **No.** Tailwind emits no utility for them.       |
+| 2 — Semantic tokens    | `@theme inline` in `globals.css`              | **Yes — these are the only color names allowed.** |
+| 3 — Component variants | `cva()` in `src/components/ui/`               | Yes.                                              |
+
+Tier 1 being outside `@theme` is deliberate and load-bearing: Tailwind only generates
+utilities for `@theme` entries, so `bg-clay-600` **does not exist as a class**. A primitive
+cannot be reached from a component even by accident.
+
+**Tier-1 values are written as hex; derived values are written in oklch.** That split is the
+provenance marker — hex came from the design source and can be diffed against it; oklch was
+solved here by lightness. There are exactly five derived primitives, all forced by contrast
+(see §4).
+
+## 3. The one rule: semantic tokens only
+
+Components use `bg-background`, `text-muted-foreground`, `bg-primary`, `border-border`,
+`text-success` — never `bg-stone-100`, `text-black`, or `bg-[#82424c]`. Raw palette classes and
+hex literals bypass the token layer: they don't flip in dark mode and they don't re-theme when
+a brand value changes.
+
+This is **enforced, not documented**, in two layers:
+
+1. Tier-1 primitives generate no utilities (above).
+2. `no-restricted-syntax` in `eslint.config.mjs` rejects raw palette classes and hex literals
+   in `className` strings and template literals across `src/**/*.tsx`.
+
+Note that the lint rule bans `bg-stone-*` meaning **Tailwind's** warm stone, which is a
+different thing from our `--stone-*` ramp. The two never collide: ours is `--stone-500`,
+Tailwind's is `--color-stone-500`.
+
+Same philosophy as the RLS approval gate and the `ui/` boundary rule — if it matters, the build
+enforces it.
+
+## 4. Accessibility floor
+
+**Text clears WCAG AA (4.5:1) in every role it is used in; boundaries that identify a control
+clear the 1.4.11 non-text floor (3:1).** This is a floor, not an aspiration.
+
+The new source's palette is rougher than the prior one: several raw values fail outright once
+computed rather than eyeballed. **Five values were re-solved rather than shipped as the export
+gives them:**
+
+| Export value                                  | What it's used for              | Measured                                                        | Resolution                                                |
+| --------------------------------------------- | ------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------- |
+| `--stone-800` (88% ink + black)               | Ramp step between stone-700/900 | L .191 — darker than stone-900's L .218, breaks monotonic order | Re-mixed as 88% ink + 12% white → `#313131`               |
+| `--warning-fg #C77700`                        | Pending-Approval ink            | 3.46:1 on white, 3.09 on page — fails as text outright          | Darkened along the same hue to `#9c5400` — 5.70 / 5.09    |
+| `--success-light #E3F1E4`                     | Tint behind the success ink     | Ink-on-tint 4.39:1 — misses the floor by a hair                 | Re-mixed lighter (8% ink) → `#eef4ee` (4.59)              |
+| `--focus-ring` / `--shadow-focus` (alpha red) | Focus ring                      | Alpha-blended, well under 3:1 on any surface                    | `--ring` is clay-600, solid — 6.54:1 on the canvas        |
+| Editable-border "45% into white" formula      | Editable-cell boundary          | ~2:1 on every surface                                           | Uses the unmixed warning ink instead — 5.70 / 5.09 / 4.88 |
+
+**The `--border` vs `--input` split from the prior palette carries forward unchanged** — the
+export again gives one value (`stone-200`) for two incompatible jobs: decorative rules and
+control boundaries. Only the second carries a 3:1 floor. So:
+
+- **`--border`** — decorative only. WCAG 1.4.11 exempts purely decorative boundaries, so this
+  is `stone-200` **verbatim** (1.48:1 on white — fine, nothing here needs a floor). Card
+  outlines, table rules, dividers, and the status/Tag/Badge borders in §7.
+- **`--input`** — the boundary that _identifies a control_. Stepped to `stone-600`, which clears
+  3:1 on all three light surfaces (5.66 card / 5.05 page / 5.05 muted). Text inputs, selects,
+  checkboxes, radios, outline buttons.
+
+This is also exactly shadcn's existing distinction between the two tokens, so it costs nothing
+structurally — same fix, same reasoning as the prior palette.
+
+Two things kept **verbatim** on purpose, not oversights:
+
+- **Elevation shadows and the modal scrim are ink-tinted** (`rgba(26,26,26,…)`). No longer a
+  "kept despite a cool palette" carve-out like the prior revision — ink IS the neutral anchor
+  now, so the shadow tint and the palette finally agree.
+- **Badge/Tag/StatusPill borders sit well under 3:1** (e.g. `--primary-border` on white is only
+  1.92:1). Decorative in the same sense as `--border` above — the tint plus ink text already
+  carries the status meaning, the border is a soft edge rather than the thing identifying the
+  control — so no floor applies.
+
+**Links are distinguished from surrounding text by weight, not by hue alone — a decision, not an
+omission.** `--primary-text` on the page canvas measures 7.03:1 and `--foreground` 16.67:1, so
+both clear AA against the surface. Against _each other_ they measure **2.37:1**, under the 3:1
+that WCAG technique G183 asks for when a link carries no underline. G183 is a _sufficient_
+technique for 1.4.1, not the only one: the non-color cue here is weight — links render
+`font-semibold` against `font-normal` neighbours — plus an underline on hover and a solid
+`--ring` on keyboard focus. Measured on `/products`, accepted 2026-08-08.
+
+Two consequences, stated so this doesn't get re-litigated per screen:
+
+- **Don't add a local underline to "fix" one table.** `a { no-underline }` in `globals.css` is
+  global; a per-surface underline rule makes links look unlike links on the screen beside it,
+  which costs more than the 2.37:1 does.
+- **The weight contrast is load-bearing, not decoration.** A link set at the same weight as the
+  text around it has no non-color cue left and _does_ fail 1.4.1. If a link has to live
+  somewhere that cannot carry `font-semibold`, that link needs an underline there.
+
+### Measured, light
+
+| Pair                                                                     | Ratio                     | Floor            |
+| ------------------------------------------------------------------------ | ------------------------- | ---------------- |
+| `--foreground` on page / card / muted                                    | 16.67 / 17.40 / 15.55     | 4.5              |
+| `--muted-foreground` on page / card / muted                              | 5.42 / 5.66 / 5.05        | 4.5              |
+| `--primary-text` (links) on page / card / muted                          | 6.54 / 7.33 / 6.55        | 4.5              |
+| `--primary-foreground` on the clay fill                                  | 7.33                      | 4.5              |
+| `--accent-secondary-foreground` on the moss fill                         | 6.10                      | 4.5              |
+| `--success` / `--warning` / `--destructive` / `--info` on their own tint | 4.59 / 4.88 / 6.45 / 6.95 | 4.5              |
+| same four as ink on a card                                               | 5.13 / 5.70 / 7.58 / 8.55 | 4.5              |
+| `--input` on page / card / muted                                         | 5.05 / 5.66 / 5.05        | 3.0              |
+| `--editable-border` on white / page / own fill                           | 5.70 / 5.09 / 4.88        | 3.0              |
+| `--ring` on page / card / muted                                          | 6.54 / 7.33 / 6.55        | 3.0              |
+| `--sidebar-ring` on the rail / on hover                                  | 5.63 / 4.21               | 3.0              |
+| `--sidebar-foreground` on the rail / on hover                            | 8.03 / 6.00               | 4.5              |
+| `--primary-text` vs `--foreground` (link vs adjacent text)               | 2.37                      | none — see above |
+
+`--muted-foreground` is now `--stone-600` — an actual ramp step, not a custom-solved hex like the
+prior palette needed. The new ink anchor's ramp happens to land a usable step here.
+
+**Every pair above was computed with a throwaway contrast script, not eyeballed.** The prior
+palette's "88 pairs, all pass" claim doesn't carry forward as a number — the role set is the
+same, but every value underneath it changed, so re-run the computation before trusting any
+figure in this file rather than assuming it still holds.
+
+## 5. Dark mode is derived, not designed
+
+**The design system is light-only.** Every dark value here was solved and measured; none of it
+comes from a design source. Treat it as an implementation of the light system's logic in a dark
+band, not as designed output.
+
+Consequences worth knowing:
+
+**Clay splits into two tokens.** No single lightness does both jobs on a dark surface: a fill
+dark enough to carry `--primary-foreground` reads too dim as ink, and ink light enough to pass
+drops the fill below AA. So `--primary` is the fill and **`--primary-text`** is clay used _as_
+ink. In dark mode use `text-primary-text` for links and active nav, never `text-primary`. In
+light mode the two are the same value.
+
+**Hover darkens in dark mode too.** Normally a dark theme lightens on hover, but clay-400 as a
+_fill_ holds `--primary-foreground` at only 3.09:1 — lightening would break AA on the exact
+state the pointer is on. So `--primary-hover` darkens in both modes (clay-500 → 600 → 700).
+
+**Only two derived primitives are needed now, down from five.** The prior muted palette needed
+`--clay-550` and `--moss-550` because neither ramp had a step that both carried
+`--primary-foreground`/white at AA _and_ stayed light enough to separate from a dark canvas.
+Recomputed against the new anchors, that gap doesn't exist:
+
+| Old need                       | Still needed?            | Why                                                                                                                                                                                                                                                                                                    |
+| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--clay-550` = `#247574`       | **Yes**                  | Neither ladder step does both dark-mode jobs on a teal anchor: `--clay-500` carries white at exactly 4.50:1 (passing with no margin) and `--clay-600` separates from the dark canvas at only 2.97:1, below the 3:1 non-text floor. Solved between them: 5.42:1 on the fill, 3.31:1 against the canvas. |
+| `--moss-550` = `#705bba`       | **Yes**                  | Sharper version of the same problem: `--moss-600` separates from the dark canvas at only 2.32:1, which fails 3:1 outright, and `--moss-500` carries white at 4.55:1 with no margin. Solved between them: 5.39:1 on the fill, 3.32:1 against the canvas.                                                |
+| `--stone-950` / `--stone-1000` | **Yes**                  | Independent of hue — dark mode still needs `stone-900` (ink) for its _raised_ surface, so canvas and card must sit below the ramp.                                                                                                                                                                     |
+| dark status tints              | **Yes** (values changed) | Status inks are still pinned at oklch L 0.720 so the tints sit high enough to be visible against the card; only the underlying hues moved (destructive most of all — see §6).                                                                                                                          |
+
+This is the opposite of RedyQuote's outcome, and worth stating as such: its red and blue anchors
+happened to have usable ladder steps for the dark-mode fills, so it needed no `-550` steps at
+all. A teal and a violet at these lightnesses do not. Verified by recomputation rather than
+assumed.
+
+## 6. Decisions worth not re-litigating
+
+**Brand red is scoped to interaction, never a surface.** Filled primary buttons, links, the
+focus ring, and active nav/tab all carry `--primary`; it never fills a large surface or a
+page/card background. One filled-primary action per screen — everything else uses
+`--accent-secondary` (ink) or a ghost/outline variant. This bounds where red gets added going
+forward, not just where the palette started.
+
+**`destructive` is a tint, never a solid fill — and now a genuinely different hue, not just a
+darker red.** The export's own color and component treatments reuse `--color-brand-red` for
+danger, filled vs.
+outlined. A red primary makes that unworkable: a same-hue destructive reads as "the brand
+color, slightly off" rather than a different signal.
+
+Under CuevikSync's teal anchor the clash disappears — brand sits at 194.9° and destructive at
+37.6°, 157° apart — so nothing here is load-bearing for _this_ palette. It is kept verbatim
+anyway, and deliberately: the rule is "a status color must not share the brand hue", and the
+next brand anchor may well be warm. Deleting a constraint because the current values happen to
+satisfy it is how it gets violated the next time the values move.
+
+`--destructive` is moved to a **burnt-orange/rust hue** (~38° in OKLCH: `#9b2d00`), sitting
+between clay (~26°) and warning/amber (~59°) — three-way hue separation using the language this
+file already speaks in, while staying in the "warm alarm" register (a cool hue like blue or
+green would read as neutral or positive, a worse failure than resembling primary). It keeps the
+tint/ink/border structure unchanged — the fix is the underlying hue, not the shape — exactly
+like the export's own StatusPill and Toast treatments for danger. Primary stays unambiguous, and
+now Delete does too.
+
+**Moss lives in `--accent-secondary`, not `--secondary`, and is now blue.** The export's
+"secondary action" is a moss fill; shadcn's `--secondary` is a subtle _gray surface_, used by
+imported components as a Progress track and similar. Overloading it would turn those blue.
+`--secondary` stays stone-100; the moss action pair is its own token. Moss is violet here and
+blue in RedyQuote — the variable name is legacy in both, the same naming quirk this file already
+carries for `--stone-*` vs. Tailwind's own "stone" palette (see §3). Renaming it would ripple
+through every tier-2 reference in both repos for no functional gain. One consequence worth
+knowing: moss's "info" role and the Tag "moss" tone land in the same accent family — see the
+token map in §12.
+
+**`--accent` stays neutral.** shadcn uses it for every generic hover, so tinting it clay would
+put brand color on every dropdown row. The clay tint is scoped to active nav and to
+`--primary-muted`.
+
+**`--muted` / `--secondary` / `--accent` are darker than `--background`.** A recessed surface
+lighter than the page canvas reads inside-out. stone-100 recedes correctly on both a white card
+and the stone-50 canvas.
+
+**The radius ladder is explicit, not a `calc()` chain.** 6 → 10 → 16 → 22 is not a constant
+multiple; forcing it onto one base distorted the middle steps. Don't "simplify" it back.
+
+**`ghost` keeps its borderless variant.** The design system's "ghost" button has a 1px border —
+that is this repo's `outline`. A genuinely borderless variant is retained for dense toolbars
+and icon rows, which the design system itself needs for `IconButton`.
+
+## 7. The editable-vs-calculated convention
+
+The product-specific pattern from the original export: estimators must tell at a glance what they can
+type into versus what the system computes.
+
+**Amber/warning-tinted, not brand-tinted.** A brand tint on every editable cell puts brand
+color on ordinary data entry and leaves nothing distinct for actual brand actions. The amber
+family gives "editable" its own visual language. Shared verbatim with RedyQuote, and
+independent of either repo's brand anchor — which is the point.
+
+- **Editable** — `bg-editable` (the warning tint, `#fbebd6`) + `border-editable-border` (the
+  unmixed warning ink, `#9c5400`) + value in `font-mono tabular-nums`.
+- **Calculated** — no tint, no border, plain text. `bg-card` if boxed at all.
+
+**The border is what carries the meaning, not the tint.** The tint alone reads at low contrast
+against a white card — invisible on its own, same problem the prior clay-tint convention had.
+That's why the border uses the unmixed ink rather than the export's own "45%-into-white" border
+formula, which measured only ~2:1 on every surface (see §4).
+
+**One overlap worth flagging, not redesigning:** editable cells and the Pending-Approval badge
+now share the same warning hue family. They stay structurally distinguishable — a rectangular
+input with mono tabular digits vs. a pill with a status label — so this is documented rather
+than treated as a conflict to solve.
+
+## 8. Typography
+
+| Token         | Family        | Use                                                                        |
+| ------------- | ------------- | -------------------------------------------------------------------------- |
+| `--font-sans` | Archivo       | Everything — headings, body, tables, nav                                   |
+| `--font-mono` | IBM Plex Mono | Tabular numerics only: costs, SKUs, %, quantities, editable numeric fields |
+
+Both are self-hosted by `next/font/google` — no external request, no layout shift. The design
+system's `@import` from `fonts.googleapis.com` is deliberately not used.
+
+**There is no separate heading family.** Archivo is display _and_ body; `h1`–`h4` differ from
+body by weight (600) and tracking (`-0.01em`), not by face. `--font-heading` no longer exists —
+one grotesk keeps a dense quote table visually quiet.
+
+**Italic Archivo is reserved for rare brand-voice moments, never body copy.**
+
+**Money and quantities use `font-mono tabular-nums`** so figures don't jitter as digits change.
+Both are stock Tailwind utilities; there is no custom class for it.
+
+## 9. Scales
+
+**Type** — 12 / 13 / **15 (base)** / 17 / 20 / 24 / 30 / 40 / 52px, denser than Tailwind's
+default at every step. `text-md` (17px) has no Tailwind default; defining `--text-md` creates
+it. Leading: tight 1.15 / snug 1.35 / **normal 1.55** / relaxed 1.7. Tracking: tight -0.01em /
+wide 0.04em.
+
+**Radius** — `rounded-sm` 6px (chips, inputs, tags) · `rounded-md` 10px (buttons, icon buttons,
+tables) · `rounded-lg` 16px (cards) · `rounded-xl` 22px (modals, panels) · `rounded-full`
+(badges, switches). **Never 0px.** Note that `rounded-lg` is a _card_ radius here, not a button
+one — shadcn components pasted in unchanged may need `rounded-md`.
+
+**Spacing** — the design system's 4px scale is already Tailwind's default (`p-2` = 8px, `p-6` =
+24px). No tokens added. Density rule: 8–12px inside table cells and toolbars, 24–32px around
+page-level sections.
+
+**Motion** — 120–160ms ease-out opacity/fade only, for toasts, tooltips, dialogs, and route
+transitions. **No scale or translate on press** — this is a data tool, and motion must never
+make a number feel imprecise. The press state darkens a step (`--primary-active`) instead.
+
+**Elevation** — increases with layering (modal > popover > card), never with hover.
+
+**Layout** — left sidebar, a persistent top bar (breadcrumb-style, e.g. "Home / Quotes / New"),
+and an independently-scrolling content area. Primary content pattern is either "toolbar + KPI
+strip + table" or "form + live-calculated summary panel."
+
+**Supported viewports are set by [PRD.md](PRD.md) NFR-008 — tablet and up (≥768px)**, and that
+row is the authority; don't restate the range here, it will drift. What follows from it for the
+chrome: there is no phone drawer and no hamburger, and 768px is the narrowest width any layout
+below is designed against.
+
+**The rail collapses, it does not resize.** 220px at `xl` (≥1280px) and above; 64px icons-only
+below it — `w-16 … xl:w-55` in `src/components/layout/sidebar.tsx`, so **the rail step is
+156px**. Two widths, no intermediate step. A fixed 220px would be 29% of a 768px tablet;
+collapsing to 64px returns 156px of that to the content area. Below `xl` the wordmark chip is
+hidden rather than scaled (it is the only brand asset, and it is illegible at 40px), each item
+keeps its label as `sr-only` for its accessible name, and a right-side tooltip carries the
+label for sighted users.
+
+**Why `xl` and not `lg`.** A two-width rail always makes the content area shrink at the moment
+it expands; the step cannot be removed, only placed. At `lg` it landed badly — 959px of content
+at 1023px (1023 − 64), then 804px at 1024px (1024 − 220), so the content area **lost 155px
+going one pixel wider**. At `xl` the same step falls at 1280px, where 1060px of content
+(1280 − 220) still clears the quotes table with room over.
+
+> **155 vs 156 is not a typo.** 156px is the rail step (220 − 64). 155px is the _content-width
+> drop across the breakpoint_, which is the rail step minus the one pixel the viewport gained.
+> Quote whichever one you actually mean.
+
+**The rule is not that content width grows monotonically; it is that the narrow side of the
+step still fits the widest table.** Check that before moving this breakpoint, and re-check it
+if a table gains columns.
+
+**How to check it — the table width is measured, not derivable.** The quotes table
+(`src/app/(app)/quotes/_components/QuoteTable.tsx`) has nine auto-width columns and no fixed
+widths, so its rendered width depends on content. An earlier revision of this section quoted it
+as 787px; that figure came from a render of the **mock fixtures** in `src/lib/mock/` and will
+change when real quote data replaces them. Treat it as a measurement to retake, not a constant:
+run `npm run dev`, set the viewport to the narrow side of the step, and confirm the table is
+not clipped and the page itself does not scroll horizontally (NFR-008).
+
+**Surfaces** — flat color only: no gradients, no photographic imagery, no textures or patterns.
+
+## 10. Chart series
+
+`--chart-1..5` is a **categorical** palette: fixed order, never cycled, color follows the
+entity and never its rank. The design system does not specify one, so this is derived here,
+anchored on clay (brand) and moss so it sits with the palette rather than fighting it:
+
+| Token       | Hue       |
+| ----------- | --------- |
+| `--chart-1` | clay/red  |
+| `--chart-2` | violet    |
+| `--chart-3` | ochre     |
+| `--chart-4` | teal      |
+| `--chart-5` | moss/blue |
+
+**`--chart-4` moved off blue.** Applying the old "anchor chart-1 on clay, chart-5 on moss" rule
+verbatim, unchanged, would put two near-identical blues adjacent in the series: moss is now
+blue-anchored (~259° hue), and chart-4 was already blue (~250°) in the prior palette. Re-picked
+to teal (~172°) instead — the widest gap available between ochre (~85°) and moss (~259°) — so
+the series keeps five genuinely distinct hues rather than shipping a near-duplicate pair.
+
+Every step clears 3:1 on both light and dark surfaces (light: 4.90 / 4.95 / 3.97 / 4.04 / 4.33
+on white; all ≥3.54 on the page canvas). Status colors are reserved and are never reused as a
+series color. A 6th series is not a generated hue — fold it into "Other", facet it, or use small
+multiples.
+
+## 11. Voice
+
+From the original brand-voice export, and it constrains copy in components:
+
+- **Title Case for top-level labels** — primary nav, page headers, tabs, and section headers use Title Case.
+- **Sentence case for supporting UI copy** — buttons, table headers, form labels, help text, and status copy stay sentence case. No ALL-CAPS.
+- **Buttons are short verb phrases** — "New quote", "Save quote", "Submit for approval".
+- **Numbers are the content, not the pitch.** Money, percentages, and counts are primary;
+  copy labels a number, it doesn't sell it.
+- **Warnings are factual**, never alarmist: "Margin floor: 20.0% — this quote is 3.2 points
+  below it." No exclamation points. State the fact, never a consequence the system does not
+  enforce — the margin-floor flag is advisory and save/submit remain allowed (PRD-016), and
+  every quote routes for approval regardless of margin (PRD-010).
+- **Help text is one calm sentence under a control** — never a tooltip standing in for real
+  labeling.
+- **No emoji in-product**, ever. Icons are Lucide (`lucide-react`), used sparingly — row
+  actions, nav, status — never decoratively.
+- **Empty and loading states are plain.** "Loading…" — no illustration, no cute copy.
+
+## 12. Token map — design system → CuevikSync
+
+Useful when reading the two documents side by side. CuevikSync keeps **shadcn's semantic names**
+so imported shadcn components work untouched; only the values changed. RedyQuote's copy of this
+table is identical in structure — the mapping is a property of the system, not the palette.
+
+| Design system                                | CuevikSync                                                                                |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `--bg-page`                                  | `--background`                                                                            |
+| `--bg-surface`                               | `--card` / `--popover`                                                                    |
+| `--bg-surface-sunken` / `--bg-surface-inset` | `--muted` (also `--secondary`, `--accent`)                                                |
+| `--text-primary`                             | `--foreground`                                                                            |
+| `--text-secondary` / `--text-tertiary`       | `--muted-foreground` (collapsed to one; 4.56:1 on muted)                                  |
+| `--text-on-accent`                           | `--primary-foreground`                                                                    |
+| `--text-link` / `--text-link-hover`          | `--primary-text` / `--primary-hover`                                                      |
+| `--accent-primary` / `-hover` / `-active`    | `--primary` / `--primary-hover` / `--primary-active`                                      |
+| `--accent-secondary` / `-hover`              | `--accent-secondary` / `--accent-secondary-hover`                                         |
+| `--border-default`                           | `--border` (decorative) — **split**, see §4                                               |
+| `--border-strong`                            | `--input` (control boundaries) — **split**                                                |
+| `--focus-ring` / `--shadow-focus`            | `--ring` (solid, `ring-3`)                                                                |
+| `--editable-field-bg` / `-border`            | `--editable` / `--editable-border`                                                        |
+| `--success-bg` / `-fg` / `-border`           | `--success-muted` / `--success` / `--success-border`                                      |
+| `--danger-*`                                 | `--destructive-*` — **different hue than brand red**, see §6                              |
+| Tag tone "clay"                              | `--primary-muted` / `--primary-border`                                                    |
+| Tag tone "moss"                              | `--info` / `--info-muted` — converges with the info status color now both are accent-blue |
+| StatusPill                                   | `Badge` — folded in, no separate component; see §13                                       |
+| IconButton                                   | `Button` (`icon` / `icon-sm` / `icon-lg` sizes) — folded in, see §13                      |
+| `--container-max`                            | `--container-max` (unchanged)                                                             |
+
+## 13. Adding a component
+
+1. Check [PROJECT-STRUCTURE.md](PROJECT-STRUCTURE.md) §2 for where it goes.
+2. Define variants with `cva()` — see `src/components/ui/button.tsx` and `badge.tsx`.
+3. Use semantic tokens only. Lint will reject anything else.
+4. Anything in `src/components/ui/` must stay **app-agnostic** — it is the future shared
+   RedyRef library, and the boundary is enforced in `eslint.config.mjs`. `badge.tsx` knows
+   about `success` / `warning` / `info`, not about "Review". App-specific mappings
+   live in `src/components/`.
+5. If you add a color, compute its contrast in both modes before committing (§4).
+6. Three components from the original component inventory are folded into existing shadcn
+   primitives, not built separately — the mapping is already decided, don't rebuild them:
+   - **StatusPill → `Badge`** — same tint/ink/border shape, same pill radius.
+   - **Tag → `Badge`** — the "clay" tone is `Badge`'s `default` variant; the "moss" tone
+     converges with `info` now both are accent-blue.
+   - **IconButton → `Button`**'s `icon`/`icon-sm`/`icon-lg` sizes, borderless ghost
+     variant included.
+     The remaining components (Card, Input, Select, Checkbox, Radio, Switch, DataTable, KpiStat,
+     Dialog, Toast, Tooltip, EmptyState, Tabs, Sidebar, Topbar) are built as new files under
+     `src/components/ui/` (Sidebar/Topbar under `src/components/layout/` instead — see
+     [PROJECT-STRUCTURE.md](PROJECT-STRUCTURE.md)), translated to `cva()` + semantic tokens with no
+     inline styles or CDN dependencies.

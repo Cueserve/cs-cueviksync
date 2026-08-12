@@ -1,6 +1,6 @@
-﻿# PRODUCT.md — Product Concept
+# PRODUCT.md — Product Concept
 
-**Owner:** Viral Parikh (Product Owner)
+**Owner:** Viral Parikh
 **Last updated:** 2026-08-08
 **Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
 Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
@@ -9,6 +9,18 @@ Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows fo
 > Downstream: README.md, docs/PRD.md, docs/BACKLOG.md
 
 ---
+
+## Contents
+
+- [1. Overview](#1-overview)
+- [2. Target Users](#2-target-users)
+- [3. Features](#3-features)
+- [3A. Decision Placeholders](#3a-decision-placeholders)
+- [4. Scope (In / Out)](#4-scope-in-out)
+- [5. Success Criteria](#5-success-criteria)
+- [6. Anti-Patterns](#6-anti-patterns)
+- [7. Roadmap](#7-roadmap)
+- [Glossary](#glossary)
 
 ## 1. Overview
 
@@ -260,7 +272,7 @@ Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD car
 - **Do not sacrifice zero-leak capture for polish.** Reliability of intake beats new
   surface area — a missed inquiry is the one failure the product exists to prevent.
 
-## 7. Target Verticals — Expansion Roadmap
+## 7. Roadmap
 
 CuevikSync is architected as a single, horizontal platform. Phase 1 validates the
 core platform against a single vertical. Releases after Phase 1 expand to the verticals

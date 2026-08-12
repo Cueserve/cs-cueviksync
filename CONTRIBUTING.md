@@ -37,17 +37,50 @@ author completes before merging.
 
 Open PRs from the CLI (`gh pr create`) or the GitHub web UI.
 
----
+## Self-review checklist
 
-<!-- BEGIN DEVELOPMENT-PHASE-GOVERNANCE -->
+This is the merge gate. There is no required reviewer, so this list is what stands between a
+change and `main`. Complete it against the actual diff, not against memory of what you meant to
+do.
+
+- [ ] `git diff main...HEAD --stat` reviewed file by file. Every changed file is one I meant to
+      change; nothing arrived by accident.
+- [ ] `npm run lint`, `npm run typecheck`, `npm run format:check`, and `npm run test` all pass
+      locally, on the merge state — not just on the last file I edited.
+- [ ] Every change traces to a requirement, an approved spec, or an explicit instruction. No
+      invented scope, no opportunistic refactor, no "while I was in there".
+- [ ] No source-of-truth document under `docs/`, nor `CLAUDE.md`, nor this file, is touched in
+      this PR — unless the PR is _only_ that documentation change (see "Documentation changes").
+- [ ] No secret, key, connection string, or `.env*` value appears anywhere in the diff, in a
+      code comment, or in a fixture.
+- [ ] No dependency added or removed without the corresponding `docs/TECH-STACK.md` change
+      landing first, in its own PR.
+- [ ] Any schema change is a **new** migration file. No already-merged migration was edited.
+- [ ] Any new external input — Server Action argument, form payload, URL parameter — is
+      validated against a Zod schema server-side before it reaches the database.
+- [ ] Comments explain _why_, not _what_. Anything non-obvious carries its reason.
+- [ ] Commit messages follow the convention below and describe the change, not the process that
+      produced it.
+
+If a box cannot be ticked, the PR is not ready. Fix it, or say why in the PR description — an
+explicit, reasoned exception is fine; a silently unticked box is not.
+
+---
 
 ## Development-phase governance
 
-_Initiation is complete. The branching, review, and contribution rules for ongoing
-development are the team's to define once dev-phase realities are known — team size,
-review model, CI gates, release/versioning, environments. Fill this section in and
-remove this note as a standalone documentation change (see Documentation changes below)._
-<!-- END DEVELOPMENT-PHASE-GOVERNANCE -->
+Initiation is complete; these are the rules for ongoing development.
+
+- **Team size:** solo. One person holds the Product Owner and Architect hats.
+- **Review model:** self-review against the checklist above. No second reviewer blocks a merge,
+  because there is no second reviewer.
+- **CI gate:** `lint`, `typecheck`, `format:check`, `test`, on every PR to `main` and every push
+  to `main` (`.github/workflows/ci.yml`). CI runs the checks on the real merge state; the
+  checklist is the human gate. Neither replaces the other.
+- **Release/versioning:** none. `main` is the only artifact — there are no tags, no changelog,
+  and no versioned releases. `package.json` carries `0.1.0` as a placeholder, not a claim.
+  If that changes, it changes here first.
+- **Environments:** see [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md).
 
 ---
 
@@ -56,16 +89,19 @@ remove this note as a standalone documentation change (see Documentation changes
 Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```text
-<type>: <short summary>
+<type>(<scope>): <short summary>
 ```
 
-Common types: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `build:`, `ci:`.
+The scope is optional for repo-wide changes and expected otherwise — it is what makes a log
+skimmable in a repo with several route groups.
+
+Common types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `build`, `ci`.
 
 Examples:
 
 - `docs: add repo governance baseline`
-- `feat: add sync retry queue`
-- `fix: handle empty payload on push`
+- `feat(intake): add the submission retry queue`
+- `fix(pipeline): handle an empty payload on stage move`
 
 ---
 
@@ -121,24 +157,20 @@ Match the versions pinned in `docs/TECH-STACK.md`:
 
 ## Run commands
 
-| Task                                                           | Command                                      |
-| -------------------------------------------------------------- | -------------------------------------------- |
-| Install dependencies                                           | `npm install`                                |
-| Link the repo to the hosted Supabase project (once, per clone) | `npx supabase link`                          |
-| Apply pending migrations to the hosted project                 | `npx supabase db push --linked`              |
-| Regenerate database types after a migration                    | `npx supabase gen types typescript --linked` |
-| Run the app in development                                     | `npm run dev`                                |
-| Build for production                                           | `npm run build`                              |
-| Start the production build                                     | `npm run start`                              |
-| Lint                                                           | `npm run lint`                               |
-| Format                                                         | `npm run format`                             |
-| Unit tests (Vitest)                                            | `npm run test`                               |
-| Start the local Supabase stack — **tests / CI only**           | `npx supabase start`                         |
-| Deploy an Edge Function (Intake Receiver / Ingestion Worker)   | `npx supabase functions deploy <name>`       |
+The `scripts` block in [`package.json`](package.json) is the authority on what commands exist.
+Do not invent a script, and do not document one here that is not in that file — a command table
+in prose is a second source of truth that rots the moment a script is renamed.
 
-The `dev`, `build`, and `start` scripts wrap Next.js (`next dev` / `next build` /
-`next start`); `lint` wraps the ESLint CLI (`eslint`) — Next 16 removed `next lint`;
-`format` wraps Prettier; `test` wraps Vitest. There is no `test:e2e`.
+The five everyday checks, which are exactly what CI runs, are listed in
+[README.md](README.md) § Everyday Checks.
+
+Supabase operations that are not npm scripts:
+
+| Task                                         | Command                                        |
+| -------------------------------------------- | ---------------------------------------------- |
+| Link the repo to the hosted Supabase project | `npx supabase link`                            |
+| Apply pending migrations                     | `/db-migrate` (never a bare `npm run db:push`) |
+| Deploy an Edge Function                      | `npx supabase functions deploy <name>`         |
 
 ## Pre-commit hooks
 

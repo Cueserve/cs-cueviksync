@@ -1,6 +1,6 @@
-﻿# PRD.md — Product Requirements Document
+# PRD.md — Product Requirements Document
 
-**Owner:** Product Owner
+**Owner:** Viral Parikh
 **Last updated:** 2026-07-13
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
@@ -18,6 +18,7 @@
 5. [User Stories](#5-user-stories)
 6. [Functional Requirements](#6-functional-requirements)
 7. [Non-Functional Requirements](#7-non-functional-requirements)
+   7A. [Placeholder Specifications](#7a-placeholder-specifications)
 8. [Acceptance Criteria](#8-acceptance-criteria)
 9. [Out of Scope (Phase 1 Thin-Core Release)](#9-out-of-scope-Phase 1-thin-core-release)
 10. [Dependencies & Assumptions](#10-dependencies--assumptions)
@@ -331,6 +332,13 @@ latency is written `p95` / `p99`.
   return to full service within 8 business hours (Recovery Time Objective (RTO) <= 8
   business hours). This complements the NFR-010 Recovery Point Objective.
 
+## 7A. Placeholder Specifications
+
+_Not yet authored._ CuevikSync's open product decisions are held in
+[docs/PRODUCT.md](PRODUCT.md) §3A rather than here. This section exists so the two repos carry
+the same skeleton; if a requirement-level placeholder ever needs its own specification — the
+shape a decision must take before it can be built against — it goes here, not in PRODUCT.
+
 ## 8. Acceptance Criteria
 
 Testable conditions that define "done" for each requirement.
@@ -401,7 +409,7 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | NFR-012        | The capture and pipeline screens pass an automated WCAG 2.1 AA check with no critical violations.                                                                                                                                                                                                                                                        |
 | NFR-013        | A disaster-recovery drill restores the system to full service within 8 business hours of the declared start.                                                                                                                                                                                                                                             |
 
-## 9. Out of Scope (Phase 1 Thin-Core Release)
+## 9. Out of Scope
 
 Explicit exclusions for the Phase 1 thin-core release. Each moves to a later Phase 1
 PRD or a post-Phase 1 PRD unless noted as permanently out.

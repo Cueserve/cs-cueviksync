@@ -1,6 +1,6 @@
 # ENGINEERING-RULES.md — Coding Conventions, Banned Patterns, Testing
 
-**Owner:** Architect
+**Owner:** Viral Parikh
 **Last updated:** 2026-08-09
 **Source of truth for:** the engineering rules every change to the CuevikSync codebase must
 follow, whoever or whatever writes it.

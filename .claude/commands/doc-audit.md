@@ -3,6 +3,8 @@ description: Audit CuevikSync's docs and AI-instruction files across three lense
 allowed-tools: Read, Glob, Grep, Bash, Edit
 ---
 
+# Doc Audit
+
 Read CuevikSync's documentation corpus **once** and run three independent lenses over it:
 
 - **A — Align** — where terminology, metrics, acceptance criteria, goals, and scope don't cohere,
@@ -36,44 +38,36 @@ Combine freely: `/doc-audit align docs/PRD.md`, `/doc-audit drift fix`.
 
 ## 1. The corpus — read these, nothing else
 
-Read exactly this set, once, and hold it for all three passes. Sharing this read is the reason the
-three passes live in one command.
+Read every file below once, in this order, before reporting anything. Do not read `src/`
+except where Pass B explicitly probes it.
 
-**Tier 1 — instruction files Claude loads or runs automatically.** Highest blast radius: wrong
-here means wrong in every session.
+**Source-of-truth documents** (`docs/`, by lineage):
 
-- `CLAUDE.md`
-- `.claude/settings.json` (permissions, hooks, `env`, enabled plugins)
-- `.claude/hooks/*.mjs`
-- `.claude/commands/*.md` (including this file)
-- `~/.claude/projects/d--vrp-repos-cs-cueviksync/memory/MEMORY.md` and the memory files it indexes
-  — **read-only**, and it may not exist yet. A memory that contradicts the repo is a finding;
-  never edit one during an audit. Report it and let the user decide.
+1. `docs/PRODUCT.md` — the top of the lineage. Terminology canon.
+2. `docs/PRD.md` — testable requirements.
+3. `docs/ARCHITECTURE.md` — structure and design decisions.
+4. `docs/TECH-STACK.md` — approved technologies.
+5. `docs/ENGINEERING-RULES.md` — coding conventions, banned patterns, testing.
+6. `docs/PROJECT-STRUCTURE.md` — directory layout and placement rules.
+7. `docs/DESIGN-SYSTEM.md` — brand tokens and the accessibility floor.
+8. `docs/DATABASE.md` — the data model. Currently a stub.
+9. `docs/ENVIRONMENTS.md` — which Supabase environment development targets.
+10. `docs/BACKLOG.md` — epics and stories manifest.
 
-**Tier 2 — permanent source of truth.**
-`docs/PRODUCT.md`, `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/TECH-STACK.md`,
-`docs/ENGINEERING-RULES.md`, `README.md`, `docs/BACKLOG.md` — plus `CONTRIBUTING.md`, the
-**governance authority**, and `CLAUDE.md`, which owns every agent-behavior rule.
+**Governance and agent config:**
 
-**Tier 3 — pre-decision and post-hoc artifacts.** `docs/brainstorming/*.md`, `docs/reviews/*.md`.
-These are **not** authoritative and never win a tie. Brainstorming records options considered
-_before_ a decision; reviews record findings _about_ a document at a point in time. A brainstorming
-doc that contradicts `PRODUCT.md` is not a finding against `PRODUCT.md` — at most it is an
-unabsorbed idea (Pass C). A review whose findings are marked resolved must actually be resolved in
-the target doc; if not, that is a real Pass B finding.
+11. `CONTRIBUTING.md` — branching, commits, the self-review gate.
+12. `CLAUDE.md` — agent behaviour, scope, escalation, off-limits.
+13. `README.md` — restates; owns nothing.
 
-**Tier 4 — ground truth.** Not documentation.
+**Transient specs** — read whatever is in `docs/specs/`, and cross-check it against the
+"Approved design specs" list in `CLAUDE.md`. A spec not in that list, or a listed spec that no
+longer exists, is a Pass B finding on its own.
 
-- The filesystem itself: which files and directories actually exist on disk.
-- `git log` / `git status` — when a file last changed, versus what a date stamp claims.
-- `.gitignore`
-- Any scaffolded artifact once it lands (`package.json`, `supabase/migrations/*.sql`,
-  `.github/workflows/`, `.env.example`). Read `.env.example` only — **never** `.env` or
-  `.env*.local`; they are denied in `.claude/settings.json`.
-
-If a file exists under `docs/` but appears in neither `README.md` § Further Reading nor any
-`Downstream:` line, that is itself a finding — Further Reading is the single index of the document
-set, and every document declares its own place in the lineage graph.
+**Not the corpus:** `docs/brainstorming/` (never authoritative), `docs/reviews/` (dated
+advisory records — do not report them as drift against current state), and
+`docs/convergence/` (the CuevikSync/RedyQuote convergence spec, which describes intended
+change rather than current state).
 
 ## 2. Authority ladder — who wins when two files disagree
 
@@ -119,7 +113,7 @@ Three exceptions, all deliberate:
 
 ---
 
-# PASS A — Align
+## PASS A — Align
 
 _Skip entirely under `drift` or `absorb`. This pass judges coherence and completeness, not truth._
 
@@ -179,7 +173,7 @@ Pass B only compares things that exist. This is where a _gap_ gets caught.
 
 Report a gap as **Missing**, not a contradiction, and say which file should own the new section.
 
-## 3D. Goals vs scope vs mechanism
+## 3D. Goals vs. scope vs. mechanism
 
 Walk `PRODUCT.md` goals → `PRD.md` scope → `ARCHITECTURE.md` mechanism → `TECH-STACK.md` tooling.
 Flag: a stated goal with no mechanism · a mechanism serving no stated goal (usually crept scope) ·
@@ -206,11 +200,11 @@ decisions are not coding tasks; say so rather than proposing a default) · **rep
 
 ---
 
-# PASS B — Drift
+## PASS B — Drift
 
 _Skip entirely under `align` or `absorb`._
 
-## 4A. Doc vs doc
+## 4A. Doc vs. doc
 
 For each fact class, extract every statement across the corpus and compare. These are the classes
 where this repo has drifted or is structurally likely to:
@@ -238,7 +232,7 @@ where this repo has drifted or is structurally likely to:
 - **Cross-references.** Every relative link and every `§` / `PRD-NNN` / `NFR-NNN` citation: does
   the target file exist, and does the cited section say what the citing file claims?
 
-## 4B. Doc vs reality
+## 4B. Doc vs. reality _(skipped under `docs-only`)_
 
 Each probe turns a prose claim into a command. Run the probe; the output wins.
 
@@ -265,7 +259,7 @@ contradicts it, and who confirmed it.
 
 ---
 
-# PASS C — Absorb
+## PASS C — Absorb
 
 _Skip entirely under `align` or `drift`. The only pass that proposes deletions, and none of its
 output is ever auto-applied._

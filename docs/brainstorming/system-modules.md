@@ -1,6 +1,6 @@
-﻿# System Modules Brainstorming
+# System Modules Brainstorming
 
-**Owner:** Product + Architecture
+**Owner:** Viral Parikh
 **Last updated:** 2026-07-12
 **Status:** Draft
 
@@ -16,6 +16,19 @@ Draft status covers the exploration only: decisions stamped "(Product decision, 
 re-litigation while the surrounding doc stays draft.
 
 ---
+
+## Contents
+
+- [1. Goal Of The System](#1-goal-of-the-system)
+- [2. Candidate Modules](#2-candidate-modules)
+- [3. Why Each Module Exists](#3-why-each-module-exists)
+- [4. Dependencies Between Modules](#4-dependencies-between-modules)
+- [5. Must-Have Vs Later](#5-must-have-vs-later)
+- [6. Open Questions](#6-open-questions)
+- [7. Rejected Or Deferred Modules](#7-rejected-or-deferred-modules)
+- [8. Should-Have Backlog Reconciliation (Omni-Channel / AI Automation Wishlist)](#8-should-have-backlog-reconciliation-omni-channel-ai-automation-wishlist)
+- [9. Phase-03 Advanced Integrations Reconciliation (Web-to-Print / MIS / AI Prepress)](#9-phase-03-advanced-integrations-reconciliation-web-to-print-mis-ai-prepress)
+- [Guardrails](#guardrails)
 
 ## 1. Goal Of The System
 

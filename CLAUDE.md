@@ -3,6 +3,37 @@
 Claude Code reads this file automatically from the repo root. Claude Code is the **only** AI
 coding tool used on this project, and this file is the authority on how it must behave here.
 
+## Source-of-truth docs
+
+CuevikSync's product, requirements, architecture, and stack decisions live in `docs/`.
+**Read the relevant one before proposing a change; never derive architecture or stack decisions
+from memory.**
+
+- [docs/PRODUCT.md](docs/PRODUCT.md) - what we are building and why
+- [docs/PRD.md](docs/PRD.md) - testable requirements and feature scope
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - system structure and design decisions
+- [docs/TECH-STACK.md](docs/TECH-STACK.md) - approved technologies and usage rules
+- [docs/ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md) - coding conventions, banned patterns, testing
+- [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) - directory layout and file-placement rules
+- [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) - which Supabase environment dev runs against, and why
+- [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) - brand tokens, the semantic-token rule, the WCAG AA floor
+- [docs/DATABASE.md](docs/DATABASE.md) - the data model. **Stub: not yet authored.**
+- [docs/BACKLOG.md](docs/BACKLOG.md) - epics and stories manifest
+
+**Approved design specs** - same authority as the docs above for the slice they cover, but
+**transient**: each is deleted when its content lands in whatever it feeds. They live in
+`docs/specs/`, dated-filename-first.
+
+_None currently._ When one lands, add it to this list in the same change, and remove it in the
+change that deletes it.
+
+**Everything else in `docs/*.md` is permanent.**
+
+**Before creating any new route, Server Action, component, `src/lib/` module, or migration,
+consult [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) for where it goes** - its §2
+"Four Placement Questions" decides the location. If reality has to diverge from that layout,
+update that file in the same change (see its §6).
+
 ## Engineering rules
 
 @docs/ENGINEERING-RULES.md
@@ -25,6 +56,69 @@ When two sources disagree, the higher one wins:
    document's header names its own `Derived from:` / `Downstream:` files.
 4. This file, for the Claude-Code behavior rules below that it owns.
 5. `README.md` and `docs/BACKLOG.md` — they restate, they own nothing.
+
+## Project state
+
+**Last verified: 2026-08-11.** Confirm a file or script still exists before relying on this
+section - it is a snapshot, and a stale one is worse than none.
+
+**Built - the bare-minimum app only.** The `@/*` alias resolves to `./src/*`.
+
+- **Shell and token layer** - `src/app/globals.css` (three-tier tokens, enforced by
+  `eslint.config.mjs`), the root layout, `global-error.tsx`, the `(app)` shell with
+  sidebar/topbar/user-menu, `(auth)/login`, a placeholder `/inquiries` route, and the 18
+  primitives in `src/components/ui/`. All 18 are byte-identical to RedyQuote's.
+- **Supabase plumbing, unwired** - `src/lib/supabase/` (browser, server, service-role, session
+  refresh), `src/proxy.ts`, `src/lib/config.ts` and `src/lib/config.server.ts`.
+- **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and a CI workflow
+  byte-identical to RedyQuote's.
+
+**Not built.** No Server Actions, no domain screens, no migrations, no tests. Nothing in the app
+reads or writes data - the login route renders but does not authenticate.
+
+**No Supabase project exists or is linked** (docs/ENVIRONMENTS.md §1). Consequences that bite:
+
+- `npm run db:push` and `npm run db:types` cannot run.
+- `src/lib/supabase/types.ts` is a **hand-authored placeholder** typing every table as empty.
+  Do not hand-edit it further; `npm run db:types` overwrites it once a project exists.
+- `.env.local` holds shape-valid placeholder values so `src/lib/config.ts` does not throw at
+  startup. They are not credentials.
+
+**CI is red, deliberately.** `npm run test` fails an empty suite; the other four steps pass.
+
+**The brand palette is provisional** - see docs/DESIGN-SYSTEM.md §1.
+
+## Approved stack
+
+[docs/TECH-STACK.md](docs/TECH-STACK.md) is the authority; this is the short form.
+
+- **Next.js 16** (App Router) · **React 19** · **TypeScript 5** · **Node.js 24 LTS** (Active
+  LTS; `.nvmrc` + `engines.node` + `.npmrc engine-strict=true`)
+- **Supabase** - Postgres 17 + Auth + Storage + Edge Functions. **Multi-tenant**, row-level
+  `tenant_id` with RLS as the enforcement locus.
+- **Server Actions are the sole authenticated mutation path.** A route handler under
+  `src/app/api/` is only for an external HTTP surface that cannot be a Server Action.
+- **npm only** - do not use pnpm or yarn.
+- **Not used:** TanStack Query, Playwright/E2E, any ORM, external queue vendors,
+  headless-browser PDF rendering, LLM/vector stores. Each with its reason in TECH-STACK.md §5.
+
+## Non-negotiable invariants
+
+Structural guarantees, not conventions - do not write code that breaks them.
+
+- **Tenant scope is enforced by the database.** Every authenticated request carries the caller's
+  JWT to Postgres, where RLS filters by `tenant_id`. A forgotten filter must fail closed (zero
+  rows), never leak (NFR-008).
+- **The three service-role paths re-scope `tenant_id` in code.** Intake Receiver, Ingestion
+  Worker, and provisioning bypass RLS. `src/lib/supabase/service-role.ts` is `server-only` and
+  separate from the user-scoped client precisely so this is never accidental.
+- **Persist raw before processing.** The Intake Receiver durably enqueues to `pgmq` before any
+  transformation and runs no business logic inline (NFR-002).
+- **State changes go through the state machine.** Invalid transitions are rejected centrally,
+  not field by field.
+- **Audit in the same transaction.** A stage move or status change and its history row commit
+  together.
+- **Server-side is the source of truth for access.** A bypassed client must still be denied.
 
 ## Scope boundaries
 
@@ -104,7 +198,7 @@ specific to working as an agent:
 - **Pushing to remote** — never push to any remote branch without explicit human approval. This
   includes the branch you are currently working on, not just `main`.
 
-## Claude Code specifics
+## Claude Code-specific config
 
 - **Read before proposing.** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and
   [`docs/TECH-STACK.md`](docs/TECH-STACK.md) are the authority on structure and stack. Read the
@@ -123,6 +217,35 @@ specific to working as an agent:
 - **Repository state.** The app is not scaffolded — there is no `package.json`, `src/`, or
   `supabase/` on `main`. Do not assume a command, script, or path exists; check first, and say so
   plainly when something is missing rather than inventing a plausible substitute.
+
+## Building UI
+
+**The design system decides how it looks - always.**
+[docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) -> the tokens in `src/app/globals.css` -> the
+`no-restricted-syntax` rule in `eslint.config.mjs`. Every color, font, radius, and type size
+comes from there. Never a hex literal, never a raw Tailwind color class (`bg-slate-100`), never
+a font other than the two declared in `src/lib/fonts.ts`. Adding a token is a DESIGN-SYSTEM.md
+change requiring approval.
+
+**The Tier-1 brand anchors are provisional** (DESIGN-SYSTEM.md §1). Everything below Tier 1 is
+settled and shared verbatim with RedyQuote.
+
+**shadcn/ui builds it.** This is a shadcn project ([components.json](components.json), style
+`radix-nova`, `cssVariables: true`), and the 18 primitives in `src/components/ui/` are shadcn
+components already adapted to our tokens.
+
+- **Reuse before you add.** Check `src/components/ui/` first, then extend a primitive with a
+  `cva` variant before pulling in a new one.
+- **Adding a primitive:** `npx shadcn@latest add <name>`. Its output is compatible by
+  construction - shadcn names its tokens exactly as `globals.css` defines them. Read the diff
+  anyway: a hardcoded color in generated output is a bug, not a starting point.
+- **`src/components/ui/` must stay app-agnostic.** `eslint.config.mjs` bans imports from
+  `@/server/*`, `@/lib/supabase/*`, and `@/app/*` there. It is the extraction boundary for a
+  future shared Cuevik library, and it is byte-identical to RedyQuote's - a change here is a
+  change to both.
+
+**Ship gate:** `npm run lint` and `npm run typecheck`. A suggestion that fails lint was never a
+valid suggestion.
 
 ## When blocked
 

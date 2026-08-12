@@ -10,6 +10,14 @@ rules that follow from that, and the plan for adopting the local Docker stack.
 
 ---
 
+## Contents
+
+- [1. Current State — Nothing Provisioned Yet](#1-current-state-nothing-provisioned-yet)
+- [2. Plans & Cost](#2-plans-cost)
+- [3. Working Rules](#3-working-rules)
+- [4. Plan: Adopting the Local Docker Stack](#4-plan-adopting-the-local-docker-stack)
+- [5. Keeping This File Honest](#5-keeping-this-file-honest)
+
 > **Section structure matches `RedyQuote:docs/ENVIRONMENTS.md` deliberately** — same file, same
 > path, same five sections, so a developer moving between the repos finds the same information
 > in the same place. **§1's content genuinely differs**, and that difference is a real
@@ -17,7 +25,7 @@ rules that follow from that, and the plan for adopting the local Docker stack.
 > worker-idempotency tests (docs/ENGINEERING-RULES.md §3) are destructive, so they require a
 > disposable local stack. RedyQuote has no such requirement and runs hosted-only.
 
-## 1. Current State — Nothing Provisioned Yet
+## 1. Current State
 
 **Neither environment exists today.** The app is not scaffolded, and **no Supabase project has
 been created or linked** (confirmed 2026-08-11). Everything below is the intended end state.

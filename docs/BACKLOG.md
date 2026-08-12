@@ -1,6 +1,6 @@
 # BACKLOG.md — Initial Backlog Manifest
 
-**Owner:** Product Owner
+**Owner:** Viral Parikh
 **Last updated:** 2026-07-18
 **Source of truth for:** The epics/stories manifest and host item IDs — intentionally deferred; to be built incrementally at development start.
 

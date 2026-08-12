@@ -1,6 +1,6 @@
 # ARCHITECTURE.md — System Architecture
 
-**Owner:** Architect
+**Owner:** Viral Parikh
 **Last updated:** 2026-07-14
 **Source of truth for:** the system structure, component boundaries, and design decisions that satisfy the CuevikSync Phase 1 thin-core PRD.
 
@@ -382,7 +382,7 @@ payment-card obligations are stated in PRD.md, and none are introduced here.
 - Anonymous intake abuse on the public endpoint → intake isolated from the app and buffered;
   a payload size cap, schema check, and a coarse per-intake-key request ceiling apply at
   receipt as an in-scope floor (the ceiling is infrastructure self-protection for the NFR-003
-  SLA and Edge quota; see TECH-STACK.md §5/§6). Spam de-duplication and content filtering
+  SLA and Edge quota; see TECH-STACK.md §6/§7). Spam de-duplication and content filtering
   remain candidate mitigations for a later PRD (PRD §12), and the isolated design leaves room
   to add them without touching the app.
 - Privilege escalation into configuration → admin-only route guard. (PRD-026)
