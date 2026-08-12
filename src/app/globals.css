@@ -1,0 +1,539 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   CuevikSync design tokens
+
+   Structure, tier rules, scales and dark-mode derivation are RedyQuote's,
+   adopted verbatim (convergence spec C-15). What differs is Tier 1: the three
+   brand anchors are CuevikSync's own and are PROVISIONAL -- see
+   docs/DESIGN-SYSTEM.md §1. Every ramp step below was re-solved from those
+   anchors by preserving RedyQuote's lightness ladder and substituting hue, so
+   the two products share a structure without sharing a palette.
+
+   Three tiers, in order: primitives -> semantic -> component.
+
+   TIER 1 (primitives) is declared in :root but deliberately NOT registered in
+   @theme. Tailwind only emits utilities for @theme entries, so no primitive can
+   ever be written as a class name -- `bg-clay-600` does not exist. The
+   "semantic tokens only" rule is therefore a property of the build, not a
+   convention people have to remember. Same philosophy as the RLS approval gate
+   and the ui/ boundary rule: enforce it, don't document it and hope.
+
+   TIER 2 (semantic) is everything mapped in @theme inline below. These are the
+   only color names components may use: bg-background, text-muted-foreground,
+   bg-primary, border-border, and so on.
+
+   TIER 3 (component) is cva() variants -- see components/ui/button.tsx.
+
+   Ramp steps are concrete literals -- hex for the tier-1 ramps, oklch where a
+   value is solved per-surface (dark mode, the chart series, status tints).
+   Every contrast figure in the comments below is computed from these values,
+   not inherited from the source system. See DESIGN-SYSTEM.md §4.
+============================================================================ */
+
+/* --- TIER 1: brand primitives (no utilities generated) ------------------- */
+:root {
+  /* Clay -- CuevikSync's brand teal. Primary actions, links, focus, active
+     nav. Never a page or field background above clay-50. The ramp keeps the
+     name `clay` even though the hue is no longer a clay red: renaming would
+     ripple through every tier-2 reference and both repos' vocabulary for no
+     functional gain, the same reasoning `--stone-*` already relies on. */
+  --clay-50: #f3f7f7;
+  --clay-100: #e7efef;
+  --clay-200: #d8e4e4;
+  --clay-300: #a8c4c3;
+  --clay-400: #72a1a0;
+  --clay-500: #3f8180;
+  --clay-600: #0f6e6e;
+  --clay-700: #064c4c;
+  --clay-800: #033838;
+  --clay-900: #022424;
+  /* Derived, not part of the ladder: the dark-mode primary fill. clay-500
+     carries white at exactly 4.50:1 -- passing, but with no margin at all --
+     and clay-600 separates from the dark canvas at only 2.97:1. Neither step
+     does both jobs, so this one is solved between them: 5.42:1 for white on
+     the fill, 3.31:1 against the canvas. RedyQuote needed no equivalent
+     because its red ramp happened to have a usable step; a teal anchor at this
+     lightness does not. */
+  --clay-550: #247574;
+
+  /* Stone -- ink-based cool gray. Does the heavy lifting: surfaces, borders,
+     text. --stone-800 is corrected from the export's own color-mix formula --
+     it mixed 88% ink + 12% BLACK, which lands darker than stone-900 (ink
+     itself) and breaks the ramp's monotonic order (verified: L .191 vs stone
+     -900's L .218). Re-solved here as 88% ink + 12% white so 700 > 800 > 900
+     holds. */
+  --stone-50: #fafafa;
+  --stone-100: #f2f2f2;
+  --stone-200: #d4d4d4;
+  --stone-300: #b0b0b0;
+  --stone-400: #9f9f9f;
+  --stone-500: #8a8a8a;
+  --stone-600: #676767;
+  --stone-700: #4a4a4a;
+  --stone-800: #313131;
+  --stone-900: #1a1a1a;
+  /* Derived: the ramp bottoms out at stone-900 (ink), which dark mode needs
+     for its RAISED surface. Two steps below it give the dark canvas and card.
+     Both --clay-550 and --moss-550 exist for the dark-mode fills -- see those
+     two definitions, and the .dark --primary / --accent-secondary comments,
+     for why no ladder step does that job under these anchors. */
+  --stone-950: oklch(0.19 0.004 90);
+  --stone-1000: oklch(0.14 0.003 90);
+
+  /* Moss -- CuevikSync's accent violet. Secondary actions, informational
+     accent. Violet rather than the amber first considered: --warning is 58.8deg
+     and --destructive 37.6deg, so an amber accent would have put three warm
+     hues in one system and undone the hue separation DESIGN-SYSTEM.md §6
+     insists on. At 291deg it is 96deg off the brand teal and further still from
+     every status hue. Name kept, as with `clay` above. */
+  --moss-50: #f6f6fc;
+  --moss-100: #e7e5f8;
+  --moss-200: #d5d2ef;
+  --moss-300: #b6afe2;
+  --moss-400: #9589d2;
+  --moss-500: #7b68c3;
+  --moss-600: #5b3fa8;
+  --moss-700: #503b8f;
+  --moss-800: #392a69;
+  --moss-900: #221842;
+  /* Derived, same reason as --clay-550: moss-500 carries white at 4.55:1 (no
+     margin) and moss-600 separates from the dark canvas at only 2.32:1, which
+     fails the 3:1 non-text floor outright. Solved between them: 5.39:1 on the
+     fill, 3.32:1 against the canvas. */
+  --moss-550: #705bba;
+}
+
+/* --- TIER 2: semantic token -> Tailwind utility mapping ------------------ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-editable-border: var(--editable-border);
+  --color-editable: var(--editable);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-info-border: var(--info-border);
+  --color-info-muted: var(--info-muted);
+  --color-info-foreground: var(--info-foreground);
+  --color-info: var(--info);
+  --color-warning-border: var(--warning-border);
+  --color-warning-muted: var(--warning-muted);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning: var(--warning);
+  --color-success-border: var(--success-border);
+  --color-success-muted: var(--success-muted);
+  --color-success-foreground: var(--success-foreground);
+  --color-success: var(--success);
+  --color-destructive-border: var(--destructive-border);
+  --color-destructive-muted: var(--destructive-muted);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-accent-secondary-hover: var(--accent-secondary-hover);
+  --color-accent-secondary-foreground: var(--accent-secondary-foreground);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-border: var(--primary-border);
+  --color-primary-muted: var(--primary-muted);
+  --color-primary-active: var(--primary-active);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-text: var(--primary-text);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-sidebar-logo-chip: var(--sidebar-logo-chip);
+}
+
+/* Static scales live in a plain @theme (not `inline`) so Tailwind also emits
+   them as real custom properties -- `var(--radius-md)` has to resolve at
+   runtime for the few places that interpolate a radius. */
+@theme {
+  /* Radius climbs strictly by component size class, and never reaches 0.
+     This is an explicit ladder, not a calc() chain off one base: 6 -> 10 -> 16
+     -> 22 is not a constant multiple, and forcing it into one distorted the
+     middle steps. */
+  --radius-sm: 6px; /* chips, inputs, tags        */
+  --radius-md: 10px; /* buttons, icon buttons, tables */
+  --radius-lg: 16px; /* cards                      */
+  --radius-xl: 22px; /* modals, panels             */
+
+  /* Type scale. Denser than Tailwind's default at every step -- this is a
+     data tool, and 15px base keeps a quote table's numeric columns intact.
+     `--text-md` (17px) has no Tailwind default; defining it creates `text-md`. */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.8125rem; /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-md: 1.0625rem; /* 17px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5rem; /* 24px */
+  --text-2xl: 1.875rem; /* 30px */
+  --text-3xl: 2.5rem; /* 40px */
+  --text-4xl: 3.25rem; /* 52px */
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+
+  /* Elevation reflects layering (modal > popover > card), never hover state.
+     Ink-tinted (rgb(26,26,26) = --stone-900) rather than pure black, per the
+     export verbatim -- and unlike the old muted palette, this is no longer a
+     mismatched carry-over: ink IS the neutral anchor now, so the shadow tint
+     and the palette agree. */
+  --shadow-xs: 0 1px 2px rgba(26, 26, 26, 0.06);
+  --shadow-sm: 0 2px 6px rgba(26, 26, 26, 0.08);
+  --shadow-md: 0 6px 16px rgba(26, 26, 26, 0.1);
+  --shadow-lg: 0 16px 40px rgba(26, 26, 26, 0.14);
+
+  --container-max: 1280px;
+  --spacing-dialog-content: 85vh;
+}
+
+/* --- TIER 2 values: light ------------------------------------------------ */
+:root {
+  /* Surfaces. Page canvas is stone-50; panels sit on top in white, which is
+     what gives the dense quote tables their edge definition. */
+  --background: var(--stone-50);
+  --foreground: var(--stone-900); /* 13.6:1 on the canvas */
+  --card: #ffffff;
+  --card-foreground: var(--stone-900);
+  --popover: #ffffff;
+  --popover-foreground: var(--stone-900);
+
+  /* Brand. --primary is the solid fill; --primary-text is clay used AS ink
+     (links, active nav, icons). Identical in light mode, and they diverge in
+     dark -- see the note in the .dark block.
+     Hover darkens one step, press one more (clay-600 -> 700 -> 800). */
+  --primary: var(--clay-600); /* 6.04:1 as ink on card */
+  --primary-foreground: #ffffff; /* 6.04:1 on the fill */
+  --primary-text: var(--clay-600);
+  --primary-hover: var(--clay-700);
+  --primary-active: var(--clay-800);
+  /* Brand tint + border, so a brand pill or tag has the same four-part shape
+     as a status one. The export's Tag "clay" tone. */
+  --primary-muted: var(--clay-100); /* --primary-text on it: 5.18:1 */
+  --primary-border: var(--clay-300);
+
+  /* Moss is the SECONDARY ACTION, which is not what shadcn means by
+     --secondary (a subtle gray surface). Kept as its own token so imported
+     shadcn components that use bg-secondary as a surface don't turn violet.
+     Moss's "info" role and its Tag "moss" tone converge on the same accent
+     family; see DESIGN-SYSTEM.md §12. */
+  --accent-secondary: var(--moss-600); /* white on it: 7.72:1 */
+  --accent-secondary-foreground: #ffffff;
+  --accent-secondary-hover: var(--moss-700);
+
+  /* Neutral supporting surfaces, all stone-100 and all deliberately DARKER
+     than --card and --background: a recessed surface lighter than the canvas
+     reads inside-out. --accent stays NEUTRAL on purpose -- shadcn uses it for
+     every generic hover, so tinting it clay would put brand color on every
+     dropdown row. The clay tint is scoped to active nav instead. */
+  --secondary: var(--stone-100);
+  --secondary-foreground: var(--stone-900);
+  --muted: var(--stone-100);
+  --muted-foreground: var(--stone-600); /* 5.66:1 card / 5.42:1 page/muted */
+  --accent: var(--stone-100);
+  --accent-foreground: var(--stone-900);
+
+  /* Status. Reserved meanings -- never reuse these as chart series colors.
+     Each is a four-part set: the ink (also usable as a solid fill), the ink
+     that sits ON that fill, a tinted background, and a border.
+
+     --destructive is NOT brand red, unlike the export's own §7.1/§2 (which
+     reuses --color-brand-red for danger, filled vs. outlined). Once primary
+     is an actual saturated brand red, a same-hue destructive reads as "the
+     brand red, slightly off" rather than a different signal -- a stronger
+     version of the confusion the old muted palette's §6 already reasoned
+     through. A burnt-orange/rust hue (~38deg in OKLCH). Under CuevikSync's
+     teal anchor there is no same-hue clash to avoid at all -- brand sits at
+     195deg -- so this value carries over unchanged and the separation it was
+     solved for is now larger, not smaller. Its remaining near neighbour is
+     warning/amber at ~59deg. See DESIGN-SYSTEM.md §6. */
+  --destructive: #9b2d00; /* 7.58:1 on card */
+  --destructive-foreground: #ffffff;
+  --destructive-muted: #f7eae6; /* ink on it: 6.45:1 */
+  --destructive-border: #d8a291;
+  --success: #2e7d32; /* Approved -- the export's brand green, verbatim */
+  --success-foreground: #ffffff;
+  /* Re-solved: the export's own --success-light (#e3f1e4) reads at 4.39:1
+     against this ink, missing the 4.5:1 floor. Lightened to an 8% mix. */
+  --success-muted: #eef4ee; /* ink on it: 4.59:1 */
+  --success-border: #a2c4a1;
+  /* Re-solved: the export's raw amber (#c77700) reads 3.46:1 on white --
+     Review text would fail AA outright. Darkened along the same
+     hue to #9c5400, matching the pattern the old muted palette already used
+     for exactly this problem (stepping a failing export value, not inventing
+     a new one). */
+  --warning: #9c5400; /* Review -- 5.70:1 on card */
+  --warning-foreground: #ffffff;
+  --warning-muted: #fbebd6; /* ink on it: 4.88:1, export's value verbatim */
+  --warning-border: #d5b196;
+  --info: var(--moss-700); /* Sent -- 8.89:1 on card */
+  --info-foreground: #ffffff;
+  --info-muted: var(--moss-100); /* ink on it: 7.18:1 */
+  --info-border: #b0a6d8;
+
+  /* Lines. Two levels, because one token cannot do both jobs at AA:
+       --border  decorative -- card outlines, table row rules, section
+                 dividers. No contrast floor applies (WCAG 1.4.11 exempts
+                 purely decorative boundaries), so this is the export's
+                 --border-default verbatim.
+       --input   the boundary that IDENTIFIES a control -- text inputs,
+                 selects, checkboxes, radios, ghost buttons. This one does
+                 have a 3:1 floor, and the export's border-default value
+                 (stone-200, 1.48:1 on white) misses it badly, so it is
+                 stepped to stone-600 -- same fix, same reasoning as the old
+                 muted palette's border/input split. */
+  --border: var(--stone-200);
+  --input: var(--stone-600); /* 5.66 card / 5.42 page / 5.42 muted */
+
+  /* The editable-vs-calculated convention. Per the new export, this is now an
+     amber/warning tint+border rather than a clay one (previously the tint was
+     brand-color; now it deliberately borrows the warning hue so an estimator
+     reads "editable" as its own visual language, distinct from brand actions).
+     The border is what carries the meaning -- the tint alone is not enough
+     contrast on its own to read as a boundary. Note: editable cells and
+     Pending-Approval badges now share a hue family; they stay structurally
+     distinguishable (rectangular input + mono digits vs. a pill), so this is
+     flagged, not redesigned. Calculated fields get neither tint nor border. */
+  --editable: var(--warning-muted);
+  --editable-border: var(
+    --warning
+  ); /* 5.70 white / 5.09 page / 4.88 own fill */
+
+  --ring: var(
+    --clay-600
+  ); /* solid, never alpha-blended -- see below; 5.79:1 on the canvas */
+
+  /* Categorical chart series. Fixed order, never cycled; color follows the
+     entity, never its rank. Anchored on clay (brand) and moss (accent), with
+     the middle three chosen to avoid both anchors AND the three status hues
+     (destructive 37.6, warning 58.8, success 144.2) -- a series color that
+     reads as a status color is the failure mode here.
+
+     Re-solved wholesale rather than inherited: RedyQuote's chart-4 was a teal
+     at 172deg and its chart-2 a violet at 300deg, which under this palette
+     would collide with the brand anchor (195) and the accent anchor (291)
+     respectively. Sorted hues are 0 / 85 / 194.9 / 240 / 291; the closest pair
+     (195 and 240, 45deg apart) is deliberately non-adjacent in series order.
+     Validated, not eyeballed: every step clears 3:1 on both surfaces. */
+  --chart-1: oklch(0.56 0.098 194.9); /* teal -- brand anchor */
+  --chart-2: oklch(0.56 0.145 0); /* crimson             */
+  --chart-3: oklch(0.6 0.115 85); /* ochre               */
+  --chart-4: oklch(0.58 0.11 240); /* blue                */
+  --chart-5: oklch(0.58 0.14 291); /* violet -- accent anchor */
+
+  /* Sidebar. The rail is DARK in light mode -- stone-900 against the stone-50
+     canvas. The wordmark sits on a white chip; keep the chip even if a future
+     logo is transparent-safe, so the two repos' rails stay structurally
+     identical. */
+  --sidebar: var(--stone-900);
+  --sidebar-foreground: var(--stone-300); /* 8.03:1 on the rail */
+  --sidebar-primary: var(--clay-600);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--stone-800); /* hover */
+  --sidebar-accent-foreground: var(--stone-50);
+  --sidebar-border: var(--stone-800);
+  --sidebar-ring: var(--clay-400); /* on the dark rail, not on white */
+  /* Invariant across both modes: the chip stays literally white in dark mode
+     too -- not a token that means "white in light mode," a token that always
+     IS white. */
+  --sidebar-logo-chip: #ffffff;
+
+  /* Modal scrim: no blur, no frosted glass anywhere in this product. Ink at
+     40%, matching the export exactly -- ink IS the neutral anchor now, so
+     this is no longer a "kept verbatim despite a cool palette" carve-out. */
+  --scrim: rgba(26, 26, 26, 0.4);
+
+  /* For anything that interpolates the base radius. The real ladder is the
+     explicit --radius-sm/md/lg/xl above. */
+  --radius: 1rem;
+}
+
+/* --- TIER 2 values: dark ------------------------------------------------- */
+/* The export is light-only; every value here was derived and contrast-checked
+   rather than flipped. Status inks are pinned at L 0.720 so their tints can sit
+   high enough to be visible against the card. */
+.dark {
+  --background: var(--stone-1000);
+  --foreground: var(--stone-50);
+  --card: var(--stone-950);
+  --card-foreground: var(--stone-50);
+  --popover: var(--stone-950);
+  --popover-foreground: var(--stone-50);
+
+  /* Clay splits roles here. No single lightness does both jobs on a dark
+     surface: a fill dark enough to carry --primary-foreground reads too dim as
+     ink, and ink light enough to pass drops the fill below AA. So --primary is
+     the fill and --primary-text is the ink. Use text-primary-text, never
+     text-primary, for links and active nav in dark mode.
+
+     A derived --clay-550 IS needed here, unlike RedyQuote: on a teal anchor
+     neither ladder step does both jobs. clay-500 carries white at exactly
+     4.50:1 -- passing with no margin -- and clay-600 separates from the canvas
+     at only 2.97:1, below the 3:1 non-text floor. --clay-550 sits between them
+     at 5.42:1 on the fill and 3.31:1 against the canvas. Hover still DARKENS
+     rather than lightens: clay-400 as a fill would hold --primary-foreground at
+     only 2.87:1, so lightening on hover would break AA on the very state the
+     pointer is on. */
+  --primary: var(--clay-550); /* fg on it: 5.42:1, 3.31:1 vs page */
+  --primary-foreground: #ffffff;
+  --primary-text: var(--clay-400); /* 5.75 card */
+  --primary-hover: var(--clay-600);
+  --primary-active: var(--clay-700);
+  --primary-muted: oklch(0.3 0.05 194.9); /* --primary-text on it: 4.51:1 */
+  --primary-border: oklch(0.5 0.075 194.9);
+
+  /* --moss-550 is needed for the same reason as --clay-550, and more sharply:
+     moss-600 separates from the dark canvas at only 2.32:1, which fails the
+     3:1 floor outright, and moss-500 carries white at 4.55:1 with no margin.
+     Hover darkens to moss-600, which is legitimate as a hover fill because the
+     pointer is on it -- it is the resting state that must clear the canvas. */
+  --accent-secondary: var(--moss-550); /* white on it: 5.39:1, 3.32:1 vs page */
+  --accent-secondary-foreground: #ffffff;
+  --accent-secondary-hover: var(--moss-600);
+
+  --secondary: var(--stone-900);
+  --secondary-foreground: var(--stone-50);
+  --muted: var(--stone-900);
+  --muted-foreground: var(--stone-500); /* 5.34 card / 5.04 muted */
+  --accent: var(--stone-900);
+  --accent-foreground: var(--stone-50);
+
+  /* Status inverts: the inks are light here, so the ink that sits on a solid
+     fill is the dark canvas color. Same four hues as light mode -- only
+     lightness/tint/border steps are re-solved per surface. */
+  --destructive: oklch(0.72 0.11 37.6); /* 7.12:1 on card */
+  --destructive-foreground: var(--stone-1000);
+  --destructive-muted: oklch(0.33 0.045 37.6); /* ink on it: 4.79:1 */
+  --destructive-border: oklch(0.52 0.09 37.6);
+  --success: oklch(0.72 0.11 144.2); /* 7.77:1 on card */
+  --success-foreground: var(--stone-1000);
+  --success-muted: oklch(0.35 0.045 144.2); /* ink on it: 4.66:1 */
+  --success-border: oklch(0.52 0.09 144.2);
+  --warning: oklch(0.72 0.11 58.8); /* 7.24:1 on card */
+  --warning-foreground: var(--stone-1000);
+  --warning-muted: oklch(0.33 0.045 58.8); /* ink on it: 4.83:1 */
+  --warning-border: oklch(0.52 0.09 58.8);
+  --info: oklch(0.72 0.11 291); /* 7.43:1 on card */
+  --info-foreground: var(--stone-1000);
+  --info-muted: oklch(0.35 0.045 291); /* ink on it: 4.56:1 */
+  --info-border: oklch(0.52 0.09 291);
+
+  --border: var(--stone-800);
+  --input: var(--stone-600); /* 3.26 card / 3.08 muted */
+  --editable: oklch(0.305 0.045 58.8);
+  /* Re-solved for the dark surface: the light-mode --editable-border
+     (--warning, unmixed) reads only 2.38:1 against this dark tint -- a
+     lighter/more-saturated step is needed here, unlike the old clay-based
+     convention where the light-mode border value happened to still clear 3:1
+     in dark mode. */
+  --editable-border: oklch(0.61 0.13 58.8); /* 4.68 card / 3.44 own fill */
+  --ring: var(--clay-400);
+
+  /* Re-stepped into the dark lightness band, not flipped from the light
+     values. Same five hues as light mode, re-solved there -- see the
+     light-mode comment for why none of them is inherited. */
+  --chart-1: oklch(0.7 0.098 194.9);
+  --chart-2: oklch(0.7 0.145 0);
+  --chart-3: oklch(0.73 0.115 85);
+  --chart-4: oklch(0.72 0.11 240);
+  --chart-5: oklch(0.72 0.14 291);
+
+  --sidebar: var(--stone-900);
+  --sidebar-foreground: var(--stone-300);
+  --sidebar-primary: var(--clay-550);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--stone-800);
+  --sidebar-accent-foreground: var(--stone-50);
+  --sidebar-border: var(--stone-800);
+  --sidebar-ring: var(--clay-400);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground text-base leading-normal;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Archivo is the only text family -- headings differ by weight and tracking,
+     not by face.
+     Case follows DESIGN-SYSTEM.md §11 "Voice", which splits it: Title Case for
+     top-level labels (primary nav, page headers, tabs, section headers),
+     sentence case for supporting copy (buttons, table headers, form labels,
+     help text, status copy). No ALL-CAPS either way. This comment previously
+     said "sentence case everywhere, no Title Case", which contradicted §11 and
+     would have condemned every section heading in the app. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-sans font-semibold tracking-tight;
+  }
+  a {
+    @apply text-primary-text no-underline;
+  }
+  a:hover {
+    @apply underline;
+  }
+  /* The focus ring belongs here, not on each link. Every ui/ primitive carries
+     `focus-visible:ring-3 focus-visible:ring-ring` in its own cva string, but a
+     plain anchor has no cva string to carry it -- so links fell through to the
+     browser's `outline: auto`, which is thinner, differently colored per
+     browser, and not the ring this file declares below. Sidebar links override
+     --ring with --sidebar-ring; a utility class beats @layer base, so that
+     override needs no !important. */
+  a:focus-visible {
+    @apply rounded-sm outline-none ring-3 ring-ring;
+  }
+  table {
+    border-collapse: collapse;
+  }
+}
+
+/* Focus is a solid 3px brand ring on every interactive element -- `ring-3
+   ring-ring`, never `ring-ring/50`. Alpha-blending --ring over a light surface
+   fails the 3:1 non-text floor; the solid token is 5.79:1 on the page canvas.
+
+   Money and quantities must not jitter as digits change: numeric cells use
+   `font-mono tabular-nums` (both stock Tailwind utilities). There is no custom
+   class for it.
+
+   Motion: 120-160ms ease-out opacity/fade only, and only for toasts, tooltips
+   and dialogs. No scale or translate on press -- this is a data tool, and
+   motion must never make a number feel imprecise. */
