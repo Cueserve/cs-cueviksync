@@ -59,30 +59,33 @@ When two sources disagree, the higher one wins:
 
 ## Project state
 
-**Last verified: 2026-08-11.** Confirm a file or script still exists before relying on this
+**Last verified: 2026-08-12.** Confirm a file or script still exists before relying on this
 section - it is a snapshot, and a stale one is worse than none.
 
-**Built - the bare-minimum app only.** The `@/*` alias resolves to `./src/*`.
+**Built - the bare-minimum app, plus tenancy and auth.** The `@/*` alias resolves to `./src/*`.
 
 - **Shell and token layer** - `src/app/globals.css` (three-tier tokens, enforced by
   `eslint.config.mjs`), the root layout, `global-error.tsx`, the `(app)` shell with
   sidebar/topbar/user-menu, `(auth)/login`, a placeholder `/inquiries` route, and the 18
   primitives in `src/components/ui/`. All 18 are byte-identical to RedyQuote's.
-- **Supabase plumbing, unwired** - `src/lib/supabase/` (browser, server, service-role, session
-  refresh), `src/proxy.ts`, `src/lib/config.ts` and `src/lib/config.server.ts`.
+- **Supabase plumbing, unwired to any UI** - `src/lib/supabase/` (browser, server, service-role,
+  session refresh), `src/proxy.ts`, `src/lib/config.ts` and `src/lib/config.server.ts`.
 - **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and a CI workflow
   byte-identical to RedyQuote's.
+- **A linked Supabase project** (`tdxojcqkiozmgjkrbypm`), with two applied migrations:
+  `0001_extensions_and_types.sql` (pgcrypto, the four-role `user_role` enum) and
+  `0002_tenants_profiles_and_auth.sql` (`tenants`, `profiles` with `tenant_id`, `is_admin()`,
+  `current_tenant_id()`, the role-escalation and tenant-immutability guards, and RLS scoped to
+  `tenant_id = current_tenant_id()`). RLS verified enabled on both tables. Neither `pgmq` nor
+  `pg_cron` is enabled yet - deferred to the migration that first uses them.
+- **`src/lib/supabase/types.ts` is real, generated output** - `npm run db:types` against the
+  applied schema, not the hand-authored placeholder it used to be.
 
-**Not built.** No Server Actions, no domain screens, no migrations, no tests. Nothing in the app
-reads or writes data - the login route renders but does not authenticate.
-
-**No Supabase project exists or is linked** (docs/ENVIRONMENTS.md §1). Consequences that bite:
-
-- `npm run db:push` and `npm run db:types` cannot run.
-- `src/lib/supabase/types.ts` is a **hand-authored placeholder** typing every table as empty.
-  Do not hand-edit it further; `npm run db:types` overwrites it once a project exists.
-- `.env.local` holds shape-valid placeholder values so `src/lib/config.ts` does not throw at
-  startup. They are not credentials.
+**Not built.** No Server Actions, no domain screens, no tests, no tenant-provisioning flow. A
+new `auth.users` row gets no `profiles` row - provisioning (self-serve vs. invited, what
+happens to a new tenant's first user) is undecided and undesigned; nothing auto-creates a
+tenant. Nothing in the app reads or writes data yet - the login route renders but does not
+authenticate.
 
 **CI is red, deliberately.** `npm run test` fails an empty suite; the other four steps pass.
 

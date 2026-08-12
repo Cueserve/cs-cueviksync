@@ -27,9 +27,10 @@ rules that follow from that, and the plan for adopting the local Docker stack.
 
 ## 1. Current State
 
-**Neither environment exists today.** The app is not scaffolded, and **no Supabase project has
-been created or linked** (confirmed 2026-08-11). Everything below is the intended end state.
-Do not read this file as a description of what is running.
+**The hosted development project exists and is linked** (project ref `tdxojcqkiozmgjkrbypm`,
+confirmed 2026-08-12). Two migrations are applied — see CLAUDE.md § Project state for exactly
+what they created. The local test stack is not set up; nothing here needs it yet, since no test
+suite exists (docs/TECH-STACK.md §5).
 
 CuevikSync uses **two** Supabase environments. They are not interchangeable.
 
@@ -38,13 +39,13 @@ CuevikSync uses **two** Supabase environments. They are not interchangeable.
 | **Development** | A linked hosted Supabase project (`supabase link`) | All day-to-day development                     | **No.** A bad migration is repaired by a new migration, never by editing the applied one. |
 | **Test / CI**   | The local stack (`supabase start`, Docker)         | Vitest, the GitHub Actions job, and future E2E | Yes — CI resets freely.                                                                   |
 
-|                        | Intended                                                                        | Today                  |
-| ---------------------- | ------------------------------------------------------------------------------- | ---------------------- |
-| Dev database           | Hosted Supabase project, `cueviksync-dev`                                       | **Does not exist**     |
-| Local stack            | `npx supabase start` — tests and CI only, never for dev work                    | **Not set up**         |
-| Migrations applied via | `npx supabase db push --linked` against the linked remote                       | No migrations authored |
-| Types generated via    | `npx supabase gen types typescript --linked`                                    | Placeholder `types.ts` |
-| Prerequisite           | A Supabase account and project — **required to start**, not just at deploy time | Not created            |
+|                        | Intended                                                                        | Today                                              |
+| ---------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Dev database           | Hosted Supabase project                                                         | **Exists** — `tdxojcqkiozmgjkrbypm`                |
+| Local stack            | `npx supabase start` — tests and CI only, never for dev work                    | Not set up — no test suite exists yet to need it   |
+| Migrations applied via | `npx supabase db push --linked` against the linked remote                       | `0001`, `0002` applied. See CLAUDE.md for content. |
+| Types generated via    | `npx supabase gen types typescript --linked`                                    | Real, generated `types.ts`                         |
+| Prerequisite           | A Supabase account and project — **required to start**, not just at deploy time | Done                                               |
 
 **Why the split.** The mandatory test cases in docs/ENGINEERING-RULES.md §3 — cross-tenant
 read/write rejection and worker idempotency across redelivery — are destructive by construction.
@@ -56,8 +57,9 @@ production on the hosted one. Revisit once the capture path is implemented.
 
 ## 2. Plans & Cost
 
-**No plan is selected, because no project exists.** The constraint is already fixed by
-NFR-010 and recorded in docs/TECH-STACK.md §7:
+**The project exists (linked 2026-08-12); which plan it's on is not recorded here.** Check the
+Supabase dashboard before assuming either way. The constraint that decides which plan is
+required is already fixed by NFR-010 and recorded in docs/TECH-STACK.md §7:
 
 | Plan            | Price                         | Decision                                                                                                                                              |
 | --------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
