@@ -20,8 +20,7 @@ fields. See [PRODUCT.md](docs/PRODUCT.md) for the full product concept and scope
 
 Under the hood, CuevikSync is a Next.js modular monolith backed by Supabase (Postgres,
 Auth, and Edge Functions). The inbound-capture path is split into two isolated runtime
-roles, so a lead is never dropped even when the main app is degraded — see
-[ARCHITECTURE.md](docs/ARCHITECTURE.md).
+roles, so a lead is never dropped even when the main app is degraded — see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Key Concepts
 
@@ -98,15 +97,19 @@ npm run dev                    # start the Next.js app locally
 
 ## Run Tests
 
-> **Pending scaffold — unverified.** Test scripts do not exist yet. The frameworks below
-> are fixed by [TECH-STACK.md](docs/TECH-STACK.md): Vitest for unit tests, and Playwright
-> for end-to-end and the automated WCAG 2.1 AA check. Exact script names will be confirmed
-> when we scaffold the app.
-
 ```bash
-npm run test          # Vitest unit tests (the blocking CI gate, with lint + tsc --noEmit)
-npm run test:e2e      # Playwright end-to-end + WCAG 2.1 AA check (advisory / nightly)
+npm run test          # Vitest unit tests — the blocking CI gate, alongside lint and typecheck
 ```
+
+**There is no end-to-end suite, and CI is red until the first unit test lands.** No `e2e/`,
+no `playwright.config.ts`, and no `test:e2e` script exist here by decision. `npm run test`
+fails an empty suite on purpose: Vitest has no `passWithNoTests` flag set, and adding one
+would make a green run mean nothing. Treat the other four checks as the real gate for now.
+If E2E is ever adopted, add the config, the specs, the script, and the CI job in one change
+— and mirror it in the sibling repo.
+
+The automated WCAG 2.1 AA check that PRD NFR-012 calls for therefore has no runner yet.
+That gap is real and open, not delegated to a tool that is not installed.
 
 ## Project Structure
 

@@ -134,12 +134,11 @@ Match the versions pinned in `docs/TECH-STACK.md`:
 | Format                                                         | `npm run format`                             |
 | Unit tests (Vitest)                                            | `npm run test`                               |
 | Start the local Supabase stack — **tests / CI only**           | `npx supabase start`                         |
-| End-to-end + WCAG 2.1 AA checks (Playwright)                   | `npm run test:e2e`                           |
 | Deploy an Edge Function (Intake Receiver / Ingestion Worker)   | `npx supabase functions deploy <name>`       |
 
 The `dev`, `build`, and `start` scripts wrap Next.js (`next dev` / `next build` /
 `next start`); `lint` wraps the ESLint CLI (`eslint`) — Next 16 removed `next lint`;
-`format` wraps Prettier; `test` wraps Vitest; `test:e2e` wraps Playwright.
+`format` wraps Prettier; `test` wraps Vitest. There is no `test:e2e`.
 
 ## Pre-commit hooks
 
@@ -160,10 +159,6 @@ GitHub Actions runs on every PR to `main` (see `docs/TECH-STACK.md` §3). Two jo
 
 - **Gate (blocking):** `npm run lint`, a TypeScript type-check (`tsc --noEmit`), and
   `npm run test` (Vitest). A failure here means the PR is not ready to merge.
-- **E2E + accessibility (advisory / nightly):** `npm run test:e2e` (Playwright end-to-end
-  plus the WCAG 2.1 AA check). It stands up the app and a Supabase instance, so it is the
-  slower, flakier surface and does **not** block a merge on its own — review its result as
-  part of the self-review checklist.
 
 CI is a self-discipline net: it runs the full suite on the actual merge state, catching what
 the staged-files-only pre-commit hooks miss. It complements — does not replace — the
