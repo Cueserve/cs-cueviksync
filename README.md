@@ -18,8 +18,8 @@ The _**Phase-01 (Thin-Core release)**_ covers omnichannel capture and triage, un
 contact/company management, adaptive pipelines, basic quotation, and role-based custom
 fields. See [PRODUCT.md](docs/PRODUCT.md) for the full product concept and scope.
 
-Under the hood, CuevikSync is a Next.js modular monolith backed by Supabase (Postgres,
-Auth, and Edge Functions). The inbound-capture path is split into two isolated runtime
+Under the hood, CuevikSync is a multi-tenant Next.js modular monolith app backed by Supabase
+(Postgres, Auth, and Edge Functions). The inbound-capture path is split into two isolated runtime
 roles, so a lead is never dropped even when the main app is degraded — see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Key Concepts
@@ -42,16 +42,12 @@ roles, so a lead is never dropped even when the main app is degraded — see [AR
 
 ## Prerequisites
 
-> **Pending scaffold — unverified.** The app is not scaffolded in this repository yet —
-> no `package.json`, `.env.example`, or `supabase/` directory exists on `main`. The
-> versions below are the approved stack from [TECH-STACK.md](docs/TECH-STACK.md). The
-> exact list will be confirmed and tested once we scaffold the app.
-
 - Node.js 24 LTS (Active LTS) — pinned in `.nvmrc`; `nvm use` picks it up
 - npm (bundled with Node.js 24 LTS) — the only approved package manager; do not use pnpm or yarn
 - Supabase CLI (latest) — links this clone to the hosted project, applies migrations, deploys
   Edge Functions, and runs the local test stack
-- Docker — required only to run the test suite (`npx supabase start`); not needed for development
+- **No Docker required.** Development runs against a hosted Supabase project, not the local
+  stack — see [ENVIRONMENTS.md](docs/ENVIRONMENTS.md)
 - Git
 - A Supabase account and project (Postgres 17, with the `pgmq` and `pg_cron` extensions enabled)
   — this is your **development** database, not just a deploy target
@@ -83,10 +79,6 @@ Supabase URL and anon key may be public.
 | `NEXT_PUBLIC_POSTHOG_HOST`      | no       | PostHog ingestion host.                                                                                                                                                | PostHog dashboard → Project Settings                                                      |
 
 ## Install & Run
-
-> **Pending scaffold — unverified.** These commands assume the standard Next.js 16 + npm
-> and Supabase CLI setup from [TECH-STACK.md](docs/TECH-STACK.md). They have **not** been
-> run yet, and will be tested and corrected when we scaffold the app.
 
 ```bash
 npm install
@@ -134,7 +126,7 @@ The application lives under `src/`; the `@/*` TypeScript alias resolves to `./sr
 
 The complete document set, listed in the order each derives from the one above it:
 
-- [PRODUCT.md](docs/PRODUCT.md) — what we are building and why
+- [PRODUCT.md](docs/PRODUCT.md) — what we are building and why, problem statement, scope, success criteria
 - [PRD.md](docs/PRD.md) — testable requirements and feature scope
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system structure and design decisions
 - [TECH-STACK.md](docs/TECH-STACK.md) — approved technologies and usage rules
@@ -148,4 +140,4 @@ Every document names its own upstream and downstream files in its header (`Deriv
 
 ---
 
-> _Last updated:_ 2026-07-18 · _Maintainer:_ Cuevik team
+> _Last updated:_ 2026-08-08 · _Owner:_ Viral Parikh

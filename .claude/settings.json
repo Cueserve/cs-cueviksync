@@ -1,4 +1,7 @@
 {
+  "env": {
+    "IMPECCABLE_CONTEXT_DIR": "docs"
+  },
   "permissions": {
     "deny": [
       "Read(./.env)",
@@ -36,5 +39,18 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "impeccable@impeccable": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
+      }
+    }
   }
 }
