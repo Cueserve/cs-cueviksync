@@ -3,8 +3,7 @@
 **Owner:** Viral Parikh (Product Owner)
 **Last updated:** 2026-08-08
 **Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
-Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, 
-validated first against Print & Signage operations.
+Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
 
 > Derived from: (none — starting point)
 > Downstream: README.md, docs/PRD.md, docs/BACKLOG.md
