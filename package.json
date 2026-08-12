@@ -11,7 +11,7 @@
     "start": "next start --port 3001",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:push": "npx supabase db push --linked",
