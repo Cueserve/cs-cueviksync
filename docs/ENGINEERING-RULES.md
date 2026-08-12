@@ -27,10 +27,12 @@ follow, whoever or whatever writes it.
 - **Validation:** Zod is the single schema-validation tool of record. All external input
   (API bodies, the intake payload, custom-field values) MUST be validated against a Zod schema
   server-side before it reaches a domain module or the datastore.
-- **File structure:** follow the Next.js App Router layout for the application, `supabase/` for
-  migrations and Edge Functions, and `docs/` for the source-of-truth documents. Keep domain
-  logic in its module (Capture & Triage, CRM, Pipeline, Quoting, Configuration); do not scatter
-  a module's rules across unrelated files.
+- **File structure:** the application lives under `src/` — routes in `src/app/` (App Router),
+  shared UI in `src/components/`, framework-free modules in `src/lib/`. The `@/*` alias resolves
+  to `./src/*`. `supabase/` holds migrations and Edge Functions; `docs/` holds the
+  source-of-truth documents. Keep domain logic in its module (Capture & Triage, CRM, Pipeline,
+  Quoting, Configuration); do not scatter a module's rules across unrelated files. See
+  `docs/PROJECT-STRUCTURE.md` for the full placement rules.
 - **Package manager:** `npm` only (bundled with Node.js 22 Long-Term Support (LTS)). Do not use
   `pnpm` or `yarn`.
 - **Comments:** comment **why**, not **what** — explain a non-obvious decision, constraint, or

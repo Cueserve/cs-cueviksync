@@ -115,18 +115,22 @@ npm run test:e2e      # Playwright end-to-end + WCAG 2.1 AA check (advisory / ni
 
 ## Project Structure
 
-> The app directories (`app/`, `supabase/`) and `.github/` are the intended layout from
+> The `src/`, `supabase/`, and `.github/` directories are the intended layout from
 > [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md)
 > §1. They are created when we scaffold the app. `docs/`, `.claude/`, and `CLAUDE.md` exist today.
 
 ```text
-app/         Next.js App Router application — SPA client, server JSON API, and domain modules
-supabase/    Supabase CLI migrations (migrations/*.sql) and Edge Functions (Intake Receiver, Ingestion Worker)
-docs/        Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, ENGINEERING-RULES, BACKLOG)
-.github/     GitHub Actions CI workflows
-.claude/     Claude Code settings, migration guard hook, and slash commands
-CLAUDE.md    Claude Code rules — agent behavior, scope, escalation, and off-limits paths
+src/app/         Next.js App Router — routes, layouts, and route-private `_components/`
+src/components/  Shared UI: `ui/` primitives and `layout/` app chrome
+src/lib/         Framework-free modules: Supabase clients, config, validation, utils
+supabase/        Supabase CLI migrations (migrations/*.sql) and Edge Functions (Intake Receiver, Ingestion Worker)
+docs/            Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, ENGINEERING-RULES, BACKLOG)
+.github/         GitHub Actions CI workflows
+.claude/         Claude Code settings, migration guard hook, and slash commands
+CLAUDE.md        Claude Code rules — agent behavior, scope, escalation, and off-limits paths
 ```
+
+The application lives under `src/`; the `@/*` TypeScript alias resolves to `./src/*`.
 
 ## Further Reading
 
