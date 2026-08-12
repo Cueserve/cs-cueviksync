@@ -8,7 +8,7 @@ Apply CuevikSync's pending `supabase/migrations/*.sql` to the **linked hosted Su
 and leave the repo in a verified, type-synced state.
 
 Development runs against a linked hosted Supabase project
-([CONTRIBUTING.md](../../CONTRIBUTING.md) § Environment); the local stack exists for tests and CI
+([docs/ENVIRONMENTS.md](../../docs/ENVIRONMENTS.md) §1); the local stack exists for tests and CI
 only. There is no `db reset` on the hosted project, so every push is irreversible against real
 data and the pre-flight below is not optional ceremony.
 
@@ -71,7 +71,7 @@ Read the output. Common failures and what they mean:
 - **Connection refused / project paused** — Supabase free-plan projects pause after a week idle.
   Tell the user to resume it in the dashboard; do not retry in a loop.
 - **`pgmq` / `pg_cron` missing** — the capture path depends on both extensions
-  ([CONTRIBUTING.md](../../CONTRIBUTING.md) — Environment). Enabling an extension is itself a
+  ([docs/ENVIRONMENTS.md](../../docs/ENVIRONMENTS.md) §3). Enabling an extension is itself a
   schema change requiring approval (CLAUDE.md "Decision escalation"). Stop and report.
 
 Stop here if `$ARGUMENTS` contains `dry-run`.

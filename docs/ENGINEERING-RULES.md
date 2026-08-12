@@ -93,7 +93,7 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
   competing test runner.
 - **Where tests run:** against the **local** Supabase stack (`npx supabase start`), never
   against the linked hosted development project — the mandatory cases below are destructive.
-  See `CONTRIBUTING.md` § Environment.
+  See `docs/ENVIRONMENTS.md`.
 - A valid test asserts observable behavior against a PRD or Non-Functional Requirement (NFR),
   not implementation detail.
 - **Tenant isolation MUST be tested:** a cross-tenant read/write attempt returns zero rows or is

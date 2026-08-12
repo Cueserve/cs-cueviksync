@@ -322,7 +322,7 @@ this section.
 
 - **Supabase environment posture.** Development targets a linked hosted project; the local stack
   (`npx supabase start`) serves automated tests and CI only; migrations apply merge-then-push.
-  Recorded in `CONTRIBUTING.md` § Environment.
+  Recorded in `docs/ENVIRONMENTS.md`.
 - **Tooling-table gaps.** `npx supabase link`, `db push --linked`, and
   `gen types typescript --linked` are rows in the `CONTRIBUTING.md` command table.
 - **Duplicate Document References tables.** Five copies deleted; `README.md` § Further Reading is

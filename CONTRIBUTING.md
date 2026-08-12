@@ -170,36 +170,10 @@ The workflow file (`.github/workflows/`) is added when the repository is scaffol
 
 ## Environment
 
-CuevikSync uses **two** Supabase environments. They are not interchangeable.
+Which Supabase environment development runs against, the working rules that follow from that,
+the migration-ordering rule, and the required configuration are in
+[`docs/ENVIRONMENTS.md`](docs/ENVIRONMENTS.md).
 
-| Environment | What it is | Used for | Reset available |
-| --- | --- | --- | --- |
-| **Development** | A linked hosted Supabase project (`npx supabase link`) | All day-to-day development | **No.** A bad migration is repaired by a new migration, never by editing the applied one. |
-| **Test / CI** | The local stack (`npx supabase start`, Docker) | Vitest, Playwright, and the GitHub Actions jobs | Yes — CI resets freely, which is why the mandatory tenant-isolation and worker-idempotency tests run here rather than against the hosted project. |
-
-**Accepted risk:** tests prove behavior on the local stack while `pgmq` and `pg_cron` run in
-production on the hosted one. Revisit once the capture path is implemented.
-
-### Migration ordering
-
-Migrations are applied **after** a change merges to `main`, never before:
-
-1. Author the migration on a branch and open the PR.
-2. Merge to `main`.
-3. From an up-to-date `main`, run `npx supabase db push --linked`, then regenerate types.
-
-A migration present on `main` is therefore treated as **already applied and immutable**. This is
-enforced mechanically by `.claude/hooks/block-applied-migration.mjs`, which refuses edits to any
-migration file already in `origin/main`.
-
-### Required configuration
-
-The app and the capture path require these before `npm run dev`:
-
-- Supabase project URL and keys — the **service-role key is server-side only** and MUST
-  NOT be exposed to the browser.
-- `pgmq` and `pg_cron` extensions enabled on the Supabase Postgres instance.
-- Resend API key (optional — required only for in-app quote-email delivery).
-- Sentry and PostHog keys (optional outside production).
-
-Concrete environment-variable names and setup steps are documented in `README.md` (Step-07).
+Environment topology is not governance — it changes when infrastructure changes, not when
+process changes — so it lives in `docs/` beside the other source-of-truth documents rather than
+in the middle of this file. RedyQuote carries the same file at the same path.
