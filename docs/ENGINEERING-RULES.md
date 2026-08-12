@@ -1,6 +1,6 @@
 # ENGINEERING-RULES.md — Coding Conventions, Banned Patterns, Testing
 
-**Owner:** Architect
+**Owner:** Viral Parikh
 **Last updated:** 2026-08-09
 **Source of truth for:** the engineering rules every change to the CuevikSync codebase must
 follow, whoever or whatever writes it.
@@ -18,6 +18,12 @@ follow, whoever or whatever writes it.
   `eslint.config.mjs`) the sole linter. Do not hand-format or add a competing tool. `next lint`
   was removed in Next 16 — lint via the ESLint Command-Line Interface (CLI).
 - **Routing:** Next.js **App Router only**. The Pages Router MUST NOT be introduced.
+- **Mutation path:** Server Actions are the sole path for authenticated writes. Server
+  Components read; Server Actions write. A route handler under `src/app/api/` is permitted
+  **only** for an external Hypertext Transfer Protocol (HTTP) surface that cannot be a Server
+  Action — an inbound webhook or a third-party callback — never as an internal Application
+  Programming Interface (API) layer for the app's own screens. There is no client-side
+  server-state cache library: `revalidatePath` / `revalidateTag` is the invalidation mechanism.
 - **Database access:** no Object-Relational Mapper (ORM). Reach Postgres through
   `@supabase/supabase-js` / PostgREST. Regenerate types with `supabase gen types typescript`
   after any schema change and use the generated types.
@@ -27,11 +33,13 @@ follow, whoever or whatever writes it.
 - **Validation:** Zod is the single schema-validation tool of record. All external input
   (API bodies, the intake payload, custom-field values) MUST be validated against a Zod schema
   server-side before it reaches a domain module or the datastore.
-- **File structure:** follow the Next.js App Router layout for the application, `supabase/` for
-  migrations and Edge Functions, and `docs/` for the source-of-truth documents. Keep domain
-  logic in its module (Capture & Triage, CRM, Pipeline, Quoting, Configuration); do not scatter
-  a module's rules across unrelated files.
-- **Package manager:** `npm` only (bundled with Node.js 22 Long-Term Support (LTS)). Do not use
+- **File structure:** the application lives under `src/` — routes in `src/app/` (App Router),
+  shared UI in `src/components/`, framework-free modules in `src/lib/`. The `@/*` alias resolves
+  to `./src/*`. `supabase/` holds migrations and Edge Functions; `docs/` holds the
+  source-of-truth documents. Keep domain logic in its module (Capture & Triage, CRM, Pipeline,
+  Quoting, Configuration); do not scatter a module's rules across unrelated files. See
+  `docs/PROJECT-STRUCTURE.md` for the full placement rules.
+- **Package manager:** `npm` only (bundled with Node.js 24 Long-Term Support (LTS)). Do not use
   `pnpm` or `yarn`.
 - **Comments:** comment **why**, not **what** — explain a non-obvious decision, constraint, or
   trade-off; do not narrate code the reader can see.
@@ -46,7 +54,7 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 [TECH-STACK.md](TECH-STACK.md):
 
 - **Browser-to-Postgres direct Create/Read/Update/Delete (CRUD)** — every authenticated read
-  and write MUST go through the server as sole access authority (PRD-025). The SPA holds no
+  and write MUST go through the server as sole access authority (PRD-025). The browser holds no
   access authority.
 - **App-layer-only tenant scoping** — never rely on a hand-written `tenant_id` filter as the
   sole guard on a user path. RLS is the enforcement locus; a forgotten filter must fail closed
@@ -80,12 +88,13 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 
 ## 3. Testing Rules
 
-- **Frameworks:** Vitest 3.x for unit tests; Playwright 1.x for end-to-end (E2E) and the
-  automated Web Content Accessibility Guidelines (WCAG) 2.1 AA check. Do not introduce a
-  competing test runner.
+- **Frameworks:** Vitest 4.x for unit tests. Do not introduce a competing test runner.
+  There is **no end-to-end framework** in the approved stack: no Playwright, no `e2e/`, no
+  `test:e2e`. Adding one is a `docs/TECH-STACK.md` change first, and it must land in both
+  CuevikSync and RedyQuote together.
 - **Where tests run:** against the **local** Supabase stack (`npx supabase start`), never
   against the linked hosted development project — the mandatory cases below are destructive.
-  See `CONTRIBUTING.md` § Environment.
+  See `docs/ENVIRONMENTS.md`.
 - A valid test asserts observable behavior against a PRD or Non-Functional Requirement (NFR),
   not implementation detail.
 - **Tenant isolation MUST be tested:** a cross-tenant read/write attempt returns zero rows or is
@@ -95,9 +104,9 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 - State-machine tests MUST cover rejected invalid transitions, not only the happy path.
 - Do not mock away the security boundary (RLS, authorization) to make a test pass — a test that
   green-lights a bypassed client is invalid.
-- The blocking Continuous Integration (CI) gate is `lint` + `tsc --noEmit` + Vitest; E2E runs
-  advisory/nightly. New feature work MUST land with unit tests in the gate. **There is no numeric
-  line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
-  adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
-  cases in this section that apply (tenant isolation, worker idempotency, state-machine
-  rejections) are asserted. A single happy-path test does not satisfy this.
+- The blocking Continuous Integration (CI) gate is `lint` + `tsc --noEmit` + `format:check`
+  - Vitest. New feature work MUST land with unit tests in the gate. **There is no numeric
+    line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
+    adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
+    cases in this section that apply (tenant isolation, worker idempotency, state-machine
+    rejections) are asserted. A single happy-path test does not satisfy this.

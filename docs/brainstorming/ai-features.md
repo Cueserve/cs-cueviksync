@@ -1,6 +1,6 @@
-﻿# AI Features Strategy (Brainstorming Draft)
+# AI Features Strategy (Brainstorming Draft)
 
-**Owner:** Product + Architecture
+**Owner:** Viral Parikh
 **Last updated:** 2026-07-12
 **Status:** Draft
 
@@ -15,6 +15,18 @@ The intent is deliberate sequencing, not an exhaustive feature list:
 Scoring criteria and rollout waves are defined in Sections 4 and 5.
 
 ---
+
+## Contents
+
+- [1) Product Positioning](#1-product-positioning)
+- [2) Capability Inventory by Business Area](#2-capability-inventory-by-business-area)
+- [3) AI Surface Map (Where AI Appears in Product)](#3-ai-surface-map-where-ai-appears-in-product)
+- [4) Prioritization Framework](#4-prioritization-framework)
+- [5) Recommended Rollout Waves](#5-recommended-rollout-waves)
+- [6) Governance and Guardrails](#6-governance-and-guardrails)
+- [7) Success Metrics](#7-success-metrics)
+- [8) Product Decisions](#8-product-decisions)
+- [9) Strategic Positioning Statement](#9-strategic-positioning-statement)
 
 ## 1) Product Positioning
 
@@ -235,5 +247,3 @@ Still open:
 ## 9) Strategic Positioning Statement
 
 CuevikSync should position AI as an embedded productivity and intelligence layer across CRM, quoting, delivery, and operations. The goal is measurable operational leverage, not AI for novelty.
-
-

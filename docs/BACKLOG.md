@@ -1,6 +1,6 @@
 # BACKLOG.md — Initial Backlog Manifest
 
-**Owner:** Product Owner
+**Owner:** Viral Parikh
 **Last updated:** 2026-07-18
 **Source of truth for:** The epics/stories manifest and host item IDs — intentionally deferred; to be built incrementally at development start.
 
@@ -26,9 +26,9 @@ serve as the permanent audit trail once items are created.
 No epics created yet. When development begins, each epic will map to a product
 goal or feature area in `PRODUCT.md` and record its host item ID here.
 
-| Epic ID | Title | Maps to PRODUCT goal | Host ID |
-| --- | --- | --- | --- |
-| — | (deferred to development start) | — | PENDING |
+| Epic ID | Title                           | Maps to PRODUCT goal | Host ID |
+| ------- | ------------------------------- | -------------------- | ------- |
+| —       | (deferred to development start) | —                    | PENDING |
 
 ## 3. Stories
 
@@ -36,9 +36,9 @@ No stories created yet. When development begins, each story will cite the PRD
 requirement ID(s) it fulfills, its parent epic, MoSCoW priority, host item ID,
 and acceptance criteria copied verbatim from the PRD.
 
-| Story ID | Parent epic | PRD req ID(s) | Priority | Host ID | Acceptance criteria |
-| --- | --- | --- | --- | --- | --- |
-| — | — | — | — | PENDING | (deferred to development start) |
+| Story ID | Parent epic | PRD req ID(s) | Priority | Host ID | Acceptance criteria             |
+| -------- | ----------- | ------------- | -------- | ------- | ------------------------------- |
+| —        | —           | —             | —        | PENDING | (deferred to development start) |
 
 ## 4. Out-of-Scope Notes
 

@@ -1,15 +1,26 @@
-﻿# PRODUCT.md — Product Concept
+# PRODUCT.md — Product Concept
 
-**Owner:** Viral Parikh (Product Owner)
+**Owner:** Viral Parikh
 **Last updated:** 2026-08-08
 **Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
-Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, 
-validated first against Print & Signage operations.
+Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
 
 > Derived from: (none — starting point)
 > Downstream: README.md, docs/PRD.md, docs/BACKLOG.md
 
 ---
+
+## Contents
+
+- [1. Overview](#1-overview)
+- [2. Target Users](#2-target-users)
+- [3. Features](#3-features)
+- [3A. Decision Placeholders](#3a-decision-placeholders)
+- [4. Scope (In / Out)](#4-scope-in-out)
+- [5. Success Criteria](#5-success-criteria)
+- [6. Anti-Patterns](#6-anti-patterns)
+- [7. Roadmap](#7-roadmap)
+- [Glossary](#glossary)
 
 ## 1. Overview
 
@@ -261,7 +272,7 @@ Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD car
 - **Do not sacrifice zero-leak capture for polish.** Reliability of intake beats new
   surface area — a missed inquiry is the one failure the product exists to prevent.
 
-## 7. Target Verticals — Expansion Roadmap
+## 7. Roadmap
 
 CuevikSync is architected as a single, horizontal platform. Phase 1 validates the
 core platform against a single vertical. Releases after Phase 1 expand to the verticals
@@ -296,15 +307,15 @@ Print & Signage workflows validated in Phase 1:
 - Substrate and finishing option configuration on quotes
 - Pickup / delivery coordination as a deal attribute
 
-| # | Vertical | Representative Workflows |
-| --- | --- | --- |
-| 1 | **Print Shops** *(Phase 1)* | Job quoting, artwork approval, print scheduling, substrate/ink inventory |
-| 2 | **Contractors** | Estimates, site measurements, change orders, crew scheduling, client approvals |
-| 3 | **Professional Services** | Client intake, proposal-to-contract, document collaboration |
-| 4 | **Manufacturing** | Job tickets, BOMs, production scheduling, quality checks, packaging specs |
-| 5 | **Agencies** | Campaign briefs, asset proofing, client approvals, time & resource tracking |
-| 6 | **Home & Industrial Services** | Dispatching, parts tracking, service scheduling |
-| 7 | **B2B Service Providers** | Contract tracking, SLA tracking, multi-site coordination |
+| #   | Vertical                       | Representative Workflows                                                       |
+| --- | ------------------------------ | ------------------------------------------------------------------------------ |
+| 1   | **Print Shops** _(Phase 1)_    | Job quoting, artwork approval, print scheduling, substrate/ink inventory       |
+| 2   | **Contractors**                | Estimates, site measurements, change orders, crew scheduling, client approvals |
+| 3   | **Professional Services**      | Client intake, proposal-to-contract, document collaboration                    |
+| 4   | **Manufacturing**              | Job tickets, BOMs, production scheduling, quality checks, packaging specs      |
+| 5   | **Agencies**                   | Campaign briefs, asset proofing, client approvals, time & resource tracking    |
+| 6   | **Home & Industrial Services** | Dispatching, parts tracking, service scheduling                                |
+| 7   | **B2B Service Providers**      | Contract tracking, SLA tracking, multi-site coordination                       |
 
 > Representative Workflows describe each vertical's real-world process. CuevikSync
 > covers the inquiry-to-order slice of each; billing, invoicing, and payments are
