@@ -17,7 +17,7 @@ author completes before merging.
 
 - `main` only ever holds finalized, approved work. **Never push directly to `main`.**
 - Every change is made on a branch created off an up-to-date `main`.
-- Branch state *is* draft-vs-final: work-in-progress lives on its branch; merging to
+- Branch state _is_ draft-vs-final: work-in-progress lives on its branch; merging to
   `main` is what makes it final. There are no draft files or status frontmatter to track.
 
 ### Branch naming
@@ -40,6 +40,7 @@ Open PRs from the CLI (`gh pr create`) or the GitHub web UI.
 ---
 
 <!-- BEGIN DEVELOPMENT-PHASE-GOVERNANCE -->
+
 ## Development-phase governance
 
 _Initiation is complete. The branching, review, and contribution rules for ongoing
@@ -110,8 +111,9 @@ tool that is not listed there — add it to `TECH-STACK.md` first.
 
 Match the versions pinned in `docs/TECH-STACK.md`:
 
-- **Node.js** >= 22 Long-Term Support (LTS) — the Vercel runtime line.
-- **npm** — bundled with Node.js 22; the project package manager. Do not use pnpm or yarn.
+- **Node.js** 24 Long-Term Support (LTS) — the Active LTS line, and the Vercel runtime.
+  Pinned in `.nvmrc` and enforced by `engines.node` plus `.npmrc engine-strict=true`.
+- **npm** — bundled with Node.js 24; the project package manager. Do not use pnpm or yarn.
 - **Supabase CLI** — links the repo to the hosted project, applies migrations, deploys Edge
   Functions, and runs the local stack used by tests.
 - **Docker** — required only to run the test suite (`npx supabase start`). Not needed for
@@ -119,21 +121,21 @@ Match the versions pinned in `docs/TECH-STACK.md`:
 
 ## Run commands
 
-| Task | Command |
-| --- | --- |
-| Install dependencies | `npm install` |
-| Link the repo to the hosted Supabase project (once, per clone) | `npx supabase link` |
-| Apply pending migrations to the hosted project | `npx supabase db push --linked` |
-| Regenerate database types after a migration | `npx supabase gen types typescript --linked` |
-| Run the app in development | `npm run dev` |
-| Build for production | `npm run build` |
-| Start the production build | `npm run start` |
-| Lint | `npm run lint` |
-| Format | `npm run format` |
-| Unit tests (Vitest) | `npm run test` |
-| Start the local Supabase stack — **tests / CI only** | `npx supabase start` |
-| End-to-end + WCAG 2.1 AA checks (Playwright) | `npm run test:e2e` |
-| Deploy an Edge Function (Intake Receiver / Ingestion Worker) | `npx supabase functions deploy <name>` |
+| Task                                                           | Command                                      |
+| -------------------------------------------------------------- | -------------------------------------------- |
+| Install dependencies                                           | `npm install`                                |
+| Link the repo to the hosted Supabase project (once, per clone) | `npx supabase link`                          |
+| Apply pending migrations to the hosted project                 | `npx supabase db push --linked`              |
+| Regenerate database types after a migration                    | `npx supabase gen types typescript --linked` |
+| Run the app in development                                     | `npm run dev`                                |
+| Build for production                                           | `npm run build`                              |
+| Start the production build                                     | `npm run start`                              |
+| Lint                                                           | `npm run lint`                               |
+| Format                                                         | `npm run format`                             |
+| Unit tests (Vitest)                                            | `npm run test`                               |
+| Start the local Supabase stack — **tests / CI only**           | `npx supabase start`                         |
+| End-to-end + WCAG 2.1 AA checks (Playwright)                   | `npm run test:e2e`                           |
+| Deploy an Edge Function (Intake Receiver / Ingestion Worker)   | `npx supabase functions deploy <name>`       |
 
 The `dev`, `build`, and `start` scripts wrap Next.js (`next dev` / `next build` /
 `next start`); `lint` wraps the ESLint CLI (`eslint`) — Next 16 removed `next lint`;

@@ -5,7 +5,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16.x-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.x-61dafb.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-22_LTS-339933.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-24_LTS-339933.svg)](https://nodejs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Platform-3ecf8e.svg)](https://supabase.com/)
 
 ## Project Overview
@@ -48,8 +48,8 @@ roles, so a lead is never dropped even when the main app is degraded — see
 > versions below are the approved stack from [TECH-STACK.md](docs/TECH-STACK.md). The
 > exact list will be confirmed and tested once we scaffold the app.
 
-- Node.js 22 LTS or higher
-- npm (bundled with Node.js 22 LTS) — the only approved package manager; do not use pnpm or yarn
+- Node.js 24 LTS (Active LTS) — pinned in `.nvmrc`; `nvm use` picks it up
+- npm (bundled with Node.js 24 LTS) — the only approved package manager; do not use pnpm or yarn
 - Supabase CLI (latest) — links this clone to the hosted project, applies migrations, deploys
   Edge Functions, and runs the local test stack
 - Docker — required only to run the test suite (`npx supabase start`); not needed for development
@@ -62,31 +62,26 @@ roles, so a lead is never dropped even when the main app is degraded — see
 
 ## Environment Setup
 
-> **Pending scaffold — unverified.** No `.env.example` exists in the repository yet. The
-> keys below come from [TECH-STACK.md](docs/TECH-STACK.md) §6. The real `.env.example`
-> will be added when we scaffold the app, and this table reconciled against it — no
-> undocumented keys. The commands here have not been run yet.
-
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 Then fill each value. Secrets MUST NOT be committed. Server-only secrets MUST NOT carry
 the `NEXT_PUBLIC_` prefix (that prefix inlines a value into the client bundle) — only the
 Supabase URL and anon key may be public.
 
-| Variable | Required | Description | Where to obtain |
-| --- | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase project URL; safe to expose to the browser. | Supabase dashboard → Project Settings → API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Supabase anonymous (public) key for user-scoped, RLS-enforced client access. | Supabase dashboard → Project Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | yes | Server-only key for the three system paths (Intake Receiver, Ingestion Worker, provisioning). Bypasses RLS — never expose to the browser, never prefix `NEXT_PUBLIC_`. | Supabase dashboard → Project Settings → API (shared via the Cuevik team, never committed) |
-| `SUPABASE_DB_URL` | yes | Direct Postgres connection for Supabase CLI migrations. MUST use Supavisor transaction mode (port 6543) with `prepare: false`. | Supabase dashboard → Project Settings → Database (Connection pooling) |
-| `INTAKE_KEY_SECRET` | yes | Server-side secret backing per-tenant intake-key resolution at the public Intake Receiver. | Cuevik team (shared secret) |
-| `RESEND_API_KEY` | no | Resend API key for optional outbound quote-document email. Omit to disable email delivery. | Resend dashboard → API Keys |
-| `SENTRY_DSN` | no | Sentry Data Source Name for server-side error tracking. | Sentry dashboard → Project Settings → Client Keys (DSN) |
-| `NEXT_PUBLIC_SENTRY_DSN` | no | Sentry DSN for the browser client. | Sentry dashboard → Project Settings → Client Keys (DSN) |
-| `NEXT_PUBLIC_POSTHOG_KEY` | no | PostHog project API key for product analytics (onboarding funnel, session replay). | PostHog dashboard → Project Settings |
-| `NEXT_PUBLIC_POSTHOG_HOST` | no | PostHog ingestion host. | PostHog dashboard → Project Settings |
+| Variable                        | Required | Description                                                                                                                                                            | Where to obtain                                                                           |
+| ------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | yes      | Supabase project URL; safe to expose to the browser.                                                                                                                   | Supabase dashboard → Project Settings → API                                               |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes      | Supabase anonymous (public) key for user-scoped, RLS-enforced client access.                                                                                           | Supabase dashboard → Project Settings → API                                               |
+| `SUPABASE_SERVICE_ROLE_KEY`     | yes      | Server-only key for the three system paths (Intake Receiver, Ingestion Worker, provisioning). Bypasses RLS — never expose to the browser, never prefix `NEXT_PUBLIC_`. | Supabase dashboard → Project Settings → API (shared via the Cuevik team, never committed) |
+| `SUPABASE_DB_URL`               | yes      | Direct Postgres connection for Supabase CLI migrations. MUST use Supavisor transaction mode (port 6543) with `prepare: false`.                                         | Supabase dashboard → Project Settings → Database (Connection pooling)                     |
+| `INTAKE_KEY_SECRET`             | yes      | Server-side secret backing per-tenant intake-key resolution at the public Intake Receiver.                                                                             | Cuevik team (shared secret)                                                               |
+| `RESEND_API_KEY`                | no       | Resend API key for optional outbound quote-document email. Omit to disable email delivery.                                                                             | Resend dashboard → API Keys                                                               |
+| `SENTRY_DSN`                    | no       | Sentry Data Source Name for server-side error tracking.                                                                                                                | Sentry dashboard → Project Settings → Client Keys (DSN)                                   |
+| `NEXT_PUBLIC_SENTRY_DSN`        | no       | Sentry DSN for the browser client.                                                                                                                                     | Sentry dashboard → Project Settings → Client Keys (DSN)                                   |
+| `NEXT_PUBLIC_POSTHOG_KEY`       | no       | PostHog project API key for product analytics (onboarding funnel, session replay).                                                                                     | PostHog dashboard → Project Settings                                                      |
+| `NEXT_PUBLIC_POSTHOG_HOST`      | no       | PostHog ingestion host.                                                                                                                                                | PostHog dashboard → Project Settings                                                      |
 
 ## Install & Run
 

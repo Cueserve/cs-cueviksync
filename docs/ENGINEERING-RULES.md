@@ -39,7 +39,7 @@ follow, whoever or whatever writes it.
   source-of-truth documents. Keep domain logic in its module (Capture & Triage, CRM, Pipeline,
   Quoting, Configuration); do not scatter a module's rules across unrelated files. See
   `docs/PROJECT-STRUCTURE.md` for the full placement rules.
-- **Package manager:** `npm` only (bundled with Node.js 22 Long-Term Support (LTS)). Do not use
+- **Package manager:** `npm` only (bundled with Node.js 24 Long-Term Support (LTS)). Do not use
   `pnpm` or `yarn`.
 - **Comments:** comment **why**, not **what** — explain a non-obvious decision, constraint, or
   trade-off; do not narrate code the reader can see.
