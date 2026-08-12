@@ -5,11 +5,11 @@
 **Source of truth for:** CuevikSync's design tokens, the rules for using them, and the
 accessibility floor every color must clear.
 
-> **The three Tier-1 brand anchors in §1 are PROVISIONAL.** Everything else in this file —
-> the three-tier architecture, the semantic token names, the scales, the dark-mode derivation,
-> and the "compute the contrast, don't eyeball it" rule — is settled and is shared verbatim
-> with `RedyQuote:docs/DESIGN-SYSTEM.md`. Replacing the anchors is a three-value edit plus a
-> re-solve of the two derived steps in §4; nothing structural moves.
+> **The three Tier-1 brand anchors in §1 are the ratified Cueserve logo colors** — Dark Blue
+> `#0C385A` and Light Blue `#2384C6`, supplied 2026-08-12; ink is shared, unbranded near-black.
+> Everything else in this file — the three-tier architecture, the semantic token names, the
+> scales, the dark-mode derivation, and the "compute the contrast, don't eyeball it" rule — is
+> settled and is shared structurally with `RedyQuote:docs/DESIGN-SYSTEM.md`.
 > Depends on: [PRD.md](PRD.md) **NFR-012** for the WCAG 2.1 AA obligation this file's floor
 > implements.
 > Implemented in: `src/app/globals.css`, `src/app/layout.tsx`, `src/components/ui/`,
@@ -35,43 +35,55 @@ accessibility floor every color must clear.
 
 ## 1. Where the brand values came from
 
-**Provisional.** CuevikSync has no ratified brand palette. The three Tier-1 anchors below were
-chosen during the 2026-08-11 convergence work to satisfy two constraints and nothing else:
-clear the WCAG 2.1 AA floor in §4, and sit far enough from RedyQuote's brand that the two
-products are not mistaken for one another.
+**Ratified.** CuevikSync's brand is the Cueserve logo, supplied 2026-08-12: Dark Blue and Light
+Blue, two shades of one hue rather than the red/blue hue-split RedyQuote's palette uses.
 
-| Anchor                 | Value     | White-on-color        | Note                                                                  |
-| ---------------------- | --------- | --------------------- | --------------------------------------------------------------------- |
-| Primary — `--clay-600` | `#0F6E6E` | 6.04:1                | Teal, OKLCH hue 194.9°. Provisional.                                  |
-| Ink — `--stone-900`    | `#1A1A1A` | 16.67:1 on the canvas | A neutral near-black, shared with RedyQuote. Not a brand-owned value. |
-| Accent — `--moss-600`  | `#5B3FA8` | 7.72:1                | Violet, OKLCH hue 291.0°. Provisional.                                |
+| Anchor                 | Value     | Contrast                | Note                                                                  |
+| ---------------------- | --------- | ----------------------- | --------------------------------------------------------------------- |
+| Primary — `--clay-600` | `#0C385A` | 12.15:1 white-on-fill   | Dark Blue, literal logo hex. OKLCH hue 246.7°.                        |
+| Ink — `--stone-900`    | `#1A1A1A` | 16.67:1 on the canvas   | A neutral near-black, shared with RedyQuote. Not a brand-owned value. |
+| Accent — `--moss-600`  | `#2384C6` | 4.76:1 dark-ink-on-fill | Light Blue, literal logo hex. OKLCH hue 244.2°.                       |
 
-**Why violet and not amber.** The first accent considered was an amber `#B45309`. It was
-rejected on the same grounds §6 rejects a same-hue destructive: `--warning` is 58.8° and
-`--destructive` is 37.6°, so an amber accent would have put three warm hues in one system and
-collapsed exactly the separation this file insists on. Violet at 291° is 96° off the brand teal
-and further still from every status hue.
+**The two anchors are 2.5° apart — the same hue family, not a deliberate hue-split.** Every prior
+cut of this palette (provisional teal/amber, then teal/violet) picked a _second_ hue specifically
+to separate from the first, following RedyQuote's red/blue precedent. That does not apply here:
+Cueserve's brand is genuinely monochromatic, so Primary and Accent are distinguished by
+**lightness**, not hue. One real consequence follows from this — see the
+`--accent-secondary-foreground` note in §4.
 
-**How the ramps were built.** Each ten-step ramp preserves RedyQuote's lightness ladder exactly
-and substitutes hue, with chroma scaled so the 600 step lands on the anchor. That is what makes
-the two products structurally identical without sharing a palette: same perceptual spacing, same
-step semantics, different color. Both ramps were verified monotonic in OKLCH lightness —
-`DESIGN-SYSTEM.md` history records that RedyQuote had to repair exactly that property in its
-stone ramp, and it is not a property to assume.
+**Both hexes are load-bearing exactly as given — do not touch `--clay-600` or `--moss-600`.**
+Every other step in both ramps is derived around them.
 
-| Value                                       | Source                                                                           |
-| ------------------------------------------- | -------------------------------------------------------------------------------- |
-| Brand anchors (teal / ink / violet)         | Provisional, chosen for contrast and separation. Not from a brand exercise.      |
-| Clay and Moss ramp steps                    | Re-solved from the anchors, preserving RedyQuote's lightness ladder. See above.  |
-| Stone ramp                                  | Shared with RedyQuote verbatim — ink-based neutral, no brand content.            |
-| Status triads (success/warning/danger/info) | Shared with RedyQuote verbatim. Their hues are independent of the brand anchors. |
-| Archivo + IBM Plex Mono                     | Shared with RedyQuote verbatim.                                                  |
-| Radius, type, spacing, shadow scales        | Shared with RedyQuote verbatim.                                                  |
-| Editable-vs-calculated field convention     | Shared with RedyQuote verbatim — amber/warning-tinted, not brand-tinted. See §7. |
+**Why the ramps had to be re-derived, not reused.** The earlier provisional palette copied
+RedyQuote's per-step lightness values outright and substituted hue — valid there because the
+provisional anchors happened to sit near RedyQuote's own "600" lightness. Cueserve's Dark Blue
+does not: its lightness (L .331) sits well below RedyQuote's original "600" position (L .489).
+Forcing it into that slot while keeping RedyQuote's other step values fixed would have put step
+600 _darker_ than step 700, breaking the ramp's required monotonic order. Each ramp is instead
+built as two affine segments (50→600, 600→900) that pass through the literal anchor exactly at
+600 — the position every tier-2 token actually references — while keeping the same overall shape.
+Both ramps were re-verified monotonic in OKLCH lightness after this construction.
 
-**What replacing the anchors costs.** Three hex values in `src/app/globals.css`, a re-solve of
-`--clay-550` and `--moss-550` (§4), a re-solve of the chart series if the new hues collide with
-it (§10), and this table. Nothing else — every other token is a `var()` reference.
+| Value                                        | Source                                                                           |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| Brand anchors (Dark Blue / ink / Light Blue) | Ratified Cueserve logo colors, supplied 2026-08-12. Ink is not brand-owned.      |
+| Clay and Moss ramp steps                     | Re-derived around the anchors — see above. Not RedyQuote's lightness values.     |
+| Stone ramp                                   | Shared with RedyQuote verbatim — ink-based neutral, no brand content.            |
+| Status triads (success/warning/danger/info)  | Shared with RedyQuote verbatim. Their hues are independent of the brand anchors. |
+| Archivo + IBM Plex Mono                      | Shared with RedyQuote verbatim.                                                  |
+| Radius, type, spacing, shadow scales         | Shared with RedyQuote verbatim.                                                  |
+| Editable-vs-calculated field convention      | Shared with RedyQuote verbatim — amber/warning-tinted, not brand-tinted. See §7. |
+
+**What replacing the anchors would cost, if Cueserve's palette ever changes.** Two hex values in
+`src/app/globals.css`, a full re-derivation of both ramps (not a simple substitution — see
+above), a re-solve of `--clay-450` and `--moss-650` (§5), a re-solve of the chart series
+(§10), and this table.
+| Editable-vs-calculated field convention | Shared with RedyQuote verbatim â amber/warning-tinted, not brand-tinted. See Â§7. |
+
+**What replacing the anchors would cost, if Cueserve's palette ever changes.** Two hex values in
+`src/app/globals.css`, a full re-derivation of both ramps (not a simple substitution â see
+above), a re-solve of `--clay-450` and `--moss-650` (Â§5), a re-solve of the chart series
+(Â§10), and this table.
 
 ## 2. The three tiers
 
@@ -115,21 +127,21 @@ enforces it.
 **Text clears WCAG AA (4.5:1) in every role it is used in; boundaries that identify a control
 clear the 1.4.11 non-text floor (3:1).** This is a floor, not an aspiration.
 
-The new source's palette is rougher than the prior one: several raw values fail outright once
-computed rather than eyeballed. **Five values were re-solved rather than shipped as the export
-gives them:**
+The design source's palette is rougher than a hand-picked one: several raw values fail outright
+once computed rather than eyeballed. **Five values were re-solved rather than shipped as the
+source gives them:**
 
 | Export value                                  | What it's used for              | Measured                                                        | Resolution                                                |
 | --------------------------------------------- | ------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------- |
 | `--stone-800` (88% ink + black)               | Ramp step between stone-700/900 | L .191 — darker than stone-900's L .218, breaks monotonic order | Re-mixed as 88% ink + 12% white → `#313131`               |
 | `--warning-fg #C77700`                        | Pending-Approval ink            | 3.46:1 on white, 3.09 on page — fails as text outright          | Darkened along the same hue to `#9c5400` — 5.70 / 5.09    |
 | `--success-light #E3F1E4`                     | Tint behind the success ink     | Ink-on-tint 4.39:1 — misses the floor by a hair                 | Re-mixed lighter (8% ink) → `#eef4ee` (4.59)              |
-| `--focus-ring` / `--shadow-focus` (alpha red) | Focus ring                      | Alpha-blended, well under 3:1 on any surface                    | `--ring` is clay-600, solid — 6.54:1 on the canvas        |
+| `--focus-ring` / `--shadow-focus` (alpha red) | Focus ring                      | Alpha-blended, well under 3:1 on any surface                    | `--ring` is clay-600, solid — 11.64:1 on the canvas       |
 | Editable-border "45% into white" formula      | Editable-cell boundary          | ~2:1 on every surface                                           | Uses the unmixed warning ink instead — 5.70 / 5.09 / 4.88 |
 
-**The `--border` vs `--input` split from the prior palette carries forward unchanged** — the
-export again gives one value (`stone-200`) for two incompatible jobs: decorative rules and
-control boundaries. Only the second carries a 3:1 floor. So:
+**The `--border` vs `--input` split carries forward unchanged** — the design source again gives
+one value (`stone-200`) for two incompatible jobs: decorative rules and control boundaries. Only
+the second carries a 3:1 floor. So:
 
 - **`--border`** — decorative only. WCAG 1.4.11 exempts purely decorative boundaries, so this
   is `stone-200` **verbatim** (1.48:1 on white — fine, nothing here needs a floor). Card
@@ -139,31 +151,39 @@ control boundaries. Only the second carries a 3:1 floor. So:
   checkboxes, radios, outline buttons.
 
 This is also exactly shadcn's existing distinction between the two tokens, so it costs nothing
-structurally — same fix, same reasoning as the prior palette.
+structurally.
 
 Two things kept **verbatim** on purpose, not oversights:
 
-- **Elevation shadows and the modal scrim are ink-tinted** (`rgba(26,26,26,…)`). No longer a
-  "kept despite a cool palette" carve-out like the prior revision — ink IS the neutral anchor
-  now, so the shadow tint and the palette finally agree.
+- **Elevation shadows and the modal scrim are ink-tinted** (`rgba(26,26,26,...)`). Ink IS the
+  neutral anchor, so the shadow tint and the palette agree.
 - **Badge/Tag/StatusPill borders sit well under 3:1** (e.g. `--primary-border` on white is only
   1.92:1). Decorative in the same sense as `--border` above — the tint plus ink text already
   carries the status meaning, the border is a soft edge rather than the thing identifying the
   control — so no floor applies.
 
-**Links are distinguished from surrounding text by weight, not by hue alone — a decision, not an
-omission.** `--primary-text` on the page canvas measures 7.03:1 and `--foreground` 16.67:1, so
-both clear AA against the surface. Against _each other_ they measure **2.37:1**, under the 3:1
-that WCAG technique G183 asks for when a link carries no underline. G183 is a _sufficient_
-technique for 1.4.1, not the only one: the non-color cue here is weight — links render
-`font-semibold` against `font-normal` neighbours — plus an underline on hover and a solid
-`--ring` on keyboard focus. Measured on `/products`, accepted 2026-08-08.
+**Links are distinguished from surrounding text by weight, not by hue alone — a decision, and a
+markedly tighter one than either prior palette.** `--primary-text` on the page canvas measures
+11.64:1 and `--foreground` 16.67:1, so both clear AA against the surface independently. Against
+_each other_ they measure **1.43:1** — well under the 3:1 that WCAG technique G183 asks for
+when a link carries no underline, and noticeably lower than the 2.37:1 the provisional palette
+had. This is a direct consequence of §1's monochromatic-brand finding: Dark Blue (`--clay-600`,
+the link color) and the near-black ink (`--foreground`) are both very dark, so they differ far
+more in hue than in apparent lightness.
+
+G183 is a _sufficient_ technique for 1.4.1, not the only one: the non-color cue here is weight —
+links render `font-semibold` against `font-normal` neighbours — plus an underline on hover and a
+solid `--ring` on keyboard focus. That defense is unchanged in _kind_, but 1.43:1 is low enough
+that it deserves a real look, not just a passing computation: **render a link next to body text
+and confirm by eye that weight alone reads clearly**, the first time this ships to a real screen.
+If it doesn't, the fix is not a token here — it's deciding whether `--primary-text` should be a
+value distinct from `--primary` in light mode (they are currently identical by convention, see
+§5), which is a structural change bigger than this file should make silently.
 
 Two consequences, stated so this doesn't get re-litigated per screen:
 
 - **Don't add a local underline to "fix" one table.** `a { no-underline }` in `globals.css` is
-  global; a per-surface underline rule makes links look unlike links on the screen beside it,
-  which costs more than the 2.37:1 does.
+  global; a per-surface underline rule makes links look unlike links on the screen beside it.
 - **The weight contrast is load-bearing, not decoration.** A link set at the same weight as the
   text around it has no non-color cue left and _does_ fail 1.4.1. If a link has to live
   somewhere that cannot carry `font-semibold`, that link needs an underline there.
@@ -174,25 +194,24 @@ Two consequences, stated so this doesn't get re-litigated per screen:
 | ------------------------------------------------------------------------ | ------------------------- | ---------------- |
 | `--foreground` on page / card / muted                                    | 16.67 / 17.40 / 15.55     | 4.5              |
 | `--muted-foreground` on page / card / muted                              | 5.42 / 5.66 / 5.05        | 4.5              |
-| `--primary-text` (links) on page / card / muted                          | 6.54 / 7.33 / 6.55        | 4.5              |
-| `--primary-foreground` on the clay fill                                  | 7.33                      | 4.5              |
-| `--accent-secondary-foreground` on the moss fill                         | 6.10                      | 4.5              |
-| `--success` / `--warning` / `--destructive` / `--info` on their own tint | 4.59 / 4.88 / 6.45 / 6.95 | 4.5              |
-| same four as ink on a card                                               | 5.13 / 5.70 / 7.58 / 8.55 | 4.5              |
+| `--primary-text` (links) on page / card / muted                          | 11.64 / 12.15 / 10.85     | 4.5              |
+| `--primary-foreground` on the clay fill                                  | 12.15                     | 4.5              |
+| `--accent-secondary-foreground` on the moss fill                         | 4.76                      | 4.5              |
+| `--success` / `--warning` / `--destructive` / `--info` on their own tint | 4.59 / 4.88 / 6.45 / 4.98 | 4.5              |
+| same four as ink on a card                                               | 5.13 / 5.70 / 7.58 / 5.98 | 4.5              |
 | `--input` on page / card / muted                                         | 5.05 / 5.66 / 5.05        | 3.0              |
 | `--editable-border` on white / page / own fill                           | 5.70 / 5.09 / 4.88        | 3.0              |
-| `--ring` on page / card / muted                                          | 6.54 / 7.33 / 6.55        | 3.0              |
+| `--ring` on page / card / muted                                          | 11.64 / 12.15 / 10.85     | 3.0              |
 | `--sidebar-ring` on the rail / on hover                                  | 5.63 / 4.21               | 3.0              |
 | `--sidebar-foreground` on the rail / on hover                            | 8.03 / 6.00               | 4.5              |
-| `--primary-text` vs `--foreground` (link vs adjacent text)               | 2.37                      | none — see above |
+| `--primary-text` vs `--foreground` (link vs adjacent text)               | 1.43                      | none — see above |
 
-`--muted-foreground` is now `--stone-600` — an actual ramp step, not a custom-solved hex like the
-prior palette needed. The new ink anchor's ramp happens to land a usable step here.
+`--muted-foreground` is `--stone-600` — an actual ramp step, not a custom-solved hex.
 
-**Every pair above was computed with a throwaway contrast script, not eyeballed.** The prior
-palette's "88 pairs, all pass" claim doesn't carry forward as a number — the role set is the
-same, but every value underneath it changed, so re-run the computation before trusting any
-figure in this file rather than assuming it still holds.
+**Every pair above was computed with a throwaway contrast script, not eyeballed.** Re-run the
+computation before trusting any figure in this file rather than assuming it still holds — it
+has already changed twice (provisional teal/amber, then teal/violet, now the real Cueserve
+colors) and every prior version's numbers were wrong for the version that followed it.
 
 ## 5. Dark mode is derived, not designed
 
@@ -209,63 +228,62 @@ ink. In dark mode use `text-primary-text` for links and active nav, never `text-
 light mode the two are the same value.
 
 **Hover darkens in dark mode too.** Normally a dark theme lightens on hover, but clay-400 as a
-_fill_ holds `--primary-foreground` at only 3.09:1 — lightening would break AA on the exact
-state the pointer is on. So `--primary-hover` darkens in both modes (clay-500 → 600 → 700).
+_fill_ holds `--primary-foreground` at only 4.11:1 (fails outright) — lightening would break AA
+on the exact state the pointer is on. So `--primary-hover` darkens (clay-450 → 500 → 600).
+`--primary-text` also needed a lighter step than clay-400: as dark-mode ink it measures only
+4.01:1 on the card, below AA. `--clay-300` clears it at 7.42:1.
 
-**Only two derived primitives are needed now, down from five.** The prior muted palette needed
-`--clay-550` and `--moss-550` because neither ramp had a step that both carried
-`--primary-foreground`/white at AA _and_ stayed light enough to separate from a dark canvas.
-Recomputed against the new anchors, that gap doesn't exist:
+**Two derived primitives are needed, same count as the provisional palette before this one, for a
+different reason each time.** Neither ramp has a step that both carries white text at AA _and_
+stays light enough to separate from a dark canvas:
 
-| Old need                       | Still needed?            | Why                                                                                                                                                                                                                                                                                                    |
-| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--clay-550` = `#247574`       | **Yes**                  | Neither ladder step does both dark-mode jobs on a teal anchor: `--clay-500` carries white at exactly 4.50:1 (passing with no margin) and `--clay-600` separates from the dark canvas at only 2.97:1, below the 3:1 non-text floor. Solved between them: 5.42:1 on the fill, 3.31:1 against the canvas. |
-| `--moss-550` = `#705bba`       | **Yes**                  | Sharper version of the same problem: `--moss-600` separates from the dark canvas at only 2.32:1, which fails 3:1 outright, and `--moss-500` carries white at 4.55:1 with no margin. Solved between them: 5.39:1 on the fill, 3.32:1 against the canvas.                                                |
-| `--stone-950` / `--stone-1000` | **Yes**                  | Independent of hue — dark mode still needs `stone-900` (ink) for its _raised_ surface, so canvas and card must sit below the ramp.                                                                                                                                                                     |
-| dark status tints              | **Yes** (values changed) | Status inks are still pinned at oklch L 0.720 so the tints sit high enough to be visible against the card; only the underlying hues moved (destructive most of all — see §6).                                                                                                                          |
+| Value                          | Why it's needed                                                                                                                                                                                                                                           |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--clay-450` = `#4c6a85`       | `--clay-400` separates from the dark canvas at 4.36:1 but carries white at only 4.11:1 (fails). `--clay-500` carries white at 7.69:1 but separates from the canvas at only 2.33:1 (fails the 3:1 floor). Solved between them: 5.66:1 fill, 3.17:1 canvas. |
+| `--moss-650` = `#1d6ca1`       | `--moss-600` separates from the dark canvas at only 2.32:1 (fails outright); `--moss-700` at 2.996:1 — fails by a hair, not a bare pass. Solved between them: 5.66:1 fill, 3.17:1 canvas.                                                                 |
+| `--stone-950` / `--stone-1000` | Independent of hue — dark mode still needs `stone-900` (ink) for its _raised_ surface, so canvas and card must sit below the ramp.                                                                                                                        |
+| dark status tints              | Status inks are pinned at oklch L 0.720 so the tints sit high enough to be visible against the card; only `--info`'s underlying hue moved with the accent anchor — see §6.                                                                                |
 
 This is the opposite of RedyQuote's outcome, and worth stating as such: its red and blue anchors
-happened to have usable ladder steps for the dark-mode fills, so it needed no `-550` steps at
-all. A teal and a violet at these lightnesses do not. Verified by recomputation rather than
+happened to have usable ladder steps for the dark-mode fills, so it needed no derived step at
+all. Neither the provisional palette's teal/violet nor Cueserve's real Dark Blue/Light Blue does
+— verified by recomputation each time, not assumed to carry over.
 assumed.
 
 ## 6. Decisions worth not re-litigating
 
-**Brand red is scoped to interaction, never a surface.** Filled primary buttons, links, the
+**Brand blue is scoped to interaction, never a surface.** Filled primary buttons, links, the
 focus ring, and active nav/tab all carry `--primary`; it never fills a large surface or a
 page/card background. One filled-primary action per screen — everything else uses
-`--accent-secondary` (ink) or a ghost/outline variant. This bounds where red gets added going
-forward, not just where the palette started.
+`--accent-secondary` (ink) or a ghost/outline variant. This bounds where the brand color gets
+added going forward, not just where the palette started.
 
-**`destructive` is a tint, never a solid fill — and now a genuinely different hue, not just a
-darker red.** The export's own color and component treatments reuse `--color-brand-red` for
-danger, filled vs.
-outlined. A red primary makes that unworkable: a same-hue destructive reads as "the brand
-color, slightly off" rather than a different signal.
+**`destructive` is a tint, never a solid fill, and shares no hue with either brand anchor.** A
+same-hue destructive would read as "the brand color, slightly off" rather than a different
+signal — the reason the provisional palette rejected an amber accent in favor of violet
+(194.9°/291°). The real Cueserve anchors (246.7°/244.2°) were not chosen from alternatives —
+they are the given logo colors — and happen to sit nowhere near destructive's 37.6° or
+warning's 58.8° regardless, so nothing here was ever load-bearing for _this_ palette. It is kept as its own hue anyway, and
+deliberately: the rule is "a status color must not share the brand hue", not "a status color
+must not share _this_ palette's brand hue" — deleting a constraint because the current values
+happen to satisfy it is how it gets violated the next time the values move.
 
-Under CuevikSync's teal anchor the clash disappears — brand sits at 194.9° and destructive at
-37.6°, 157° apart — so nothing here is load-bearing for _this_ palette. It is kept verbatim
-anyway, and deliberately: the rule is "a status color must not share the brand hue", and the
-next brand anchor may well be warm. Deleting a constraint because the current values happen to
-satisfy it is how it gets violated the next time the values move.
+`--destructive` is a **burnt-orange/rust hue** (~38° in OKLCH: `#9b2d00`), sitting between the
+brand anchors (~245°, far away) and warning/amber (~59°, its nearest neighbour) — in the
+"warm alarm" register (a cool hue like blue or green would read as neutral or positive, a worse
+failure than resembling primary). It keeps the tint/ink/border structure unchanged — the fix is
+the underlying hue, not the shape. Primary stays unambiguous, and Delete does too.
 
-`--destructive` is moved to a **burnt-orange/rust hue** (~38° in OKLCH: `#9b2d00`), sitting
-between clay (~26°) and warning/amber (~59°) — three-way hue separation using the language this
-file already speaks in, while staying in the "warm alarm" register (a cool hue like blue or
-green would read as neutral or positive, a worse failure than resembling primary). It keeps the
-tint/ink/border structure unchanged — the fix is the underlying hue, not the shape — exactly
-like the export's own StatusPill and Toast treatments for danger. Primary stays unambiguous, and
-now Delete does too.
-
-**Moss lives in `--accent-secondary`, not `--secondary`, and is now blue.** The export's
-"secondary action" is a moss fill; shadcn's `--secondary` is a subtle _gray surface_, used by
-imported components as a Progress track and similar. Overloading it would turn those blue.
-`--secondary` stays stone-100; the moss action pair is its own token. Moss is violet here and
-blue in RedyQuote — the variable name is legacy in both, the same naming quirk this file already
-carries for `--stone-*` vs. Tailwind's own "stone" palette (see §3). Renaming it would ripple
-through every tier-2 reference in both repos for no functional gain. One consequence worth
-knowing: moss's "info" role and the Tag "moss" tone land in the same accent family — see the
-token map in §12.
+**Moss lives in `--accent-secondary`, not `--secondary`.** shadcn's `--secondary` is a subtle
+_gray surface_, used by imported components as a Progress track and similar; overloading it with
+the accent color would turn those blue too. `--secondary` stays stone-100; the moss action pair
+is its own token. Moss is Cueserve's Light Blue here, and happens to be blue in RedyQuote too
+(hue 244.2° vs. 258.8°) — coincidence, not coordination between the two brands. The
+variable name is legacy in both, the same naming quirk this file already carries for
+`--stone-*` vs. Tailwind's own "stone" palette (see §3). Renaming it would ripple through
+every tier-2 reference in both repos for no functional gain. One consequence worth knowing:
+moss's "info" role and the Tag "moss" tone land in the same accent family — see the token map
+in §12.
 
 **`--accent` stays neutral.** shadcn uses it for every generic hover, so tinting it clay would
 put brand color on every dropdown row. The clay tint is scoped to active nav and to
@@ -391,27 +409,44 @@ not clipped and the page itself does not scroll horizontally (NFR-008).
 ## 10. Chart series
 
 `--chart-1..5` is a **categorical** palette: fixed order, never cycled, color follows the
-entity and never its rank. The design system does not specify one, so this is derived here,
-anchored on clay (brand) and moss so it sits with the palette rather than fighting it:
+entity and never its rank. The design system does not specify one, so this is derived here.
 
-| Token       | Hue       |
-| ----------- | --------- |
-| `--chart-1` | clay/red  |
-| `--chart-2` | violet    |
-| `--chart-3` | ochre     |
-| `--chart-4` | teal      |
-| `--chart-5` | moss/blue |
+| Token       | Hue        | OKLCH hue |
+| ----------- | ---------- | --------- |
+| `--chart-1` | brand blue | 246.7°    |
+| `--chart-2` | rose       | 350°      |
+| `--chart-3` | chartreuse | 90°       |
+| `--chart-4` | teal       | 190°      |
+| `--chart-5` | violet     | 300°      |
 
-**`--chart-4` moved off blue.** Applying the old "anchor chart-1 on clay, chart-5 on moss" rule
-verbatim, unchanged, would put two near-identical blues adjacent in the series: moss is now
-blue-anchored (~259° hue), and chart-4 was already blue (~250°) in the prior palette. Re-picked
-to teal (~172°) instead — the widest gap available between ochre (~85°) and moss (~259°) — so
-the series keeps five genuinely distinct hues rather than shipping a near-duplicate pair.
+**chart-1 nods to the brand hue, same move RedyQuote makes with its own chart-1** (clay/red
+there). The other four are placed to avoid three things at once: the brand hue itself, each
+other, and the three status hues (destructive 37.6°, warning 58.8°, success 144.2°) — a
+series color that reads as a status color, or as the brand's own primary/ring color, is the
+failure mode being designed against.
 
-Every step clears 3:1 on both light and dark surfaces (light: 4.90 / 4.95 / 3.97 / 4.04 / 4.33
-on white; all ≥3.54 on the page canvas). Status colors are reserved and are never reused as a
-series color. A 6th series is not a generated hue — fold it into "Other", facet it, or use small
-multiples.
+**Re-solved wholesale for this palette, not carried forward from either prior cut.** Both
+earlier versions of this section put a chart hue within 10° of that palette's own brand
+anchor by coincidence (this palette's would-be chart-4 at the old scheme's 240° sits only
+7° from the real brand anchor's 246.7°) — exactly the near-duplicate problem this section
+warns against, just uncaught until now. The five hues here are deliberately **out of sequence**
+(246.7, 350, 90, 190, 300, not sorted) so the two numerically closest hues in the set are never
+adjacent in series order; every consecutive pair is °90° apart.
+
+Every step clears the 3:1 non-text floor on both surfaces, though with less margin than the
+brand/status colors — chartreuse and teal sit closer to white's own luminance, which is a
+property of those hues, not a computation error:
+
+| Token       | vs. white | vs. page canvas |
+| ----------- | --------- | --------------- |
+| `--chart-1` | 4.62      | 4.43            |
+| `--chart-2` | 5.04      | 4.83            |
+| `--chart-3` | 3.97      | 3.80            |
+| `--chart-4` | 4.01      | 3.85            |
+| `--chart-5` | 4.53      | 4.34            |
+
+Status colors are reserved and are never reused as a series color. A 6th series is not a
+generated hue — fold it into "Other", facet it, or use small multiples.
 
 ## 11. Voice
 
@@ -467,8 +502,8 @@ table is identical in structure — the mapping is a property of the system, not
 2. Define variants with `cva()` — see `src/components/ui/button.tsx` and `badge.tsx`.
 3. Use semantic tokens only. Lint will reject anything else.
 4. Anything in `src/components/ui/` must stay **app-agnostic** — it is the future shared
-   RedyRef library, and the boundary is enforced in `eslint.config.mjs`. `badge.tsx` knows
-   about `success` / `warning` / `info`, not about "Review". App-specific mappings
+   Cuevik library, and the boundary is enforced in `eslint.config.mjs`. `badge.tsx` knows
+   about `success` / `warning` / `info`, not about a specific pipeline stage. App-specific mappings
    live in `src/components/`.
 5. If you add a color, compute its contrast in both modes before committing (§4).
 6. Three components from the original component inventory are folded into existing shadcn
