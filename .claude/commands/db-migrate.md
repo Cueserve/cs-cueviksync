@@ -2,6 +2,7 @@
 description: Push pending Supabase migrations to the linked project, regenerate types, and verify
 allowed-tools: Bash, Read, Glob, Grep
 ---
+
 # DB Migrate
 
 Apply CuevikSync's pending `supabase/migrations/*.sql` to the **linked hosted Supabase project**

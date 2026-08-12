@@ -16,7 +16,7 @@ other two passes produce sharper findings once terms are fixed. `absorb` last, b
 only pass that proposes deleting files and the least useful while terms are still unsettled.
 
 **CuevikSync is a documentation repository.** There is no application code on `main` — no
-`package.json`, no `supabase/`, no `app/`. The docs are not describing a system; they *are* the
+`package.json`, no `supabase/`, no `app/`. The docs are not describing a system; they _are_ the
 system, and every line in them becomes an instruction the moment scaffolding starts. A stale line
 here is not a typo — it is a wrong instruction that will be built.
 
@@ -57,7 +57,7 @@ here means wrong in every session.
 
 **Tier 3 — pre-decision and post-hoc artifacts.** `docs/brainstorming/*.md`, `docs/reviews/*.md`.
 These are **not** authoritative and never win a tie. Brainstorming records options considered
-*before* a decision; reviews record findings *about* a document at a point in time. A brainstorming
+_before_ a decision; reviews record findings _about_ a document at a point in time. A brainstorming
 doc that contradicts `PRODUCT.md` is not a finding against `PRODUCT.md` — at most it is an
 unabsorbed idea (Pass C). A review whose findings are marked resolved must actually be resolved in
 the target doc; if not, that is a real Pass B finding.
@@ -95,10 +95,10 @@ Apply top-down. The higher entry is right by construction; the lower one is the 
 2. **CONTRIBUTING.md** for governance — branching, commits, review flow, the tooling command table.
    `CLAUDE.md` "Workflow" explicitly subordinates itself here and says it MUST NOT diverge.
 3. **Tier 2 docs among themselves, by the graph above.** A fact loses to the doc that derives
-   *upstream* of it. Scope loses to PRODUCT; a requirement number loses to PRD; a structural
+   _upstream_ of it. Scope loses to PRODUCT; a requirement number loses to PRD; a structural
    invariant loses to ARCHITECTURE; a version or package loses to TECH-STACK.
 4. **CLAUDE.md** — owns every agent-behavior rule: scope boundaries, decision escalation,
-   off-limits paths, and workflow constraints. It also *imports* `docs/ENGINEERING-RULES.md`.
+   off-limits paths, and workflow constraints. It also _imports_ `docs/ENGINEERING-RULES.md`.
    Where it restates an imported or upstream doc, that doc wins; on agent behavior CLAUDE.md is
    the sole owner and nothing in `docs/` may contradict it.
 5. **README.md and BACKLOG.md** — own nothing. They lose every tie.
@@ -107,13 +107,13 @@ Apply top-down. The higher entry is right by construction; the lower one is the 
 Three exceptions, all deliberate:
 
 - **"Pending scaffold" blocks are honest, not wrong.** `README.md` marks unverified sections
-  explicitly. A command in one of those blocks that has never been run is *labelled* as such —
+  explicitly. A command in one of those blocks that has never been run is _labelled_ as such —
   that is correct behavior, not drift. Drift is when the label is missing or the block claims
   verification that did not happen.
 - **A doc specifying intent the repo hasn't built yet is not wrong.** Distinguish "the doc lies
   about what exists" (finding) from "the doc specifies what should exist" (backlog — belongs in
   `docs/BACKLOG.md` or a GitHub Issue, not this report). When unsure, say which reading you took.
-- **The ladder ranks authority, not quality.** A lower-rung file can hold a *better* explanation of
+- **The ladder ranks authority, not quality.** A lower-rung file can hold a _better_ explanation of
   a fact it doesn't own. That is not a drift finding — it is an `absorb` finding (step 5), and the
   fix runs **upward**. Never delete a superior explanation because of where it lives.
 
@@ -121,7 +121,7 @@ Three exceptions, all deliberate:
 
 # PASS A — Align
 
-*Skip entirely under `drift` or `absorb`. This pass judges coherence and completeness, not truth.*
+_Skip entirely under `drift` or `absorb`. This pass judges coherence and completeness, not truth._
 
 ## 3A. Terminology — PRODUCT.md is canon
 
@@ -165,7 +165,7 @@ invent a canon).
 
 ## 3C. Missing sections
 
-Pass B only compares things that exist. This is where a *gap* gets caught.
+Pass B only compares things that exist. This is where a _gap_ gets caught.
 
 - A requirement with no acceptance criteria.
 - A `Downstream:` document that never actually reflects the upstream fact.
@@ -194,8 +194,8 @@ Every finding in **any** pass carries a second rating, independent of the P0–P
 - **Medium** — costs review time, causes rework, or forces a reader to guess.
 - **Low** — cosmetic; no decision changes.
 
-State impact as a **consequence**, not a category: *"the scaffold will stand up a local Docker
-stack the project decided against"* — not *"environment inconsistency."*
+State impact as a **consequence**, not a category: _"the scaffold will stand up a local Docker
+stack the project decided against"_ — not _"environment inconsistency."_
 
 ## 3F. Next steps
 
@@ -208,7 +208,7 @@ decisions are not coding tasks; say so rather than proposing a default) · **rep
 
 # PASS B — Drift
 
-*Skip entirely under `align` or `absorb`.*
+_Skip entirely under `align` or `absorb`._
 
 ## 4A. Doc vs doc
 
@@ -232,7 +232,7 @@ where this repo has drifted or is structurally likely to:
   Postgres 17 and the rest. TECH-STACK owns these; a version stated elsewhere loses.
 - **Banned patterns and off-limits paths.** ENGINEERING-RULES §2 and CLAUDE.md "Off-limits" vs what
   `.claude/settings.json` actually enforce. A rule stated in prose but not machine-enforced is not
-  automatically a defect — but a rule *claimed* to be enforced that isn't, is.
+  automatically a defect — but a rule _claimed_ to be enforced that isn't, is.
 - **Governance.** Branch prefixes, Conventional Commit types, the never-push-to-`main` rule, the
   self-review gate. CONTRIBUTING owns all of it; CLAUDE.md "Workflow" points at it and says so.
 - **Cross-references.** Every relative link and every `§` / `PRD-NNN` / `NFR-NNN` citation: does
@@ -242,17 +242,17 @@ where this repo has drifted or is structurally likely to:
 
 Each probe turns a prose claim into a command. Run the probe; the output wins.
 
-| Claim in prose | Probe |
-| --- | --- |
-| A directory exists (`app/`, `supabase/`, `.github/`, `.claude/`) | `ls` it. `README.md` §Project Structure makes explicit exists-today claims |
-| A named `npm run X` exists | read `scripts` in `package.json` — absent today, so **every** script claim is unverified by definition |
-| `.env.example` keys match the README table | read `.env.example` (never `.env`) |
-| Migration set and numbering | `ls supabase/migrations/` — compare to any doc enumerating them |
-| Permissions are machine-enforced | `permissions.deny` / `permissions.ask` in `.claude/settings.json` really contain the claimed patterns |
-| The migration hook fires | the hook file exists **and** `settings.json` uses the shell form (`"command": "node path/to.mjs"`). A wrong form silently never fires — indistinguishable from one that approved |
-| CI gate contents | `.github/workflows/` — `CONTRIBUTING.md` describes two jobs; verify they exist before repeating the claim |
-| A relative link resolves | resolve every `](` path in the corpus against the filesystem |
-| "Last updated" is honest | `git log -1 --format=%ad -- <file>` vs the stamp in the file |
+| Claim in prose                                                   | Probe                                                                                                                                                                            |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A directory exists (`app/`, `supabase/`, `.github/`, `.claude/`) | `ls` it. `README.md` §Project Structure makes explicit exists-today claims                                                                                                       |
+| A named `npm run X` exists                                       | read `scripts` in `package.json` — absent today, so **every** script claim is unverified by definition                                                                           |
+| `.env.example` keys match the README table                       | read `.env.example` (never `.env`)                                                                                                                                               |
+| Migration set and numbering                                      | `ls supabase/migrations/` — compare to any doc enumerating them                                                                                                                  |
+| Permissions are machine-enforced                                 | `permissions.deny` / `permissions.ask` in `.claude/settings.json` really contain the claimed patterns                                                                            |
+| The migration hook fires                                         | the hook file exists **and** `settings.json` uses the shell form (`"command": "node path/to.mjs"`). A wrong form silently never fires — indistinguishable from one that approved |
+| CI gate contents                                                 | `.github/workflows/` — `CONTRIBUTING.md` describes two jobs; verify they exist before repeating the claim                                                                        |
+| A relative link resolves                                         | resolve every `](` path in the corpus against the filesystem                                                                                                                     |
+| "Last updated" is honest                                         | `git log -1 --format=%ad -- <file>` vs the stamp in the file                                                                                                                     |
 
 **Date staleness.** Every `Last updated:` stamp: compare it to the last commit touching that file.
 A stamp older than the content it vouches for is a finding on its own. Several Tier 2 docs carry
@@ -267,15 +267,15 @@ contradicts it, and who confirmed it.
 
 # PASS C — Absorb
 
-*Skip entirely under `align` or `drift`. The only pass that proposes deletions, and none of its
-output is ever auto-applied.*
+_Skip entirely under `align` or `drift`. The only pass that proposes deletions, and none of its
+output is ever auto-applied._
 
 ## 5A. Find the duplicates
 
 Pass B finds files that **disagree**. This finds files that **agree** — its own defect, because two
 copies of one fact drift on the next edit and only one gets updated.
 
-For each fact class in 4A, ask: how many files *state* it, versus the one that *owns* it (ladder
+For each fact class in 4A, ask: how many files _state_ it, versus the one that _owns_ it (ladder
 rung 3)? Flag any fact stated substantively in two or more places. The usual sources here are
 `README.md` restating `docs/`, and `CLAUDE.md` restating a `docs/` file it imports rather than owns.
 
@@ -299,7 +299,7 @@ exists to prevent.
 
 Tier 3 is transient by design. For each `docs/brainstorming/*.md` and `docs/reviews/*.md`,
 determine per-section whether it is **fully absorbed** into its Tier 2 target, **partly absorbed**,
-or **not yet**. A review whose findings are all marked resolved *and* verified present in the
+or **not yet**. A review whose findings are all marked resolved _and_ verified present in the
 target is deletable; one with an open finding is not.
 
 Also flag the reverse: a Tier 3 section contradicting what actually landed. The landed doc wins,
@@ -390,7 +390,7 @@ Present each Approval-tier fix as a diff and stop.
   erases the requirement — route it to `docs/BACKLOG.md` or a GitHub Issue.
 - Treat a `Tier 3` brainstorming or review file as authoritative over a Tier 2 doc.
 - Treat a labelled "Pending scaffold — unverified" block as drift. The label is the correct
-  behavior; a *missing* label is the finding.
+  behavior; a _missing_ label is the finding.
 - Delete a Tier 3 file on partial absorption, or without removing every reference to it in the
   same change.
 - Discard the better explanation because it sits in the lower-authority file. Merge it upward.

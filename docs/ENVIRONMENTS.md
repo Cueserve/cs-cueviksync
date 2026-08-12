@@ -25,18 +25,18 @@ Do not read this file as a description of what is running.
 
 CuevikSync uses **two** Supabase environments. They are not interchangeable.
 
-| Environment      | What it is                                          | Used for                                        | Reset available                                                                          |
-| ---------------- | --------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| **Development**  | A linked hosted Supabase project (`supabase link`)  | All day-to-day development                      | **No.** A bad migration is repaired by a new migration, never by editing the applied one. |
-| **Test / CI**    | The local stack (`supabase start`, Docker)          | Vitest, the GitHub Actions job, and future E2E   | Yes — CI resets freely.                                                                   |
+| Environment     | What it is                                         | Used for                                       | Reset available                                                                           |
+| --------------- | -------------------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Development** | A linked hosted Supabase project (`supabase link`) | All day-to-day development                     | **No.** A bad migration is repaired by a new migration, never by editing the applied one. |
+| **Test / CI**   | The local stack (`supabase start`, Docker)         | Vitest, the GitHub Actions job, and future E2E | Yes — CI resets freely.                                                                   |
 
-|                        | Intended                                                       | Today                    |
-| ---------------------- | -------------------------------------------------------------- | ------------------------ |
-| Dev database           | Hosted Supabase project, `cueviksync-dev`                      | **Does not exist**       |
-| Local stack            | `npx supabase start` — tests and CI only, never for dev work   | **Not set up**           |
-| Migrations applied via | `npx supabase db push --linked` against the linked remote      | No migrations authored   |
-| Types generated via    | `npx supabase gen types typescript --linked`                   | Placeholder `types.ts`   |
-| Prerequisite           | A Supabase account and project — **required to start**, not just at deploy time | Not created |
+|                        | Intended                                                                        | Today                  |
+| ---------------------- | ------------------------------------------------------------------------------- | ---------------------- |
+| Dev database           | Hosted Supabase project, `cueviksync-dev`                                       | **Does not exist**     |
+| Local stack            | `npx supabase start` — tests and CI only, never for dev work                    | **Not set up**         |
+| Migrations applied via | `npx supabase db push --linked` against the linked remote                       | No migrations authored |
+| Types generated via    | `npx supabase gen types typescript --linked`                                    | Placeholder `types.ts` |
+| Prerequisite           | A Supabase account and project — **required to start**, not just at deploy time | Not created            |
 
 **Why the split.** The mandatory test cases in docs/ENGINEERING-RULES.md §3 — cross-tenant
 read/write rejection and worker idempotency across redelivery — are destructive by construction.
@@ -51,11 +51,11 @@ production on the hosted one. Revisit once the capture path is implemented.
 **No plan is selected, because no project exists.** The constraint is already fixed by
 NFR-010 and recorded in docs/TECH-STACK.md §7:
 
-| Plan            | Price                         | Decision                                                                                                                                               |
-| --------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan            | Price                         | Decision                                                                                                                                              |
+| --------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Free**        | $0                            | Viable only before real data exists. Pauses after **1 week of inactivity**; limit of 2 active free projects per org. **No automated backups at all.** |
-| **Pro**         | $25/mo                        | Minimum for anything holding real tenant data. Daily backups, 7-day retention; removes auto-pause.                                                     |
-| **PITR add-on** | +$100/mo per 7 days retention | **Required, not optional.** NFR-010 sets Recovery Point Objective ≤ 24 hours, and docs/TECH-STACK.md §7 states default daily backups MAY NOT meet it.  |
+| **Pro**         | $25/mo                        | Minimum for anything holding real tenant data. Daily backups, 7-day retention; removes auto-pause.                                                    |
+| **PITR add-on** | +$100/mo per 7 days retention | **Required, not optional.** NFR-010 sets Recovery Point Objective ≤ 24 hours, and docs/TECH-STACK.md §7 states default daily backups MAY NOT meet it. |
 
 **This is a budget commitment that has not been made.** Pro + PITR is ~$125/mo per environment
 before the first customer. NFR-010 mandates it; nobody has approved the spend. Settle this
@@ -123,16 +123,16 @@ neither can run without it.
 
 ### Steps
 
-| #   | Step                                             | Command / Action                                                                                                    |
-| --- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| 1   | Install Docker Desktop, confirm the daemon runs  | `docker info` returns a server version                                                                              |
-| 2   | Start the local stack                            | `npx supabase start` — prints the local API URL, anon key, and DB URL                                                |
-| 3   | Point the app at local                           | Set the Supabase URL/anon key in `.env.local` to the values step 2 printed; keep the remote values in a commented block |
+| #   | Step                                             | Command / Action                                                                                                                                      |
+| --- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Install Docker Desktop, confirm the daemon runs  | `docker info` returns a server version                                                                                                                |
+| 2   | Start the local stack                            | `npx supabase start` — prints the local API URL, anon key, and DB URL                                                                                 |
+| 3   | Point the app at local                           | Set the Supabase URL/anon key in `.env.local` to the values step 2 printed; keep the remote values in a commented block                               |
 | 4   | **Replay every migration from empty**            | `npx supabase db reset` — proves the migration chain builds a correct schema from scratch, which `db push` against a long-lived remote never verifies |
-| 5   | Regenerate types from local                      | `npx supabase gen types typescript --local > src/lib/supabase/types.ts`                                             |
-| 6   | Confirm `pgmq` and `pg_cron` are enabled locally | Both are extension enablements in `0001`; `db reset` should bring them up with the schema                           |
-| 7   | Verify the app end to end                        | `npm run dev`, sign in, capture → triage → qualify an inquiry                                                       |
-| 8   | Update the docs in the same change               | This file's §1, README Prerequisites + Install & Run, and TECH-STACK §7 if the workflow changes                     |
+| 5   | Regenerate types from local                      | `npx supabase gen types typescript --local > src/lib/supabase/types.ts`                                                                               |
+| 6   | Confirm `pgmq` and `pg_cron` are enabled locally | Both are extension enablements in `0001`; `db reset` should bring them up with the schema                                                             |
+| 7   | Verify the app end to end                        | `npm run dev`, sign in, capture → triage → qualify an inquiry                                                                                         |
+| 8   | Update the docs in the same change               | This file's §1, README Prerequisites + Install & Run, and TECH-STACK §7 if the workflow changes                                                       |
 
 **Expected friction at step 4.** If `db reset` fails while the remote works, the migration chain
 is not replayable — usually a migration that assumed state created by hand, or ordering that only

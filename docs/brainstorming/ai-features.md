@@ -235,5 +235,3 @@ Still open:
 ## 9) Strategic Positioning Statement
 
 CuevikSync should position AI as an embedded productivity and intelligence layer across CRM, quoting, delivery, and operations. The goal is measurable operational leverage, not AI for novelty.
-
-

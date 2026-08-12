@@ -295,15 +295,15 @@ Print & Signage workflows validated in Phase 1:
 - Substrate and finishing option configuration on quotes
 - Pickup / delivery coordination as a deal attribute
 
-| # | Vertical | Representative Workflows |
-| --- | --- | --- |
-| 1 | **Print Shops** *(Phase 1)* | Job quoting, artwork approval, print scheduling, substrate/ink inventory |
-| 2 | **Contractors** | Estimates, site measurements, change orders, crew scheduling, client approvals |
-| 3 | **Professional Services** | Client intake, proposal-to-contract, document collaboration |
-| 4 | **Manufacturing** | Job tickets, BOMs, production scheduling, quality checks, packaging specs |
-| 5 | **Agencies** | Campaign briefs, asset proofing, client approvals, time & resource tracking |
-| 6 | **Home & Industrial Services** | Dispatching, parts tracking, service scheduling |
-| 7 | **B2B Service Providers** | Contract tracking, SLA tracking, multi-site coordination |
+| #   | Vertical                       | Representative Workflows                                                       |
+| --- | ------------------------------ | ------------------------------------------------------------------------------ |
+| 1   | **Print Shops** _(Phase 1)_    | Job quoting, artwork approval, print scheduling, substrate/ink inventory       |
+| 2   | **Contractors**                | Estimates, site measurements, change orders, crew scheduling, client approvals |
+| 3   | **Professional Services**      | Client intake, proposal-to-contract, document collaboration                    |
+| 4   | **Manufacturing**              | Job tickets, BOMs, production scheduling, quality checks, packaging specs      |
+| 5   | **Agencies**                   | Campaign briefs, asset proofing, client approvals, time & resource tracking    |
+| 6   | **Home & Industrial Services** | Dispatching, parts tracking, service scheduling                                |
+| 7   | **B2B Service Providers**      | Contract tracking, SLA tracking, multi-site coordination                       |
 
 > Representative Workflows describe each vertical's real-world process. CuevikSync
 > covers the inquiry-to-order slice of each; billing, invoicing, and payments are

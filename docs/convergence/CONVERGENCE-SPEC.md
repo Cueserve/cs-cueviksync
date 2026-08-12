@@ -40,7 +40,7 @@ no client cache library, no DTO layer; CuevikSync has no code to migrate).
 **This does not remove route handlers entirely.** The canonical rule, identical in both repos:
 Server Actions for every authenticated mutation; a route handler **only** for an external HTTP
 surface that cannot be a Server Action — an inbound webhook or a third-party callback. Note that
-CuevikSync's Intake Receiver is *not* such a case: `docs/TECH-STACK.md:44` places it in a
+CuevikSync's Intake Receiver is _not_ such a case: `docs/TECH-STACK.md:44` places it in a
 Supabase Edge Function on Deno, deployed separately from the Vercel app, so it never was a Next
 route handler.
 
@@ -65,7 +65,7 @@ migration first" (`CLAUDE.md:186`), and it acknowledges the permission prompt "i
 not the review" (`:189-190`). Merge-then-push makes that intent structural — SQL passes through
 a PR before it reaches a real database. Push-then-commit only asks for it.
 
-**Not carried over:** the union does *not* add `HEAD`. CuevikSync's hook header explains why at
+**Not carried over:** the union does _not_ add `HEAD`. CuevikSync's hook header explains why at
 `:16-17` — a HEAD check denies edits to migrations still under review, which is the normal case
 during authoring.
 
@@ -87,12 +87,14 @@ to disambiguate.
 directories themselves arrive in C-15…C-24.
 **Target repo:** CuevikSync
 **Files to change:**
+
 - `README.md` — the Project Structure block, `:122-129`
 - `docs/ENGINEERING-RULES.md:30-33` — the File structure bullet
 - `docs/ARCHITECTURE.md` — any path reference to a bare `app/`
 
 **Change detail:**
-```diff
+
+````diff
  ```text
 -app/         Next.js App Router application — SPA client, server JSON API, and domain modules
 +src/app/     Next.js App Router application — routes, layouts, and route-private components
@@ -103,8 +105,9 @@ directories themselves arrive in C-15…C-24.
  .github/     GitHub Actions CI workflows
  .claude/     Claude Code settings, migration guard hook, and slash commands
  CLAUDE.md    Claude Code rules — agent behavior, scope, escalation, and off-limits paths
- ```
-```
+````
+
+````
 `docs/ENGINEERING-RULES.md:30-31` — replace "follow the Next.js App Router layout for the
 application" with "the application lives under `src/`; routes under `src/app/`, shared UI under
 `src/components/`, framework-free modules under `src/lib/`. See `docs/PROJECT-STRUCTURE.md`."
@@ -138,11 +141,12 @@ application" with "the application lives under `src/`; routes under `src/app/`, 
   a third-party callback — never as an internal API layer for the app's own UI. There is no
   client-side server-state cache library: `revalidatePath` / `revalidateTag` is the
   invalidation mechanism.
-```
+````
+
 CuevikSync `docs/TECH-STACK.md` — delete the TanStack Query row at `:59` and add to §5:
 
-| Not used | Why not |
-| --- | --- |
+| Not used       | Why not                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | TanStack Query | Needed for an SPA/JSON-API split; with Server Actions + `revalidatePath`, cache invalidation is handled by the framework. |
 
 **Blast radius:** Doc-only today. Forward-looking: CuevikSync's future capture-path work must
@@ -161,6 +165,7 @@ Server Actions for everything authenticated.
 **Rationale:** See G-3.
 **Target repo:** BOTH
 **Files to change:**
+
 - RedyQuote `.claude/hooks/block-applied-migration.mjs` — replace wholesale
 - RedyQuote `CLAUDE.md:96-99` and `:204-207` — the immutability + hook bullets
 - RedyQuote `.claude/commands/db-migrate.md` — the apply-ordering step (folded into C-44)
@@ -171,14 +176,15 @@ changing exactly one word — `CuevikSync` → `RedyQuote` at line 9 of the head
 substantive change to RedyQuote is `:48-58`, replacing the `HEAD` lookup with the two-ref loop.
 
 RedyQuote `CLAUDE.md` replacement text for the workflow bullet:
+
 ```markdown
-  - **The hosted schema is real. Treat every merged migration as immutable** — `db push`
-    compares recorded versions, not file contents, so editing an applied file is skipped
-    silently while reading as though it landed. `0004` exists because that happened once.
-    Migrations are applied **after** a change merges to `main`, never before: author on a
-    branch, open the PR, merge, then run `/db-migrate` from an up-to-date `main`. A `PreToolUse`
-    hook enforces this — see the machine-enforced bullet below. Run `git fetch` before editing a
-    migration; the guard reads `origin/main` and a stale clone is its one false-allow.
+- **The hosted schema is real. Treat every merged migration as immutable** — `db push`
+  compares recorded versions, not file contents, so editing an applied file is skipped
+  silently while reading as though it landed. `0004` exists because that happened once.
+  Migrations are applied **after** a change merges to `main`, never before: author on a
+  branch, open the PR, merge, then run `/db-migrate` from an up-to-date `main`. A `PreToolUse`
+  hook enforces this — see the machine-enforced bullet below. Run `git fetch` before editing a
+  migration; the guard reads `origin/main` and a stale clone is its one false-allow.
 ```
 
 **Blast radius:** RedyQuote's authoring flow changes — a migration committed on a feature branch
@@ -202,6 +208,7 @@ enforcement shape matters more: three coordinated pins (`.nvmrc` for the develop
 governs all three surfaces.
 **Target repo:** BOTH
 **Files to change:**
+
 - CuevikSync: create `.nvmrc`, create `.npmrc`; `engines` lands with `package.json` in C-05
 - CuevikSync: `docs/TECH-STACK.md:22`, `:91`; `README.md:8`, `:51`; `CONTRIBUTING.md:113`
 - RedyQuote: no change — it is the canonical form
@@ -209,11 +216,13 @@ governs all three surfaces.
 **Change detail:**
 
 `.nvmrc` (both repos, byte-identical):
+
 ```
 24
 ```
 
 `.npmrc` (both repos, byte-identical):
+
 ```
 ; Make engines.node a hard failure, not a warning — see docs/TECH-STACK.md §6.
 engine-strict=true
@@ -224,10 +233,12 @@ CuevikSync `docs/TECH-STACK.md` §1 Node row and §6 bullet — adopt RedyQuote'
 the October-2026 review trigger (Phase 2 row 17.5 — present only in RedyQuote).
 
 CuevikSync `README.md:8`:
+
 ```diff
 -[![Node.js](https://img.shields.io/badge/Node.js-22_LTS-339933.svg)](https://nodejs.org/)
 +[![Node.js](https://img.shields.io/badge/Node.js-24_LTS-339933.svg)](https://nodejs.org/)
 ```
+
 CuevikSync `README.md:51`: `Node.js 22 LTS or higher` → `Node.js 24 LTS (Active LTS) — pinned in
 `.nvmrc`; `nvm use` picks it up`.
 
@@ -251,6 +262,7 @@ spec depends on. It must exist before lint, typecheck, format, or test can be ru
 **Files to change:** `package.json` (create in CuevikSync)
 
 **Change detail** — full body, `IDENTICAL_TEMPLATE_PARAMETERIZED`:
+
 ```json
 {
   "name": "{{PROJECT_SLUG}}",
@@ -310,11 +322,12 @@ spec depends on. It must exist before lint, typecheck, format, or test can be ru
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
+| Parameter          | CuevikSync   | RedyQuote   |
+| ------------------ | ------------ | ----------- |
 | `{{PROJECT_SLUG}}` | `cueviksync` | `redyquote` |
 
 **Two deltas from RedyQuote's current file, both deliberate:**
+
 - `db:push` gains `--linked`. RedyQuote's is `npx supabase db push` (`package.json:17`);
   CuevikSync documents `--linked` (`CONTRIBUTING.md:126`). Explicit beats implicit — the flag
   makes the target unambiguous when a local stack is later adopted.
@@ -339,6 +352,7 @@ already linked). Removing two devDependencies changes `package-lock.json`.
 **Files to change:** `tsconfig.json` (create)
 
 **Change detail** — full body, `IDENTICAL_CONTENT`:
+
 ```json
 {
   "compilerOptions": {
@@ -387,6 +401,7 @@ already linked). Removing two devDependencies changes `package-lock.json`.
 **Change detail** — full bodies, `IDENTICAL_CONTENT`:
 
 `next.config.ts`:
+
 ```ts
 import type { NextConfig } from "next";
 
@@ -396,6 +411,7 @@ export default nextConfig;
 ```
 
 `postcss.config.mjs`:
+
 ```js
 const config = {
   plugins: {
@@ -428,6 +444,7 @@ rewriting every line ending on a repo cloned with CRLF. It is also why `db:types
 **Change detail:**
 
 `.prettierrc` — full body, `IDENTICAL_CONTENT`, both repos:
+
 ```json
 {
   "endOfLine": "auto"
@@ -435,6 +452,7 @@ rewriting every line ending on a repo cloned with CRLF. It is also why `db:types
 ```
 
 `.prettierignore` — full body, `IDENTICAL_CONTENT`, both repos:
+
 ```
 .next
 package-lock.json
@@ -498,6 +516,7 @@ describing one.
 **Change detail** — full body, `IDENTICAL_CONTENT`:
 
 `.husky/pre-commit`:
+
 ```
 npx lint-staged
 ```
@@ -522,6 +541,7 @@ Playwright exists, because it documents the filename split.
 **Files to change:** `vitest.config.ts` (create)
 
 **Change detail** — full body, `IDENTICAL_CONTENT`:
+
 ```ts
 import { defineConfig } from "vitest/config";
 
@@ -562,6 +582,7 @@ match the 18 already copied in C-24.
 **Files to change:** `components.json` (create)
 
 **Change detail** — full body, `IDENTICAL_CONTENT`:
+
 ```json
 {
   "$schema": "https://ui.shadcn.com/schema.json",
@@ -612,6 +633,7 @@ for a tool a repo does not use is inert.
 **Files to change:** `.gitignore` in both
 
 **Change detail** — full body, `IDENTICAL_CONTENT`:
+
 ```
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
@@ -703,7 +725,7 @@ required.
 both, even though the key list cannot match (row 9.1, `MUST_DIVERGE` on keys). The convergent
 part is the header contract: what the file is, what must never go in it, and the rule about
 `NEXT_PUBLIC_`.
-**Rationale:** RedyQuote's `.env.example:11-13` is a *negative* statement — "There is
+**Rationale:** RedyQuote's `.env.example:11-13` is a _negative_ statement — "There is
 deliberately NO service-role key here" — which is exactly the kind of decision a developer
 moving between repos needs to find in the same place. Preserve it, and give CuevikSync the
 mirror-image positive statement.
@@ -711,6 +733,7 @@ mirror-image positive statement.
 **Files to change:** CuevikSync `.env.example` (create); RedyQuote `.env.example` (restructure header); CuevikSync `README.md:70-89` (point the table at the file)
 
 **Change detail** — full body, `IDENTICAL_TEMPLATE_PARAMETERIZED`:
+
 ```
 # Copy to .env.local and fill in from your Supabase project:
 #   Dashboard -> Project Settings -> API
@@ -731,10 +754,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
+| Parameter               | CuevikSync                                                                                                                                                                                                                                    | RedyQuote                                                                                                                                                                                                                                               |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `{{SERVICE_ROLE_NOTE}}` | `The service-role key below bypasses RLS. It is server-side only,`<br>`# confined to the three system paths (Intake Receiver, Ingestion Worker,`<br>`# provisioning), and MUST NOT be exposed to the browser`<br>`# (docs/TECH-STACK.md §6).` | `There is deliberately NO service-role key here. RedyQuote uses none`<br>`# anywhere (docs/TECH-STACK.md §6) — every database access runs under a`<br>`# real user's session. If you ever find yourself adding one, update`<br>`# TECH-STACK.md first.` |
-| `{{SERVER_ONLY_KEYS}}` | `SUPABASE_SERVICE_ROLE_KEY=your-service-role-key`<br>`SUPABASE_DB_URL=postgresql://...:6543/postgres`<br>`INTAKE_KEY_SECRET=your-intake-key-secret` | *(empty — no server-only keys)* |
+| `{{SERVER_ONLY_KEYS}}`  | `SUPABASE_SERVICE_ROLE_KEY=your-service-role-key`<br>`SUPABASE_DB_URL=postgresql://...:6543/postgres`<br>`INTAKE_KEY_SECRET=your-intake-key-secret`                                                                                           | _(empty — no server-only keys)_                                                                                                                                                                                                                         |
 
 **Note on row 9.3:** the target filename converges on `.env.local` in both. CuevikSync's
 `README.md:71` currently says `cp .env.example .env`; `.env.local` is what `.gitignore` and
@@ -774,11 +797,11 @@ Structural anchors in the source file, for locating each substitution:
 
 **Parameters:**
 
-| Parameter | CuevikSync (provisional, D-14) | RedyQuote | White-on-color contrast |
-| --- | --- | --- | --- |
-| `{{BRAND_PRIMARY}}` | `#0F6E6E` (teal) | `#A81D22` (red) | CuevikSync 6.04:1 · RedyQuote 7.33:1 |
-| `{{BRAND_INK}}` | `#1A1A1A` | `#1A1A1A` | 17.4:1 on white (both) |
-| `{{BRAND_ACCENT}}` | `#B45309` (amber) | `#1E5FBF` (blue) | CuevikSync 5.02:1 |
+| Parameter           | CuevikSync (provisional, D-14) | RedyQuote        | White-on-color contrast              |
+| ------------------- | ------------------------------ | ---------------- | ------------------------------------ |
+| `{{BRAND_PRIMARY}}` | `#0F6E6E` (teal)               | `#A81D22` (red)  | CuevikSync 6.04:1 · RedyQuote 7.33:1 |
+| `{{BRAND_INK}}`     | `#1A1A1A`                      | `#1A1A1A`        | 17.4:1 on white (both)               |
+| `{{BRAND_ACCENT}}`  | `#B45309` (amber)              | `#1E5FBF` (blue) | CuevikSync 5.02:1                    |
 
 Contrast figures are computed by the WCAG 2.1 relative-luminance formula, the same method
 `RedyQuote:docs/DESIGN-SYSTEM.md` §4 uses. All three CuevikSync anchors clear the AA 4.5:1 floor
@@ -815,6 +838,7 @@ identically.
 **Files to change:** `src/lib/fonts.ts` (create)
 
 **Change detail** — full body, `IDENTICAL_CONTENT`:
+
 ```ts
 import { Archivo, IBM_Plex_Mono } from "next/font/google";
 
@@ -872,6 +896,7 @@ framework-general.
 
 **Change detail:** copy verbatim from `RedyQuote:src/lib/utils.ts`, replacing the comment block
 at `:8-18` with the following in **both** repos:
+
 ```ts
 // --- Display formatters ------------------------------------------------------
 //
@@ -885,6 +910,7 @@ at `:8-18` with the following in **both** repos:
 // and a client hydration produce identical strings. Money and quantities are
 // rendered in `font-mono tabular-nums` at the call site (DESIGN-SYSTEM.md §8).
 ```
+
 RedyQuote's PRD §2A reference moves to the module that actually implements pricing, when one
 exists. A shared utility file should not cite one repo's open product decision.
 
@@ -906,6 +932,7 @@ bites identically in both repos. The Zod schema shape transfers; only the key li
 **Files to change:** `src/lib/config.ts` (create)
 
 **Change detail** — full body, `IDENTICAL_TEMPLATE_PARAMETERIZED`:
+
 ```ts
 import { z } from "zod";
 
@@ -948,10 +975,10 @@ export const env = parsed.data;
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
-| `{{SERVER_ONLY_SCHEMA}}` | `  serviceRoleKey: z.string().min(1),`<br>`  dbUrl: z.string().min(1),`<br>`  intakeKeySecret: z.string().min(1),` | *(empty)* |
-| `{{SERVER_ONLY_READS}}` | `  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,`<br>`  dbUrl: process.env.SUPABASE_DB_URL,`<br>`  intakeKeySecret: process.env.INTAKE_KEY_SECRET,` | *(empty)* |
+| Parameter                | CuevikSync                                                                                                                                                   | RedyQuote |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| `{{SERVER_ONLY_SCHEMA}}` | `  serviceRoleKey: z.string().min(1),`<br>`  dbUrl: z.string().min(1),`<br>`  intakeKeySecret: z.string().min(1),`                                           | _(empty)_ |
+| `{{SERVER_ONLY_READS}}`  | `  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,`<br>`  dbUrl: process.env.SUPABASE_DB_URL,`<br>`  intakeKeySecret: process.env.INTAKE_KEY_SECRET,` | _(empty)_ |
 
 **Open risk, stated at the row rather than deferred:** CuevikSync's three server-only keys are
 read in a module imported by browser code (`src/lib/supabase/client.ts` imports `@/lib/config`).
@@ -980,6 +1007,7 @@ module as the user-scoped one would make `server.ts` diverge and would remove th
 Separate file, separate import, separate env schema.
 **Target repo:** BOTH
 **Files to change:**
+
 - CuevikSync: `src/lib/supabase/client.ts`, `server.ts`, `update-session.ts`, `types.ts` (create); `src/lib/supabase/service-role.ts` (create, CuevikSync only); `src/lib/config.server.ts` (create, CuevikSync only)
 - RedyQuote: `src/lib/supabase/server.ts:13-15` (comment edit, so the same sentence points at the same convention in both)
 
@@ -987,6 +1015,7 @@ Separate file, separate import, separate env schema.
 
 `src/lib/supabase/client.ts` — copy verbatim from `RedyQuote:src/lib/supabase/client.ts`. Full
 body, `IDENTICAL_CONTENT`:
+
 ```ts
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -1009,14 +1038,15 @@ export function createClient() {
 `src/lib/supabase/server.ts` — copy verbatim from `RedyQuote:src/lib/supabase/server.ts` (41
 lines). One parameterized comment block at `:13-15`:
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
+| Parameter                  | CuevikSync                                                                                                                                                                                                                                      | RedyQuote                                                                                                                                                            |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `{{ELEVATED_CLIENT_NOTE}}` | `The elevated, RLS-bypassing client is a separate module —`<br>` * \`./service-role\` — and is confined to the three system paths`<br>` * (Intake Receiver, Ingestion Worker, provisioning). It is never`<br>` * reachable from this function.` | `No service-role key exists in this application`<br>` * (docs/ARCHITECTURE.md §1); there is deliberately no elevated variant of`<br>` * this function to reach for.` |
 
 `src/lib/supabase/update-session.ts` — copy verbatim from
 `RedyQuote:src/lib/supabase/update-session.ts` (58 lines). `IDENTICAL_CONTENT`, no changes.
 
 `src/lib/config.server.ts` — CuevikSync only, full body, `MUST_DIVERGE`:
+
 ```ts
 import "server-only";
 
@@ -1060,6 +1090,7 @@ export const serverEnv = parsed.data;
 ```
 
 `src/lib/supabase/service-role.ts` — CuevikSync only, full body, `MUST_DIVERGE`:
+
 ```ts
 import "server-only";
 
@@ -1116,6 +1147,7 @@ same comment, same matcher.
 **Files to change:** `src/proxy.ts` (create)
 
 **Change detail** — full body, `IDENTICAL_CONTENT`:
+
 ```ts
 import type { NextRequest } from "next/server";
 
@@ -1148,6 +1180,7 @@ export const config = {
   ],
 };
 ```
+
 RedyQuote's copy cites `NFR-002` at `:11`; drop that citation in both so the file is identical —
 the NFR number is repo-specific and the sentence stands without it.
 
@@ -1172,6 +1205,7 @@ CuevikSync.
 **Change detail:**
 
 `src/app/layout.tsx` — full body, `IDENTICAL_TEMPLATE_PARAMETERIZED`:
+
 ```tsx
 import type { Metadata } from "next";
 import "./globals.css";
@@ -1197,6 +1231,7 @@ export default function RootLayout({
 ```
 
 `src/app/page.tsx` — full body, `IDENTICAL_TEMPLATE_PARAMETERIZED`:
+
 ```tsx
 import { redirect } from "next/navigation";
 
@@ -1215,11 +1250,11 @@ substituting `{{PRODUCT_NAME}}` at `:42`.
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
-| `{{PRODUCT_NAME}}` | `CuevikSync` | `RedyQuote` |
+| Parameter             | CuevikSync                                                | RedyQuote                                              |
+| --------------------- | --------------------------------------------------------- | ------------------------------------------------------ |
+| `{{PRODUCT_NAME}}`    | `CuevikSync`                                              | `RedyQuote`                                            |
 | `{{PRODUCT_TAGLINE}}` | `Capture every inbound inquiry and turn it into revenue.` | `Quoting and approval for REDYREF interactive kiosks.` |
-| `{{LANDING_ROUTE}}` | `/inquiries` | `/quotes` |
+| `{{LANDING_ROUTE}}`   | `/inquiries`                                              | `/quotes`                                              |
 
 **One edit to RedyQuote:** `src/app/page.tsx:8-9` carries a dated note about a design-token
 reference surface removed on 2026-07-31. Delete it — the file's history is in git, and the note
@@ -1242,6 +1277,7 @@ convention, and the layout components are structural, not product-specific. The 
 comment in `(app)/layout.tsx:6-16` is the placement rule this spec wants in both repos.
 **Target repo:** CuevikSync
 **Files to change:**
+
 - `src/app/(app)/layout.tsx`
 - `src/app/(app)/_components/AppChrome.tsx`
 - `src/app/(app)/not-found.tsx`
@@ -1251,6 +1287,7 @@ comment in `(app)/layout.tsx:6-16` is the placement rule this spec wants in both
 **Change detail:**
 
 `src/app/(app)/layout.tsx` — full body, `IDENTICAL_CONTENT`:
+
 ```tsx
 import { AppChrome } from "./_components/AppChrome";
 
@@ -1274,6 +1311,7 @@ export default function AppLayout({
   return <AppChrome>{children}</AppChrome>;
 }
 ```
+
 RedyQuote's copy cites `src/lib/mock/` at `:7`; drop that clause in both — it names a
 RedyQuote-only prototype directory.
 
@@ -1283,11 +1321,11 @@ verbatim from `RedyQuote:` the same paths. Substitute the navigation item list i
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
-| `{{LANDING_SEGMENT}}` | `inquiries` | `quotes` |
-| `{{NAV_ITEMS}}` | Inquiries · Contacts · Pipeline · Quotes · Settings | Quotes · Products · Library · Settings |
-| `{{PRODUCT_NAME}}` | `CuevikSync` | `RedyQuote` |
+| Parameter             | CuevikSync                                          | RedyQuote                              |
+| --------------------- | --------------------------------------------------- | -------------------------------------- |
+| `{{LANDING_SEGMENT}}` | `inquiries`                                         | `quotes`                               |
+| `{{NAV_ITEMS}}`       | Inquiries · Contacts · Pipeline · Quotes · Settings | Quotes · Products · Library · Settings |
+| `{{PRODUCT_NAME}}`    | `CuevikSync`                                        | `RedyQuote`                            |
 
 The placeholder route at `src/app/(app)/{{LANDING_SEGMENT}}/page.tsx` renders a `PageHeader` and
 an `EmptyState` and nothing else. It exists so C-21's redirect resolves and so the shell is
@@ -1365,11 +1403,11 @@ hand-author it.
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote | Evidence |
-| --- | --- | --- | --- |
-| `project_id` | `CuevikSync` | `RedyQuote` | `RedyQuote:supabase/config.toml:5` |
-| `[db] major_version` | `17` | `17` | `:42` — same |
-| port block | must not collide if both stacks ever run locally | default | — |
+| Parameter            | CuevikSync                                       | RedyQuote   | Evidence                           |
+| -------------------- | ------------------------------------------------ | ----------- | ---------------------------------- |
+| `project_id`         | `CuevikSync`                                     | `RedyQuote` | `RedyQuote:supabase/config.toml:5` |
+| `[db] major_version` | `17`                                             | `17`        | `:42` — same                       |
+| port block           | must not collide if both stacks ever run locally | default     | —                                  |
 
 Migration naming follows `NNNN_snake_case_description.sql`
 (`RedyQuote:docs/PROJECT-STRUCTURE.md:273-274`), one logical change per file — `IDENTICAL_CONTENT`
@@ -1402,6 +1440,7 @@ two full jobs), `permissions` (least privilege; the job needs read-only), and `t
 **Files to change:** CuevikSync `.github/workflows/ci.yml` (create); RedyQuote `.github/workflows/ci.yml` (edit)
 
 **Change detail** — full body, `IDENTICAL_CONTENT`:
+
 ```yaml
 name: CI
 
@@ -1468,21 +1507,25 @@ imply that it does
 (`:50`) has no `coverage` block in `vitest.config.ts`. D-6 confirms neither is planned.
 **Target repo:** BOTH
 **Files to change:**
+
 - RedyQuote `package.json:45`, `:50` — delete both lines; `package-lock.json` regenerates
 - CuevikSync `docs/TECH-STACK.md:72` (Playwright row), `docs/ENGINEERING-RULES.md:83-84`, `:98`, `CONTRIBUTING.md:135`, `:161-164`, `README.md:106-114`
 - RedyQuote `docs/TECH-STACK.md:54` (Playwright row)
 
 **Change detail:** delete the Playwright rows from both `docs/TECH-STACK.md` §4 tables. Replace
 CuevikSync's `README.md` "Run Tests" section body with:
-```markdown
+
+````markdown
 ```bash
 npm run test          # Vitest unit tests — the blocking CI gate, alongside lint and typecheck
 ```
+````
 
 There is no end-to-end suite. No `e2e/`, no `playwright.config.ts`, and no `test:e2e` script
 exist in this repo by decision. If E2E is adopted, add the config, the specs, the script, and
 the CI job in one change — and mirror it in the sibling repo.
-```
+
+````
 CuevikSync `docs/ENGINEERING-RULES.md` §3 — drop the Playwright/WCAG framework sentence and the
 E2E half of the CI-gate sentence at `:98`. Keep the three mandatory-case rules at `:91-95`; they
 are unit-testable assertions, not E2E-only.
@@ -1521,16 +1564,16 @@ inconsistent `Contents` rule, and unpadded markdown tables in CuevikSync.
 ## Contents
 
 <bullet list of `## ` sections — present only when the document has 5 or more of them>
-```
+````
 
 Four mechanical fixes:
 
-| Fix | Where | Action |
-| --- | --- | --- |
-| `Owner:` value | CuevikSync `docs/ARCHITECTURE.md:3`, `BACKLOG.md:3`, `ENGINEERING-RULES.md:3`, `PRD.md:3`, `PRODUCT.md:3`, `TECH-STACK.md:3` | `Architect` / `Product Owner` / `Viral Parikh (Product Owner)` → `Viral Parikh` |
-| Byte-order mark | CuevikSync `docs/PRD.md:1`, `docs/PRODUCT.md:1`, `docs/brainstorming/*.md:1` | strip the leading `U+FEFF` |
-| `## Contents` | both repos | present iff the doc has ≥ 5 `## ` sections. Adds it to CuevikSync `PRODUCT.md`, `TECH-STACK.md`, `ENGINEERING-RULES.md`; RedyQuote `PRODUCT.md`, `PRD.md`, `TECH-STACK.md`, `DESIGN-SYSTEM.md`, `ENVIRONMENTS.md` |
-| Table padding | CuevikSync, all `docs/*.md` | resolved automatically by C-08 — `npm run format` runs Prettier over `*.md` (`package.json:26-28`) and pads every pipe table |
+| Fix             | Where                                                                                                                        | Action                                                                                                                                                                                                            |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Owner:` value  | CuevikSync `docs/ARCHITECTURE.md:3`, `BACKLOG.md:3`, `ENGINEERING-RULES.md:3`, `PRD.md:3`, `PRODUCT.md:3`, `TECH-STACK.md:3` | `Architect` / `Product Owner` / `Viral Parikh (Product Owner)` → `Viral Parikh`                                                                                                                                   |
+| Byte-order mark | CuevikSync `docs/PRD.md:1`, `docs/PRODUCT.md:1`, `docs/brainstorming/*.md:1`                                                 | strip the leading `U+FEFF`                                                                                                                                                                                        |
+| `## Contents`   | both repos                                                                                                                   | present iff the doc has ≥ 5 `## ` sections. Adds it to CuevikSync `PRODUCT.md`, `TECH-STACK.md`, `ENGINEERING-RULES.md`; RedyQuote `PRODUCT.md`, `PRD.md`, `TECH-STACK.md`, `DESIGN-SYSTEM.md`, `ENVIRONMENTS.md` |
+| Table padding   | CuevikSync, all `docs/*.md`                                                                                                  | resolved automatically by C-08 — `npm run format` runs Prettier over `*.md` (`package.json:26-28`) and pads every pipe table                                                                                      |
 
 **Transient documents** additionally carry `**Status:**` and a `> **Transient**` blockquote —
 see the form at `RedyQuote:docs/DATABASE-SQL.md:3-13`. That form is canonical for transient docs
@@ -1558,25 +1601,26 @@ what-a-newcomer-needs-first.
 
 **Change detail** — the canonical section order, with source of the body text for each:
 
-| # | Heading | CuevikSync body source | RedyQuote body source |
-| --- | --- | --- | --- |
-| 1 | `# {{PRODUCT_NAME}}` + tagline blockquote | keep | keep |
-| 2 | badge block (5 badges) | keep, Node → 24 (C-04) | keep |
-| 3 | `## Project Overview` | keep | keep |
-| 4 | `## Key Concepts` | keep | keep |
-| 5 | `## Prerequisites` | keep | keep |
-| 6 | `## Environment Setup` | keep the variable table; point at `.env.example` (C-14) | **new** — 2-row table for the two public keys |
-| 7 | `## Install & Run` | keep | keep |
-| 8 | `## Everyday Checks` | **new** — the five commands CI runs | rename from the untitled block at `:75-84` |
-| 9 | `## Claude Code Setup` | **new** — plugin roster table + the shadcn/design-system rules | keep |
-| 10 | `## Documentation Audit — /doc-audit` | **new** — copy from RedyQuote | keep |
-| 11 | `## Project Structure` | keep, updated by C-01 | keep |
-| 12 | `## Further Reading` | keep | keep |
-| 13 | `## Open Decisions` | **new** — CuevikSync's are in `docs/PRODUCT.md` §3A | keep |
-| 14 | footer rule + `> _Last updated:_ YYYY-MM-DD · _Owner:_ Viral Parikh` | change `_Maintainer:_ Cuevik team` → `_Owner:_ Viral Parikh` | keep |
+| #   | Heading                                                              | CuevikSync body source                                         | RedyQuote body source                         |
+| --- | -------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------- |
+| 1   | `# {{PRODUCT_NAME}}` + tagline blockquote                            | keep                                                           | keep                                          |
+| 2   | badge block (5 badges)                                               | keep, Node → 24 (C-04)                                         | keep                                          |
+| 3   | `## Project Overview`                                                | keep                                                           | keep                                          |
+| 4   | `## Key Concepts`                                                    | keep                                                           | keep                                          |
+| 5   | `## Prerequisites`                                                   | keep                                                           | keep                                          |
+| 6   | `## Environment Setup`                                               | keep the variable table; point at `.env.example` (C-14)        | **new** — 2-row table for the two public keys |
+| 7   | `## Install & Run`                                                   | keep                                                           | keep                                          |
+| 8   | `## Everyday Checks`                                                 | **new** — the five commands CI runs                            | rename from the untitled block at `:75-84`    |
+| 9   | `## Claude Code Setup`                                               | **new** — plugin roster table + the shadcn/design-system rules | keep                                          |
+| 10  | `## Documentation Audit — /doc-audit`                                | **new** — copy from RedyQuote                                  | keep                                          |
+| 11  | `## Project Structure`                                               | keep, updated by C-01                                          | keep                                          |
+| 12  | `## Further Reading`                                                 | keep                                                           | keep                                          |
+| 13  | `## Open Decisions`                                                  | **new** — CuevikSync's are in `docs/PRODUCT.md` §3A            | keep                                          |
+| 14  | footer rule + `> _Last updated:_ YYYY-MM-DD · _Owner:_ Viral Parikh` | change `_Maintainer:_ Cuevik team` → `_Owner:_ Viral Parikh`   | keep                                          |
 
 Section 8 body, `IDENTICAL_CONTENT` in both:
-```markdown
+
+````markdown
 Everyday checks — these five are exactly what CI runs on every PR to `main`
 ([.github/workflows/ci.yml](.github/workflows/ci.yml)):
 
@@ -1587,7 +1631,9 @@ npm run format:check
 npm run test
 npm run build
 ```
-```
+````
+
+````
 
 Sections 9 and 10 bodies: copy verbatim from `RedyQuote:README.md:95-169` and `:171-215`,
 substituting `{{PRODUCT_NAME}}` and the plugin roster (CuevikSync currently enables 3, RedyQuote 4
@@ -1702,20 +1748,23 @@ to do.
 
 If a box cannot be ticked, the PR is not ready. Fix it or say why in the PR description — an
 explicit, reasoned exception is fine; a silently unticked box is not.
-```
+````
 
 2. **Adopt scoped Conventional Commits** (row 12.15). CuevikSync documents `<type>: <summary>`
    at `:58`; RedyQuote's git history uses `<type>(<scope>): <summary>` — e.g. `b4e1760
-   feat(quotes): sort, paginate, and move filters into the URL`. Rule 1: the practised form wins,
+feat(quotes): sort, paginate, and move filters into the URL`. Rule 1: the practised form wins,
    and the scope is genuinely useful in a repo with several route groups. Canonical:
+
 ```text
 <type>(<scope>): <short summary>
 ```
-   with the scope optional for repo-wide changes. Types unchanged: `feat`, `fix`, `chore`,
-   `docs`, `refactor`, `test`, `build`, `ci`.
+
+with the scope optional for repo-wide changes. Types unchanged: `feat`, `fix`, `chore`,
+`docs`, `refactor`, `test`, `build`, `ci`.
 
 3. **Parameterize the Tooling layer** — the run-commands table becomes a pointer to
    `package.json`, which C-05 makes the single authority (row 15.1):
+
 ```markdown
 The `package.json` `scripts` block is the authority on what commands exist. Do not invent a
 script; do not document one here that is not in that file. The everyday five are listed in
@@ -1727,15 +1776,15 @@ script; do not document one here that is not in that file. The everyday five are
 
 5. **Fill or delete the development-phase placeholder** at CuevikSync `:42-49`
    (row 18.13). Development has started; the block's own instruction says to fill it in and
-   remove the note. The self-review checklist above *is* the CI-gate-and-review-model half of
+   remove the note. The self-review checklist above _is_ the CI-gate-and-review-model half of
    what it asks for.
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
-| `{{PRODUCT_NAME}}` | `CuevikSync` | `RedyQuote` |
-| review model | solo / process-enforced | solo / process-enforced (same) |
+| Parameter          | CuevikSync              | RedyQuote                      |
+| ------------------ | ----------------------- | ------------------------------ |
+| `{{PRODUCT_NAME}}` | `CuevikSync`            | `RedyQuote`                    |
+| review model       | solo / process-enforced | solo / process-enforced (same) |
 
 **Blast radius:** RedyQuote gains a governance document it did not have. The checklist's
 migration and Zod items reference conventions both repos already hold.
@@ -1758,8 +1807,8 @@ rules but no such file, so C-30's section 3 has nothing to import.
 **Files to change:** `docs/ENGINEERING-RULES.md` (create); `CLAUDE.md` (add the `@import`, via C-30)
 
 **Change detail:** copy the structure from `CuevikSync:docs/ENGINEERING-RULES.md`, keeping §1/§2/§3
-and the header block. `IDENTICAL_TEMPLATE_PARAMETERIZED` — the section *shape* is identical, the
-rule *content* is per-repo. Rules that are genuinely shared and must appear verbatim in both:
+and the header block. `IDENTICAL_TEMPLATE_PARAMETERIZED` — the section _shape_ is identical, the
+rule _content_ is per-repo. Rules that are genuinely shared and must appear verbatim in both:
 
 - §1 Language: TypeScript 5.x `strict`, `tsc --noEmit` must pass, `any` needs a stated reason
 - §1 Formatting & linting: Prettier sole formatter, ESLint 9 flat config sole linter, no `next lint`
@@ -1846,15 +1895,16 @@ not designed · §6 Decisions worth not re-litigating · §7 The editable-vs-cal
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
-| `{{BRAND_PRIMARY}}` / `{{BRAND_INK}}` / `{{BRAND_ACCENT}}` | `#0F6E6E` / `#1A1A1A` / `#B45309` | `#A81D22` / `#1A1A1A` / `#1E5FBF` |
-| §1 provenance narrative | see below | the three-supersession history at `:29-52` |
-| §4 computed contrast table | re-solve for the CuevikSync anchors | as authored |
-| §9 scale values | identical — same ladder | identical |
-| §12 token map | re-solve | as authored |
+| Parameter                                                  | CuevikSync                          | RedyQuote                                  |
+| ---------------------------------------------------------- | ----------------------------------- | ------------------------------------------ |
+| `{{BRAND_PRIMARY}}` / `{{BRAND_INK}}` / `{{BRAND_ACCENT}}` | `#0F6E6E` / `#1A1A1A` / `#B45309`   | `#A81D22` / `#1A1A1A` / `#1E5FBF`          |
+| §1 provenance narrative                                    | see below                           | the three-supersession history at `:29-52` |
+| §4 computed contrast table                                 | re-solve for the CuevikSync anchors | as authored                                |
+| §9 scale values                                            | identical — same ladder             | identical                                  |
+| §12 token map                                              | re-solve                            | as authored                                |
 
 CuevikSync §1 replacement body, marking the values provisional per D-14:
+
 ```markdown
 ## 1. Where the brand values came from
 
@@ -1863,11 +1913,11 @@ chosen during the 2026-08-11 convergence work to satisfy two constraints and not
 clear the WCAG 2.1 AA floor in §4, and sit far enough from RedyQuote's red that the two products
 are not mistaken for one another.
 
-| Value | Source | White-on-color contrast |
-| ----- | ------ | ----------------------- |
-| Primary `#0F6E6E` (teal) | Provisional — convergence placeholder | 6.04:1 |
-| Ink `#1A1A1A` | Neutral near-black, shared with RedyQuote — not a brand-owned value | 17.4:1 on white |
-| Accent `#B45309` (amber) | Provisional — convergence placeholder | 5.02:1 |
+| Value                    | Source                                                              | White-on-color contrast |
+| ------------------------ | ------------------------------------------------------------------- | ----------------------- |
+| Primary `#0F6E6E` (teal) | Provisional — convergence placeholder                               | 6.04:1                  |
+| Ink `#1A1A1A`            | Neutral near-black, shared with RedyQuote — not a brand-owned value | 17.4:1 on white         |
+| Accent `#B45309` (amber) | Provisional — convergence placeholder                               | 5.02:1                  |
 
 Everything below §1 is **not** provisional. The three-tier architecture, the semantic token
 names, the scales, the dark-mode derivation, and the "compute the contrast, don't eyeball it"
@@ -1909,6 +1959,7 @@ are destructive and cannot run against a hosted dev project. The file converges 
 and location**; §1's content diverges, and both files say so explicitly in §1's first line.
 
 CuevikSync `CONTRIBUTING.md` keeps a one-line pointer where §Environment was:
+
 ```markdown
 ## Environment
 
@@ -1936,6 +1987,7 @@ does not exist and Phase 3 does not author a schema
 **Files to change:** `docs/DATABASE.md` (create)
 
 **Change detail** — full body, ready to write:
+
 ```markdown
 # DATABASE.md — Data Model
 
@@ -2010,6 +2062,7 @@ start"), so the canonical form is already stub-shaped.
 **Files to change:** `docs/BACKLOG.md` (create)
 
 **Change detail** — full body, ready to write:
+
 ```markdown
 # BACKLOG.md — Initial Backlog Manifest
 
@@ -2063,15 +2116,15 @@ over the alternative" versus "what we explicitly rejected". Give them separate n
 
 **Change detail** — canonical section set:
 
-| § | Heading | CuevikSync today | RedyQuote today |
-| --- | --- | --- | --- |
-| 1 | Languages & Frameworks | §1 | §1 |
-| 2 | Datastores | §2 | §2 |
-| 3 | Cloud & Infrastructure Services | §3 | §3 |
-| 4 | Key Libraries / Tools | §4 | §4 |
-| 5 | Deliberately Not Used | **new** | §5 |
-| 6 | Selection Trade-offs | §5 → renumber | **new** |
-| 7 | Versions & Constraints | §6 → renumber | §6 → renumber |
+| §   | Heading                         | CuevikSync today | RedyQuote today |
+| --- | ------------------------------- | ---------------- | --------------- |
+| 1   | Languages & Frameworks          | §1               | §1              |
+| 2   | Datastores                      | §2               | §2              |
+| 3   | Cloud & Infrastructure Services | §3               | §3              |
+| 4   | Key Libraries / Tools           | §4               | §4              |
+| 5   | Deliberately Not Used           | **new**          | §5              |
+| 6   | Selection Trade-offs            | §5 → renumber    | **new**         |
+| 7   | Versions & Constraints          | §6 → renumber    | §6 → renumber   |
 
 CuevikSync's new §5 is populated by C-02 (TanStack Query) and C-27 (Playwright), plus the
 technologies its §4/§6 prose already excludes: ORMs, external queue vendors, headless-browser
@@ -2108,20 +2161,21 @@ section rather than being inferable only from a "not used" table.
 
 **Change detail** — canonical section set, headings identical:
 
-| § | Heading | CuevikSync | RedyQuote |
-| --- | --- | --- | --- |
-| — | `## Contents` | present `:12` | present `:13` |
-| 1 | System Architecture | `:26` | `:26` |
-| 2 | Data Design | `:110` | `:75` |
-| 3 | Data Flow & Interactions | `:148` | `:91` — rename from "Data Flow" |
-| 4 | Key Design Decisions | `:216` | `:121` |
-| 5 | Implementation Conventions | `:236` | `:135` |
-| 6 | Integration Points | `:270` | `:167` |
-| 7 | Security Posture & Data Classification | `:279` | `:174` — rename from "Security Posture" |
-| 8 | Non-Functional Approach | `:392` | `:206` |
-| 9 | Observability & Operations | `:416` | **new** |
+| §   | Heading                                | CuevikSync    | RedyQuote                               |
+| --- | -------------------------------------- | ------------- | --------------------------------------- |
+| —   | `## Contents`                          | present `:12` | present `:13`                           |
+| 1   | System Architecture                    | `:26`         | `:26`                                   |
+| 2   | Data Design                            | `:110`        | `:75`                                   |
+| 3   | Data Flow & Interactions               | `:148`        | `:91` — rename from "Data Flow"         |
+| 4   | Key Design Decisions                   | `:216`        | `:121`                                  |
+| 5   | Implementation Conventions             | `:236`        | `:135`                                  |
+| 6   | Integration Points                     | `:270`        | `:167`                                  |
+| 7   | Security Posture & Data Classification | `:279`        | `:174` — rename from "Security Posture" |
+| 8   | Non-Functional Approach                | `:392`        | `:206`                                  |
+| 9   | Observability & Operations             | `:416`        | **new**                                 |
 
 RedyQuote's new §9 body — short and honest:
+
 ```markdown
 ## 9. Observability & Operations
 
@@ -2176,6 +2230,7 @@ Requirements · §7 Non-Functional Requirements · §7A Placeholder Specificatio
 RedyQuote's mapping: current §1 Functional Requirements → §6 · §2 Non-Functional Requirements →
 §7 · §2A Placeholder Specifications → §7A · §3 Explicit Non-Requirements → §9 Out of Scope.
 Sections 1–5, 8, 10, 11, 12 are added as stubs:
+
 ```markdown
 ## N. <Heading>
 
@@ -2203,44 +2258,46 @@ documents at `docs/reviews/<SUBJECT>-review-<DATE>.md`, RedyQuote at
 `docs/superpowers/specs/<DATE>-<slug>-design.md` (row 16.28). Same purpose, different directory,
 different filename ordering, and one of them is named after a tool
 **Rationale:** `docs/PROJECT-STRUCTURE.md:296-304` defends `docs/superpowers/` on the grounds
-that the plugin recreates the folder if moved. That argument justifies leaving *plugin output*
+that the plugin recreates the folder if moved. That argument justifies leaving _plugin output_
 there — it does not justify treating a tool's scratch path as the canonical home for approved,
 authoritative specs. RedyQuote already applies exactly this reasoning inconsistently:
 `.superpowers/` is gitignored as "regenerable coordination state" (`.gitignore:53-57`) while
 `docs/superpowers/plans/` — the same kind of state — is committed.
 **Target repo:** BOTH
 **Files to change:**
+
 - RedyQuote: move 3 files from `docs/superpowers/specs/` → `docs/specs/`, rename each; delete `docs/superpowers/plans/`; add `docs/superpowers/` to `.gitignore`; update `CLAUDE.md:29-45` links
 - CuevikSync: create `docs/specs/`; rename `docs/reviews/TECH-STACK-review-2026-07-18.md`
 - Both: record the convention in `docs/PROJECT-STRUCTURE.md` §5 (C-33)
 
 **Change detail** — the canonical convention:
 
-| Kind | Path | Filename | Lifetime |
-| --- | --- | --- | --- |
-| Design spec (authoritative for its slice, deleted when absorbed) | `docs/specs/` | `YYYY-MM-DD-<slug>.md` | transient — listed in `CLAUDE.md` "Approved design specs" |
-| Advisory review (opinion, never authoritative) | `docs/reviews/` | `YYYY-MM-DD-<subject>-review.md` | permanent |
-| Pre-decision exploration | `docs/brainstorming/` | `<topic>.md` | permanent, `**Status:** Draft` |
-| Tool scratch output | `docs/superpowers/`, `.superpowers/` | tool's choice | **gitignored** |
+| Kind                                                             | Path                                 | Filename                         | Lifetime                                                  |
+| ---------------------------------------------------------------- | ------------------------------------ | -------------------------------- | --------------------------------------------------------- |
+| Design spec (authoritative for its slice, deleted when absorbed) | `docs/specs/`                        | `YYYY-MM-DD-<slug>.md`           | transient — listed in `CLAUDE.md` "Approved design specs" |
+| Advisory review (opinion, never authoritative)                   | `docs/reviews/`                      | `YYYY-MM-DD-<subject>-review.md` | permanent                                                 |
+| Pre-decision exploration                                         | `docs/brainstorming/`                | `<topic>.md`                     | permanent, `**Status:** Draft`                            |
+| Tool scratch output                                              | `docs/superpowers/`, `.superpowers/` | tool's choice                    | **gitignored**                                            |
 
 Date-first for specs and reviews so a directory listing sorts chronologically, which is how both
 are read.
 
 Moves:
 
-| From | To |
-| --- | --- |
-| `RedyQuote:docs/superpowers/specs/2026-07-23-authorization-matrix-design.md` | `RedyQuote:docs/specs/2026-07-23-authorization-matrix.md` |
-| `RedyQuote:docs/superpowers/specs/2026-08-01-branding-assets-upload-design.md` | `RedyQuote:docs/specs/2026-08-01-branding-assets-upload.md` |
-| `RedyQuote:docs/superpowers/specs/2026-08-09-list-sort-pagination-design.md` | `RedyQuote:docs/specs/2026-08-09-list-sort-pagination.md` |
-| `RedyQuote:docs/superpowers/plans/2026-08-09-list-sort-pagination.md` | deleted — regenerable coordination state, same class as `.superpowers/` |
-| `CuevikSync:docs/reviews/TECH-STACK-review-2026-07-18.md` | `CuevikSync:docs/reviews/2026-07-18-tech-stack-review.md` |
+| From                                                                           | To                                                                      |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `RedyQuote:docs/superpowers/specs/2026-07-23-authorization-matrix-design.md`   | `RedyQuote:docs/specs/2026-07-23-authorization-matrix.md`               |
+| `RedyQuote:docs/superpowers/specs/2026-08-01-branding-assets-upload-design.md` | `RedyQuote:docs/specs/2026-08-01-branding-assets-upload.md`             |
+| `RedyQuote:docs/superpowers/specs/2026-08-09-list-sort-pagination-design.md`   | `RedyQuote:docs/specs/2026-08-09-list-sort-pagination.md`               |
+| `RedyQuote:docs/superpowers/plans/2026-08-09-list-sort-pagination.md`          | deleted — regenerable coordination state, same class as `.superpowers/` |
+| `CuevikSync:docs/reviews/TECH-STACK-review-2026-07-18.md`                      | `CuevikSync:docs/reviews/2026-07-18-tech-stack-review.md`               |
 
 The `-design` suffix is dropped — every file in `docs/specs/` is a design spec, so the suffix
 carries no information.
 
 **`docs/superpowers/` is gitignored, not deleted.** The plugin will recreate it; that is fine
 once git no longer tracks it. Add to the C-13 canonical `.gitignore`:
+
 ```
 # superpowers plugin output. Approved specs are moved to docs/specs/ and listed
 # in CLAUDE.md; what the plugin leaves behind here is scratch, same class as
@@ -2268,6 +2325,7 @@ root — which is where permanent source-of-truth documents live.
 **Files to change:** `docs/brainstorming/README.md` (create)
 
 **Change detail** — full body, ready to write:
+
 ```markdown
 # Brainstorming
 
@@ -2283,6 +2341,7 @@ Do not cite a file in this folder as a reason to write code.
 
 See [docs/PROJECT-STRUCTURE.md](../PROJECT-STRUCTURE.md) §5 for the full document-kind table.
 ```
+
 CuevikSync gains the same `README.md` in its existing `docs/brainstorming/`.
 
 **Blast radius:** None.
@@ -2307,6 +2366,7 @@ per-machine, so impeccable would read a root `PRODUCT.md` on a fresh clone and r
 **Files to change:** `.claude/settings.json` (add three blocks); `.claude/settings.local.json` (empty or delete)
 
 **Change detail** — canonical key order, `IDENTICAL_TEMPLATE_PARAMETERIZED`:
+
 ```json
 {
   "env": {
@@ -2326,10 +2386,10 @@ per-machine, so impeccable would read a root `PRODUCT.md` on a fresh clone and r
 
 **Parameters:**
 
-| Parameter | Canonical value | Note |
-| --- | --- | --- |
+| Parameter           | Canonical value                                                                                                        | Note                                                                                                                                                                                                                                                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `{{PLUGIN_ROSTER}}` | `frontend-design@claude-plugins-official`, `impeccable@impeccable`, `superpowers@claude-plugins-official` — all `true` | **`caveman@caveman` is dropped from RedyQuote's committed roster.** It is a personal output-style plugin, not a project tool; it belongs in a user-level settings file, not in a repo every developer clones. This is the one place RedyQuote's committed roster is over-inclusive rather than under-inclusive. |
-| `{{MARKETPLACES}}` | `impeccable` → `github:pbakaus/impeccable` | the `caveman` marketplace entry goes with the plugin |
+| `{{MARKETPLACES}}`  | `impeccable` → `github:pbakaus/impeccable`                                                                             | the `caveman` marketplace entry goes with the plugin                                                                                                                                                                                                                                                            |
 
 `.claude/settings.local.json` in CuevikSync becomes empty (`{}`) or is deleted. It stays
 gitignored in both under C-13 — that is the correct home for per-developer overrides, and
@@ -2379,16 +2439,17 @@ allowed-tools: Bash, Read, Glob, Grep
 
 Six decisions folded in:
 
-| Row | Resolution |
-| --- | --- |
-| 16.46 | blank line after frontmatter — RedyQuote's form (Prettier's output) |
-| 16.47 | `## 5. Verify the invariants the SQL cannot prove` — RedyQuote's; it says what the step is for |
-| 16.48 | `## 6. Report — do not commit or push` — CuevikSync's; the constraint belongs in the heading where it cannot be skimmed past |
-| 16.49 | `## Never` section — RedyQuote's; add to CuevikSync |
-| 5.6 / G-3 | the apply-ordering paragraph becomes merge-then-push in both |
-| 5.11 | the push step runs `npm run db:push`, which C-05 defines as `npx supabase db push --linked` in both |
+| Row       | Resolution                                                                                                                   |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 16.46     | blank line after frontmatter — RedyQuote's form (Prettier's output)                                                          |
+| 16.47     | `## 5. Verify the invariants the SQL cannot prove` — RedyQuote's; it says what the step is for                               |
+| 16.48     | `## 6. Report — do not commit or push` — CuevikSync's; the constraint belongs in the heading where it cannot be skimmed past |
+| 16.49     | `## Never` section — RedyQuote's; add to CuevikSync                                                                          |
+| 5.6 / G-3 | the apply-ordering paragraph becomes merge-then-push in both                                                                 |
+| 5.11      | the push step runs `npm run db:push`, which C-05 defines as `npx supabase db push --linked` in both                          |
 
 `## Never` canonical body, `IDENTICAL_CONTENT`:
+
 ```markdown
 ## Never
 
@@ -2405,11 +2466,11 @@ Six decisions folded in:
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
-| `{{PRODUCT_NAME}}` | `CuevikSync` | `RedyQuote` |
-| `{{ENVIRONMENT_PARAGRAPH}}` | linked hosted dev project; local stack exists for tests only | linked hosted project; no local stack, no Docker (docs/ENVIRONMENTS.md §1) |
-| `{{RLS_VERIFY_STEP}}` | verify RLS enabled **and** `tenant_id` scoping present on every new table | verify RLS enabled on every new table |
+| Parameter                   | CuevikSync                                                                | RedyQuote                                                                  |
+| --------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `{{PRODUCT_NAME}}`          | `CuevikSync`                                                              | `RedyQuote`                                                                |
+| `{{ENVIRONMENT_PARAGRAPH}}` | linked hosted dev project; local stack exists for tests only              | linked hosted project; no local stack, no Docker (docs/ENVIRONMENTS.md §1) |
+| `{{RLS_VERIFY_STEP}}`       | verify RLS enabled **and** `tenant_id` scoping present on every new table | verify RLS enabled on every new table                                      |
 
 **Blast radius:** Changes the behaviour of a command that writes to a real database in both
 repos. Test with `/db-migrate dry-run` before a real push.
@@ -2433,22 +2494,22 @@ corpus list) and §2 (the authority ladder), which are legitimately per-repo.
 
 **Change detail** — canonical heading set:
 
-| Row | Canonical | Source |
-| --- | --- | --- |
-| 16.50 | `# Doc Audit` h1 after frontmatter | RedyQuote |
-| 16.51 | `## PASS A — Align` / `## PASS B — Drift` / `## PASS C — Absorb` (h2) | RedyQuote |
-| 16.52 | `## 3A. Terminology — {{CANON_SOURCE}} is canon` | parameterized |
-| 16.53 | `## 3B. Requirements, metrics, and acceptance criteria` | CuevikSync — "requirements" is the thing most likely to drift and belongs in the heading |
-| 16.54 | `## 3D. Goals vs. scope vs. mechanism` | NEITHER — RedyQuote's `vs.` punctuation, CuevikSync's "mechanism" (more precise than "implementation", which reads as code) |
-| 16.55 | `## 4A. Doc vs. doc` / `## 4B. Doc vs. reality _(skipped under \`docs-only\`)_` | RedyQuote — the annotation documents a real flag |
+| Row   | Canonical                                                                       | Source                                                                                                                      |
+| ----- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 16.50 | `# Doc Audit` h1 after frontmatter                                              | RedyQuote                                                                                                                   |
+| 16.51 | `## PASS A — Align` / `## PASS B — Drift` / `## PASS C — Absorb` (h2)           | RedyQuote                                                                                                                   |
+| 16.52 | `## 3A. Terminology — {{CANON_SOURCE}} is canon`                                | parameterized                                                                                                               |
+| 16.53 | `## 3B. Requirements, metrics, and acceptance criteria`                         | CuevikSync — "requirements" is the thing most likely to drift and belongs in the heading                                    |
+| 16.54 | `## 3D. Goals vs. scope vs. mechanism`                                          | NEITHER — RedyQuote's `vs.` punctuation, CuevikSync's "mechanism" (more precise than "implementation", which reads as code) |
+| 16.55 | `## 4A. Doc vs. doc` / `## 4B. Doc vs. reality _(skipped under \`docs-only\`)_` | RedyQuote — the annotation documents a real flag                                                                            |
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
-| `{{CANON_SOURCE}}` | `PRODUCT.md` | `PRODUCT.md` — **changed from "the schema"** |
-| `{{CORPUS_LIST}}` (§1) | CuevikSync's doc set, updated for every file this spec creates | RedyQuote's doc set, likewise |
-| `{{AUTHORITY_LADDER}}` (§2) | CuevikSync's ladder from `CLAUDE.md:18-27` | same ladder, RedyQuote's paths |
+| Parameter                   | CuevikSync                                                     | RedyQuote                                    |
+| --------------------------- | -------------------------------------------------------------- | -------------------------------------------- |
+| `{{CANON_SOURCE}}`          | `PRODUCT.md`                                                   | `PRODUCT.md` — **changed from "the schema"** |
+| `{{CORPUS_LIST}}` (§1)      | CuevikSync's doc set, updated for every file this spec creates | RedyQuote's doc set, likewise                |
+| `{{AUTHORITY_LADDER}}` (§2) | CuevikSync's ladder from `CLAUDE.md:18-27`                     | same ladder, RedyQuote's paths               |
 
 **One substantive change, not cosmetic:** RedyQuote's §3A names "the schema" as terminology
 canon; CuevikSync names `PRODUCT.md`. Canonical is `PRODUCT.md` in both — it is the top of the
@@ -2476,6 +2537,7 @@ by `ENGINEERING-RULES.md` + `BACKLOG.md` in RedyQuote and by `PROJECT-STRUCTURE.
 **Files to change:** `.claude/launch.json` (create)
 
 **Change detail** — full body, `IDENTICAL_TEMPLATE_PARAMETERIZED`:
+
 ```json
 {
   "version": "0.0.1",
@@ -2492,10 +2554,10 @@ by `ENGINEERING-RULES.md` + `BACKLOG.md` in RedyQuote and by `PROJECT-STRUCTURE.
 
 **Parameters:**
 
-| Parameter | CuevikSync | RedyQuote |
-| --- | --- | --- |
+| Parameter          | CuevikSync   | RedyQuote   |
+| ------------------ | ------------ | ----------- |
 | `{{PROJECT_SLUG}}` | `cueviksync` | `redyquote` |
-| `{{DEV_PORT}}` | `3001` | `3000` |
+| `{{DEV_PORT}}`     | `3001`       | `3000`      |
 
 Different ports so both dev servers can run simultaneously. CuevikSync's `package.json` `dev`
 script becomes `next dev --port 3001` — the one place C-05's scripts block is parameterized.
@@ -2519,11 +2581,11 @@ the divergence at the source.
 
 **Change detail:**
 
-| Package | From | To | Note |
-| --- | --- | --- | --- |
-| Zod | `3.x` — `:60` | `4.x` | matches `package.json:42` `^4.4.3`. Zod 4 changed top-level API (`z.url()` rather than `z.string().url()`) — C-18's `config.ts` already uses the v4 form |
-| Vitest | `3.x` — `:71` | `4.x` | matches `^4.1.10` |
-| lint-staged | `16.x` — `:74` | `17.x` | matches `^17.2.0` |
+| Package     | From           | To     | Note                                                                                                                                                     |
+| ----------- | -------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zod         | `3.x` — `:60`  | `4.x`  | matches `package.json:42` `^4.4.3`. Zod 4 changed top-level API (`z.url()` rather than `z.string().url()`) — C-18's `config.ts` already uses the v4 form |
+| Vitest      | `3.x` — `:71`  | `4.x`  | matches `^4.1.10`                                                                                                                                        |
+| lint-staged | `16.x` — `:74` | `17.x` | matches `^17.2.0`                                                                                                                                        |
 
 `docs/TECH-STACK.md:168-172` constraints bullet — update the version numerals in the same edit.
 
@@ -2547,12 +2609,12 @@ wrong instructions to an agent reading `CLAUDE.md`.
 
 **Change detail:**
 
-| # | Claim | Reality | Fix |
-| --- | --- | --- | --- |
-| 1 | "`vitest.config.ts` sets `passWithNoTests` and there are no test files" — `CLAUDE.md:169-171`, `README.md:86-89`, `ci.yml:22-24` | `vitest.config.ts` (10 lines, read in full) has no such key; `src/lib/list/apply-list-view.test.ts` and `src/lib/list/list-params.test.ts` exist | Replace with: "`npm run test` runs two unit suites over `src/lib/list/`. Vitest has no `passWithNoTests` flag set, so an empty suite would fail — a green run means the tests ran." |
-| 2 | "15 primitives in `src/components/ui/`" — `CLAUDE.md:79`, `README.md:117` | `ls` returns **18** | `18`. Better: drop the count. A number in prose is a thing that rots; `ls src/components/ui \| wc -l` does not. |
-| 3 | Vitest `3.x` — `docs/TECH-STACK.md:53` | `^4.1.10` — `package.json:59` | `4.x` |
-| 4 | lint-staged `16.x` — `docs/TECH-STACK.md:58` | `^17.2.0` — `package.json:54` | `17.x` |
+| #   | Claim                                                                                                                            | Reality                                                                                                                                          | Fix                                                                                                                                                                                 |
+| --- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | "`vitest.config.ts` sets `passWithNoTests` and there are no test files" — `CLAUDE.md:169-171`, `README.md:86-89`, `ci.yml:22-24` | `vitest.config.ts` (10 lines, read in full) has no such key; `src/lib/list/apply-list-view.test.ts` and `src/lib/list/list-params.test.ts` exist | Replace with: "`npm run test` runs two unit suites over `src/lib/list/`. Vitest has no `passWithNoTests` flag set, so an empty suite would fail — a green run means the tests ran." |
+| 2   | "15 primitives in `src/components/ui/`" — `CLAUDE.md:79`, `README.md:117`                                                        | `ls` returns **18**                                                                                                                              | `18`. Better: drop the count. A number in prose is a thing that rots; `ls src/components/ui \| wc -l` does not.                                                                     |
+| 3   | Vitest `3.x` — `docs/TECH-STACK.md:53`                                                                                           | `^4.1.10` — `package.json:59`                                                                                                                    | `4.x`                                                                                                                                                                               |
+| 4   | lint-staged `16.x` — `docs/TECH-STACK.md:58`                                                                                     | `^17.2.0` — `package.json:54`                                                                                                                    | `17.x`                                                                                                                                                                              |
 
 **Worth naming the pattern, since `CLAUDE.md:73-74` already anticipates it:** that file says
 "Confirm a file or script still exists before relying on this section — it is a snapshot, and a
@@ -2576,6 +2638,7 @@ C-id outside it. Batches are strictly sequential; within a batch, order is free 
 `Depends on` says otherwise.
 
 ### Batch 1 — Decisions (doc-only; no build exists to break)
+
 `C-01` → `C-02` → `C-03`
 Also: `C-13`, `C-35` (both independent of everything)
 **Verifiable by:** reading. No commands exist in CuevikSync yet.
@@ -2583,12 +2646,14 @@ Also: `C-13`, `C-35` (both independent of everything)
 gate decisions; C-35 must precede C-31 so `CONTRIBUTING.md` is converged once, not twice.
 
 ### Batch 2 — CuevikSync becomes an npm project
+
 `C-04` → `C-05` → `C-06`, `C-07`, `C-08`, `C-11`, `C-14`, `C-46`
 **Verifiable by:** `npm install && npm run typecheck && npm run format:check` in CuevikSync.
 **Note:** `C-09` (ESLint) and `C-10` (Husky) are deliberately **not** here — the ESLint config's
 two custom rules need `src/` to exist, and running Husky before lint works blocks commits.
 
 ### Batch 3 — Source
+
 `C-15` → `C-16`, `C-17`, `C-18` → `C-24` → `C-22` → `C-21`, `C-23` → `C-25` → `C-19` → `C-20`
 → then `C-12`, `C-09`, `C-10`
 **Verifiable by:** `npm run lint && npm run typecheck && npm run build && npm run dev` in
@@ -2598,6 +2663,7 @@ generated by `npm run db:types` against the applied schema. C-09 lands last in t
 first run is against complete source.
 
 ### Batch 4 — CI and the test-harness decision
+
 `C-27` → `C-26`
 **Verifiable by:** push a branch in each repo; the `check` job runs 5 steps.
 **Blocking sub-decision, must be taken before this batch lands:** C-26 makes `npm run test` a
@@ -2607,11 +2673,13 @@ dated comment, or (c) drop the `test` step from both workflows. (b) is recommend
 the two workflows byte-identical, which is the point of C-26.
 
 ### Batch 5 — Agent config
+
 `C-43` → `C-44`, `C-46` (if not landed in Batch 2)
 **Verifiable by:** `/db-migrate dry-run` in both; `git ls-files .claude/` matches in both.
 **Note:** `C-45` is **not** here — its corpus list depends on every doc created in Batch 6.
 
 ### Batch 6 — Documentation
+
 `C-28` → `C-32`, `C-33`, `C-34`, `C-36`, `C-37`, `C-42` → `C-38`, `C-39`, `C-40` → `C-41`
 → `C-31` → `C-47`, `C-48` → `C-29` → `C-30` → `C-45`
 **Verifiable by:** `npm run format:check` in both; `grep -n '^## '` on each converged document
@@ -2637,27 +2705,27 @@ C-27 ──→ C-26 ──→ C-48
 
 ### Copy verbatim (canonical file already exists)
 
-| Canonical | Target | Notes |
-| --- | --- | --- |
-| `RedyQuote:eslint.config.mjs` | CuevikSync | one comment word: `RedyRef` → `Cuevik` |
-| `RedyQuote:src/lib/supabase/update-session.ts` | CuevikSync | no changes |
-| `RedyQuote:src/lib/supabase/server.ts` | CuevikSync | one parameterized comment block, C-19 |
-| `RedyQuote:src/lib/utils.ts` | CuevikSync | comment block replaced in **both**, C-17 |
-| `RedyQuote:src/app/global-error.tsx` | CuevikSync | `{{PRODUCT_NAME}}` at `:42` |
-| `RedyQuote:src/components/ui/*.tsx` × 18 | CuevikSync | no changes |
-| `RedyQuote:src/app/(app)/_components/AppChrome.tsx` | CuevikSync | no changes |
-| `RedyQuote:src/app/(app)/not-found.tsx` | CuevikSync | no changes |
-| `RedyQuote:src/components/layout/*.tsx` × 5 | CuevikSync | nav list + product name substituted |
-| `RedyQuote:src/app/(auth)/login/page.tsx` | CuevikSync | `{{PRODUCT_NAME}}` |
-| `RedyQuote:src/app/globals.css` | CuevikSync | 510 lines + substitution table, C-15 |
-| `RedyQuote:docs/DESIGN-SYSTEM.md` | CuevikSync | 459 lines + substitution table, C-34 |
-| `RedyQuote:docs/PROJECT-STRUCTURE.md` | CuevikSync | shape + §5 verbatim, C-33 |
-| `RedyQuote:docs/ENVIRONMENTS.md` | CuevikSync | shape; §1 content diverges, C-35 |
-| `RedyQuote:README.md:95-215` | CuevikSync | Claude Code Setup + Doc Audit sections, C-29 |
-| `CuevikSync:.claude/hooks/block-applied-migration.mjs` | RedyQuote | one comment word, C-03 |
-| `CuevikSync:CONTRIBUTING.md` | RedyQuote | + the authored checklist, C-31 |
-| `CuevikSync:docs/ENGINEERING-RULES.md` | RedyQuote | shape; rule content per-repo, C-32 |
-| `CuevikSync:CLAUDE.md` §§ 4, 8, 9, 10, 11, 12, 15 | RedyQuote | C-30 |
+| Canonical                                              | Target     | Notes                                        |
+| ------------------------------------------------------ | ---------- | -------------------------------------------- |
+| `RedyQuote:eslint.config.mjs`                          | CuevikSync | one comment word: `RedyRef` → `Cuevik`       |
+| `RedyQuote:src/lib/supabase/update-session.ts`         | CuevikSync | no changes                                   |
+| `RedyQuote:src/lib/supabase/server.ts`                 | CuevikSync | one parameterized comment block, C-19        |
+| `RedyQuote:src/lib/utils.ts`                           | CuevikSync | comment block replaced in **both**, C-17     |
+| `RedyQuote:src/app/global-error.tsx`                   | CuevikSync | `{{PRODUCT_NAME}}` at `:42`                  |
+| `RedyQuote:src/components/ui/*.tsx` × 18               | CuevikSync | no changes                                   |
+| `RedyQuote:src/app/(app)/_components/AppChrome.tsx`    | CuevikSync | no changes                                   |
+| `RedyQuote:src/app/(app)/not-found.tsx`                | CuevikSync | no changes                                   |
+| `RedyQuote:src/components/layout/*.tsx` × 5            | CuevikSync | nav list + product name substituted          |
+| `RedyQuote:src/app/(auth)/login/page.tsx`              | CuevikSync | `{{PRODUCT_NAME}}`                           |
+| `RedyQuote:src/app/globals.css`                        | CuevikSync | 510 lines + substitution table, C-15         |
+| `RedyQuote:docs/DESIGN-SYSTEM.md`                      | CuevikSync | 459 lines + substitution table, C-34         |
+| `RedyQuote:docs/PROJECT-STRUCTURE.md`                  | CuevikSync | shape + §5 verbatim, C-33                    |
+| `RedyQuote:docs/ENVIRONMENTS.md`                       | CuevikSync | shape; §1 content diverges, C-35             |
+| `RedyQuote:README.md:95-215`                           | CuevikSync | Claude Code Setup + Doc Audit sections, C-29 |
+| `CuevikSync:.claude/hooks/block-applied-migration.mjs` | RedyQuote  | one comment word, C-03                       |
+| `CuevikSync:CONTRIBUTING.md`                           | RedyQuote  | + the authored checklist, C-31               |
+| `CuevikSync:docs/ENGINEERING-RULES.md`                 | RedyQuote  | shape; rule content per-repo, C-32           |
+| `CuevikSync:CLAUDE.md` §§ 4, 8, 9, 10, 11, 12, 15      | RedyQuote  | C-30                                         |
 
 ### Full bodies given in this spec
 
@@ -2677,24 +2745,24 @@ C-27 ──→ C-26 ──→ C-48
 
 ### Master parameter table
 
-| Parameter | CuevikSync | RedyQuote | Used by |
-| --- | --- | --- | --- |
-| `{{PRODUCT_NAME}}` | `CuevikSync` | `RedyQuote` | C-14, C-21, C-22, C-23, C-30, C-31, C-44 |
-| `{{PROJECT_SLUG}}` | `cueviksync` | `redyquote` | C-05, C-46 |
-| `{{PRODUCT_TAGLINE}}` | `Capture every inbound inquiry and turn it into revenue.` | `Quoting and approval for REDYREF interactive kiosks.` | C-21 |
-| `{{LANDING_ROUTE}}` / `{{LANDING_SEGMENT}}` | `/inquiries` / `inquiries` | `/quotes` / `quotes` | C-21, C-22 |
-| `{{NAV_ITEMS}}` | Inquiries · Contacts · Pipeline · Quotes · Settings | Quotes · Products · Library · Settings | C-22 |
-| `{{DEV_PORT}}` | `3001` | `3000` | C-05, C-46 |
-| `{{BRAND_PRIMARY}}` | `#0F6E6E` *(provisional)* | `#A81D22` | C-15, C-34 |
-| `{{BRAND_INK}}` | `#1A1A1A` | `#1A1A1A` | C-15, C-34 |
-| `{{BRAND_ACCENT}}` | `#B45309` *(provisional)* | `#1E5FBF` | C-15, C-34 |
-| `{{SERVICE_ROLE_NOTE}}` | present — three system paths | absent — none used | C-14 |
-| `{{SERVER_ONLY_KEYS}}` | `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `INTAKE_KEY_SECRET` | *(none)* | C-14, C-18 |
-| `{{ELEVATED_CLIENT_NOTE}}` | points at `./service-role` | "deliberately no elevated variant" | C-19 |
-| `supabase project_id` | `CuevikSync` | `RedyQuote` | C-25 |
-| `{{CANON_SOURCE}}` | `PRODUCT.md` | `PRODUCT.md` | C-45 |
-| `{{ENVIRONMENT_PARAGRAPH}}` | hosted dev + local stack for tests | hosted only, no Docker | C-44 |
-| `{{RLS_VERIFY_STEP}}` | RLS + `tenant_id` scoping | RLS only | C-44 |
+| Parameter                                   | CuevikSync                                                          | RedyQuote                                              | Used by                                  |
+| ------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------- |
+| `{{PRODUCT_NAME}}`                          | `CuevikSync`                                                        | `RedyQuote`                                            | C-14, C-21, C-22, C-23, C-30, C-31, C-44 |
+| `{{PROJECT_SLUG}}`                          | `cueviksync`                                                        | `redyquote`                                            | C-05, C-46                               |
+| `{{PRODUCT_TAGLINE}}`                       | `Capture every inbound inquiry and turn it into revenue.`           | `Quoting and approval for REDYREF interactive kiosks.` | C-21                                     |
+| `{{LANDING_ROUTE}}` / `{{LANDING_SEGMENT}}` | `/inquiries` / `inquiries`                                          | `/quotes` / `quotes`                                   | C-21, C-22                               |
+| `{{NAV_ITEMS}}`                             | Inquiries · Contacts · Pipeline · Quotes · Settings                 | Quotes · Products · Library · Settings                 | C-22                                     |
+| `{{DEV_PORT}}`                              | `3001`                                                              | `3000`                                                 | C-05, C-46                               |
+| `{{BRAND_PRIMARY}}`                         | `#0F6E6E` _(provisional)_                                           | `#A81D22`                                              | C-15, C-34                               |
+| `{{BRAND_INK}}`                             | `#1A1A1A`                                                           | `#1A1A1A`                                              | C-15, C-34                               |
+| `{{BRAND_ACCENT}}`                          | `#B45309` _(provisional)_                                           | `#1E5FBF`                                              | C-15, C-34                               |
+| `{{SERVICE_ROLE_NOTE}}`                     | present — three system paths                                        | absent — none used                                     | C-14                                     |
+| `{{SERVER_ONLY_KEYS}}`                      | `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `INTAKE_KEY_SECRET` | _(none)_                                               | C-14, C-18                               |
+| `{{ELEVATED_CLIENT_NOTE}}`                  | points at `./service-role`                                          | "deliberately no elevated variant"                     | C-19                                     |
+| `supabase project_id`                       | `CuevikSync`                                                        | `RedyQuote`                                            | C-25                                     |
+| `{{CANON_SOURCE}}`                          | `PRODUCT.md`                                                        | `PRODUCT.md`                                           | C-45                                     |
+| `{{ENVIRONMENT_PARAGRAPH}}`                 | hosted dev + local stack for tests                                  | hosted only, no Docker                                 | C-44                                     |
+| `{{RLS_VERIFY_STEP}}`                       | RLS + `tenant_id` scoping                                           | RLS only                                               | C-44                                     |
 
 ---
 
@@ -2702,15 +2770,15 @@ C-27 ──→ C-26 ──→ C-48
 
 Every `NOT VERIFIABLE` row, plus the two decisions this spec deliberately does not take.
 
-| # | Item | Row | What is needed to close it |
-| --- | --- | --- | --- |
-| U-1 | **Cuevik brand hexes.** `#0F6E6E` / `#B45309` are provisional placeholders I chose to clear the AA floor and avoid REDYREF's red (D-14). They are not a brand decision. | 7.10 | A ratified Cuevik palette. Replacing them is a three-value edit in `src/app/globals.css` plus a re-solve of the five derived oklch primitives in `docs/DESIGN-SYSTEM.md` §4. |
-| U-2 | **Branch protection on `main`.** CuevikSync calls it "best-effort" (`CONTRIBUTING.md:94-99`); RedyQuote says nothing. No file in either repo records the actual host setting. | 18.6 | GitHub → Settings → Branches for both repos, or `gh api repos/{owner}/{repo}/branches/main/protection`. Requires network and repo-admin scope, neither available to a filesystem audit. |
-| U-3 | **Tag / version / release scheme.** Neither repo states one. RedyQuote's `package.json:3` says `0.1.0` with no policy attached; CuevikSync has no manifest. No `CHANGELOG.md`, no release workflow, no tags inspected. | 18.10, 18.11, 18.12 | A decision, not a file read: does either repo ship versioned releases, or is `main` the only artifact? If the latter, say so once in the canonical `CONTRIBUTING.md` and the question closes. |
-| U-4 | **ID strategy** (UUID vs bigint vs ULID) for primary keys. Not stated in any file read across Phases 1–3. | 4.2 | `RedyQuote:docs/DATABASE.md` §4 "Table Definitions" (`:234-510`) was not read — it would settle RedyQuote's half. CuevikSync's half does not exist yet and is a design decision for C-25's migrations. |
-| U-5 | **Empty-suite CI behaviour.** C-26 makes `npm run test` blocking in a CuevikSync repo with zero tests, and Vitest fails an empty suite. | 11.2, 13.7 | A choice between the three options named in Batch 4. Recommended: `passWithNoTests: true` in **both** `vitest.config.ts` files with a dated comment naming the removal trigger. Must be decided before Batch 4 lands. |
-| U-6 | **Whether CuevikSync has a linked Supabase project.** C-25 needs a `project_id` and a linked project to run `db:push` and `db:types` against. No file records whether one exists. | 5.13 | `npx supabase projects list`, or confirmation that a project should be created. Blocks Batch 3's tail (C-25 → C-19 → C-20). |
-| U-7 | **`docs/DATABASE-SQL.md`'s fate.** It is transient by its own header (`:9-13`) — "delete it once its content is authored as `supabase/migrations/*.sql`". Migrations `0001`–`0005` are applied; the file says it is "partly transcribed". | 16.23 | Read its "Transcription status" section and delete the transcribed blocks. Out of this spec's scope — it is RedyQuote-internal hygiene, not convergence — but it will make C-45's corpus list wrong if left ambiguous. |
+| #   | Item                                                                                                                                                                                                                                      | Row                 | What is needed to close it                                                                                                                                                                                             |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| U-1 | **Cuevik brand hexes.** `#0F6E6E` / `#B45309` are provisional placeholders I chose to clear the AA floor and avoid REDYREF's red (D-14). They are not a brand decision.                                                                   | 7.10                | A ratified Cuevik palette. Replacing them is a three-value edit in `src/app/globals.css` plus a re-solve of the five derived oklch primitives in `docs/DESIGN-SYSTEM.md` §4.                                           |
+| U-2 | **Branch protection on `main`.** CuevikSync calls it "best-effort" (`CONTRIBUTING.md:94-99`); RedyQuote says nothing. No file in either repo records the actual host setting.                                                             | 18.6                | GitHub → Settings → Branches for both repos, or `gh api repos/{owner}/{repo}/branches/main/protection`. Requires network and repo-admin scope, neither available to a filesystem audit.                                |
+| U-3 | **Tag / version / release scheme.** Neither repo states one. RedyQuote's `package.json:3` says `0.1.0` with no policy attached; CuevikSync has no manifest. No `CHANGELOG.md`, no release workflow, no tags inspected.                    | 18.10, 18.11, 18.12 | A decision, not a file read: does either repo ship versioned releases, or is `main` the only artifact? If the latter, say so once in the canonical `CONTRIBUTING.md` and the question closes.                          |
+| U-4 | **ID strategy** (UUID vs bigint vs ULID) for primary keys. Not stated in any file read across Phases 1–3.                                                                                                                                 | 4.2                 | `RedyQuote:docs/DATABASE.md` §4 "Table Definitions" (`:234-510`) was not read — it would settle RedyQuote's half. CuevikSync's half does not exist yet and is a design decision for C-25's migrations.                 |
+| U-5 | **Empty-suite CI behaviour.** C-26 makes `npm run test` blocking in a CuevikSync repo with zero tests, and Vitest fails an empty suite.                                                                                                   | 11.2, 13.7          | A choice between the three options named in Batch 4. Recommended: `passWithNoTests: true` in **both** `vitest.config.ts` files with a dated comment naming the removal trigger. Must be decided before Batch 4 lands.  |
+| U-6 | **Whether CuevikSync has a linked Supabase project.** C-25 needs a `project_id` and a linked project to run `db:push` and `db:types` against. No file records whether one exists.                                                         | 5.13                | `npx supabase projects list`, or confirmation that a project should be created. Blocks Batch 3's tail (C-25 → C-19 → C-20).                                                                                            |
+| U-7 | **`docs/DATABASE-SQL.md`'s fate.** It is transient by its own header (`:9-13`) — "delete it once its content is authored as `supabase/migrations/*.sql`". Migrations `0001`–`0005` are applied; the file says it is "partly transcribed". | 16.23               | Read its "Transcription status" section and delete the transcribed blocks. Out of this spec's scope — it is RedyQuote-internal hygiene, not convergence — but it will make C-45's corpus list wrong if left ambiguous. |
 
 ---
 
@@ -2778,7 +2846,7 @@ INTAKE_KEY_SECRET=placeholder-intake-secret
 
 `.env.local` is gitignored under C-13, so nothing is committed. The scaffold builds, `npm run dev`
 serves, and the shell renders — because nothing in it queries a database. The first thing that
-*would* query one is also the first thing that needs a real project.
+_would_ query one is also the first thing that needs a real project.
 
 **Uncertainty stated rather than assumed away:** I have not executed a build to confirm whether
 `next build` evaluates `config.ts`'s module-level throw during middleware compilation or route
@@ -2787,10 +2855,10 @@ rather than a conditional one.
 
 ### C-25 splits
 
-| New id | Was | Needs a linked project? | Batch |
-| --- | --- | --- | --- |
-| **C-25a** | `supabase/config.toml` + `supabase/.gitignore` via `npx supabase init` | **No** — `init` is local | 3 |
-| **C-25b** | migrations `0001`/`0002` authored, applied via `/db-migrate`, then `npm run db:types` | **Yes** | **3b — deferred** |
+| New id    | Was                                                                                   | Needs a linked project?  | Batch             |
+| --------- | ------------------------------------------------------------------------------------- | ------------------------ | ----------------- |
+| **C-25a** | `supabase/config.toml` + `supabase/.gitignore` via `npx supabase init`                | **No** — `init` is local | 3                 |
+| **C-25b** | migrations `0001`/`0002` authored, applied via `/db-migrate`, then `npm run db:types` | **Yes**                  | **3b — deferred** |
 
 `npx supabase init` writes `config.toml` locally with no network call. Set `project_id` to
 `CuevikSync` per the C-25 parameter table; the value is a local label until a project is linked.
@@ -2809,6 +2877,7 @@ without inventing a schema.
 **Files to change:** `src/lib/supabase/types.ts` (create)
 
 **Change detail** — full body, ready to write:
+
 ```ts
 /**
  * PLACEHOLDER — hand-authored, not generated.
@@ -2901,15 +2970,15 @@ convergence work completes without it; only the database half of CuevikSync's sc
 
 # Unresolved — revised
 
-| # | Item | Status |
-| --- | --- | --- |
-| U-1 | Cuevik brand hexes — `#0F6E6E` / `#B45309` provisional | **open** — needs a ratified palette. Three-value edit plus a re-solve of the five derived oklch primitives |
-| U-2 | Branch protection on `main`, both repos | **open** — host-side. `gh api repos/{owner}/{repo}/branches/main/protection` |
-| U-3 | Tag / version / release scheme | **open** — a decision, not a file read. If `main` is the only artifact, say so once in `CONTRIBUTING.md` and it closes |
-| U-4 | ID strategy for primary keys | **CLOSED** — Addendum B. `uuid` + `gen_random_uuid()`, canonical in both |
-| U-5 | Empty-suite CI behaviour | **CLOSED** — A-1. CI starts red; no config change to either repo |
-| U-6 | CuevikSync linked Supabase project | **CLOSED as "none"** — A-2. C-25 split, C-49 added, Batch 3b deferred |
-| U-7 | `RedyQuote:docs/DATABASE-SQL.md`'s fate | **CLOSED** — Addendum B. Not deletable yet; stays in the corpus |
+| #   | Item                                                                                 | Status                                                                                                                                             |
+| --- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| U-1 | Cuevik brand hexes — `#0F6E6E` / `#B45309` provisional                               | **open** — needs a ratified palette. Three-value edit plus a re-solve of the five derived oklch primitives                                         |
+| U-2 | Branch protection on `main`, both repos                                              | **open** — host-side. `gh api repos/{owner}/{repo}/branches/main/protection`                                                                       |
+| U-3 | Tag / version / release scheme                                                       | **open** — a decision, not a file read. If `main` is the only artifact, say so once in `CONTRIBUTING.md` and it closes                             |
+| U-4 | ID strategy for primary keys                                                         | **CLOSED** — Addendum B. `uuid` + `gen_random_uuid()`, canonical in both                                                                           |
+| U-5 | Empty-suite CI behaviour                                                             | **CLOSED** — A-1. CI starts red; no config change to either repo                                                                                   |
+| U-6 | CuevikSync linked Supabase project                                                   | **CLOSED as "none"** — A-2. C-25 split, C-49 added, Batch 3b deferred                                                                              |
+| U-7 | `RedyQuote:docs/DATABASE-SQL.md`'s fate                                              | **CLOSED** — Addendum B. Not deletable yet; stays in the corpus                                                                                    |
 | U-8 | **New.** CuevikSync's uncommitted `docs/PRODUCT.md` header rewrap, sitting on `main` | **open** — not produced by this audit. `CONTRIBUTING.md:18` says never work directly on `main`; commit it on a branch or discard it before Batch 1 |
 
 ---
@@ -2960,6 +3029,7 @@ Design conventions applied throughout:
 ```
 
 CuevikSync adds one bullet, per D-15:
+
 ```markdown
 - Every tenant-scoped table carries `tenant_id uuid NOT NULL`, and its RLS policies filter on
   it. A table without `tenant_id` must state in its column table why it is global.
@@ -2975,15 +3045,15 @@ so authoring them is schema design only, not convention design.
 
 **Evidence** — `RedyQuote:docs/DATABASE-SQL.md:26-34`, the transcription table:
 
-| Block | Migration | Status |
-| --- | --- | --- |
-| `0001` extensions/enums | `0001_extensions_and_types.sql` | transcribed verbatim |
-| `0002` profiles + auth | `0002_profiles_and_auth.sql` | transcribed + §4.2 guard + profiles RLS |
-| `0003` settings tables | `0003_settings.sql` | transcribed + CHECKs, RLS, seed row |
-| markup units fix | `0004_settings_markup_units.sql` | transcribed |
-| settings_history read | `0005_settings_history_admin_read.sql` | transcribed |
-| categories onward | — | **not yet authored** |
-| `0006` onward — products, quotes, RPCs | — | **not yet authored** |
+| Block                                  | Migration                              | Status                                  |
+| -------------------------------------- | -------------------------------------- | --------------------------------------- |
+| `0001` extensions/enums                | `0001_extensions_and_types.sql`        | transcribed verbatim                    |
+| `0002` profiles + auth                 | `0002_profiles_and_auth.sql`           | transcribed + §4.2 guard + profiles RLS |
+| `0003` settings tables                 | `0003_settings.sql`                    | transcribed + CHECKs, RLS, seed row     |
+| markup units fix                       | `0004_settings_markup_units.sql`       | transcribed                             |
+| settings_history read                  | `0005_settings_history_admin_read.sql` | transcribed                             |
+| categories onward                      | —                                      | **not yet authored**                    |
+| `0006` onward — products, quotes, RPCs | —                                      | **not yet authored**                    |
 
 **Answer:** the file is doing real work. Two of its seven blocks are untranscribed and they are
 the large ones — categories, products, quotes, and every RPC. `:57-58` sets the deletion
@@ -2998,12 +3068,12 @@ CuevikSync has no DDL to stage.
 header, so under C-41's convention table it belongs at
 `docs/specs/2026-08-01-database-sql.md`. Amend C-41's move table:
 
-| From | To |
-| --- | --- |
+| From                             | To                                                |
+| -------------------------------- | ------------------------------------------------- |
 | `RedyQuote:docs/DATABASE-SQL.md` | `RedyQuote:docs/specs/2026-08-01-database-sql.md` |
 
 Its own §"sits beside DATABASE.md" paragraph (`:60-64`) argues for the current location. That
-argument is about *not* putting it under `docs/superpowers/`, which C-41 agrees with — and
+argument is about _not_ putting it under `docs/superpowers/`, which C-41 agrees with — and
 `docs/specs/` is a third option neither the file nor C-41's original text considered. Update the
 paragraph to name `docs/specs/` when the file moves.
 
@@ -3023,7 +3093,7 @@ already started and applied unevenly.
 
 ---
 
-*Produced by the CuevikSync ↔ RedyQuote convergence audit, 2026-08-11. Working artifacts — the
+_Produced by the CuevikSync ↔ RedyQuote convergence audit, 2026-08-11. Working artifacts — the
 file inventory, access report, and 190-row divergence matrix this spec derives from — are outside
 both repositories at `D:\vrp-repos\_convergence-audit\`. Nothing here has been applied; it is the
-plan, not a record of work done.*
+plan, not a record of work done._
