@@ -17,8 +17,8 @@ in the lockfile when the repository is scaffolded (see §6).
 | Technology | Version | Reason | Maps to PRD req |
 | --- | --- | --- | --- |
 | TypeScript | 5.x (strict) | One typed language across the Next.js app and the Supabase Edge Functions, so the client/server and capture-path contracts are checked at compile time. | PRD-025, NFR-008 |
-| Next.js (App Router) | 16.x | Hosts the Single-Page Application (SPA) and the server JSON Application Programming Interface (API) as one modular monolith; App Router server route handlers are the sole access-authority layer. | PRD-025, NFR-005 |
-| React | 19.x | Renders the SPA client — pipeline board, quote builder, and dynamic custom-field forms. | PRD-025, NFR-012 |
+| Next.js (App Router) | 16.x | One modular monolith. Server Components read; Server Actions are the sole path for authenticated writes, and are the access-authority layer. A route handler is permitted only for an external Hypertext Transfer Protocol (HTTP) surface that cannot be a Server Action — an inbound webhook or third-party callback — never as an internal Application Programming Interface (API) layer for our own screens. | PRD-025, NFR-005 |
+| React | 19.x | Renders the pipeline board, quote builder, and dynamic custom-field forms — Server Components by default, client components only where interaction requires it. | PRD-025, NFR-012 |
 | Node.js | 22 Long-Term Support (LTS) | Runtime for the Next.js server on Vercel. | NFR-005 |
 | Deno | Supabase-managed | Runtime for Supabase Edge Functions that run the Intake Receiver and Ingestion Worker. | PRD-001, PRD-030 |
 
@@ -39,7 +39,7 @@ plane, keeping one managed vendor for all persistence.
 
 | Service | Purpose | Notes |
 | --- | --- | --- |
-| Vercel | Hosts the Next.js app (SPA + JSON API), the authenticated Primary Application. | Deployed independently of the intake path; region co-located with the Supabase project to keep NFR-005 latency in budget. |
+| Vercel | Hosts the Next.js app, the authenticated Primary Application. | Deployed independently of the intake path; region co-located with the Supabase project to keep NFR-005 latency in budget. |
 | Supabase Platform | Managed Postgres, Auth, Storage, and Edge Functions. | Managed infrastructure underpins the availability (NFR-003) and durability (NFR-010) targets; Point-in-Time Recovery (PITR) is a required add-on (see §6). |
 | Supabase Edge Functions | Runs the public, unauthenticated **Intake Receiver** and the **Ingestion Worker**. | Deployed separately from the Vercel app so the receiver's uptime is independent of the authenticated application (NFR-002, NFR-003). Receiver persists raw payloads only — no business logic. Applies a coarse per-intake-key abuse ceiling (Postgres-native counter, §6) before enqueueing. |
 | `pg_cron` | Schedules the Ingestion Worker to drain `pgmq` on an interval. | Idempotent transform on submission id; bounded retries then dead-letter (PRD-001, PRD-030). |
@@ -54,9 +54,8 @@ plane, keeping one managed vendor for all persistence.
 
 | Library / tool | Version | Used for |
 | --- | --- | --- |
-| Tailwind CSS | 4.x | Utility styling system for all SPA screens. |
+| Tailwind CSS | 4.x | Utility styling system for all application screens. |
 | shadcn/ui | CLI-pinned (Radix-based) | Accessible component primitives; the Radix foundation carries the keyboard/ARIA behavior that WCAG 2.1 AA (NFR-012) depends on. |
-| TanStack Query (React Query) | 5.x | Client-side server-state cache for the queue, pipeline board, and quote views; keeps perceived interaction latency low (NFR-005). |
 | Zod | 3.x | Schema validation of record — one declaration yields the runtime check and the inferred TypeScript type. Backs custom-field validation against FieldDefinition (PRD-022), mandatory opportunity fields (PRD-012), input validation for the stored-XSS mitigation (ARCHITECTURE §7), and the intake payload schema shared by the Receiver check and the Worker transform. |
 | `@supabase/supabase-js` | 2.x | Postgres and Storage access. Authenticated user requests use the user-scoped client (session cookie via `@supabase/ssr`) so RLS applies. The service-role key is used **server-side only**, confined to the three system paths (Intake Receiver, Ingestion Worker, provisioning), and is **never shipped to the browser**. |
 | `@supabase/ssr` | 0.x | Supabase Auth session handling via httpOnly cookies in the Next.js server. |
@@ -77,7 +76,8 @@ plane, keeping one managed vendor for all persistence.
 
 | Choice | Alternatives rejected | Why |
 | --- | --- | --- |
-| Next.js on Vercel (SPA + JSON API in one app) | Server-rendered Multi-Page Application (MPA); split SPA + standalone API services | ARCHITECTURE §4 chose an SPA with the API as sole access authority; a modular monolith on one host keeps ops trivial at 10 concurrent users (NFR-004/005). |
+| Next.js on Vercel — Server Components for reads, Server Actions for writes | Single-Page Application (SPA) plus an internal JSON API layer; server-rendered Multi-Page Application (MPA); split SPA + standalone API services | Server Components + Server Actions is the App Router idiom. An SPA-plus-JSON-API on App Router is the bespoke arrangement: it discards Server Component data loading, requires a hand-built client fetch layer, and needs a client-side cache library to re-solve caching the framework already handles via `revalidatePath`. A modular monolith on one host keeps ops trivial at 10 concurrent users (NFR-004/005). The server remains sole access authority (PRD-025) — that requirement is about *where* authorization runs, not about the transport. |
+| No client-side server-state cache | TanStack Query (React Query) 5.x | Needed only for an SPA/JSON-API split. With Server Actions plus `revalidatePath`/`revalidateTag`, cache invalidation is the framework's job; a second cache would have to be kept coherent with it by hand. |
 | Supabase managed platform | Self-hosted Postgres + hand-rolled auth/storage; Firebase | One managed vendor delivers the NFR-003/010 posture for Postgres, Auth, Storage, and Edge Functions. Firebase's document model was rejected — the domain is a relational graph (ARCHITECTURE §2). |
 | Supabase Auth as-is (JSON Web Token (JWT), bcrypt) | Roll-own Argon2id session auth; external Identity Provider (IdP) / Auth0 | Reuse the managed auth already in the platform; bcrypt satisfies the NFR-007 fallback. The session posture is a cookie-carried JWT (httpOnly, via `@supabase/ssr`), reconciled into ARCHITECTURE §1/§4/§5/§7. External IdP stays rejected per ARCHITECTURE §4. |
 | Database-enforced RLS as the authorization locus + app-side route guards for admin config | App-layer-primary authz (service-role + manual `tenant_id` scoping on every query); browser-direct database access; RLS dropped entirely | ARCHITECTURE §4/§5/§7 makes Postgres RLS the enforcement locus: the caller's JWT (httpOnly cookie, via `@supabase/ssr`) reaches Postgres through PostgREST as the `authenticated` role, and RLS decides tenant scope + row ownership. App-side route guards sit in front only to gate admin-only configuration (PRD-026). App-layer-primary was rejected — a single forgotten `tenant_id` filter is a silent cross-tenant leak, whereas under RLS the same bug returns zero rows. Browser-direct DB access was rejected (PRD-025 requires the server as sole authority). Dropping RLS was rejected — it removes the non-bypassable tenant guarantee. The PRD-027 ownership matrix is expressed in RLS policies plus JWT role claims. |
@@ -91,7 +91,11 @@ plane, keeping one managed vendor for all persistence.
 - Node.js MUST be >= 22 LTS (Vercel runtime).
 - Next.js 16.x App Router only — the Pages Router MUST NOT be used.
 - React 19.x; TypeScript 5.x with `strict` enabled.
-- Tailwind CSS 4.x; TanStack Query 5.x.
+- Tailwind CSS 4.x. No client-side server-state cache library (§5).
+- Authenticated writes go through Server Actions. A route handler is permitted only for an
+  external HTTP surface that cannot be a Server Action (inbound webhook, third-party callback);
+  it MUST NOT be introduced as an internal API layer for the app's own screens. Adding one
+  requires updating this file first.
 - Supabase Postgres 17. The `pgmq` and `pg_cron` extensions MUST be enabled.
 - Point-in-Time Recovery (PITR) MUST be enabled on the Supabase project to meet NFR-010
   (Recovery Point Objective (RPO) <= 24 hours); default daily backups alone MAY NOT.

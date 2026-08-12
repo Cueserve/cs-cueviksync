@@ -18,6 +18,12 @@ follow, whoever or whatever writes it.
   `eslint.config.mjs`) the sole linter. Do not hand-format or add a competing tool. `next lint`
   was removed in Next 16 — lint via the ESLint Command-Line Interface (CLI).
 - **Routing:** Next.js **App Router only**. The Pages Router MUST NOT be introduced.
+- **Mutation path:** Server Actions are the sole path for authenticated writes. Server
+  Components read; Server Actions write. A route handler under `src/app/api/` is permitted
+  **only** for an external Hypertext Transfer Protocol (HTTP) surface that cannot be a Server
+  Action — an inbound webhook or a third-party callback — never as an internal Application
+  Programming Interface (API) layer for the app's own screens. There is no client-side
+  server-state cache library: `revalidatePath` / `revalidateTag` is the invalidation mechanism.
 - **Database access:** no Object-Relational Mapper (ORM). Reach Postgres through
   `@supabase/supabase-js` / PostgREST. Regenerate types with `supabase gen types typescript`
   after any schema change and use the generated types.
@@ -48,7 +54,7 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 [TECH-STACK.md](TECH-STACK.md):
 
 - **Browser-to-Postgres direct Create/Read/Update/Delete (CRUD)** — every authenticated read
-  and write MUST go through the server as sole access authority (PRD-025). The SPA holds no
+  and write MUST go through the server as sole access authority (PRD-025). The browser holds no
   access authority.
 - **App-layer-only tenant scoping** — never rely on a hand-written `tenant_id` filter as the
   sole guard on a user path. RLS is the enforcement locus; a forgotten filter must fail closed

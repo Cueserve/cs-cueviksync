@@ -29,8 +29,8 @@ When two sources disagree, the higher one wins:
 ## Scope boundaries
 
 **In bounds** without asking: implementing PRD-traced features inside an existing domain module,
-writing Vitest/Playwright tests, adding Zod schemas, wiring API route handlers behind the
-existing authorization path, and building SPA screens with shadcn/ui + Tailwind.
+writing Vitest tests, adding Zod schemas, writing Server Actions behind the existing
+authorization path, and building screens with shadcn/ui + Tailwind.
 
 **Out of bounds** without explicit human instruction — stop and get approval. This covers
 everything under **Off-limits** below, plus these design-level contracts that aren't file paths:

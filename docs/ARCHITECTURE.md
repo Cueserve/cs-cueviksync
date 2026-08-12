@@ -37,9 +37,9 @@ datastore:
 2. **Ingestion Worker** — a scheduled consumer (**pg_cron** or a scheduled Edge Function)
    that reads buffered submissions from the queue and transforms each into an Inquiry record,
    retrying on failure so nothing is dropped. (PRD-001, NFR-001)
-3. **Primary Application** — the Next.js modular monolith, exposing a Single-Page Application
-   (SPA) over a server JSON Application Programming Interface (API). It holds the domain modules
-   and the cross-cutting authorization layer. Authentication is delegated to
+3. **Primary Application** — the Next.js modular monolith. Server Components render and read;
+   Server Actions are the sole path for authenticated writes and carry the access-authority
+   layer. It holds the domain modules and the cross-cutting authorization layer. Authentication is delegated to
    **Supabase Auth (GoTrue)**; tenant scoping and row ownership are enforced in **Postgres by
    Row-Level Security (RLS)** on every authenticated user request, with the caller's Supabase
    JSON Web Token (JWT) carried in an httpOnly cookie and forwarded by the application to the
@@ -52,13 +52,13 @@ capture NFRs demand (NFR-002, NFR-003).
 ```mermaid
 flowchart TB
     form["web form submission"]
-    browser["Browser (SPA)"]
+    browser["Browser"]
 
     receiver["Intake Receiver<br/>Supabase Edge Function<br/>persist raw + ack · (public, unauthenticated)"]
     buffer[("Intake Buffer<br/>pgmq (Supabase Queues)")]
     worker["Ingestion Worker<br/>pg_cron consumer · transform → Inquiry"]
 
-    subgraph app["Primary Application (Next.js JSON API)"]
+    subgraph app["Primary Application (Next.js — Server Components + Server Actions)"]
         authz["Authorization — Supabase Auth · JWT → RLS · route guards<br/>cross-cutting: every request passes through"]
         modules["Capture &amp; Triage · CRM · Pipeline · Quoting · Configuration"]
         authz --> modules
@@ -101,8 +101,9 @@ Components:
   flat catalog. (PRD-016 – PRD-021)
 - **Configuration module** — admin-only custom fields, pipeline configuration, and catalog
   maintenance, all effective without a deploy. (PRD-011, PRD-021, PRD-022, PRD-026)
-- **SPA Client** — the browser application; renders records and dynamic custom-field forms
-  and consumes the JSON API. It never holds authority over access decisions. (PRD-025)
+- **Client components** — the interactive slice of the UI: dynamic custom-field forms, the
+  pipeline board, and the quote builder. They invoke Server Actions; they never hold authority
+  over access decisions. (PRD-025)
 - **Supabase Postgres** — one schema holding every tenant's records, configuration,
   per-entity history, and JSON custom-field values, isolated by `tenant_id` and enforced by
   RLS. (NFR-006, NFR-008)
@@ -224,7 +225,7 @@ trade-off it accepts. Technology selection is deferred to TECH-STACK.md.
 | Application topology | Modular monolith + intake receiver + worker (3 roles, 1 datastore) | Traces NFR-004/005/006. In-process module calls give low latency at 10 concurrent users and stay trivial to operate inside the 3-day onboarding budget. Rejected: distributed services per domain (network hops and distributed data add latency and ops load with no scale payoff at this size). Trade-off: module boundaries are a discipline, not network-enforced; scaling is coarse-grained. |
 | Tenant isolation | Shared schema, row-level `tenant_id`, enforced by Postgres RLS on authenticated user paths | Traces NFR-004/006, NFR-008. Instant shared-schema provisioning suits lean SMB onboarding; RLS makes tenant scope a database guarantee, so a forgotten filter on an authenticated user path cannot leak across tenants. Rejected: schema-per-tenant and database-per-tenant (heavier provisioning that fights NFR-004, with no requirement demanding physical isolation) and app-layer-only scope (a single unscoped query leaks). Trade-off: RLS keys on the request's Supabase JWT, so the three identity-less system paths — Intake Receiver, Ingestion Worker, tenant provisioning — run under the Supabase service-role (RLS bypassed) and MUST re-enforce tenant scope in code from a server-resolved `tenant_id`, never from caller input. |
 | Custom-field storage | Field-definition catalog + one JSON value column per record | Traces PRD-022, NFR-005. A per-tenant catalog drives dynamic forms and validation; values in a JSON column add fields with no deploy and no shared-schema pollution. Rejected: Entity-Attribute-Value tables (many joins and weak typing risk NFR-005 at 50k records) and per-tenant physical columns (incompatible with the shared schema). Trade-off: filtering/sorting on a custom field relies on JSON indexing, and type validation lives in the application layer. |
-| Client/server boundary | SPA + server JSON API; API is the sole access authority | Traces PRD-025, NFR-008, NFR-005. A rich client serves the quote builder, pipeline board, and dynamic custom-field forms; the API is the single server-side enforcement point. Rejected: server-rendered multi-page app (live totals and board interactions need extra work) — the SPA better fits the interaction model. Trade-off: heavier client and first-load bundle, and WCAG 2.1 AA (NFR-012) becomes a client responsibility. |
+| Client/server boundary | Server Components read, Server Actions write; the Server Action is the sole access authority for mutations | Traces PRD-025, NFR-008, NFR-005. Server Components render records and lists on the server; client components carry only the interaction that needs them (quote builder totals, board drag, dynamic custom-field forms) and invoke Server Actions to write. Rejected: an SPA over an internal JSON API — it discards Server Component data loading, needs a hand-built fetch layer, and requires a client cache library to re-solve invalidation the framework handles via `revalidatePath`. Also rejected: a server-rendered multi-page app (live totals and board interactions need extra work). Trade-off: interactive surfaces must be deliberately marked as client components, and WCAG 2.1 AA (NFR-012) remains a client responsibility wherever they are used. |
 | Authorization structure | Database-enforced RLS on every authenticated request (tenant scope + row ownership), fronted by Supabase-Auth authentication and app-side route guards; service-role confined to system paths | Traces PRD-023/025/026/027, NFR-008. The caller's JWT rides in an httpOnly cookie, which the app forwards to Postgres so RLS decides tenant scope and record ownership — the enforcement locus is the database, non-bypassable for user traffic; admin-only route guards sit in the app in front of RLS. Rejected: per-module ad-hoc app-layer checks (rules scatter and one omission is a leak). Trade-off: RLS policies plus JWT claims are now load-bearing and must be correct and fast; the service-role system paths are the only escape and are deliberately few, isolated (§7), and audited. |
 | Role model | Static four-role policy (PRD-024) expressed as JWT claims + RLS policies and app-side route guards | Traces PRD-024, PRD-027. Exactly four roles with fixed boundaries match the PRD with no gold-plating; the role travels as a JWT claim and is enforced by RLS at the row level and by admin-only route guards for configuration. Rejected: configurable per-tenant roles (capability beyond the PRD that enlarges the NFR-008 test surface). Trade-off: adding or changing a role later means editing code and RLS policies plus a deploy, not per-tenant configuration. |
 | Audit model | Per-entity history tables written in the same transaction | Traces PRD-013, PRD-019, NFR-011. Dedicated `StageHistory` and `QuoteStatusHistory` tables target exactly the two required audit points and directly serve "viewable on the opportunity". Rejected: a single generic audit log (reconstructing one entity's history means filtering a mixed log). Trade-off: auditing a new entity later means adding a table. |
@@ -264,7 +265,7 @@ Structural rules every contributor follows. These are how to build, not the code
   stage, owner, and next action MUST be blocked with a validation message. (PRD-012)
 - **Warn, don't block, on duplicates.** Contact/company creation runs duplicate detection at
   create time and warns; the user may proceed or cancel. (PRD-010)
-- **Server-side is the source of truth for access.** The SPA MUST NOT be the authority for
+- **Server-side is the source of truth for access.** The client MUST NOT be the authority for
   visibility or edit rights; a bypassed client MUST still be denied. (PRD-025, NFR-008)
 
 ## 6. Integration Points
@@ -311,7 +312,8 @@ TECH-STACK.md decision.
   deploying it as an Edge Function isolates it from the Next.js application so an anonymous
   flood cannot take the app down, and it only ever appends to the durable pgmq buffer.
   (NFR-002, NFR-003)
-- The **JSON API** requires an authenticated Supabase JWT for every record operation. (PRD-023)
+- Every **Server Action** requires an authenticated Supabase JWT for every record operation.
+  (PRD-023)
 - The **datastore, pgmq buffer, and pg_cron worker** are internal, reachable only by the
   application roles.
 - **Outbound email** is the only egress to a third party and carries only what a quote
@@ -321,7 +323,7 @@ TECH-STACK.md decision.
 flowchart TB
     subgraph untrusted["Untrusted — public internet"]
         form["Web form / webhook"]
-        browser["Browser SPA"]
+        browser["Browser"]
     end
 
     subgraph edge["Edge — public, unauthenticated"]
@@ -375,7 +377,7 @@ payment-card obligations are stated in PRD.md, and none are introduced here.
 - Cross-tenant access → Postgres RLS enforces tenant scope on every authenticated user path;
   service-role system paths re-scope in code. (PRD-025, NFR-008)
 - RBAC bypass via a tampered client → RLS and route guards enforce server-side on every
-  request; the SPA holds no authority. (NFR-008)
+  request; the client holds no authority. (NFR-008)
 - Credential theft → Supabase Auth bcrypt (≥ 12) hashing and TLS. (NFR-007, NFR-009)
 - Anonymous intake abuse on the public endpoint → intake isolated from the app and buffered;
   a payload size cap, schema check, and a coarse per-intake-key request ceiling apply at
@@ -406,7 +408,7 @@ How the structure meets each PRD.md non-functional requirement.
 | NFR-009 transport security | TLS 1.2+ terminated in front of every role; plaintext rejected. |
 | NFR-010 durability (RPO ≤24 h) | Supabase Postgres with a backup cadence ≤24 h; the durable pgmq buffer also protects in-flight submissions. |
 | NFR-011 auditability | Per-entity history tables written in the same transaction as the change. |
-| NFR-012 accessibility (WCAG 2.1 AA) | Capture and pipeline screens in the SPA built to meet WCAG 2.1 AA; verified by automated checks. |
+| NFR-012 accessibility (WCAG 2.1 AA) | Capture and pipeline screens built to meet WCAG 2.1 AA; verified by automated checks. |
 | NFR-013 recovery time (RTO ≤8 business hours) | Managed-infrastructure restore returns full service within 8 business hours; the isolated intake path and durable buffer let capture resume ahead of the full app. |
 
 Resilience overall comes from decoupling intake from processing (buffer + retries), a single
