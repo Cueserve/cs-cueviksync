@@ -55,9 +55,7 @@ function Sidebar({
           into mush or inventing a monogram the brand doesn't have -- the Topbar
           breadcrumb still says where you are. */}
       {logo ? (
-        <div className="mx-2.5 mb-5 hidden w-fit rounded-md bg-sidebar-logo-chip p-2 xl:block">
-          {logo}
-        </div>
+        <div className="mx-2.5 mb-8 mt-3 hidden xl:block">{logo}</div>
       ) : null}
       <nav aria-label="Main" className="flex flex-col gap-0.5">
         {items.map((item) => {

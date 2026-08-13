@@ -1,85 +1,67 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {
-  Building2,
-  Inbox,
-  KanbanSquare,
-  SlidersHorizontal,
-} from "lucide-react";
+import { LayoutDashboard, Layers, Calendar, Trash2 } from "lucide-react";
 
 import { Sidebar, type SidebarNavItem } from "@/components/layout/sidebar";
 import { Topbar, type Crumb } from "@/components/layout/topbar";
 import { UserMenu } from "@/components/layout/user-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  useTracker,
+  type UserRole,
+  ROLE_LABELS,
+} from "@/components/providers/tracker-provider";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 // The chrome from DESIGN-SYSTEM.md §9: a fixed 220px dark rail, a persistent
 // breadcrumb top bar, and an independently-scrolling content area. Client-side
 // because the rail needs the current pathname to mark the active item; the
 // pages it wraps stay Server Components.
-//
-// Structurally identical to RedyQuote's AppChrome with one deliberate
-// difference: there is no prototype layer here. RedyQuote wraps this in a
-// client-side `RoleProvider` and swaps `UserMenu` for a `PrototypeUserMenu`
-// that reads fixtures. CuevikSync was scaffolded after that pattern was
-// identified as delete-on-wiring scaffolding, so it goes straight to the
-// permanent `UserMenu` and takes its identity from props. Nothing to remove
-// later.
 
 const NAV: SidebarNavItem[] = [
   {
-    label: "Inquiries",
-    href: "/inquiries",
-    icon: <Inbox className="size-4" />,
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: <LayoutDashboard className="size-4" />,
   },
   {
-    label: "Contacts",
-    href: "/contacts",
-    icon: <Building2 className="size-4" />,
+    label: "Jobs Dashboard",
+    href: "/jobs",
+    icon: <Layers className="size-4" />,
   },
   {
-    label: "Pipeline",
-    href: "/pipeline",
-    icon: <KanbanSquare className="size-4" />,
+    label: "This Week Schedule",
+    href: "/schedule",
+    icon: <Calendar className="size-4" />,
   },
   {
-    label: "Settings",
-    href: "/settings",
-    icon: <SlidersHorizontal className="size-4" />,
+    label: "Waste & Rework",
+    href: "/waste",
+    icon: <Trash2 className="size-4" />,
   },
 ];
 
-// Settings appears for every role on purpose. ARCHITECTURE.md §7 classifies
-// tenant configuration as readable by any signed-in user and admin-only to
-// edit, so the honest design shows the configuration a user's work is governed
-// by and withholds the controls — not the page.
-
 const SECTION_LABEL: Record<string, string> = {
-  inquiries: "Inquiries",
-  contacts: "Contacts",
-  pipeline: "Pipeline",
-  settings: "Settings",
+  dashboard: "Dashboard",
+  jobs: "Jobs Dashboard",
+  schedule: "This Week Schedule",
+  waste: "Waste & Rework",
 };
 
-/** Resolves the trailing crumb for a detail route: an id in the URL should read
- *  as the thing it identifies, not as a uuid. Until routes fetch real records,
- *  a detail crumb falls back to the section's singular noun — never the raw id,
- *  which is both unreadable and a tenant-scoped value we should not print. */
+/** Resolves the trailing crumb for a detail route */
 function leafLabel(section: string, id: string) {
   if (id === "new") {
     return (
       {
-        inquiries: "New Inquiry",
-        contacts: "New Contact",
-        pipeline: "New Opportunity",
+        jobs: "New Job",
       }[section] ?? "New"
     );
   }
   return (
     {
-      inquiries: "Inquiry",
-      contacts: "Contact",
-      pipeline: "Opportunity",
+      jobs: "Job Detail",
     }[section] ?? "Detail"
   );
 }
@@ -108,6 +90,7 @@ function crumbsFor(pathname: string): Crumb[] {
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const activeHref = `/${pathname.split("/").filter(Boolean)[0] ?? ""}`;
+  const { selectedRole, setSelectedRole } = useTracker();
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -126,16 +109,14 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           items={NAV}
           activeHref={activeHref}
           logo={
-            // A text wordmark, not an `Image`. There is no CuevikSync logo file
-            // yet, and a placeholder raster would be worse than type: it would
-            // need `sizes`/`priority` tuning for an asset that is going to be
-            // replaced, and a wrong-looking logo reads as a bug where a
-            // wordmark reads as a decision. Swap this for `next/image` when a
-            // real asset exists — the chip around it already assumes an opaque
-            // mark (globals.css --sidebar-logo-chip).
-            <span className="text-lg font-semibold tracking-tight text-foreground">
-              CuevikSync
-            </span>
+            <Image
+              src="/logo/CuevikSync-Logo_White_Horizontal.png"
+              alt="CuevikSync"
+              width={160}
+              height={36}
+              priority
+              className="h-9 w-auto"
+            />
           }
         />
         <div className="flex min-w-0 flex-1 flex-col">
@@ -148,8 +129,30 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
             right={
               <UserMenu
                 name="Not signed in"
-                roleLabel="No session"
+                roleLabel={`Role: ${ROLE_LABELS[selectedRole]}`}
                 signOutDisabledReason="Authentication is not wired yet."
+                roleSlot={
+                  <>
+                    <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                      Switch Active Role
+                    </div>
+                    {(
+                      ["admin", "manager", "operator", "rep"] as UserRole[]
+                    ).map((r) => (
+                      <DropdownMenuItem
+                        key={r}
+                        onClick={() => setSelectedRole(r)}
+                        className={
+                          selectedRole === r
+                            ? "font-semibold bg-accent text-accent-foreground"
+                            : ""
+                        }
+                      >
+                        {ROLE_LABELS[r]}
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                }
               />
             }
           />

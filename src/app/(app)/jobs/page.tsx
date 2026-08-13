@@ -1,0 +1,914 @@
+"use client";
+
+import React, { useState, useRef } from "react";
+import {
+  Plus,
+  Trash2,
+  Edit2,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  Package,
+} from "lucide-react";
+import { PageBody, PageHeader } from "@/components/layout/page-header";
+import {
+  useTracker,
+  type JobItem,
+} from "@/components/providers/tracker-provider";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import {
+  getWeekEndingMonday,
+  getTurnaroundDays,
+  isOnTime,
+  formatDateUS,
+} from "@/lib/date-utils";
+import { TableEmptyState } from "@/components/ui/table-empty-state";
+import { MetricCard } from "@/components/ui/metric-card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogBody,
+} from "@/components/ui/dialog";
+
+export default function JobMasterPage() {
+  const { jobs, addJobItem, updateJobItem, deleteJobItem, selectedRole } =
+    useTracker();
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<JobItem | null>(null);
+
+  // Drag to scroll states
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrollRef.current) return;
+    setIsMouseDown(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isMouseDown || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Drag speed multiplier
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const [selectedTab, setSelectedTab] = useState<
+    "all" | "pending" | "completed"
+  >("all");
+
+  const parentJobs = jobs.filter((j) => j.lineNo === 1);
+  const totalJobsCount = parentJobs.length;
+  const completedJobsCount = parentJobs.filter((j) => j.completedDate).length;
+  const pendingJobsCount = parentJobs.filter((j) => !j.completedDate).length;
+  const overdueJobsCount = parentJobs.filter(
+    (j) =>
+      !j.completedDate &&
+      j.promisedDate &&
+      new Date() > new Date(j.promisedDate),
+  ).length;
+
+  // Form states
+  const [jobNo, setJobNo] = useState("");
+  const [itemDescription, setItemDescription] = useState("");
+  const [quantity, setQuantity] = useState(0);
+  const [orderDate, setOrderDate] = useState("");
+  const [promisedDate, setPromisedDate] = useState("");
+  const [completedDate, setCompletedDate] = useState("");
+  const [deliveredDate, setDeliveredDate] = useState("");
+  const [overdueReason, setOverdueReason] = useState("");
+  const [inThisWeek, setInThisWeek] = useState(false);
+  const [materialShortage, setMaterialShortage] = useState("");
+  const [equipmentIssue, setEquipmentIssue] = useState("");
+  const [invoiceValue, setInvoiceValue] = useState(0);
+
+  const canEdit =
+    selectedRole === "admin" ||
+    selectedRole === "operator" ||
+    selectedRole === "manager";
+
+  // Calculate missing dates counter
+  const missingDatesCount = jobs.filter(
+    (j) => !j.orderDate || !j.promisedDate,
+  ).length;
+
+  const handleOpenAdd = () => {
+    setJobNo("");
+    setItemDescription("");
+    setQuantity(100);
+    setOrderDate(new Date().toISOString().split("T")[0]);
+    setPromisedDate("");
+    setCompletedDate("");
+    setDeliveredDate("");
+    setOverdueReason("");
+    setInThisWeek(false);
+    setMaterialShortage("");
+    setEquipmentIssue("");
+    setInvoiceValue(0);
+    setEditingJob(null);
+    setIsAddOpen(true);
+  };
+
+  const handleOpenEdit = (job: JobItem) => {
+    setEditingJob(job);
+    setJobNo(job.jobNo);
+    setItemDescription(job.itemDescription);
+    setQuantity(job.quantity);
+    setOrderDate(job.orderDate);
+    setPromisedDate(job.promisedDate);
+    setCompletedDate(job.completedDate);
+    setDeliveredDate(job.deliveredDate);
+    setOverdueReason(job.overdueReason);
+    setInThisWeek(job.inThisWeek);
+    setMaterialShortage(job.materialShortage);
+    setEquipmentIssue(job.equipmentIssue);
+    setInvoiceValue(job.invoiceValue);
+    setIsAddOpen(true);
+  };
+
+  const isSubJob = editingJob
+    ? editingJob.lineNo > 1
+    : jobNo
+      ? jobs.some(
+          (j) => j.jobNo.trim().toUpperCase() === jobNo.trim().toUpperCase(),
+        )
+      : false;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!jobNo || !itemDescription) return;
+
+    const data = {
+      jobNo,
+      itemDescription,
+      quantity: Number(quantity),
+      orderDate,
+      promisedDate,
+      completedDate,
+      deliveredDate,
+      overdueReason,
+      inThisWeek,
+      materialShortage,
+      equipmentIssue,
+      invoiceValue: isSubJob ? 0 : Number(invoiceValue),
+      spoilagePercent: editingJob ? editingJob.spoilagePercent : 0,
+      reprintRequired: editingJob ? editingJob.reprintRequired : false,
+    };
+
+    if (editingJob) {
+      updateJobItem(editingJob.id, data);
+    } else {
+      addJobItem(data);
+    }
+    setIsAddOpen(false);
+  };
+
+  const filteredJobs = jobs.filter((job) => {
+    if (selectedTab === "all") return true;
+    if (selectedTab === "pending") {
+      return !job.completedDate && job.lineNo === 1;
+    }
+    if (selectedTab === "completed") {
+      return !!job.completedDate && job.lineNo === 1;
+    }
+    return true;
+  });
+
+  return (
+    <PageBody>
+      <div className="flex items-center justify-between">
+        <PageHeader
+          title="Jobs Dashboard"
+          description="Centralized pipeline view. Switch tabs to view All, Pending, or Completed print orders. (Note: Sub-job row dates, invoicing, and scheduling are locked to the parent item.)"
+        />
+        {canEdit && (
+          <Button
+            onClick={handleOpenAdd}
+            className="gap-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shrink-0"
+          >
+            <Plus className="size-4" /> Add Item Row
+          </Button>
+        )}
+      </div>
+
+      {/* KPI Metrics Cards */}
+      <div className="grid gap-4 md:grid-cols-4 mt-6">
+        <MetricCard
+          title="Total Jobs"
+          value={totalJobsCount}
+          icon={<Package className="size-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Pending Jobs"
+          value={pendingJobsCount}
+          icon={<Clock className="size-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Completed Jobs"
+          value={completedJobsCount}
+          icon={<CheckCircle className="size-4 text-success" />}
+        />
+        <MetricCard
+          title="Overdue Jobs"
+          value={overdueJobsCount}
+          icon={<AlertTriangle className="size-4 text-destructive" />}
+          valueClassName={
+            overdueJobsCount > 0 ? "text-destructive font-bold" : ""
+          }
+        />
+      </div>
+
+      {/* Status Tabs */}
+      <div className="flex items-center justify-between border-b border-border mt-8">
+        <div className="flex">
+          <button
+            onClick={() => setSelectedTab("all")}
+            className={cn(
+              "px-4 py-2 text-sm font-semibold transition-colors border-b-2 -mb-[2px]",
+              selectedTab === "all"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground",
+            )}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setSelectedTab("pending")}
+            className={cn(
+              "px-4 py-2 text-sm font-semibold transition-colors border-b-2 -mb-[2px]",
+              selectedTab === "pending"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Pending
+          </button>
+          <button
+            onClick={() => setSelectedTab("completed")}
+            className={cn(
+              "px-4 py-2 text-sm font-semibold transition-colors border-b-2 -mb-[2px]",
+              selectedTab === "completed"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Completed
+          </button>
+        </div>
+
+        <div
+          className={cn(
+            "px-3 py-1 rounded-full border font-semibold flex items-center gap-1.5 text-xs mb-1.5",
+            missingDatesCount > 0
+              ? "bg-destructive/10 text-destructive border-destructive/20"
+              : "bg-muted text-muted-foreground border-border",
+          )}
+        >
+          <AlertTriangle className="size-3.5" />
+          Rows missing dates:{" "}
+          <span className="font-mono">{missingDatesCount}</span>
+        </div>
+      </div>
+
+      <div
+        ref={scrollRef}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        className={cn(
+          "mt-6 overflow-x-auto rounded-lg border border-border bg-card select-none",
+          isMouseDown ? "cursor-grabbing" : "cursor-grab",
+        )}
+      >
+        <table className="w-full border-collapse text-left text-sm whitespace-nowrap">
+          <thead className="bg-muted text-muted-foreground">
+            <tr>
+              {selectedTab === "all" && (
+                <>
+                  <th className="p-4 font-semibold sticky left-0 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]">
+                    Job #
+                  </th>
+                  <th className="p-4 font-semibold">Line #</th>
+                  <th className="p-4 font-semibold">Item Description</th>
+                  <th className="p-4 font-semibold">Qty</th>
+                  <th className="p-4 font-semibold">Status</th>
+                  <th className="p-4 font-semibold">Order Date</th>
+                  <th className="p-4 font-semibold">Promised Date</th>
+                  <th className="p-4 font-semibold">Completed Date</th>
+                  <th className="p-4 font-semibold">Delivered Date</th>
+                  <th className="p-4 font-semibold">Turnaround (Days)</th>
+                  <th className="p-4 font-semibold">Days vs Promised</th>
+                  <th className="p-4 font-semibold">On-Time? (Y/N)</th>
+                  <th className="p-4 font-semibold">Overdue Flag</th>
+                  <th className="p-4 font-semibold">Days Overdue</th>
+                  <th className="p-4 font-semibold">Material Shortage?</th>
+                  <th className="p-4 font-semibold">Equipment Issue</th>
+                  <th className="p-4 font-semibold">Overdue Reason</th>
+                  <th className="p-4 font-semibold">Invoice Value</th>
+                  <th className="p-4 font-semibold">Items in Job</th>
+                  <th className="p-4 font-semibold">Total Qty (Job)</th>
+                  <th className="p-4 font-semibold">Scheduled This Week</th>
+                  <th className="p-4 font-semibold">Week Ending (Mon)</th>
+                </>
+              )}
+              {selectedTab === "pending" && (
+                <>
+                  <th className="p-4 font-semibold">Job #</th>
+                  <th className="p-4 font-semibold">Item Description</th>
+                  <th className="p-4 font-semibold">Order Date</th>
+                  <th className="p-4 font-semibold">Promised Date</th>
+                  <th className="p-4 font-semibold">Overdue Flag</th>
+                  <th className="p-4 font-semibold">Days Overdue</th>
+                  <th className="p-4 font-semibold">Reason (if overdue)</th>
+                </>
+              )}
+              {selectedTab === "completed" && (
+                <>
+                  <th className="p-4 font-semibold">Job #</th>
+                  <th className="p-4 font-semibold">Item Description</th>
+                  <th className="p-4 font-semibold">Week Ending (Mon)</th>
+                  <th className="p-4 font-semibold">Order Date</th>
+                  <th className="p-4 font-semibold">Promised Date</th>
+                  <th className="p-4 font-semibold">Completed Date</th>
+                  <th className="p-4 font-semibold">Delivered Date</th>
+                  <th className="p-4 font-semibold">Turnaround (Days)</th>
+                  <th className="p-4 font-semibold">On-Time? (Y/N)</th>
+                  <th className="p-4 font-semibold">Invoice Value</th>
+                </>
+              )}
+              {canEdit && (
+                <th className="p-4 font-semibold text-right sticky right-0 bg-muted">
+                  Actions
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {filteredJobs.length === 0 ? (
+              <TableEmptyState
+                colSpan={
+                  selectedTab === "all"
+                    ? 23
+                    : selectedTab === "pending"
+                      ? 8
+                      : 10
+                }
+                message="No jobs match the active filter."
+              />
+            ) : (
+              filteredJobs.map((job) => {
+                const hasMissingDates = !job.orderDate || !job.promisedDate;
+
+                // Dynamic calculations
+                const sameJobItems = jobs.filter((j) => j.jobNo === job.jobNo);
+                const itemsInJob = sameJobItems.length;
+                const totalQty = sameJobItems.reduce(
+                  (sum, j) => sum + j.quantity,
+                  0,
+                );
+                const isCompleted = !!job.completedDate;
+
+                // Excel rule: Parent line (lineNo === 1) shows aggregate columns
+                const isParent = job.lineNo === 1;
+
+                const statusStr = isParent
+                  ? isCompleted
+                    ? "Completed"
+                    : "Pending"
+                  : "";
+                const weekEndingStr =
+                  isParent && isCompleted
+                    ? formatDateUS(getWeekEndingMonday(job.completedDate))
+                    : "";
+
+                let turnaroundDaysVal: string | number = "";
+                let daysVsPromisedVal: string | number = "";
+                let onTimeVal = "";
+
+                if (isParent && isCompleted) {
+                  turnaroundDaysVal = getTurnaroundDays(
+                    job.orderDate,
+                    job.completedDate,
+                  );
+                  if (job.deliveredDate) {
+                    const promiseDiff =
+                      new Date(job.deliveredDate).getTime() -
+                      new Date(job.promisedDate).getTime();
+                    const diffDays = Math.round(
+                      promiseDiff / (1000 * 60 * 60 * 24),
+                    );
+                    daysVsPromisedVal = diffDays <= 0 ? "-" : diffDays;
+                    onTimeVal = isOnTime(job.promisedDate, job.deliveredDate)
+                      ? "Y"
+                      : "N";
+                  } else {
+                    daysVsPromisedVal = "-";
+                    onTimeVal = "";
+                  }
+                }
+
+                const isOverdue =
+                  isParent &&
+                  !isCompleted &&
+                  job.promisedDate &&
+                  new Date() > new Date(job.promisedDate);
+                const overdueFlagVal = isOverdue ? "Overdue" : "";
+
+                let daysOverdueVal: string | number = "";
+                if (isOverdue) {
+                  const overdueDiff =
+                    new Date().getTime() - new Date(job.promisedDate).getTime();
+                  daysOverdueVal = Math.max(
+                    0,
+                    Math.round(overdueDiff / (1000 * 60 * 60 * 24)),
+                  );
+                }
+
+                const scheduledThisWeekVal =
+                  isParent && job.inThisWeek ? "Y" : "";
+
+                return (
+                  <tr
+                    key={job.id}
+                    className={cn(
+                      "group hover:bg-muted/40 transition-colors",
+                      hasMissingDates && "bg-destructive/5",
+                    )}
+                  >
+                    {selectedTab === "all" && (
+                      <>
+                        <td
+                          className={cn(
+                            "p-4 font-medium sticky left-0 bg-card group-hover:bg-muted/50 transition-colors z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]",
+                            hasMissingDates && "text-destructive font-bold",
+                          )}
+                        >
+                          {job.jobNo}
+                        </td>
+                        <td className="p-4 font-mono">{job.lineNo}</td>
+                        <td className="p-4">{job.itemDescription}</td>
+                        <td className="p-4 font-mono">
+                          {job.quantity.toLocaleString()}
+                        </td>
+                        <td className="p-4">
+                          {!isParent ? (
+                            <span className="text-muted-foreground">-</span>
+                          ) : statusStr === "Completed" ? (
+                            <span className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-1 text-xs font-semibold text-success">
+                              Completed
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded bg-warning/10 px-2 py-1 text-xs font-semibold text-warning">
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                        <td
+                          className={cn(
+                            "p-4 font-mono",
+                            !job.orderDate &&
+                              "bg-destructive/10 text-destructive font-semibold",
+                          )}
+                        >
+                          {job.orderDate
+                            ? formatDateUS(job.orderDate)
+                            : "MISSING"}
+                        </td>
+                        <td
+                          className={cn(
+                            "p-4 font-mono",
+                            !job.promisedDate &&
+                              "bg-destructive/10 text-destructive font-semibold",
+                          )}
+                        >
+                          {job.promisedDate
+                            ? formatDateUS(job.promisedDate)
+                            : "MISSING"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent
+                            ? formatDateUS(job.completedDate) || "-"
+                            : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent
+                            ? formatDateUS(job.deliveredDate) || "-"
+                            : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent ? turnaroundDaysVal || "-" : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent ? daysVsPromisedVal || "-" : "-"}
+                        </td>
+                        <td className="p-4 font-semibold">
+                          {!isParent ? (
+                            <span className="font-normal text-muted-foreground">
+                              -
+                            </span>
+                          ) : onTimeVal === "Y" ? (
+                            <span className="text-success">{onTimeVal}</span>
+                          ) : onTimeVal === "N" ? (
+                            <span className="text-destructive">
+                              {onTimeVal}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td className="p-4 text-destructive font-semibold">
+                          {isParent ? overdueFlagVal || "-" : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent ? daysOverdueVal || "-" : "-"}
+                        </td>
+                        <td className="p-4 text-xs font-medium text-warning">
+                          {job.materialShortage || "-"}
+                        </td>
+                        <td className="p-4 text-xs font-medium text-destructive">
+                          {job.equipmentIssue || "-"}
+                        </td>
+                        <td className="p-4 text-xs text-destructive font-medium">
+                          {isParent ? job.overdueReason || "-" : "-"}
+                        </td>
+                        <td className="p-4 font-mono font-medium">
+                          {isParent
+                            ? `$${job.invoiceValue.toLocaleString()}`
+                            : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent ? itemsInJob : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent ? totalQty.toLocaleString() : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent ? scheduledThisWeekVal || "-" : "-"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {isParent ? weekEndingStr || "-" : "-"}
+                        </td>
+                      </>
+                    )}
+
+                    {selectedTab === "pending" && (
+                      <>
+                        <td className="p-4 font-medium">{job.jobNo}</td>
+                        <td className="p-4">{job.itemDescription}</td>
+                        <td className="p-4 font-mono">
+                          {job.orderDate
+                            ? formatDateUS(job.orderDate)
+                            : "MISSING"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {job.promisedDate
+                            ? formatDateUS(job.promisedDate)
+                            : "MISSING"}
+                        </td>
+                        <td className="p-4">
+                          {isOverdue && (
+                            <span className="inline-flex items-center rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
+                              Overdue
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 font-mono font-semibold text-destructive">
+                          {daysOverdueVal || "-"}
+                        </td>
+                        <td className="p-4 text-xs text-destructive font-medium">
+                          {job.overdueReason || "-"}
+                        </td>
+                      </>
+                    )}
+
+                    {selectedTab === "completed" && (
+                      <>
+                        <td className="p-4 font-medium">{job.jobNo}</td>
+                        <td className="p-4">{job.itemDescription}</td>
+                        <td className="p-4 font-mono">{weekEndingStr}</td>
+                        <td className="p-4 font-mono">
+                          {job.orderDate
+                            ? formatDateUS(job.orderDate)
+                            : "MISSING"}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {job.promisedDate
+                            ? formatDateUS(job.promisedDate)
+                            : "MISSING"}
+                        </td>
+                        <td className="p-4 font-mono text-success font-semibold">
+                          {formatDateUS(job.completedDate)}
+                        </td>
+                        <td className="p-4 font-mono">
+                          {formatDateUS(job.deliveredDate) || "-"}
+                        </td>
+                        <td className="p-4 font-mono">{turnaroundDaysVal}</td>
+                        <td className="p-4">
+                          {onTimeVal === "Y" && (
+                            <span className="inline-flex items-center rounded bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
+                              Y
+                            </span>
+                          )}
+                          {onTimeVal === "N" && (
+                            <span className="inline-flex items-center rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
+                              N
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 font-mono font-medium">
+                          ${job.invoiceValue.toLocaleString()}
+                        </td>
+                      </>
+                    )}
+
+                    {canEdit && (
+                      <td className="p-4 text-right sticky right-0 bg-card group-hover:bg-muted/40 transition-colors shadow-[-1px_0_0_rgba(0,0,0,0.1)]">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenEdit(job)}
+                            className="size-8"
+                          >
+                            <Edit2 className="size-4" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteJobItem(job.id)}
+                            className="size-8 text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="size-4" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Dialog for Add/Edit */}
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <form onSubmit={handleSubmit}>
+            <DialogHeader>
+              <DialogTitle>
+                {editingJob ? "Edit Item Row" : "Add Item Row"}
+              </DialogTitle>
+            </DialogHeader>
+            <DialogBody className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="jobNo"
+                  className="text-right text-sm font-medium"
+                >
+                  Job #
+                </label>
+                <Input
+                  id="jobNo"
+                  value={jobNo}
+                  onChange={(e) => setJobNo(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                  placeholder="e.g. J-1005"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="desc"
+                  className="text-right text-sm font-medium"
+                >
+                  Item Desc
+                </label>
+                <Input
+                  id="desc"
+                  value={itemDescription}
+                  onChange={(e) => setItemDescription(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                  placeholder="e.g. Letterheads - Nova Legal, 100gsm"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="qty" className="text-right text-sm font-medium">
+                  Quantity
+                </label>
+                <Input
+                  id="qty"
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring font-mono"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="orderDate"
+                  className="text-right text-sm font-medium"
+                >
+                  Order Date
+                </label>
+                <Input
+                  id="orderDate"
+                  type="date"
+                  value={orderDate}
+                  onChange={(e) => setOrderDate(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="promisedDate"
+                  className="text-right text-sm font-medium"
+                >
+                  Promise Date
+                </label>
+                <Input
+                  id="promisedDate"
+                  type="date"
+                  value={promisedDate}
+                  onChange={(e) => setPromisedDate(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="completedDate"
+                  className="text-right text-sm font-medium"
+                >
+                  Comp. Date
+                </label>
+                <Input
+                  id="completedDate"
+                  type="date"
+                  value={completedDate}
+                  onChange={(e) => setCompletedDate(e.target.value)}
+                  disabled={isSubJob}
+                  className={cn(
+                    "col-span-3 border-input focus-visible:ring-ring",
+                    isSubJob
+                      ? "bg-muted cursor-not-allowed opacity-60"
+                      : "bg-card",
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="deliveredDate"
+                  className="text-right text-sm font-medium"
+                >
+                  Deliv. Date
+                </label>
+                <Input
+                  id="deliveredDate"
+                  type="date"
+                  value={deliveredDate}
+                  onChange={(e) => setDeliveredDate(e.target.value)}
+                  disabled={isSubJob}
+                  className={cn(
+                    "col-span-3 border-input focus-visible:ring-ring",
+                    isSubJob
+                      ? "bg-muted cursor-not-allowed opacity-60"
+                      : "bg-card",
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="overdueReason"
+                  className="text-right text-sm font-medium"
+                >
+                  Overdue Reason
+                </label>
+                <Input
+                  id="overdueReason"
+                  value={overdueReason}
+                  onChange={(e) => setOverdueReason(e.target.value)}
+                  disabled={isSubJob}
+                  className={cn(
+                    "col-span-3 border-input focus-visible:ring-ring",
+                    isSubJob
+                      ? "bg-muted cursor-not-allowed opacity-60"
+                      : "bg-card",
+                  )}
+                  placeholder="e.g. Courier delay"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label className="text-right text-sm font-medium">
+                  Schedule?
+                </label>
+                <div className="col-span-3 flex items-center gap-2">
+                  <Checkbox
+                    id="inThisWeek"
+                    checked={inThisWeek}
+                    disabled={isSubJob}
+                    onCheckedChange={(checked) => setInThisWeek(!!checked)}
+                  />
+                  <label
+                    htmlFor="inThisWeek"
+                    className="text-xs text-muted-foreground select-none"
+                  >
+                    In This Week? (Y/N) {isSubJob && "(Controlled by parent)"}
+                  </label>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="shortage"
+                  className="text-right text-sm font-medium"
+                >
+                  Material Notes
+                </label>
+                <Input
+                  id="shortage"
+                  value={materialShortage}
+                  onChange={(e) => setMaterialShortage(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                  placeholder="e.g. Shortage info"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="issue"
+                  className="text-right text-sm font-medium"
+                >
+                  Equip. Issues
+                </label>
+                <Input
+                  id="issue"
+                  value={equipmentIssue}
+                  onChange={(e) => setEquipmentIssue(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                  placeholder="e.g. Machine error"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="invoice"
+                  className="text-right text-sm font-medium"
+                >
+                  Invoice Value
+                </label>
+                <Input
+                  id="invoice"
+                  type="number"
+                  value={invoiceValue}
+                  onChange={(e) => setInvoiceValue(Number(e.target.value))}
+                  disabled={isSubJob}
+                  className={cn(
+                    "col-span-3 border-input focus-visible:ring-ring font-mono",
+                    isSubJob
+                      ? "bg-muted cursor-not-allowed opacity-60"
+                      : "bg-card",
+                  )}
+                />
+              </div>
+            </DialogBody>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              >
+                Save changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </PageBody>
+  );
+}
