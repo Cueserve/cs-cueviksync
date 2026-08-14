@@ -143,8 +143,6 @@ Read these before creating any new feature, route, action, or component.
 
 ## 5. Naming Conventions
 
-Shared verbatim with `RedyQuote:docs/PROJECT-STRUCTURE.md` §5 except where noted.
-
 - **Routes** — kebab-case folder segments under `src/app/`; `page.tsx` for the view,
   `layout.tsx` for shared chrome. Route groups `(auth)` / `(app)` separate the pre-session and
   authenticated surfaces without affecting the URL.

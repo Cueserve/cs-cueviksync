@@ -67,11 +67,10 @@ section - it is a snapshot, and a stale one is worse than none.
 - **Shell and token layer** - `src/app/globals.css` (three-tier tokens, enforced by
   `eslint.config.mjs`), the root layout, `global-error.tsx`, the `(app)` shell with
   sidebar/topbar/user-menu, `(auth)/login`, a placeholder `/inquiries` route, and the 18
-  primitives in `src/components/ui/`. All 18 are byte-identical to RedyQuote's.
+  primitives in `src/components/ui/`.
 - **Supabase plumbing, unwired to any UI** - `src/lib/supabase/` (browser, server, service-role,
   session refresh), `src/proxy.ts`, `src/lib/config.ts` and `src/lib/config.server.ts`.
-- **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and a CI workflow
-  byte-identical to RedyQuote's.
+- **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and a CI workflow.
 - **A linked Supabase project** (`tdxojcqkiozmgjkrbypm`), with two applied migrations:
   `0001_extensions_and_types.sql` (pgcrypto, the four-role `user_role` enum) and
   `0002_tenants_profiles_and_auth.sql` (`tenants`, `profiles` with `tenant_id`, `is_admin()`,
@@ -231,8 +230,8 @@ comes from there. Never a hex literal, never a raw Tailwind color class (`bg-sla
 a font other than the two declared in `src/lib/fonts.ts`. Adding a token is a DESIGN-SYSTEM.md
 change requiring approval.
 
-**The Tier-1 brand anchors are provisional** (DESIGN-SYSTEM.md §1). Everything below Tier 1 is
-settled and shared verbatim with RedyQuote.
+**The Tier-1 brand anchors are the ratified Cueserve logo colors** (DESIGN-SYSTEM.md §1).
+Everything below Tier 1 is settled.
 
 **shadcn/ui builds it.** This is a shadcn project ([components.json](components.json), style
 `radix-nova`, `cssVariables: true`), and the 18 primitives in `src/components/ui/` are shadcn
@@ -245,8 +244,7 @@ components already adapted to our tokens.
   anyway: a hardcoded color in generated output is a bug, not a starting point.
 - **`src/components/ui/` must stay app-agnostic.** `eslint.config.mjs` bans imports from
   `@/server/*`, `@/lib/supabase/*`, and `@/app/*` there. It is the extraction boundary for a
-  future shared Cuevik library, and it is byte-identical to RedyQuote's - a change here is a
-  change to both.
+  future shared Cuevik library.
 
 **Ship gate:** `npm run lint` and `npm run typecheck`. A suggestion that fails lint was never a
 valid suggestion.
