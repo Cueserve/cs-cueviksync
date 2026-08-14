@@ -889,7 +889,7 @@ export default function JobMasterPage() {
                   htmlFor="shortage"
                   className="text-right text-sm font-medium"
                 >
-                  Material Notes
+                  Material Shortage
                 </label>
                 <Input
                   id="shortage"
