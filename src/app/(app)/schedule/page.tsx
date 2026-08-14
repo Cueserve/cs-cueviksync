@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
+import { cn } from "@/lib/utils";
 import {
   useTracker,
   type JobItem,
@@ -26,6 +27,35 @@ export default function ThisWeekSchedulePage() {
 
   const [activeJob, setActiveJob] = useState<JobItem | null>(null);
 
+  // Drag to scroll states
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrollRef.current) return;
+    setIsMouseDown(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isMouseDown || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Drag speed multiplier
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
   const canEdit =
     selectedRole === "admin" ||
     selectedRole === "manager" ||
@@ -43,8 +73,22 @@ export default function ThisWeekSchedulePage() {
         description="Read-only view. Flag a job 'Y' in the 'In This Week?' column on Job Master — every item line of that job appears here."
       />
 
-      <div className="mt-6 bg-card rounded-md">
-        <Table caption="This week's scheduled jobs">
+      <div className="mt-6">
+        <Table
+          caption="This week's scheduled jobs"
+          containerRef={scrollRef}
+          containerProps={{
+            onMouseDown: handleMouseDown,
+            onMouseLeave: handleMouseLeave,
+            onMouseUp: handleMouseUp,
+            onMouseMove: handleMouseMove,
+            className: cn(
+              "bg-card select-none rounded-md",
+              isMouseDown ? "cursor-grabbing" : "cursor-grab",
+            ),
+          }}
+          className="whitespace-nowrap"
+        >
           <TableHeader>
             <TableRow>
               <TableHead>Job #</TableHead>
