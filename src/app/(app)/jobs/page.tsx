@@ -163,7 +163,7 @@ export default function JobMasterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!jobNo || !itemDescription) return;
+    if (!jobNo || !itemDescription || !orderDate || !promisedDate) return;
 
     const data = {
       jobNo,
@@ -742,13 +742,14 @@ export default function JobMasterPage() {
                   htmlFor="orderDate"
                   className="text-right text-sm font-medium"
                 >
-                  Order Date
+                  Order Date <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="orderDate"
                   type="date"
                   value={orderDate}
                   onChange={(e) => setOrderDate(e.target.value)}
+                  required
                   className="col-span-3 bg-card border-input focus-visible:ring-ring"
                 />
               </div>
@@ -757,13 +758,14 @@ export default function JobMasterPage() {
                   htmlFor="promisedDate"
                   className="text-right text-sm font-medium"
                 >
-                  Promise Date
+                  Promise Date <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="promisedDate"
                   type="date"
                   value={promisedDate}
                   onChange={(e) => setPromisedDate(e.target.value)}
+                  required
                   className="col-span-3 bg-card border-input focus-visible:ring-ring"
                 />
               </div>
