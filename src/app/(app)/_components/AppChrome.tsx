@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { CuevikSyncWordmark } from "@/components/brand-logo";
-import { Sidebar, type SidebarNavItem } from "@/components/layout/sidebar";
+import { Sidebar, type SidebarNavGroup } from "@/components/layout/sidebar";
 import { Topbar, type Crumb } from "@/components/layout/topbar";
 import { UserMenu } from "@/components/layout/user-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,31 +28,50 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // permanent `UserMenu` and takes its identity from props. Nothing to remove
 // later.
 
-const NAV: SidebarNavItem[] = [
+// Grouped by where a record sits in the inquiry-to-revenue funnel
+// (PRODUCT.md §4): Sales covers everything before an opportunity is Won,
+// Jobs covers execution after. Settings is its own group rather than folded
+// into either -- it's configuration, not a pipeline stage.
+const NAV_GROUPS: SidebarNavGroup[] = [
   {
-    label: "Inquiries",
-    href: "/inquiries",
-    icon: <Inbox className="size-4" />,
-  },
-  {
-    label: "Contacts",
-    href: "/contacts",
-    icon: <Building2 className="size-4" />,
-  },
-  {
-    label: "Pipeline",
-    href: "/pipeline",
-    icon: <KanbanSquare className="size-4" />,
+    label: "Sales",
+    items: [
+      {
+        label: "Inquiries",
+        href: "/inquiries",
+        icon: <Inbox className="size-4" />,
+      },
+      {
+        label: "Contacts",
+        href: "/contacts",
+        icon: <Building2 className="size-4" />,
+      },
+      {
+        label: "Pipeline",
+        href: "/pipeline",
+        icon: <KanbanSquare className="size-4" />,
+      },
+    ],
   },
   {
     label: "Jobs",
-    href: "/jobs",
-    icon: <ClipboardList className="size-4" />,
+    items: [
+      {
+        label: "Jobs",
+        href: "/jobs",
+        icon: <ClipboardList className="size-4" />,
+      },
+    ],
   },
   {
     label: "Settings",
-    href: "/settings",
-    icon: <SlidersHorizontal className="size-4" />,
+    items: [
+      {
+        label: "Settings",
+        href: "/settings",
+        icon: <SlidersHorizontal className="size-4" />,
+      },
+    ],
   },
 ];
 
@@ -132,7 +151,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
         </a>
         <Sidebar
           className="shrink-0"
-          items={NAV}
+          groups={NAV_GROUPS}
           activeHref={activeHref}
           logo={
             // The top chip belongs to the TENANT, not to us — co-branding puts
