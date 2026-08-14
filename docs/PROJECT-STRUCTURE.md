@@ -38,7 +38,6 @@ cs-cueviksync/
 ├─ .husky/pre-commit               # npx lint-staged
 ├─ docs/                           # source-of-truth documents
 │  ├─ brainstorming/               # pre-decision exploration, never authoritative
-│  ├─ convergence/                 # the CuevikSync <-> RedyQuote convergence spec
 │  ├─ reviews/                     # dated advisory reviews
 │  └─ specs/                   [ ] # dated transient design specs
 ├─ src/
