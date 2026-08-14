@@ -35,11 +35,13 @@ function Sidebar({
   items,
   activeHref,
   logo,
+  footer,
   className,
 }: {
   items: SidebarNavItem[];
   activeHref?: string;
   logo?: React.ReactNode;
+  footer?: React.ReactNode;
   className?: string;
 }) {
   return (
@@ -100,6 +102,19 @@ function Sidebar({
           );
         })}
       </nav>
+      {/* Co-branding's second slot. The chip above is the tenant's mark -- this
+          is the product's, deliberately demoted to attribution: the people in
+          this rail all day work for the tenant, not for us. Kept a slot rather
+          than hardcoded so `ui/`-adjacent chrome stays app-agnostic and the
+          caller owns what the two marks actually are.
+
+          `mt-auto` pins it to the floor of the rail regardless of nav length.
+          Hidden below `xl` for the same reason the chip is: 40px of usable
+          width renders it as mush, and attribution is the first thing that
+          should go, not the last. */}
+      {footer ? (
+        <div className="mt-auto hidden px-3 pt-4 xl:block">{footer}</div>
+      ) : null}
     </aside>
   );
 }
