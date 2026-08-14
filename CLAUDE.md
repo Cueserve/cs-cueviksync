@@ -217,9 +217,10 @@ specific to working as an agent:
   file already present in `origin/main`, because merged means applied to the hosted project and
   applied migrations are immutable. If it fires, author a **new** migration — do not work around
   the hook.
-- **Repository state.** The app is not scaffolded — there is no `package.json`, `src/`, or
-  `supabase/` on `main`. Do not assume a command, script, or path exists; check first, and say so
-  plainly when something is missing rather than inventing a plausible substitute.
+- **Repository state.** The app is scaffolded — `package.json`, `src/`, and `supabase/` all
+  exist on `main`. **Project state** above says what is built and what is not; it is a dated
+  snapshot, not a guarantee. Do not assume a command, script, or path exists; check first, and
+  say so plainly when something is missing rather than inventing a plausible substitute.
 
 ## Building UI
 
