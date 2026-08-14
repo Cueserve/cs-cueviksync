@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
+import { CuevikSyncWordmark } from "@/components/brand-logo";
 import { Sidebar, type SidebarNavItem } from "@/components/layout/sidebar";
 import { Topbar, type Crumb } from "@/components/layout/topbar";
 import { UserMenu } from "@/components/layout/user-menu";
@@ -154,12 +155,19 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
             </span>
           }
           footer={
-            // Ours, and small. Two elements, not one string, so the product
-            // name survives translation of the lead-in and can become a mark
-            // without touching the layout.
-            <span className="flex flex-col text-xs leading-tight text-sidebar-foreground">
+            // The mono wordmark, not the colour master: `--clay-600` (#0C385A)
+            // on the stone-900 rail is all but invisible, and the mono variant
+            // inherits `text-sidebar-foreground` (8.03:1) through
+            // `currentColor` instead. That inheritance is also why it is an
+            // inlined component rather than a file from `public/brand/` — see
+            // the note in `brand-logo.tsx`.
+            //
+            // `h-3.5` puts it at ~96px wide against the brand kit's 90px
+            // minimum for the wordmark. Do not shrink it further; drop to the
+            // mark alone if this ever needs to be smaller.
+            <span className="flex flex-col gap-1 text-xs leading-tight text-sidebar-foreground">
               <span>Powered by</span>
-              <span className="font-semibold">CuevikSync</span>
+              <CuevikSyncWordmark className="h-3.5 w-auto" />
             </span>
           }
         />
