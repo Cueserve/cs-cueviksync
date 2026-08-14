@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Cuevik">
+  <circle cx="32" cy="32" r="22.0" stroke="#0C385A" stroke-width="12.0"
+          stroke-dasharray="76.794 61.436" stroke-dashoffset="-17.279"/>
+  <circle cx="32" cy="32" r="22.0" stroke="#2384C6" stroke-width="12.0"
+          stroke-dasharray="26.878 111.352" stroke-dashoffset="-94.073"/>
+</svg>

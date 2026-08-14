@@ -41,6 +41,8 @@ cs-cueviksync/
 │  ├─ brainstorming/               # pre-decision exploration, never authoritative
 │  ├─ reviews/                     # dated advisory reviews
 │  └─ specs/                       # dated transient design specs — README only today
+├─ public/
+│  └─ brand/                       # logo SVGs served as-is (next/image, unoptimized)
 ├─ src/
 │  ├─ app/
 │  │  ├─ (app)/                    # authenticated surface
@@ -52,9 +54,11 @@ cs-cueviksync/
 │  │  ├─ api/                  [ ] # ONLY external HTTP surfaces (webhooks). Not an app API.
 │  │  ├─ globals.css               # the three-tier token layer
 │  │  ├─ global-error.tsx          # last-resort boundary; owns its own <html>
+│  │  ├─ icon.svg                  # favicon; Next file convention, auto-emits the <link>
 │  │  ├─ layout.tsx
 │  │  └─ page.tsx                  # redirects to the landing route
 │  ├─ components/
+│  │  ├─ brand-logo.tsx            # inlined, currentColor logo -- see file header for why
 │  │  ├─ layout/                   # sidebar, topbar, user-menu, page-header, route-loading
 │  │  └─ ui/                       # 18 shadcn primitives — app-agnostic, lint-enforced
 │  ├─ lib/

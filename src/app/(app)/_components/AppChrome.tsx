@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
+import { CuevikSyncWordmark } from "@/components/brand-logo";
 import { Sidebar, type SidebarNavItem } from "@/components/layout/sidebar";
 import { Topbar, type Crumb } from "@/components/layout/topbar";
 import { UserMenu } from "@/components/layout/user-menu";
@@ -134,15 +135,39 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           items={NAV}
           activeHref={activeHref}
           logo={
-            // A text wordmark, not an `Image`. There is no CuevikSync logo file
-            // yet, and a placeholder raster would be worse than type: it would
-            // need `sizes`/`priority` tuning for an asset that is going to be
-            // replaced, and a wrong-looking logo reads as a bug where a
-            // wordmark reads as a decision. Swap this for `next/image` when a
-            // real asset exists — the chip around it already assumes an opaque
-            // mark (globals.css --sidebar-logo-chip).
+            // The top chip belongs to the TENANT, not to us — co-branding puts
+            // the customer's mark where the eye lands and ours in the footer
+            // below. Hardcoded until `tenants` carries a logo, the same way
+            // `UserMenu` is hardcoded until Auth is wired: "Your Company" reads
+            // as an unfilled slot, where a plausible fake company name would
+            // read as real data.
+            //
+            // A text wordmark, not an `Image`: a placeholder raster would need
+            // `sizes`/`priority` tuning for an asset that is going to be
+            // replaced. When a tenant logo lands it becomes `next/image` with a
+            // fixed box (`h-8 w-auto max-w-[168px] object-contain`) so an
+            // arbitrary uploaded aspect ratio cannot break the rail. The chip
+            // stays white in both themes on purpose — a dark-on-transparent
+            // tenant logo is invisible on the stone-900 rail and legible here
+            // (globals.css --sidebar-logo-chip).
             <span className="text-lg font-semibold tracking-tight text-foreground">
-              CuevikSync
+              Your Company
+            </span>
+          }
+          footer={
+            // The mono wordmark, not the colour master: `--clay-600` (#0C385A)
+            // on the stone-900 rail is all but invisible, and the mono variant
+            // inherits `text-sidebar-foreground` (8.03:1) through
+            // `currentColor` instead. That inheritance is also why it is an
+            // inlined component rather than a file from `public/brand/` — see
+            // the note in `brand-logo.tsx`.
+            //
+            // `h-3.5` puts it at ~96px wide against the brand kit's 90px
+            // minimum for the wordmark. Do not shrink it further; drop to the
+            // mark alone if this ever needs to be smaller.
+            <span className="flex flex-col gap-1 text-xs leading-tight text-sidebar-foreground">
+              <span>Powered by</span>
+              <CuevikSyncWordmark className="h-3.5 w-auto" />
             </span>
           }
         />
