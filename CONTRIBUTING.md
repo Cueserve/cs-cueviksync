@@ -205,4 +205,4 @@ the migration-ordering rule, and the required configuration are in
 
 Environment topology is not governance — it changes when infrastructure changes, not when
 process changes — so it lives in `docs/` beside the other source-of-truth documents rather than
-in the middle of this file. RedyQuote carries the same file at the same path.
+in the middle of this file.
