@@ -845,14 +845,13 @@ export default function JobMasterPage() {
                   <Checkbox
                     id="inThisWeek"
                     checked={inThisWeek}
-                    disabled={isSubJob}
                     onCheckedChange={(checked) => setInThisWeek(!!checked)}
                   />
                   <label
                     htmlFor="inThisWeek"
                     className="text-xs text-muted-foreground select-none"
                   >
-                    In This Week? (Y/N) {isSubJob && "(Controlled by parent)"}
+                    In This Week? (Y/N)
                   </label>
                 </div>
               </div>
