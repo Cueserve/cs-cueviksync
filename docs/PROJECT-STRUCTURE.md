@@ -1,7 +1,7 @@
 # PROJECT-STRUCTURE.md — Directory Layout & File Placement
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-08-11
+**Last updated:** 2026-08-14
 **Source of truth for:** where each kind of file lives and the rules for placing new code — so
 features and components land in the right place and don't break the invariants in
 docs/ARCHITECTURE.md.
@@ -11,9 +11,10 @@ docs/ARCHITECTURE.md.
 
 ---
 
-> **Partly built, as of 2026-08-11.** The bare-minimum app exists: the token layer, the 18 `ui/`
-> primitives, the app shell, `src/lib/supabase/`, and `src/proxy.ts`. Everything marked `[ ]`
-> below does not exist yet. Directory names carry no authority — check the filesystem.
+> **Partly built, as of 2026-08-14.** The bare-minimum app exists: the token layer, the 18 `ui/`
+> primitives, the app shell, `src/lib/supabase/`, `src/proxy.ts`, and two applied migrations.
+> Everything marked `[ ]` below does not exist yet. Directory names carry no authority — check
+> the filesystem.
 >
 > This file's section skeleton matches `RedyQuote:docs/PROJECT-STRUCTURE.md` deliberately, and
 > §5 is shared verbatim where the rule is not product-specific. Where the two genuinely differ
@@ -39,7 +40,7 @@ cs-cueviksync/
 ├─ docs/                           # source-of-truth documents
 │  ├─ brainstorming/               # pre-decision exploration, never authoritative
 │  ├─ reviews/                     # dated advisory reviews
-│  └─ specs/                   [ ] # dated transient design specs
+│  └─ specs/                       # dated transient design specs — README only today
 ├─ src/
 │  ├─ app/
 │  │  ├─ (app)/                    # authenticated surface
@@ -67,7 +68,7 @@ cs-cueviksync/
 │  └─ proxy.ts                     # Next 16 middleware entry; session refresh only
 └─ supabase/
    ├─ config.toml
-   └─ migrations/               [ ] # authoritative schema; none authored yet
+   └─ migrations/                  # authoritative schema; 0001 and 0002 applied
 ```
 
 ## 2. The Four Placement Questions
