@@ -27,6 +27,7 @@ import {
 } from "@/lib/date-utils";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { MetricCard } from "@/components/ui/metric-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,21 @@ import {
   DialogFooter,
   DialogBody,
 } from "@/components/ui/dialog";
+
+const formatYesNo = (val: string | undefined | null) => {
+  if (!val) return "-";
+  const trimmed = val.trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === "no") return "N";
+  if (lower === "yes") return "Y";
+  if (lower.startsWith("yes")) {
+    return "Y" + trimmed.slice(3);
+  }
+  if (lower.startsWith("no")) {
+    return "N" + trimmed.slice(2);
+  }
+  return trimmed;
+};
 
 export default function JobMasterPage() {
   const { jobs, addJobItem, updateJobItem, deleteJobItem, selectedRole } =
@@ -535,14 +551,8 @@ export default function JobMasterPage() {
                             <span className="font-normal text-muted-foreground">
                               -
                             </span>
-                          ) : onTimeVal === "Y" ? (
-                            <span className="text-success">{onTimeVal}</span>
-                          ) : onTimeVal === "N" ? (
-                            <span className="text-destructive">
-                              {onTimeVal}
-                            </span>
                           ) : (
-                            "-"
+                            <StatusBadge value={onTimeVal} />
                           )}
                         </td>
                         <td className="p-4 text-destructive font-semibold">
@@ -552,10 +562,10 @@ export default function JobMasterPage() {
                           {isParent ? daysOverdueVal || "-" : "-"}
                         </td>
                         <td className="p-4 text-xs font-medium text-warning">
-                          {job.materialShortage || "-"}
+                          {formatYesNo(job.materialShortage)}
                         </td>
                         <td className="p-4 text-xs font-medium text-destructive">
-                          {job.equipmentIssue || "-"}
+                          {formatYesNo(job.equipmentIssue)}
                         </td>
                         <td className="p-4 text-xs text-destructive font-medium">
                           {isParent ? job.overdueReason || "-" : "-"}
@@ -572,7 +582,11 @@ export default function JobMasterPage() {
                           {isParent ? totalQty.toLocaleString() : "-"}
                         </td>
                         <td className="p-4 font-mono">
-                          {isParent ? scheduledThisWeekVal || "-" : "-"}
+                          {isParent ? (
+                            <StatusBadge value={scheduledThisWeekVal} />
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td className="p-4 font-mono">
                           {isParent ? weekEndingStr || "-" : "-"}
@@ -633,16 +647,7 @@ export default function JobMasterPage() {
                         </td>
                         <td className="p-4 font-mono">{turnaroundDaysVal}</td>
                         <td className="p-4">
-                          {onTimeVal === "Y" && (
-                            <span className="inline-flex items-center rounded bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
-                              Y
-                            </span>
-                          )}
-                          {onTimeVal === "N" && (
-                            <span className="inline-flex items-center rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
-                              N
-                            </span>
-                          )}
+                          <StatusBadge value={onTimeVal} />
                         </td>
                         <td className="p-4 font-mono font-medium">
                           ${job.invoiceValue.toLocaleString()}
