@@ -104,6 +104,24 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
       return;
     }
 
+    if (
+      promisedDate &&
+      orderDate &&
+      new Date(promisedDate) < new Date(orderDate)
+    ) {
+      alert("Promise date cannot be earlier than the order date.");
+      return;
+    }
+
+    if (
+      completedDate &&
+      orderDate &&
+      new Date(completedDate) < new Date(orderDate)
+    ) {
+      alert("Completion date cannot be earlier than the order date.");
+      return;
+    }
+
     const data = {
       jobNo,
       itemDescription,
@@ -254,6 +272,7 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
                     value={promisedDate}
                     onChange={(e) => setPromisedDate(e.target.value)}
                     required
+                    min={orderDate || undefined}
                     className="bg-card border-input focus-visible:ring-ring"
                   />
                 </div>
@@ -270,6 +289,7 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
                     value={completedDate}
                     onChange={(e) => setCompletedDate(e.target.value)}
                     disabled={isSubJob}
+                    min={orderDate || undefined}
                     className={cn(
                       "border-input focus-visible:ring-ring",
                       isSubJob
