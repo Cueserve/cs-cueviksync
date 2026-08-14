@@ -26,6 +26,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/data-table";
+import { formatDateUS } from "@/lib/date-utils";
 
 export default function ThisWeekSchedulePage() {
   const { jobs, updateJobItem, selectedRole } = useTracker();
@@ -70,6 +71,8 @@ export default function ThisWeekSchedulePage() {
               <TableHead>Job #</TableHead>
               <TableHead>Item Description</TableHead>
               <TableHead>Qty</TableHead>
+              <TableHead>Order Date</TableHead>
+              <TableHead>Promised Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Material Shortage?</TableHead>
               <TableHead>Equipment Issue</TableHead>
@@ -100,6 +103,12 @@ export default function ThisWeekSchedulePage() {
                     <TableCell>{job.itemDescription}</TableCell>
                     <TableCell numeric>
                       {job.quantity.toLocaleString()}
+                    </TableCell>
+                    <TableCell numeric>
+                      {job.orderDate ? formatDateUS(job.orderDate) : "-"}
+                    </TableCell>
+                    <TableCell numeric>
+                      {job.promisedDate ? formatDateUS(job.promisedDate) : "-"}
                     </TableCell>
                     <TableCell>
                       {isCompleted ? (
