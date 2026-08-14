@@ -187,7 +187,14 @@ export default function WasteReworkPage() {
                 return (
                   <TableRow key={job.id}>
                     <TableCell className="font-medium">{job.jobNo}</TableCell>
-                    <TableCell>{job.itemDescription}</TableCell>
+                    <TableCell>
+                      <div
+                        className="max-w-[250px] truncate"
+                        title={job.itemDescription}
+                      >
+                        {job.itemDescription}
+                      </div>
+                    </TableCell>
                     <TableCell className="font-mono text-muted-foreground">
                       {job.completedDate
                         ? formatDateUS(getWeekEndingMonday(job.completedDate))
@@ -251,7 +258,10 @@ export default function WasteReworkPage() {
                           className="max-w-md bg-card border-input focus-visible:ring-ring h-8"
                         />
                       ) : (
-                        <span className="text-muted-foreground text-xs">
+                        <span
+                          className="text-muted-foreground text-xs block max-w-[200px] truncate"
+                          title={job.notes || undefined}
+                        >
                           {job.notes || "-"}
                         </span>
                       )}

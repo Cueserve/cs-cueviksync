@@ -415,7 +415,14 @@ export default function JobMasterPage() {
                           {job.jobNo}
                         </TableCell>
                         <TableCell numeric>{job.lineNo}</TableCell>
-                        <TableCell>{job.itemDescription}</TableCell>
+                        <TableCell>
+                          <div
+                            className="max-w-[250px] truncate"
+                            title={job.itemDescription}
+                          >
+                            {job.itemDescription}
+                          </div>
+                        </TableCell>
                         <TableCell numeric>
                           {job.quantity.toLocaleString()}
                         </TableCell>
@@ -508,13 +515,32 @@ export default function JobMasterPage() {
                             : "-"}
                         </TableCell>
                         <TableCell className="text-xs font-medium text-warning">
-                          {formatYesNo(job.materialShortage)}
+                          <div
+                            className="max-w-[150px] truncate"
+                            title={job.materialShortage || undefined}
+                          >
+                            {formatYesNo(job.materialShortage)}
+                          </div>
                         </TableCell>
                         <TableCell className="text-xs font-medium text-destructive">
-                          {formatYesNo(job.equipmentIssue)}
+                          <div
+                            className="max-w-[150px] truncate"
+                            title={job.equipmentIssue || undefined}
+                          >
+                            {formatYesNo(job.equipmentIssue)}
+                          </div>
                         </TableCell>
                         <TableCell className="text-xs text-destructive font-medium">
-                          {isParent ? job.overdueReason || "-" : "-"}
+                          <div
+                            className="max-w-[200px] truncate"
+                            title={
+                              isParent
+                                ? job.overdueReason || undefined
+                                : undefined
+                            }
+                          >
+                            {isParent ? job.overdueReason || "-" : "-"}
+                          </div>
                         </TableCell>
                         <TableCell numeric className="font-medium">
                           {isParent
@@ -545,7 +571,14 @@ export default function JobMasterPage() {
                         <TableCell className="font-medium">
                           {job.jobNo}
                         </TableCell>
-                        <TableCell>{job.itemDescription}</TableCell>
+                        <TableCell>
+                          <div
+                            className="max-w-[250px] truncate"
+                            title={job.itemDescription}
+                          >
+                            {job.itemDescription}
+                          </div>
+                        </TableCell>
                         <TableCell numeric>
                           {job.orderDate
                             ? formatDateUS(job.orderDate)
@@ -570,7 +603,12 @@ export default function JobMasterPage() {
                           {daysOverdueVal || "-"}
                         </TableCell>
                         <TableCell className="text-xs text-destructive font-medium">
-                          {job.overdueReason || "-"}
+                          <div
+                            className="max-w-[200px] truncate"
+                            title={job.overdueReason || undefined}
+                          >
+                            {job.overdueReason || "-"}
+                          </div>
                         </TableCell>
                       </>
                     )}
@@ -580,7 +618,14 @@ export default function JobMasterPage() {
                         <TableCell className="font-medium">
                           {job.jobNo}
                         </TableCell>
-                        <TableCell>{job.itemDescription}</TableCell>
+                        <TableCell>
+                          <div
+                            className="max-w-[250px] truncate"
+                            title={job.itemDescription}
+                          >
+                            {job.itemDescription}
+                          </div>
+                        </TableCell>
                         <TableCell numeric>{weekEndingStr}</TableCell>
                         <TableCell numeric>
                           {job.orderDate

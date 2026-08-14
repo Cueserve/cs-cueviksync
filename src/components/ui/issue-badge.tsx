@@ -17,9 +17,12 @@ export function IssueBadge({ type, text }: IssueBadgeProps) {
 
   if (type === "material") {
     return text && text.toLowerCase() !== "no" ? (
-      <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border border-warning/20">
+      <span
+        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border border-warning/20"
+        title={text}
+      >
         <AlertTriangle className="size-3 shrink-0" />
-        {formattedText}
+        <span className="max-w-[200px] truncate">{formattedText}</span>
       </span>
     ) : (
       <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-success/10 text-success border border-success/20">
@@ -31,9 +34,12 @@ export function IssueBadge({ type, text }: IssueBadgeProps) {
   // Equipment type
   const isBroken = text && text.toLowerCase() !== "no";
   return isBroken ? (
-    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20">
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20"
+      title={text}
+    >
       <Settings className="size-3 shrink-0 animate-spin" />
-      {formattedText}
+      <span className="max-w-[200px] truncate">{formattedText}</span>
     </span>
   ) : (
     <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-success/10 text-success border border-success/20">

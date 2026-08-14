@@ -79,7 +79,14 @@ export default function ThisWeekSchedulePage() {
                 return (
                   <TableRow key={job.id}>
                     <TableCell className="font-medium">{job.jobNo}</TableCell>
-                    <TableCell>{job.itemDescription}</TableCell>
+                    <TableCell>
+                      <div
+                        className="max-w-[250px] truncate"
+                        title={job.itemDescription}
+                      >
+                        {job.itemDescription}
+                      </div>
+                    </TableCell>
                     <TableCell numeric>
                       {job.quantity.toLocaleString()}
                     </TableCell>
