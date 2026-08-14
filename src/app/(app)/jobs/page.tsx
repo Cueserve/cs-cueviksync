@@ -177,8 +177,8 @@ export default function JobMasterPage() {
       inThisWeek,
       materialShortage,
       equipmentIssue,
-      invoiceValue: isSubJob ? 0 : Number(invoiceValue),
-      spoilagePercent: Number(spoilagePercent),
+      invoiceValue: isSubJob ? 0 : Number(invoiceValue) || 0,
+      spoilagePercent: Number(spoilagePercent) || 0,
       reprintRequired,
       notes,
     };

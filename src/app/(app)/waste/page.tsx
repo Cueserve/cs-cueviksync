@@ -105,7 +105,7 @@ export default function WasteReworkPage() {
     e.preventDefault();
     if (!selectedJobId) return;
     updateJobItem(selectedJobId, {
-      spoilagePercent: Number(modalSpoilage),
+      spoilagePercent: Number(modalSpoilage) || 0,
       reprintRequired: modalReprint,
       notes: modalNotes,
     });
