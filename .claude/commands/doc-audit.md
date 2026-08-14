@@ -64,10 +64,8 @@ except where Pass B explicitly probes it.
 "Approved design specs" list in `CLAUDE.md`. A spec not in that list, or a listed spec that no
 longer exists, is a Pass B finding on its own.
 
-**Not the corpus:** `docs/brainstorming/` (never authoritative), `docs/reviews/` (dated
-advisory records — do not report them as drift against current state), and
-`docs/convergence/` (the CuevikSync/RedyQuote convergence spec, which describes intended
-change rather than current state).
+**Not the corpus:** `docs/brainstorming/` (never authoritative) and `docs/reviews/` (dated
+advisory records — do not report them as drift against current state).
 
 ## 2. Authority ladder — who wins when two files disagree
 

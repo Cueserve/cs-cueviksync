@@ -84,8 +84,7 @@ plane, keeping one managed vendor for all persistence.
 ## 5. Deliberately Not Used
 
 Recorded so each absence reads as a decision rather than an oversight. Adding any of these
-back is a change to this file first — and per the convergence spec it lands in RedyQuote in
-the same change, or the two stacks fork.
+back is a change to this file first.
 
 | Not used                                                                 | Why not                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
