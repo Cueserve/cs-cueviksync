@@ -95,6 +95,15 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
     e.preventDefault();
     if (!jobNo || !itemDescription || !orderDate || !promisedDate) return;
 
+    if (
+      completedDate &&
+      deliveredDate &&
+      new Date(deliveredDate) < new Date(completedDate)
+    ) {
+      alert("Delivery date cannot be earlier than the completion date.");
+      return;
+    }
+
     const data = {
       jobNo,
       itemDescription,
@@ -282,6 +291,7 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
                     value={deliveredDate}
                     onChange={(e) => setDeliveredDate(e.target.value)}
                     disabled={isSubJob}
+                    min={completedDate || undefined}
                     className={cn(
                       "border-input focus-visible:ring-ring",
                       isSubJob
