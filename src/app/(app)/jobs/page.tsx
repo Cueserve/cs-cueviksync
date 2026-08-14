@@ -366,7 +366,7 @@ export default function JobMasterPage() {
                     const diffDays = Math.round(
                       promiseDiff / (1000 * 60 * 60 * 24),
                     );
-                    daysVsPromisedVal = diffDays <= 0 ? "-" : diffDays;
+                    daysVsPromisedVal = diffDays;
                     onTimeVal = isOnTime(job.promisedDate, job.deliveredDate)
                       ? "Y"
                       : "N";
@@ -465,10 +465,28 @@ export default function JobMasterPage() {
                             : "-"}
                         </TableCell>
                         <TableCell numeric>
-                          {isParent ? turnaroundDaysVal || "-" : "-"}
+                          {isParent
+                            ? turnaroundDaysVal !== ""
+                              ? turnaroundDaysVal
+                              : "-"
+                            : "-"}
                         </TableCell>
-                        <TableCell numeric>
-                          {isParent ? daysVsPromisedVal || "-" : "-"}
+                        <TableCell
+                          numeric
+                          className={cn(
+                            typeof daysVsPromisedVal === "number" &&
+                              daysVsPromisedVal <= 0 &&
+                              "text-success font-semibold",
+                            typeof daysVsPromisedVal === "number" &&
+                              daysVsPromisedVal > 0 &&
+                              "text-destructive font-semibold",
+                          )}
+                        >
+                          {isParent
+                            ? typeof daysVsPromisedVal === "number"
+                              ? Math.abs(daysVsPromisedVal)
+                              : "-"
+                            : "-"}
                         </TableCell>
                         <TableCell className="font-semibold">
                           {!isParent ? (
@@ -483,7 +501,11 @@ export default function JobMasterPage() {
                           {isParent ? overdueFlagVal || "-" : "-"}
                         </TableCell>
                         <TableCell numeric>
-                          {isParent ? daysOverdueVal || "-" : "-"}
+                          {isParent
+                            ? daysOverdueVal !== ""
+                              ? daysOverdueVal
+                              : "-"
+                            : "-"}
                         </TableCell>
                         <TableCell className="text-xs font-medium text-warning">
                           {formatYesNo(job.materialShortage)}
