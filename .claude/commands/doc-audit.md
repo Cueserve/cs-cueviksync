@@ -17,14 +17,17 @@ The letters are the recommended run order. `align` first, because it settles con
 other two passes produce sharper findings once terms are fixed. `absorb` last, because it is the
 only pass that proposes deleting files and the least useful while terms are still unsettled.
 
-**CuevikSync is a documentation repository.** There is no application code on `main` — no
-`package.json`, no `supabase/`, no `app/`. The docs are not describing a system; they _are_ the
-system, and every line in them becomes an instruction the moment scaffolding starts. A stale line
-here is not a typo — it is a wrong instruction that will be built.
+**CuevikSync is docs-heavy and code-light.** The app is scaffolded — `package.json`, `src/`,
+and `supabase/` exist — but it is a shell: the token layer, the 18 `ui/` primitives, the app
+chrome, the Supabase client modules, and two migrations that create the tenancy substrate. There
+are no Server Actions, no domain screens, and no domain tables. So most of what the corpus
+describes is still specification, and every line of it becomes an instruction the moment the
+matching code is written. A stale line here is not a typo — it is a wrong instruction that will
+be built.
 
-That also inverts the usual audit: with no code to check prose against, the ground truth is the
-**filesystem** plus the corpus's own **declared lineage graph** (§2). Use them; do not invent a
-third source.
+Ground truth is the **filesystem** plus the corpus's own **declared lineage graph** (§2). Use
+them; do not invent a third source. Where code exists, it outranks prose about it — a doc
+claiming a file, script, or table exists loses to `ls` and to `supabase/migrations/`.
 
 Arguments (optional): `$ARGUMENTS`
 
