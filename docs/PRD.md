@@ -5,7 +5,7 @@
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
-> Downstream: docs/ARCHITECTURE.md, docs/TECH-STACK.md, README.md, docs/BACKLOG.md
+> Downstream: docs/ARCHITECTURE.md, docs/TECH-STACK.md, README.md
 
 ---
 

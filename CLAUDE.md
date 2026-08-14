@@ -18,7 +18,8 @@ from memory.**
 - [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) - which Supabase environment dev runs against, and why
 - [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) - brand tokens, the semantic-token rule, the WCAG AA floor
 - [docs/DATABASE.md](docs/DATABASE.md) - the data model. **Stub: not yet authored.**
-- [docs/BACKLOG.md](docs/BACKLOG.md) - epics and stories manifest
+- Backlog and work-item tracking lives in the
+  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17), not in `docs/`.
 
 **Approved design specs** - same authority as the docs above for the slice they cover, but
 **transient**: each is deleted when its content lands in whatever it feeds. They live in
@@ -55,7 +56,7 @@ When two sources disagree, the higher one wins:
 3. `docs/` by lineage: PRODUCT → PRD → ARCHITECTURE → TECH-STACK → ENGINEERING-RULES. Each
    document's header names its own `Derived from:` / `Downstream:` files.
 4. This file, for the Claude-Code behavior rules below that it owns.
-5. `README.md` and `docs/BACKLOG.md` — they restate, they own nothing.
+5. `README.md` — it restates, it owns nothing.
 
 ## Project state
 

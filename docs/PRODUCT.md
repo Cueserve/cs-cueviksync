@@ -6,7 +6,7 @@
 Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
 
 > Derived from: (none — starting point)
-> Downstream: README.md, docs/PRD.md, docs/BACKLOG.md
+> Downstream: README.md, docs/PRD.md
 
 ---
 
