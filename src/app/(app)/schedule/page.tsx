@@ -7,15 +7,7 @@ import {
   type JobItem,
 } from "@/components/providers/tracker-provider";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogBody,
-} from "@/components/ui/dialog";
+import { IssueDialog } from "@/components/dialogs/issue-dialog";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { IssueBadge } from "@/components/ui/issue-badge";
 import {
@@ -29,12 +21,10 @@ import {
 import { formatDateUS } from "@/lib/date-utils";
 
 export default function ThisWeekSchedulePage() {
-  const { jobs, updateJobItem, selectedRole } = useTracker();
+  const { jobs, selectedRole } = useTracker();
   const scheduledJobs = jobs.filter((job) => job.inThisWeek);
 
   const [activeJob, setActiveJob] = useState<JobItem | null>(null);
-  const [materialShortage, setMaterialShortage] = useState("");
-  const [equipmentIssue, setEquipmentIssue] = useState("");
 
   const canEdit =
     selectedRole === "admin" ||
@@ -44,17 +34,6 @@ export default function ThisWeekSchedulePage() {
   const handleOpenEdit = (job: JobItem) => {
     if (!canEdit) return; // ← block non-editors even if called directly
     setActiveJob(job);
-    setMaterialShortage(job.materialShortage);
-    setEquipmentIssue(job.equipmentIssue);
-  };
-
-  const handleSave = () => {
-    if (!canEdit || !activeJob) return; // ← double-guard on save too
-    updateJobItem(activeJob.id, {
-      materialShortage,
-      equipmentIssue,
-    });
-    setActiveJob(null);
   };
 
   return (
@@ -148,59 +127,13 @@ export default function ThisWeekSchedulePage() {
       </div>
 
       {/* Edit Status Dialog */}
-      <Dialog
-        open={!!activeJob}
-        onOpenChange={(open) => !open && setActiveJob(null)}
-      >
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Update Weekly Issue Logs</DialogTitle>
-          </DialogHeader>
-          <DialogBody className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label
-                htmlFor="matShortage"
-                className="text-right text-sm font-medium"
-              >
-                Material Shortage
-              </label>
-              <Input
-                id="matShortage"
-                value={materialShortage}
-                onChange={(e) => setMaterialShortage(e.target.value)}
-                className="col-span-3"
-                placeholder="e.g. Awaiting paper shipment"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label
-                htmlFor="eqIssue"
-                className="text-right text-sm font-medium"
-              >
-                Equip. Issue
-              </label>
-              <Input
-                id="eqIssue"
-                value={equipmentIssue}
-                onChange={(e) => setEquipmentIssue(e.target.value)}
-                className="col-span-3"
-                placeholder="e.g. Press #2 out of alignment"
-              />
-            </div>
-          </DialogBody>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setActiveJob(null)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            >
-              Save Logs
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <IssueDialog
+        activeJob={activeJob}
+        onOpenChange={(open) => {
+          if (!open) setActiveJob(null);
+        }}
+        canEdit={canEdit}
+      />
     </PageBody>
   );
 }
