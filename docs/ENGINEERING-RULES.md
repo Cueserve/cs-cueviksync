@@ -90,8 +90,7 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 
 - **Frameworks:** Vitest 4.x for unit tests. Do not introduce a competing test runner.
   There is **no end-to-end framework** in the approved stack: no Playwright, no `e2e/`, no
-  `test:e2e`. Adding one is a `docs/TECH-STACK.md` change first, and it must land in both
-  CuevikSync and RedyQuote together.
+  `test:e2e`. Adding one is a `docs/TECH-STACK.md` change first.
 - **Where tests run:** against the **local** Supabase stack (`npx supabase start`), never
   against the linked hosted development project — the mandatory cases below are destructive.
   See `docs/ENVIRONMENTS.md`.

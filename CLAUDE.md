@@ -245,8 +245,7 @@ components already adapted to our tokens.
   anyway: a hardcoded color in generated output is a bug, not a starting point.
 - **`src/components/ui/` must stay app-agnostic.** `eslint.config.mjs` bans imports from
   `@/server/*`, `@/lib/supabase/*`, and `@/app/*` there. It is the extraction boundary for a
-  future shared Cuevik library, and it is byte-identical to RedyQuote's - a change here is a
-  change to both.
+  future shared Cuevik library.
 
 **Ship gate:** `npm run lint` and `npm run typecheck`. A suggestion that fails lint was never a
 valid suggestion.
