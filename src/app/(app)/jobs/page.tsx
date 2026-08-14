@@ -718,159 +718,230 @@ export default function JobMasterPage() {
 
       {/* Dialog for Add/Edit */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent
+          className="sm:max-w-[700px]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>
                 {editingJob ? "Edit Item Row" : "Add Item Row"}
               </DialogTitle>
             </DialogHeader>
-            <DialogBody className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="jobNo"
-                  className="text-right text-sm font-medium"
-                >
-                  Job # <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  id="jobNo"
-                  value={jobNo}
-                  onChange={(e) => setJobNo(e.target.value)}
-                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
-                  placeholder="e.g. J-1005"
-                  required
-                />
+            <DialogBody className="grid gap-6 py-6 px-4 sm:px-6">
+              {/* Top Section: Job Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="jobNo"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Job # <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    id="jobNo"
+                    value={jobNo}
+                    onChange={(e) => setJobNo(e.target.value)}
+                    className="bg-card border-input focus-visible:ring-ring"
+                    placeholder="e.g. J-1005"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="qty"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Quantity <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    id="qty"
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    className="bg-card border-input focus-visible:ring-ring font-mono"
+                    required
+                  />
+                </div>
+
+                <div className="col-span-2 space-y-2">
+                  <label
+                    htmlFor="desc"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Item Desc <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    id="desc"
+                    value={itemDescription}
+                    onChange={(e) => setItemDescription(e.target.value)}
+                    className="bg-card border-input focus-visible:ring-ring"
+                    placeholder="e.g. Letterheads - Nova Legal, 100gsm"
+                    required
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="desc"
-                  className="text-right text-sm font-medium"
-                >
-                  Item Desc <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  id="desc"
-                  value={itemDescription}
-                  onChange={(e) => setItemDescription(e.target.value)}
-                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
-                  placeholder="e.g. Letterheads - Nova Legal, 100gsm"
-                  required
-                />
+
+              {/* Delivery & Timeline */}
+              <div className="rounded-md border border-border p-4 bg-muted/10 space-y-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Timeline & Status
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="orderDate"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Order Date <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      id="orderDate"
+                      type="date"
+                      value={orderDate}
+                      onChange={(e) => setOrderDate(e.target.value)}
+                      required
+                      className="bg-card border-input focus-visible:ring-ring"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="promisedDate"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Promise Date <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      id="promisedDate"
+                      type="date"
+                      value={promisedDate}
+                      onChange={(e) => setPromisedDate(e.target.value)}
+                      required
+                      className="bg-card border-input focus-visible:ring-ring"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="completedDate"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Comp. Date
+                    </label>
+                    <Input
+                      id="completedDate"
+                      type="date"
+                      value={completedDate}
+                      onChange={(e) => setCompletedDate(e.target.value)}
+                      disabled={isSubJob}
+                      className={cn(
+                        "border-input focus-visible:ring-ring",
+                        isSubJob
+                          ? "bg-muted cursor-not-allowed opacity-60"
+                          : "bg-card",
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="deliveredDate"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Deliv. Date
+                    </label>
+                    <Input
+                      id="deliveredDate"
+                      type="date"
+                      value={deliveredDate}
+                      onChange={(e) => setDeliveredDate(e.target.value)}
+                      disabled={isSubJob}
+                      className={cn(
+                        "border-input focus-visible:ring-ring",
+                        isSubJob
+                          ? "bg-muted cursor-not-allowed opacity-60"
+                          : "bg-card",
+                      )}
+                    />
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <label
+                      htmlFor="overdueReason"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Overdue Reason
+                    </label>
+                    <Input
+                      id="overdueReason"
+                      value={overdueReason}
+                      onChange={(e) => setOverdueReason(e.target.value)}
+                      disabled={isSubJob}
+                      className={cn(
+                        "border-input focus-visible:ring-ring",
+                        isSubJob
+                          ? "bg-muted cursor-not-allowed opacity-60"
+                          : "bg-card",
+                      )}
+                      placeholder="e.g. Courier delay"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="qty" className="text-right text-sm font-medium">
-                  Quantity <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  id="qty"
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="col-span-3 bg-card border-input focus-visible:ring-ring font-mono"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="orderDate"
-                  className="text-right text-sm font-medium"
-                >
-                  Order Date <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  id="orderDate"
-                  type="date"
-                  value={orderDate}
-                  onChange={(e) => setOrderDate(e.target.value)}
-                  required
-                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="promisedDate"
-                  className="text-right text-sm font-medium"
-                >
-                  Promise Date <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  id="promisedDate"
-                  type="date"
-                  value={promisedDate}
-                  onChange={(e) => setPromisedDate(e.target.value)}
-                  required
-                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="completedDate"
-                  className="text-right text-sm font-medium"
-                >
-                  Comp. Date
-                </label>
-                <Input
-                  id="completedDate"
-                  type="date"
-                  value={completedDate}
-                  onChange={(e) => setCompletedDate(e.target.value)}
-                  disabled={isSubJob}
-                  className={cn(
-                    "col-span-3 border-input focus-visible:ring-ring",
-                    isSubJob
-                      ? "bg-muted cursor-not-allowed opacity-60"
-                      : "bg-card",
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="deliveredDate"
-                  className="text-right text-sm font-medium"
-                >
-                  Deliv. Date
-                </label>
-                <Input
-                  id="deliveredDate"
-                  type="date"
-                  value={deliveredDate}
-                  onChange={(e) => setDeliveredDate(e.target.value)}
-                  disabled={isSubJob}
-                  className={cn(
-                    "col-span-3 border-input focus-visible:ring-ring",
-                    isSubJob
-                      ? "bg-muted cursor-not-allowed opacity-60"
-                      : "bg-card",
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="overdueReason"
-                  className="text-right text-sm font-medium"
-                >
-                  Overdue Reason
-                </label>
-                <Input
-                  id="overdueReason"
-                  value={overdueReason}
-                  onChange={(e) => setOverdueReason(e.target.value)}
-                  disabled={isSubJob}
-                  className={cn(
-                    "col-span-3 border-input focus-visible:ring-ring",
-                    isSubJob
-                      ? "bg-muted cursor-not-allowed opacity-60"
-                      : "bg-card",
-                  )}
-                  placeholder="e.g. Courier delay"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label className="text-right text-sm font-medium">
-                  Schedule?
-                </label>
-                <div className="col-span-3 flex items-center gap-2">
+
+              {/* Issues & Scheduling */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="shortage"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Material Shortage
+                  </label>
+                  <Input
+                    id="shortage"
+                    value={materialShortage}
+                    onChange={(e) => setMaterialShortage(e.target.value)}
+                    className="bg-card border-input focus-visible:ring-ring"
+                    placeholder="e.g. Shortage info"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="issue"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Equip. Issues
+                  </label>
+                  <Input
+                    id="issue"
+                    value={equipmentIssue}
+                    onChange={(e) => setEquipmentIssue(e.target.value)}
+                    className="bg-card border-input focus-visible:ring-ring"
+                    placeholder="e.g. Machine error"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="invoice"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Invoice Value
+                  </label>
+                  <Input
+                    id="invoice"
+                    type="number"
+                    value={invoiceValue}
+                    onChange={(e) => setInvoiceValue(Number(e.target.value))}
+                    disabled={isSubJob}
+                    className={cn(
+                      "border-input focus-visible:ring-ring font-mono",
+                      isSubJob
+                        ? "bg-muted cursor-not-allowed opacity-60"
+                        : "bg-card",
+                    )}
+                  />
+                </div>
+                <div className="flex items-center gap-2 pt-8">
                   <Checkbox
                     id="inThisWeek"
                     checked={inThisWeek}
@@ -878,73 +949,23 @@ export default function JobMasterPage() {
                   />
                   <label
                     htmlFor="inThisWeek"
-                    className="text-xs text-muted-foreground select-none"
+                    className="text-xs font-medium text-muted-foreground select-none"
                   >
-                    In This Week? (Y/N)
+                    Schedule In This Week?
                   </label>
                 </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="shortage"
-                  className="text-right text-sm font-medium"
-                >
-                  Material Shortage
-                </label>
-                <Input
-                  id="shortage"
-                  value={materialShortage}
-                  onChange={(e) => setMaterialShortage(e.target.value)}
-                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
-                  placeholder="e.g. Shortage info"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="issue"
-                  className="text-right text-sm font-medium"
-                >
-                  Equip. Issues
-                </label>
-                <Input
-                  id="issue"
-                  value={equipmentIssue}
-                  onChange={(e) => setEquipmentIssue(e.target.value)}
-                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
-                  placeholder="e.g. Machine error"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label
-                  htmlFor="invoice"
-                  className="text-right text-sm font-medium"
-                >
-                  Invoice Value
-                </label>
-                <Input
-                  id="invoice"
-                  type="number"
-                  value={invoiceValue}
-                  onChange={(e) => setInvoiceValue(Number(e.target.value))}
-                  disabled={isSubJob}
-                  className={cn(
-                    "col-span-3 border-input focus-visible:ring-ring font-mono",
-                    isSubJob
-                      ? "bg-muted cursor-not-allowed opacity-60"
-                      : "bg-card",
-                  )}
-                />
-              </div>
 
-              <div className="border-t border-border my-2 pt-4">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              {/* Waste & Rework */}
+              <div className="rounded-md border border-border p-4 bg-muted/10 space-y-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Waste & Rework Log
                 </h4>
-                <div className="grid gap-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <label
                       htmlFor="spoilagePercent"
-                      className="text-right text-sm font-medium"
+                      className="text-xs font-medium text-muted-foreground"
                     >
                       Spoilage %
                     </label>
@@ -958,34 +979,29 @@ export default function JobMasterPage() {
                       onChange={(e) =>
                         setSpoilagePercent(Number(e.target.value))
                       }
-                      className="col-span-3 bg-card border-input focus-visible:ring-ring font-mono"
+                      className="bg-card border-input focus-visible:ring-ring font-mono"
                       placeholder="e.g. 3.5"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <label className="text-right text-sm font-medium">
-                      Reprint?
+                  <div className="flex items-center gap-2 pt-8">
+                    <Checkbox
+                      id="reprintRequired"
+                      checked={reprintRequired}
+                      onCheckedChange={(checked) =>
+                        setReprintRequired(!!checked)
+                      }
+                    />
+                    <label
+                      htmlFor="reprintRequired"
+                      className="text-xs font-medium text-muted-foreground select-none"
+                    >
+                      Flag as needing reprint
                     </label>
-                    <div className="col-span-3 flex items-center gap-2">
-                      <Checkbox
-                        id="reprintRequired"
-                        checked={reprintRequired}
-                        onCheckedChange={(checked) =>
-                          setReprintRequired(!!checked)
-                        }
-                      />
-                      <label
-                        htmlFor="reprintRequired"
-                        className="text-xs text-muted-foreground select-none"
-                      >
-                        Flag as needing reprint (Y/N)
-                      </label>
-                    </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
+                  <div className="col-span-2 space-y-2">
                     <label
                       htmlFor="notes"
-                      className="text-right text-sm font-medium"
+                      className="text-xs font-medium text-muted-foreground"
                     >
                       Quality Notes
                     </label>
@@ -993,7 +1009,7 @@ export default function JobMasterPage() {
                       id="notes"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                      className="bg-card border-input focus-visible:ring-ring"
                       placeholder="e.g. Defective layout cut"
                     />
                   </div>
