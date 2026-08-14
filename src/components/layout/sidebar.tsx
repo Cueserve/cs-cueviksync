@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-// The design system's Sidebar (§7.17): 220px dark rail (--sidebar, stone-900),
+// The design system's Sidebar: 220px dark rail (--sidebar, stone-900),
 // white logo chip (a brand mark is rarely transparent-safe on dark), active
 // item filled --sidebar-primary (brand), inactive items --sidebar-
 // foreground. Not `ui/` -- chrome, not a shared atom, and allowed to be
@@ -57,7 +57,7 @@ function Sidebar({
           into mush or inventing a monogram the brand doesn't have -- the Topbar
           breadcrumb still says where you are. */}
       {logo ? (
-        <div className="mx-2.5 mb-5 hidden w-fit rounded-md bg-sidebar-logo-chip p-2 xl:block">
+        <div className="mx-1 mb-5 hidden w-fit rounded-md bg-sidebar-logo-chip p-2 xl:block">
           {logo}
         </div>
       ) : null}
