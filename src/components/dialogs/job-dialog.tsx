@@ -135,7 +135,7 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
           </DialogHeader>
           <DialogBody className="grid gap-6 py-6 px-4 sm:px-6">
             {/* Top Section: Job Info */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label
                   htmlFor="jobNo"
@@ -170,7 +170,29 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
                 />
               </div>
 
-              <div className="col-span-2 space-y-2">
+              <div className="space-y-2">
+                <label
+                  htmlFor="invoice"
+                  className="text-xs font-medium text-muted-foreground"
+                >
+                  Invoice Value
+                </label>
+                <Input
+                  id="invoice"
+                  type="number"
+                  value={invoiceValue}
+                  onChange={(e) => setInvoiceValue(Number(e.target.value))}
+                  disabled={isSubJob}
+                  className={cn(
+                    "border-input focus-visible:ring-ring font-mono",
+                    isSubJob
+                      ? "bg-muted cursor-not-allowed opacity-60"
+                      : "bg-card",
+                  )}
+                />
+              </div>
+
+              <div className="col-span-3 space-y-2">
                 <label
                   htmlFor="desc"
                   className="text-xs font-medium text-muted-foreground"
@@ -293,71 +315,55 @@ export function JobDialog({ open, onOpenChange, editingJob }: JobDialogProps) {
             </div>
 
             {/* Issues & Scheduling */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor="shortage"
-                  className="text-xs font-medium text-muted-foreground"
-                >
-                  Material Shortage
-                </label>
-                <Input
-                  id="shortage"
-                  value={materialShortage}
-                  onChange={(e) => setMaterialShortage(e.target.value)}
-                  className="bg-card border-input focus-visible:ring-ring"
-                  placeholder="e.g. Shortage info"
-                />
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="issue"
-                  className="text-xs font-medium text-muted-foreground"
-                >
-                  Equip. Issues
-                </label>
-                <Input
-                  id="issue"
-                  value={equipmentIssue}
-                  onChange={(e) => setEquipmentIssue(e.target.value)}
-                  className="bg-card border-input focus-visible:ring-ring"
-                  placeholder="e.g. Machine error"
-                />
-              </div>
+            <div className="rounded-md border border-border p-4 bg-muted/10 space-y-4">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Issues & Scheduling
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="shortage"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Material Shortage
+                  </label>
+                  <Input
+                    id="shortage"
+                    value={materialShortage}
+                    onChange={(e) => setMaterialShortage(e.target.value)}
+                    className="bg-card border-input focus-visible:ring-ring"
+                    placeholder="e.g. Shortage info"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="issue"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Equip. Issues
+                  </label>
+                  <Input
+                    id="issue"
+                    value={equipmentIssue}
+                    onChange={(e) => setEquipmentIssue(e.target.value)}
+                    className="bg-card border-input focus-visible:ring-ring"
+                    placeholder="e.g. Machine error"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="invoice"
-                  className="text-xs font-medium text-muted-foreground"
-                >
-                  Invoice Value
-                </label>
-                <Input
-                  id="invoice"
-                  type="number"
-                  value={invoiceValue}
-                  onChange={(e) => setInvoiceValue(Number(e.target.value))}
-                  disabled={isSubJob}
-                  className={cn(
-                    "border-input focus-visible:ring-ring font-mono",
-                    isSubJob
-                      ? "bg-muted cursor-not-allowed opacity-60"
-                      : "bg-card",
-                  )}
-                />
-              </div>
-              <div className="flex items-center gap-2 pt-8">
-                <Checkbox
-                  id="inThisWeek"
-                  checked={inThisWeek}
-                  onCheckedChange={(checked) => setInThisWeek(!!checked)}
-                />
-                <label
-                  htmlFor="inThisWeek"
-                  className="text-xs font-medium text-muted-foreground select-none"
-                >
-                  Schedule In This Week?
-                </label>
+                <div className="flex items-center gap-2 pt-8">
+                  <Checkbox
+                    id="inThisWeek"
+                    checked={inThisWeek}
+                    onCheckedChange={(checked) => setInThisWeek(!!checked)}
+                  />
+                  <label
+                    htmlFor="inThisWeek"
+                    className="text-xs font-medium text-muted-foreground select-none"
+                  >
+                    Schedule In This Week?
+                  </label>
+                </div>
               </div>
             </div>
 
