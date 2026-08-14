@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import {
   Building2,
+  ClipboardList,
   Inbox,
   KanbanSquare,
   SlidersHorizontal,
@@ -43,6 +44,11 @@ const NAV: SidebarNavItem[] = [
     icon: <KanbanSquare className="size-4" />,
   },
   {
+    label: "Jobs",
+    href: "/jobs",
+    icon: <ClipboardList className="size-4" />,
+  },
+  {
     label: "Settings",
     href: "/settings",
     icon: <SlidersHorizontal className="size-4" />,
@@ -58,6 +64,7 @@ const SECTION_LABEL: Record<string, string> = {
   inquiries: "Inquiries",
   contacts: "Contacts",
   pipeline: "Pipeline",
+  jobs: "Jobs",
   settings: "Settings",
 };
 
@@ -80,6 +87,7 @@ function leafLabel(section: string, id: string) {
       inquiries: "Inquiry",
       contacts: "Contact",
       pipeline: "Opportunity",
+      jobs: "Job",
     }[section] ?? "Detail"
   );
 }
