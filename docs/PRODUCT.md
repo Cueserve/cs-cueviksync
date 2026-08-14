@@ -154,6 +154,11 @@ implementation quietly picking a default.
   requirement that unblocks it is not written down. Until it exists as an approved
   requirement, no implementation may add inbound-message parsing for quote drafting.
   **Decided by:** Product Owner.
+- **Spoilage % calculation method** — undecided. The Job/Order Waste/Rework log
+  (§4) ships with manual entry only this release; no implementation may derive or
+  infer a spoilage-percentage formula until this is resolved. **Decided by:**
+  Product Owner, informed by the Phase 1 Print & Signage validation partner
+  (PRD §10).
 
 When a placeholder closes, mark it **resolved YYYY-MM-DD** and cite the requirement that
 now owns it. The entry stays in place, resolved — it is the record of the decision.
@@ -166,6 +171,13 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
 - Unified contact/company relationship management with duplicate detection
 - Adaptive, configurable pipelines (no custom code)
 - Basic quotation (manual line items from a flat catalog plus free-form lines)
+- Job/Order execution — convert a Won opportunity into a job with per-item lines,
+  dates, status, and turnaround/on-time tracking (no milestones or change control
+  this release — that stays roadmap depth, see below)
+- Job-level weekly KPI summary — jobs completed, turnaround, on-time %, and invoice
+  value, one row per week (table only; no charts this release)
+- Waste/rework logging — per-job spoilage % (manual entry — see §3A) and reprint
+  flag
 - Configurable custom fields and role-based access
 
 > **Commitment rule:** This section is the only committed Phase 1 scope.
@@ -178,10 +190,13 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
 - Structured estimation engine — formulas, quantity-tier price breaks, and a margin-floor
   guardrail (formula undefined — see §3A)
 - Structured quotation and order generation depth beyond thin-core
-- Project/job/order execution — won quotes converted to trackable work with milestones and change control
+- Job/Order execution depth beyond thin-core — milestones and formal change
+  control on top of the thin-core job record (§4)
 - AI sales assistant: follow-up/next-action drafting + cold-deal flagging
 - Unified per-contact communication timeline
-- Pipeline/performance reporting
+- Pipeline/performance reporting — opportunity-level forecasting and manager
+  analytics (the thin-core job-level weekly KPI summary in §4 is narrower than
+  this and already committed)
 
 - Work Orders & Scheduling — capacity-aware resource assignment and calendar scheduling on
   top of job execution (depth is an open decision — see §3A)

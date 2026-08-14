@@ -60,7 +60,7 @@ flowchart TB
 
     subgraph app["Primary Application (Next.js — Server Components + Server Actions)"]
         authz["Authorization — Supabase Auth · JWT → RLS · route guards<br/>cross-cutting: every request passes through"]
-        modules["Capture &amp; Triage · CRM · Pipeline · Quoting · Configuration"]
+        modules["Capture &amp; Triage · CRM · Pipeline · Quoting · Job/Order Execution · Configuration"]
         authz --> modules
     end
 
@@ -99,6 +99,9 @@ Components:
   fields, stage movement with history, and terminal outcomes. (PRD-011 – PRD-015)
 - **Quoting module** — quotes, line items, totals, the status lifecycle, issuance, and the
   flat catalog. (PRD-016 – PRD-021)
+- **Job/Order Execution module** — job creation from a Won opportunity, per-item job lines,
+  date and status tracking, turnaround/on-time and overdue calculation, the waste/rework log,
+  and the weekly job KPI summary. (PRD-031 – PRD-043)
 - **Configuration module** — admin-only custom fields, pipeline configuration, and catalog
   maintenance, all effective without a deploy. (PRD-011, PRD-021, PRD-022, PRD-026)
 - **Client components** — the interactive slice of the UI: dynamic custom-field forms, the
@@ -134,6 +137,9 @@ Core entities:
 | QuoteLine          | A catalog or free-form line with quantity and unit price       | Belongs to a Quote                                           |
 | QuoteStatusHistory | Append-only record of status changes                           | Belongs to a Quote (PRD-019, NFR-011)                        |
 | CatalogItem        | A flat sellable item (name + unit price + active flag)         | Referenced by QuoteLine (PRD-017, PRD-021)                   |
+| Job                | Production work converted from a Won opportunity               | Belongs to an Opportunity; has JobItems (PRD-031)            |
+| JobItem            | A job's item line — description, qty, dates, status flags      | Belongs to a Job (PRD-032 – PRD-037)                         |
+| WasteRework        | A per-job spoilage/reprint log entry                           | Belongs to a Job (PRD-042)                                   |
 | FieldDefinition    | A per-tenant custom-field descriptor (record type, name, type) | Describes JSON values on target records (PRD-022)            |
 
 Storage rules:
