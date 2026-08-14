@@ -22,6 +22,14 @@ import {
 import { MetricCard } from "@/components/ui/metric-card";
 import { LineChart } from "@/components/charts/line-chart";
 import { BarChart } from "@/components/charts/bar-chart";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/data-table";
 
 export default function DashboardPage() {
   const { jobs } = useTracker();
@@ -230,18 +238,18 @@ export default function DashboardPage() {
           <BarChart2 className="size-4 text-sidebar-primary" />
           Weekly Performance Trends
         </h3>
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
-          <table className="w-full border-collapse text-left text-sm">
-            <thead className="bg-muted text-muted-foreground">
-              <tr>
-                <th className="p-4 font-semibold">Week Ending (Mon)</th>
-                <th className="p-4 font-semibold">Jobs Completed</th>
-                <th className="p-4 font-semibold">Avg Turnaround (Days)</th>
-                <th className="p-4 font-semibold">On-Time Delivery %</th>
-                <th className="p-4 font-semibold">Total Invoice Value</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border font-mono">
+        <div className="bg-card rounded-md mt-4">
+          <Table caption="Weekly Performance Trends">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Week Ending (Mon)</TableHead>
+                <TableHead>Jobs Completed</TableHead>
+                <TableHead>Avg Turnaround (Days)</TableHead>
+                <TableHead>On-Time Delivery %</TableHead>
+                <TableHead>Total Invoice Value</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="font-mono">
               {weeklyStatsArray.map((stat) => {
                 const avgTurnaround =
                   stat.completedCount > 0
@@ -253,16 +261,13 @@ export default function DashboardPage() {
                     : "-";
 
                 return (
-                  <tr
-                    key={stat.weekEnding}
-                    className="hover:bg-muted/40 transition-colors"
-                  >
-                    <td className="p-4 font-medium text-foreground">
+                  <TableRow key={stat.weekEnding}>
+                    <TableCell className="font-medium text-foreground">
                       {formatDateUS(stat.weekEnding)}
-                    </td>
-                    <td className="p-4">{stat.completedCount}</td>
-                    <td className="p-4">{avgTurnaround}</td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell numeric>{stat.completedCount}</TableCell>
+                    <TableCell numeric>{avgTurnaround}</TableCell>
+                    <TableCell>
                       {stat.completedCount > 0 && (
                         <span
                           className={
@@ -275,15 +280,18 @@ export default function DashboardPage() {
                         </span>
                       )}
                       {stat.completedCount === 0 && "-"}
-                    </td>
-                    <td className="p-4 font-semibold text-foreground">
+                    </TableCell>
+                    <TableCell
+                      className="font-semibold text-foreground"
+                      numeric
+                    >
                       ${stat.invoiceSum.toLocaleString()}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </PageBody>

@@ -48,15 +48,26 @@ const cellVariants = cva("px-3 py-2.5", {
 function Table({
   className,
   caption,
+  containerRef,
+  containerProps,
   children,
   ...props
-}: React.ComponentProps<"table"> & { caption: string }) {
+}: React.ComponentProps<"table"> & {
+  caption: string;
+  containerRef?: React.Ref<HTMLDivElement>;
+  containerProps?: React.ComponentProps<"div">;
+}) {
   return (
     <div
       role="region"
       aria-label={caption}
       tabIndex={0}
-      className="w-full overflow-x-auto rounded-md border border-border outline-none [scrollbar-color:var(--input)_transparent] [scrollbar-width:thin] focus-visible:ring-3 focus-visible:ring-ring"
+      ref={containerRef}
+      {...containerProps}
+      className={cn(
+        "w-full overflow-x-auto rounded-md border border-border outline-none [scrollbar-color:var(--input)_transparent] [scrollbar-width:thin] focus-visible:ring-3 focus-visible:ring-ring",
+        containerProps?.className,
+      )}
     >
       <table
         data-slot="table"

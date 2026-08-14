@@ -29,6 +29,14 @@ import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { MetricCard } from "@/components/ui/metric-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/data-table";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -314,92 +322,103 @@ export default function JobMasterPage() {
         </div>
       </div>
 
-      <div
-        ref={scrollRef}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        className={cn(
-          "mt-6 overflow-x-auto rounded-lg border border-border bg-card select-none",
-          isMouseDown ? "cursor-grabbing" : "cursor-grab",
-        )}
-      >
-        <table className="w-full border-collapse text-left text-sm whitespace-nowrap">
-          <thead className="bg-muted text-muted-foreground">
-            <tr>
+      <div className="mt-6">
+        <Table
+          caption="Jobs Dashboard Pipeline"
+          containerRef={scrollRef}
+          containerProps={{
+            onMouseDown: handleMouseDown,
+            onMouseLeave: handleMouseLeave,
+            onMouseUp: handleMouseUp,
+            onMouseMove: handleMouseMove,
+            className: cn(
+              "bg-card select-none",
+              isMouseDown ? "cursor-grabbing" : "cursor-grab",
+            ),
+          }}
+          className="whitespace-nowrap"
+        >
+          <TableHeader>
+            <TableRow>
               {selectedTab === "all" && (
                 <>
-                  <th className="p-4 font-semibold sticky left-0 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]">
+                  <TableHead className="sticky left-0 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]">
                     Job #
-                  </th>
-                  <th className="p-4 font-semibold">Line #</th>
-                  <th className="p-4 font-semibold">Item Description</th>
-                  <th className="p-4 font-semibold">Qty</th>
-                  <th className="p-4 font-semibold">Status</th>
-                  <th className="p-4 font-semibold">Order Date</th>
-                  <th className="p-4 font-semibold">Promised Date</th>
-                  <th className="p-4 font-semibold">Completed Date</th>
-                  <th className="p-4 font-semibold">Delivered Date</th>
-                  <th className="p-4 font-semibold">Turnaround (Days)</th>
-                  <th className="p-4 font-semibold">Days vs Promised</th>
-                  <th className="p-4 font-semibold">On-Time? (Y/N)</th>
-                  <th className="p-4 font-semibold">Overdue Flag</th>
-                  <th className="p-4 font-semibold">Days Overdue</th>
-                  <th className="p-4 font-semibold">Material Shortage?</th>
-                  <th className="p-4 font-semibold">Equipment Issue</th>
-                  <th className="p-4 font-semibold">Overdue Reason</th>
-                  <th className="p-4 font-semibold">Invoice Value</th>
-                  <th className="p-4 font-semibold">Items in Job</th>
-                  <th className="p-4 font-semibold">Total Qty (Job)</th>
-                  <th className="p-4 font-semibold">Scheduled This Week</th>
-                  <th className="p-4 font-semibold">Week Ending (Mon)</th>
+                  </TableHead>
+                  <TableHead>Line #</TableHead>
+                  <TableHead>Item Description</TableHead>
+                  <TableHead>Qty</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead>Promised Date</TableHead>
+                  <TableHead>Completed Date</TableHead>
+                  <TableHead>Delivered Date</TableHead>
+                  <TableHead>Turnaround (Days)</TableHead>
+                  <TableHead>Days vs Promised</TableHead>
+                  <TableHead>On-Time? (Y/N)</TableHead>
+                  <TableHead>Overdue Flag</TableHead>
+                  <TableHead>Days Overdue</TableHead>
+                  <TableHead>Material Shortage?</TableHead>
+                  <TableHead>Equipment Issue</TableHead>
+                  <TableHead>Overdue Reason</TableHead>
+                  <TableHead>Invoice Value</TableHead>
+                  <TableHead>Items in Job</TableHead>
+                  <TableHead>Total Qty (Job)</TableHead>
+                  <TableHead>Scheduled This Week</TableHead>
+                  <TableHead>Week Ending (Mon)</TableHead>
                 </>
               )}
               {selectedTab === "pending" && (
                 <>
-                  <th className="p-4 font-semibold">Job #</th>
-                  <th className="p-4 font-semibold">Item Description</th>
-                  <th className="p-4 font-semibold">Order Date</th>
-                  <th className="p-4 font-semibold">Promised Date</th>
-                  <th className="p-4 font-semibold">Overdue Flag</th>
-                  <th className="p-4 font-semibold">Days Overdue</th>
-                  <th className="p-4 font-semibold">Reason (if overdue)</th>
+                  <TableHead>Job #</TableHead>
+                  <TableHead>Item Description</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead>Promised Date</TableHead>
+                  <TableHead>Overdue Flag</TableHead>
+                  <TableHead>Days Overdue</TableHead>
+                  <TableHead>Reason (if overdue)</TableHead>
                 </>
               )}
               {selectedTab === "completed" && (
                 <>
-                  <th className="p-4 font-semibold">Job #</th>
-                  <th className="p-4 font-semibold">Item Description</th>
-                  <th className="p-4 font-semibold">Week Ending (Mon)</th>
-                  <th className="p-4 font-semibold">Order Date</th>
-                  <th className="p-4 font-semibold">Promised Date</th>
-                  <th className="p-4 font-semibold">Completed Date</th>
-                  <th className="p-4 font-semibold">Delivered Date</th>
-                  <th className="p-4 font-semibold">Turnaround (Days)</th>
-                  <th className="p-4 font-semibold">On-Time? (Y/N)</th>
-                  <th className="p-4 font-semibold">Invoice Value</th>
+                  <TableHead>Job #</TableHead>
+                  <TableHead>Item Description</TableHead>
+                  <TableHead>Week Ending (Mon)</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead>Promised Date</TableHead>
+                  <TableHead>Completed Date</TableHead>
+                  <TableHead>Delivered Date</TableHead>
+                  <TableHead>Turnaround (Days)</TableHead>
+                  <TableHead>On-Time? (Y/N)</TableHead>
+                  <TableHead>Invoice Value</TableHead>
                 </>
               )}
               {canEdit && (
-                <th className="p-4 font-semibold text-right sticky right-0 bg-muted">
+                <TableHead className="text-right sticky right-0 bg-muted">
                   Actions
-                </th>
+                </TableHead>
               )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {filteredJobs.length === 0 ? (
-              <TableEmptyState
-                colSpan={
-                  selectedTab === "all"
-                    ? 23
-                    : selectedTab === "pending"
-                      ? 8
-                      : 10
-                }
-                message="No jobs match the active filter."
-              />
+              <TableRow>
+                <TableCell
+                  colSpan={
+                    selectedTab === "all"
+                      ? 23
+                      : selectedTab === "pending"
+                        ? 8
+                        : 10
+                  }
+                  className="p-0"
+                >
+                  <TableEmptyState
+                    colSpan={1}
+                    message="No jobs match the active filter."
+                  />
+                </TableCell>
+              </TableRow>
             ) : (
               filteredJobs.map((job) => {
                 const hasMissingDates = !job.orderDate || !job.promisedDate;
@@ -473,29 +492,29 @@ export default function JobMasterPage() {
                   isParent && job.inThisWeek ? "Y" : "";
 
                 return (
-                  <tr
+                  <TableRow
                     key={job.id}
                     className={cn(
-                      "group hover:bg-muted/40 transition-colors",
-                      hasMissingDates && "bg-destructive/5",
+                      hasMissingDates &&
+                        "bg-destructive/5 hover:bg-destructive/10",
                     )}
                   >
                     {selectedTab === "all" && (
                       <>
-                        <td
+                        <TableCell
                           className={cn(
-                            "p-4 font-medium sticky left-0 bg-card group-hover:bg-muted/50 transition-colors z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]",
+                            "font-medium sticky left-0 bg-card group-hover:bg-muted/50 transition-colors z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]",
                             hasMissingDates && "text-destructive font-bold",
                           )}
                         >
                           {job.jobNo}
-                        </td>
-                        <td className="p-4 font-mono">{job.lineNo}</td>
-                        <td className="p-4">{job.itemDescription}</td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>{job.lineNo}</TableCell>
+                        <TableCell>{job.itemDescription}</TableCell>
+                        <TableCell numeric>
                           {job.quantity.toLocaleString()}
-                        </td>
-                        <td className="p-4">
+                        </TableCell>
+                        <TableCell>
                           {!isParent ? (
                             <span className="text-muted-foreground">-</span>
                           ) : statusStr === "Completed" ? (
@@ -507,10 +526,10 @@ export default function JobMasterPage() {
                               Pending
                             </span>
                           )}
-                        </td>
-                        <td
+                        </TableCell>
+                        <TableCell
+                          numeric
                           className={cn(
-                            "p-4 font-mono",
                             !job.orderDate &&
                               "bg-destructive/10 text-destructive font-semibold",
                           )}
@@ -518,10 +537,10 @@ export default function JobMasterPage() {
                           {job.orderDate
                             ? formatDateUS(job.orderDate)
                             : "MISSING"}
-                        </td>
-                        <td
+                        </TableCell>
+                        <TableCell
+                          numeric
                           className={cn(
-                            "p-4 font-mono",
                             !job.promisedDate &&
                               "bg-destructive/10 text-destructive font-semibold",
                           )}
@@ -529,24 +548,24 @@ export default function JobMasterPage() {
                           {job.promisedDate
                             ? formatDateUS(job.promisedDate)
                             : "MISSING"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent
                             ? formatDateUS(job.completedDate) || "-"
                             : "-"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent
                             ? formatDateUS(job.deliveredDate) || "-"
                             : "-"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent ? turnaroundDaysVal || "-" : "-"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent ? daysVsPromisedVal || "-" : "-"}
-                        </td>
-                        <td className="p-4 font-semibold">
+                        </TableCell>
+                        <TableCell className="font-semibold">
                           {!isParent ? (
                             <span className="font-normal text-muted-foreground">
                               -
@@ -554,109 +573,119 @@ export default function JobMasterPage() {
                           ) : (
                             <StatusBadge value={onTimeVal} />
                           )}
-                        </td>
-                        <td className="p-4 text-destructive font-semibold">
+                        </TableCell>
+                        <TableCell className="text-destructive font-semibold">
                           {isParent ? overdueFlagVal || "-" : "-"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent ? daysOverdueVal || "-" : "-"}
-                        </td>
-                        <td className="p-4 text-xs font-medium text-warning">
+                        </TableCell>
+                        <TableCell className="text-xs font-medium text-warning">
                           {formatYesNo(job.materialShortage)}
-                        </td>
-                        <td className="p-4 text-xs font-medium text-destructive">
+                        </TableCell>
+                        <TableCell className="text-xs font-medium text-destructive">
                           {formatYesNo(job.equipmentIssue)}
-                        </td>
-                        <td className="p-4 text-xs text-destructive font-medium">
+                        </TableCell>
+                        <TableCell className="text-xs text-destructive font-medium">
                           {isParent ? job.overdueReason || "-" : "-"}
-                        </td>
-                        <td className="p-4 font-mono font-medium">
+                        </TableCell>
+                        <TableCell numeric className="font-medium">
                           {isParent
                             ? `$${job.invoiceValue.toLocaleString()}`
                             : "-"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent ? itemsInJob : "-"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent ? totalQty.toLocaleString() : "-"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent ? (
                             <StatusBadge value={scheduledThisWeekVal} />
                           ) : (
                             "-"
                           )}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {isParent ? weekEndingStr || "-" : "-"}
-                        </td>
+                        </TableCell>
                       </>
                     )}
 
                     {selectedTab === "pending" && (
                       <>
-                        <td className="p-4 font-medium">{job.jobNo}</td>
-                        <td className="p-4">{job.itemDescription}</td>
-                        <td className="p-4 font-mono">
+                        <TableCell className="font-medium">
+                          {job.jobNo}
+                        </TableCell>
+                        <TableCell>{job.itemDescription}</TableCell>
+                        <TableCell numeric>
                           {job.orderDate
                             ? formatDateUS(job.orderDate)
                             : "MISSING"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {job.promisedDate
                             ? formatDateUS(job.promisedDate)
                             : "MISSING"}
-                        </td>
-                        <td className="p-4">
+                        </TableCell>
+                        <TableCell>
                           {isOverdue && (
                             <span className="inline-flex items-center rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
                               Overdue
                             </span>
                           )}
-                        </td>
-                        <td className="p-4 font-mono font-semibold text-destructive">
+                        </TableCell>
+                        <TableCell
+                          numeric
+                          className="font-semibold text-destructive"
+                        >
                           {daysOverdueVal || "-"}
-                        </td>
-                        <td className="p-4 text-xs text-destructive font-medium">
+                        </TableCell>
+                        <TableCell className="text-xs text-destructive font-medium">
                           {job.overdueReason || "-"}
-                        </td>
+                        </TableCell>
                       </>
                     )}
 
                     {selectedTab === "completed" && (
                       <>
-                        <td className="p-4 font-medium">{job.jobNo}</td>
-                        <td className="p-4">{job.itemDescription}</td>
-                        <td className="p-4 font-mono">{weekEndingStr}</td>
-                        <td className="p-4 font-mono">
+                        <TableCell className="font-medium">
+                          {job.jobNo}
+                        </TableCell>
+                        <TableCell>{job.itemDescription}</TableCell>
+                        <TableCell numeric>{weekEndingStr}</TableCell>
+                        <TableCell numeric>
                           {job.orderDate
                             ? formatDateUS(job.orderDate)
                             : "MISSING"}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {job.promisedDate
                             ? formatDateUS(job.promisedDate)
                             : "MISSING"}
-                        </td>
-                        <td className="p-4 font-mono text-success font-semibold">
+                        </TableCell>
+                        <TableCell
+                          numeric
+                          className="text-success font-semibold"
+                        >
                           {formatDateUS(job.completedDate)}
-                        </td>
-                        <td className="p-4 font-mono">
+                        </TableCell>
+                        <TableCell numeric>
                           {formatDateUS(job.deliveredDate) || "-"}
-                        </td>
-                        <td className="p-4 font-mono">{turnaroundDaysVal}</td>
-                        <td className="p-4">
+                        </TableCell>
+                        <TableCell numeric>{turnaroundDaysVal}</TableCell>
+                        <TableCell>
                           <StatusBadge value={onTimeVal} />
-                        </td>
-                        <td className="p-4 font-mono font-medium">
+                        </TableCell>
+                        <TableCell numeric className="font-medium">
                           ${job.invoiceValue.toLocaleString()}
-                        </td>
+                        </TableCell>
                       </>
                     )}
 
                     {canEdit && (
-                      <td className="p-4 text-right sticky right-0 bg-card group-hover:bg-muted/40 transition-colors shadow-[-1px_0_0_rgba(0,0,0,0.1)]">
+                      <TableCell className="text-right sticky right-0 bg-card group-hover:bg-muted/40 transition-colors shadow-[-1px_0_0_rgba(0,0,0,0.1)]">
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="ghost"
@@ -677,14 +706,14 @@ export default function JobMasterPage() {
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
-                      </td>
+                      </TableCell>
                     )}
-                  </tr>
+                  </TableRow>
                 );
               })
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Dialog for Add/Edit */}

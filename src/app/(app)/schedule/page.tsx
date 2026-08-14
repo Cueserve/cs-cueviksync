@@ -18,6 +18,14 @@ import {
 } from "@/components/ui/dialog";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { IssueBadge } from "@/components/ui/issue-badge";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/data-table";
 
 export default function ThisWeekSchedulePage() {
   const { jobs, updateJobItem, selectedRole } = useTracker();
@@ -55,27 +63,29 @@ export default function ThisWeekSchedulePage() {
         description="Read-only view. Flag a job 'Y' in the 'In This Week?' column on Job Master — every item line of that job appears here."
       />
 
-      <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-muted text-muted-foreground">
-            <tr>
-              <th className="p-4 font-semibold">Job #</th>
-              <th className="p-4 font-semibold">Item Description</th>
-              <th className="p-4 font-semibold">Qty</th>
-              <th className="p-4 font-semibold">Status</th>
-              <th className="p-4 font-semibold">Material Shortage?</th>
-              <th className="p-4 font-semibold">Equipment Issue</th>
-              {canEdit && (
-                <th className="p-4 font-semibold text-right">Triage</th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+      <div className="mt-6 bg-card rounded-md">
+        <Table caption="This week's scheduled jobs">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Job #</TableHead>
+              <TableHead>Item Description</TableHead>
+              <TableHead>Qty</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Material Shortage?</TableHead>
+              <TableHead>Equipment Issue</TableHead>
+              {canEdit && <TableHead className="text-right">Triage</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {scheduledJobs.length === 0 ? (
-              <TableEmptyState
-                colSpan={7}
-                message="No jobs scheduled for this week. Flag items in the Job Master to see them here."
-              />
+              <TableRow>
+                <TableCell colSpan={7} className="p-0">
+                  <TableEmptyState
+                    colSpan={1}
+                    message="No jobs scheduled for this week. Flag items in the Job Master to see them here."
+                  />
+                </TableCell>
+              </TableRow>
             ) : (
               scheduledJobs.map((job) => {
                 // Find if the parent job is completed
@@ -85,16 +95,13 @@ export default function ThisWeekSchedulePage() {
                 const isCompleted = !!parentJob?.completedDate;
 
                 return (
-                  <tr
-                    key={job.id}
-                    className="hover:bg-muted/40 transition-colors"
-                  >
-                    <td className="p-4 font-medium">{job.jobNo}</td>
-                    <td className="p-4">{job.itemDescription}</td>
-                    <td className="p-4 font-mono">
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">{job.jobNo}</TableCell>
+                    <TableCell>{job.itemDescription}</TableCell>
+                    <TableCell numeric>
                       {job.quantity.toLocaleString()}
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell>
                       {isCompleted ? (
                         <span className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-1 text-xs font-semibold text-success">
                           Completed
@@ -104,15 +111,15 @@ export default function ThisWeekSchedulePage() {
                           Pending
                         </span>
                       )}
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell>
                       <IssueBadge type="material" text={job.materialShortage} />
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell>
                       <IssueBadge type="equipment" text={job.equipmentIssue} />
-                    </td>
+                    </TableCell>
                     {canEdit && (
-                      <td className="p-4 text-right">
+                      <TableCell className="text-right">
                         <Button
                           variant="outline"
                           size="sm"
@@ -121,14 +128,14 @@ export default function ThisWeekSchedulePage() {
                         >
                           Update status
                         </Button>
-                      </td>
+                      </TableCell>
                     )}
-                  </tr>
+                  </TableRow>
                 );
               })
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Edit Status Dialog */}

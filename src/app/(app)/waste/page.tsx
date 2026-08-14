@@ -16,6 +16,14 @@ import {
   DialogFooter,
   DialogBody,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/data-table";
 
 import { getWeekEndingMonday, formatDateUS } from "@/lib/date-utils";
 
@@ -162,30 +170,30 @@ export default function WasteReworkPage() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-card">
-        <table className="w-full border-collapse text-left text-sm whitespace-nowrap">
-          <thead className="bg-muted text-muted-foreground">
-            <tr>
-              <th className="p-4 font-semibold">Job #</th>
-              <th className="p-4 font-semibold">Description</th>
-              <th className="p-4 font-semibold">Week Ending (Mon)</th>
-              <th className="p-4 font-semibold">Spoilage %</th>
-              <th className="p-4 font-semibold">Reprint? (Y/N)</th>
-              <th className="p-4 font-semibold">Notes</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+      <div className="mt-6 bg-card rounded-md">
+        <Table caption="Waste and Rework Log">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Job #</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Week Ending (Mon)</TableHead>
+              <TableHead>Spoilage %</TableHead>
+              <TableHead>Reprint? (Y/N)</TableHead>
+              <TableHead>Notes</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {wasteJobs.length === 0 ? (
-              <tr>
-                <td
+              <TableRow>
+                <TableCell
                   colSpan={6}
                   className="p-8 text-center text-muted-foreground"
                 >
                   No waste or rework recorded. Use the &quot;Log Waste /
                   Rework&quot; button or edit a job in the Job Master to log
                   issues.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               wasteJobs.map((job) => {
                 const currentEdit = editingValues[job.id];
@@ -203,18 +211,15 @@ export default function WasteReworkPage() {
                     : job.notes || "";
 
                 return (
-                  <tr
-                    key={job.id}
-                    className="hover:bg-muted/40 transition-colors"
-                  >
-                    <td className="p-4 font-medium">{job.jobNo}</td>
-                    <td className="p-4">{job.itemDescription}</td>
-                    <td className="p-4 font-mono text-muted-foreground">
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">{job.jobNo}</TableCell>
+                    <TableCell>{job.itemDescription}</TableCell>
+                    <TableCell className="font-mono text-muted-foreground">
                       {job.completedDate
                         ? formatDateUS(getWeekEndingMonday(job.completedDate))
                         : "-"}
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell>
                       {canEdit ? (
                         <div className="relative flex items-center w-fit">
                           <Input
@@ -227,7 +232,7 @@ export default function WasteReworkPage() {
                               handleSpoilageChange(job.id, e.target.value)
                             }
                             onBlur={() => handleBlur(job.id, "spoilage")}
-                            className="w-24 bg-card border-input focus-visible:ring-ring font-mono text-right pr-7"
+                            className="w-24 bg-card border-input focus-visible:ring-ring font-mono text-right pr-7 h-8"
                           />
                           <span className="absolute right-2.5 text-muted-foreground text-xs font-mono select-none">
                             %
@@ -238,8 +243,8 @@ export default function WasteReworkPage() {
                           {job.spoilagePercent}%
                         </span>
                       )}
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex items-center gap-2">
                         <Checkbox
                           id={`reprint-${job.id}`}
@@ -259,8 +264,8 @@ export default function WasteReworkPage() {
                           </Badge>
                         )}
                       </div>
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell>
                       {canEdit ? (
                         <Input
                           value={displayNotes}
@@ -269,20 +274,20 @@ export default function WasteReworkPage() {
                           }
                           onBlur={() => handleBlur(job.id, "notes")}
                           placeholder="Add quality notes..."
-                          className="max-w-md bg-card border-input focus-visible:ring-ring"
+                          className="max-w-md bg-card border-input focus-visible:ring-ring h-8"
                         />
                       ) : (
                         <span className="text-muted-foreground text-xs">
                           {job.notes || "-"}
                         </span>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Manual Waste / Rework Logging Dialog */}
