@@ -99,6 +99,9 @@ export default function JobMasterPage() {
   const [materialShortage, setMaterialShortage] = useState("");
   const [equipmentIssue, setEquipmentIssue] = useState("");
   const [invoiceValue, setInvoiceValue] = useState(0);
+  const [spoilagePercent, setSpoilagePercent] = useState(0);
+  const [reprintRequired, setReprintRequired] = useState(false);
+  const [notes, setNotes] = useState("");
 
   const canEdit =
     selectedRole === "admin" ||
@@ -123,6 +126,9 @@ export default function JobMasterPage() {
     setMaterialShortage("");
     setEquipmentIssue("");
     setInvoiceValue(0);
+    setSpoilagePercent(0);
+    setReprintRequired(false);
+    setNotes("");
     setEditingJob(null);
     setIsAddOpen(true);
   };
@@ -141,6 +147,9 @@ export default function JobMasterPage() {
     setMaterialShortage(job.materialShortage);
     setEquipmentIssue(job.equipmentIssue);
     setInvoiceValue(job.invoiceValue);
+    setSpoilagePercent(job.spoilagePercent);
+    setReprintRequired(job.reprintRequired);
+    setNotes(job.notes || "");
     setIsAddOpen(true);
   };
 
@@ -169,8 +178,9 @@ export default function JobMasterPage() {
       materialShortage,
       equipmentIssue,
       invoiceValue: isSubJob ? 0 : Number(invoiceValue),
-      spoilagePercent: editingJob ? editingJob.spoilagePercent : 0,
-      reprintRequired: editingJob ? editingJob.reprintRequired : false,
+      spoilagePercent: Number(spoilagePercent),
+      reprintRequired,
+      notes,
     };
 
     if (editingJob) {
@@ -687,7 +697,7 @@ export default function JobMasterPage() {
                   htmlFor="jobNo"
                   className="text-right text-sm font-medium"
                 >
-                  Job #
+                  Job # <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="jobNo"
@@ -703,7 +713,7 @@ export default function JobMasterPage() {
                   htmlFor="desc"
                   className="text-right text-sm font-medium"
                 >
-                  Item Desc
+                  Item Desc <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="desc"
@@ -716,7 +726,7 @@ export default function JobMasterPage() {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="qty" className="text-right text-sm font-medium">
-                  Quantity
+                  Quantity <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="qty"
@@ -889,6 +899,70 @@ export default function JobMasterPage() {
                       : "bg-card",
                   )}
                 />
+              </div>
+
+              <div className="border-t border-border my-2 pt-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                  Waste & Rework Log
+                </h4>
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label
+                      htmlFor="spoilagePercent"
+                      className="text-right text-sm font-medium"
+                    >
+                      Spoilage %
+                    </label>
+                    <Input
+                      id="spoilagePercent"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      value={spoilagePercent}
+                      onChange={(e) =>
+                        setSpoilagePercent(Number(e.target.value))
+                      }
+                      className="col-span-3 bg-card border-input focus-visible:ring-ring font-mono"
+                      placeholder="e.g. 3.5"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label className="text-right text-sm font-medium">
+                      Reprint?
+                    </label>
+                    <div className="col-span-3 flex items-center gap-2">
+                      <Checkbox
+                        id="reprintRequired"
+                        checked={reprintRequired}
+                        onCheckedChange={(checked) =>
+                          setReprintRequired(!!checked)
+                        }
+                      />
+                      <label
+                        htmlFor="reprintRequired"
+                        className="text-xs text-muted-foreground select-none"
+                      >
+                        Flag as needing reprint (Y/N)
+                      </label>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label
+                      htmlFor="notes"
+                      className="text-right text-sm font-medium"
+                    >
+                      Quality Notes
+                    </label>
+                    <Input
+                      id="notes"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                      placeholder="e.g. Defective layout cut"
+                    />
+                  </div>
+                </div>
               </div>
             </DialogBody>
             <DialogFooter>

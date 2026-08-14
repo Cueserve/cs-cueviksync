@@ -1,12 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogBody,
+} from "@/components/ui/dialog";
 
 import { getWeekEndingMonday, formatDateUS } from "@/lib/date-utils";
 
@@ -21,6 +30,13 @@ export default function WasteReworkPage() {
   const [editingValues, setEditingValues] = useState<
     Record<string, { spoilage: string; reprint: boolean; notes: string }>
   >({});
+
+  // Dialog state for manually adding/logging waste
+  const [isLogOpen, setIsLogOpen] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [modalSpoilage, setModalSpoilage] = useState("0");
+  const [modalReprint, setModalReprint] = useState(false);
+  const [modalNotes, setModalNotes] = useState("");
 
   const handleSpoilageChange = (id: string, val: string) => {
     const job = jobs.find((j) => j.id === id);
@@ -77,6 +93,25 @@ export default function WasteReworkPage() {
     }
   };
 
+  const handleOpenLog = () => {
+    setSelectedJobId("");
+    setModalSpoilage("0");
+    setModalReprint(false);
+    setModalNotes("");
+    setIsLogOpen(true);
+  };
+
+  const handleSaveLog = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedJobId) return;
+    updateJobItem(selectedJobId, {
+      spoilagePercent: Number(modalSpoilage),
+      reprintRequired: modalReprint,
+      notes: modalNotes,
+    });
+    setIsLogOpen(false);
+  };
+
   // Total metrics
   const avgSpoilage =
     jobs.length > 0
@@ -86,12 +121,26 @@ export default function WasteReworkPage() {
       : "0.00";
   const reprintCount = jobs.filter((j) => j.reprintRequired).length;
 
+  const wasteJobs = jobs.filter(
+    (job) => job.spoilagePercent > 0 || job.reprintRequired,
+  );
+
   return (
     <PageBody>
-      <PageHeader
-        title="Waste / Rework Log"
-        description="Placeholder tracking — spoilage % formula to be defined once we have enough data (flagged by Hitesh)."
-      />
+      <div className="flex items-center justify-between">
+        <PageHeader
+          title="Waste / Rework Log"
+          description="Placeholder tracking — spoilage % formula to be defined once we have enough data (flagged by Hitesh)."
+        />
+        {canEdit && (
+          <Button
+            onClick={handleOpenLog}
+            className="gap-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shrink-0"
+          >
+            <Plus className="size-4" /> Log Waste / Rework
+          </Button>
+        )}
+      </div>
 
       {/* Highlights Grid */}
       <div className="grid gap-4 md:grid-cols-2 mt-6">
@@ -126,18 +175,19 @@ export default function WasteReworkPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {jobs.length === 0 ? (
+            {wasteJobs.length === 0 ? (
               <tr>
                 <td
                   colSpan={6}
                   className="p-8 text-center text-muted-foreground"
                 >
-                  No jobs logged in the system. Create jobs in the Job Master
-                  first.
+                  No waste or rework recorded. Use the &quot;Log Waste /
+                  Rework&quot; button or edit a job in the Job Master to log
+                  issues.
                 </td>
               </tr>
             ) : (
-              jobs.map((job) => {
+              wasteJobs.map((job) => {
                 const currentEdit = editingValues[job.id];
                 const displaySpoilage =
                   currentEdit !== undefined
@@ -166,7 +216,7 @@ export default function WasteReworkPage() {
                     </td>
                     <td className="p-4">
                       {canEdit ? (
-                        <div className="relative flex items-center">
+                        <div className="relative flex items-center w-fit">
                           <Input
                             type="number"
                             step="0.1"
@@ -177,9 +227,9 @@ export default function WasteReworkPage() {
                               handleSpoilageChange(job.id, e.target.value)
                             }
                             onBlur={() => handleBlur(job.id, "spoilage")}
-                            className="w-24 bg-card border-input focus-visible:ring-ring font-mono text-right pr-6"
+                            className="w-24 bg-card border-input focus-visible:ring-ring font-mono text-right pr-7"
                           />
-                          <span className="absolute right-8 text-muted-foreground text-xs font-mono select-none">
+                          <span className="absolute right-2.5 text-muted-foreground text-xs font-mono select-none">
                             %
                           </span>
                         </div>
@@ -234,6 +284,117 @@ export default function WasteReworkPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Manual Waste / Rework Logging Dialog */}
+      <Dialog open={isLogOpen} onOpenChange={setIsLogOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <form onSubmit={handleSaveLog}>
+            <DialogHeader>
+              <DialogTitle>Log Waste / Rework</DialogTitle>
+            </DialogHeader>
+            <DialogBody className="grid gap-4 py-4">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="jobSelect" className="text-sm font-medium">
+                  Select Job Item <span className="text-destructive">*</span>
+                </label>
+                <select
+                  id="jobSelect"
+                  value={selectedJobId}
+                  onChange={(e) => {
+                    const jId = e.target.value;
+                    setSelectedJobId(jId);
+                    const found = jobs.find((j) => j.id === jId);
+                    if (found) {
+                      setModalSpoilage(found.spoilagePercent.toString());
+                      setModalReprint(found.reprintRequired);
+                      setModalNotes(found.notes || "");
+                    }
+                  }}
+                  required
+                  className="flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="">-- Choose a job line item --</option>
+                  {jobs.map((j) => (
+                    <option key={j.id} value={j.id}>
+                      {j.jobNo} (L{j.lineNo}) - {j.itemDescription}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4 mt-2">
+                <label
+                  htmlFor="modalSpoilage"
+                  className="text-sm font-medium text-right"
+                >
+                  Spoilage % <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  id="modalSpoilage"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  value={modalSpoilage}
+                  onChange={(e) => setModalSpoilage(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring font-mono"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label className="text-sm font-medium text-right">
+                  Reprint?
+                </label>
+                <div className="col-span-3 flex items-center gap-2">
+                  <Checkbox
+                    id="modalReprint"
+                    checked={modalReprint}
+                    onCheckedChange={(checked) => setModalReprint(!!checked)}
+                  />
+                  <label
+                    htmlFor="modalReprint"
+                    className="text-xs text-muted-foreground select-none"
+                  >
+                    Flag reprint needed (Y/N)
+                  </label>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label
+                  htmlFor="modalNotes"
+                  className="text-sm font-medium text-right"
+                >
+                  Quality Notes
+                </label>
+                <Input
+                  id="modalNotes"
+                  value={modalNotes}
+                  onChange={(e) => setModalNotes(e.target.value)}
+                  className="col-span-3 bg-card border-input focus-visible:ring-ring"
+                  placeholder="e.g. Printer misalignment"
+                />
+              </div>
+            </DialogBody>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsLogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              >
+                Save Log
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </PageBody>
   );
 }
