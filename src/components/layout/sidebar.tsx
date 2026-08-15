@@ -60,7 +60,13 @@ function Sidebar({
     <aside
       data-slot="sidebar"
       className={cn(
-        "flex h-full w-16 flex-col gap-0.5 bg-sidebar p-3 text-sidebar-foreground xl:w-55",
+        // `px-2.5` collapsed, `xl:px-3` expanded: the narrower inset below `xl`
+        // is what makes the 44px tap-target floor below possible without
+        // moving the rail's own 64px width, which DESIGN-SYSTEM.md §9 ties to
+        // the documented 156px rail-collapse step. `xl:px-3` restores the
+        // original 12px inset once the rail is wide enough not to need it,
+        // keeping the §4-driven 24px logo/footer/item alignment intact there.
+        "flex h-full w-16 flex-col gap-0.5 bg-sidebar px-2.5 py-3 text-sidebar-foreground xl:w-55 xl:px-3",
         className,
       )}
     >
@@ -114,7 +120,13 @@ function Sidebar({
                           // surface that matters; against the active item's
                           // own clay fill it is only 2.37, which is why it
                           // must never be drawn inset.
-                          "flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium no-underline transition-colors focus-visible:ring-sidebar-ring max-xl:justify-center max-xl:px-0 max-xl:py-3",
+                          // `max-xl:py-3.5`, not `py-3`: with the rail's own
+                          // collapsed inset trimmed to `px-2.5` above, this
+                          // link's box is exactly 44x44px (44 content width x
+                          // (14px + 16px icon + 14px) height) -- the WCAG
+                          // 2.5.5/2.5.8 minimum tap target, not the 40x40px it
+                          // measured before either value moved.
+                          "flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium no-underline transition-colors focus-visible:ring-sidebar-ring max-xl:justify-center max-xl:px-0 max-xl:py-3.5",
                           isActive
                             ? "bg-sidebar-primary font-semibold text-sidebar-primary-foreground"
                             : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
