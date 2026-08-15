@@ -97,13 +97,11 @@ tenant-provisioning flow. A new `auth.users` row gets no `profiles` row - provis
 undesigned; nothing auto-creates a tenant. Nothing in the app reads or writes data yet - the
 login route renders but does not authenticate.
 
-**CI is not red on the empty test suite.** `.github/workflows/ci.yml` runs four checks - `lint`,
-`typecheck`, `format:check`, `test` - no `build` step exists in the workflow despite
-README.md's "Everyday Checks" table listing five. `package.json`'s `test` script is
-`vitest run --passWithNoTests` (true since the very first commit, not a recent change), so an
-empty suite exits `0` rather than failing - the "CI is red, deliberately" claim previously here
-does not match the source. There are still zero test files (`src/**/*.test.ts`) - correct if
-this is stale.
+**CI is green, and the `test` step gates nothing yet.** `.github/workflows/ci.yml` runs a single
+`check` job of four steps - `lint`, `typecheck`, `format:check`, `test`; there is no `build`
+step. `package.json`'s `test` script is `vitest run --passWithNoTests`, so the empty suite exits
+`0` rather than failing, and there are still zero test files (`src/**/*.test.ts`) - correct this
+if it is stale.
 
 ## Approved stack
 
@@ -129,6 +127,11 @@ follow the pointer rather than expecting a copy here.
   matches).
 - **Run one test file:** `npx vitest run src/lib/foo.test.ts`; `npx vitest` watches. The include
   glob is `src/**/*.test.ts` only (`vitest.config.ts`), so a `*.spec.ts` is never collected.
+- **Check formatting through `npm run format:check`, never a bare `npx prettier`.** With no
+  `node_modules` installed, `npx` can resolve a different Prettier than the `package-lock.json`
+  pin and report failures CI never sees - `next.config.ts` and the generated
+  `src/lib/supabase/types.ts` are both formatted differently by 3.8.1 than by the pinned 3.9.6.
+  Never "fix" a file the pinned version considers clean.
 - **A test that touches the database runs on the local stack** (`npx supabase start`), never
   against the linked hosted project - the mandatory cases are destructive
   ([docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) §1). That stack is not set up yet.
