@@ -103,9 +103,9 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 - State-machine tests MUST cover rejected invalid transitions, not only the happy path.
 - Do not mock away the security boundary (RLS, authorization) to make a test pass — a test that
   green-lights a bypassed client is invalid.
-- The blocking Continuous Integration (CI) gate is `lint` + `tsc --noEmit` + `format:check`
-  - Vitest. New feature work MUST land with unit tests in the gate. **There is no numeric
-    line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
-    adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
-    cases in this section that apply (tenant isolation, worker idempotency, state-machine
-    rejections) are asserted. A single happy-path test does not satisfy this.
+- The blocking Continuous Integration (CI) gate is `lint` + `tsc --noEmit` + `format:check` +
+  Vitest. New feature work MUST land with unit tests in the gate. **There is no numeric
+  line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
+  adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
+  cases in this section that apply (tenant isolation, worker idempotency, state-machine
+  rejections) are asserted. A single happy-path test does not satisfy this.
