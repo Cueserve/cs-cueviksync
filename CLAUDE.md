@@ -105,8 +105,6 @@ empty suite exits `0` rather than failing - the "CI is red, deliberately" claim 
 does not match the source. There are still zero test files (`src/**/*.test.ts`) - correct if
 this is stale.
 
-**The brand palette is provisional** - see docs/DESIGN-SYSTEM.md §1.
-
 ## Approved stack
 
 [docs/TECH-STACK.md](docs/TECH-STACK.md) is the authority; this is the short form.
@@ -120,6 +118,29 @@ this is stale.
 - **npm only** - do not use pnpm or yarn.
 - **Not used:** TanStack Query, Playwright/E2E, any ORM, external queue vendors,
   headless-browser PDF rendering, LLM/vector stores. Each with its reason in TECH-STACK.md §5.
+
+## Operating the codebase
+
+Facts written nowhere else. Everything already documented stays where it is - `package.json`
+owns the script list, [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) owns placement - so
+follow the pointer rather than expecting a copy here.
+
+- **`npm run dev` serves on port 3001**, not 3000 (`next dev --port 3001`; `.claude/launch.json`
+  matches).
+- **Run one test file:** `npx vitest run src/lib/foo.test.ts`; `npx vitest` watches. The include
+  glob is `src/**/*.test.ts` only (`vitest.config.ts`), so a `*.spec.ts` is never collected.
+- **A test that touches the database runs on the local stack** (`npx supabase start`), never
+  against the linked hosted project - the mandatory cases are destructive
+  ([docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) §1). That stack is not set up yet.
+- **Which Supabase client:** `server.ts` in Server Components and Server Actions, `client.ts` in
+  client components, `service-role.ts` only in the three system paths. The first two carry the
+  caller's JWT, so RLS scopes the query for you; `service-role.ts` bypasses RLS and the caller
+  MUST set `tenant_id` itself.
+- **A new Server Action** lives in `src/server/actions/<aggregate>.ts` under
+  `import 'server-only'`, validates its input against a Zod schema from `src/lib/validation/`,
+  reads and writes through the session-bound client, and invalidates with
+  `revalidatePath`/`revalidateTag` - there is no client-side cache library. Neither directory
+  exists yet; the first one of each is yours to create.
 
 ## Non-negotiable invariants
 
@@ -248,23 +269,43 @@ a font other than the two declared in `src/lib/fonts.ts`. Adding a token is a DE
 change requiring approval.
 
 **The Tier-1 brand anchors are the ratified Cueserve logo colors** (DESIGN-SYSTEM.md §1).
-Everything below Tier 1 is settled.
+`--clay-600` and `--moss-600` are the literal logo hexes and are load-bearing - do not touch
+either. Everything below Tier 1 is settled.
 
-**shadcn/ui builds it.** This is a shadcn project ([components.json](components.json), style
-`radix-nova`, `cssVariables: true`), and the 18 primitives in `src/components/ui/` are shadcn
-components already adapted to our tokens.
+### The order on a UI-bearing change
 
-- **Reuse before you add.** Check `src/components/ui/` first, then extend a primitive with a
-  `cva` variant before pulling in a new one.
-- **Adding a primitive:** `npx shadcn@latest add <name>`. Its output is compatible by
-  construction - shadcn names its tokens exactly as `globals.css` defines them. Read the diff
-  anyway: a hardcoded color in generated output is a bug, not a starting point.
-- **`src/components/ui/` must stay app-agnostic.** `eslint.config.mjs` bans imports from
-  `@/server/*`, `@/lib/supabase/*`, and `@/app/*` there. It is the extraction boundary for a
-  future shared Cuevik library.
+A new route, screen, or user-facing component follows these steps in order. **Backend-only work
+(a migration, a Server Action, a `src/lib/` module) is exempt and starts at step 5.** This
+section is the authority on the order; README's "Claude Code Setup" covers installing the
+plugins and nothing else.
 
-**Ship gate:** `npm run lint` and `npm run typecheck`. A suggestion that fails lint was never a
-valid suggestion.
+1. **`/impeccable shape` first, and confirm the brief before building.** Required, not optional.
+   If the _problem_ is still open - what the screen is for, whether it should exist at all -
+   `superpowers:brainstorming` runs before this. Shaping settles how a screen behaves and looks,
+   never whether to build it.
+2. **Design system.** Resolve every value to a token before writing markup, per the rule above.
+3. **shadcn builds it - no plugin does.** This is a shadcn project
+   ([components.json](components.json), style `radix-nova`, `cssVariables: true`), and the 18
+   primitives in `src/components/ui/` are shadcn components already adapted to our tokens.
+   - **Reuse before you add.** Check `src/components/ui/` first, then extend a primitive with a
+     `cva` variant before pulling in a new one.
+   - **Adding a primitive:** `npx shadcn@latest add <name>`. Its output is compatible by
+     construction - shadcn names its tokens exactly as `globals.css` defines them. Read the diff
+     anyway: a hardcoded color in generated output is a bug, not a starting point.
+   - **`src/components/ui/` must stay app-agnostic.** `eslint.config.mjs` bans imports from
+     `@/server/*`, `@/lib/supabase/*`, and `@/app/*` there. It is the extraction boundary for a
+     future shared Cuevik library.
+4. **Audit the rendered route, not the source.** A source scan cannot check contrast - our
+   semantic tokens resolve at runtime, so `npx impeccable detect src/` _skips_ WCAG rather than
+   passing it. Run `npm run dev` and audit the URL instead:
+   `npx impeccable detect http://localhost:3001/<route>`. Because `eslint.config.mjs` already
+   bans the raw palette classes most of its detectors key on, anything it reports got past
+   `npm run lint` and is a real finding - fix it, never silence it by changing a token.
+5. **Ship gate:** `npm run lint` and `npm run typecheck`. A suggestion that fails lint was never
+   a valid suggestion.
+
+**`/impeccable craft` is banned** - it builds as well as plans, and nothing but shadcn writes UI
+in this repo.
 
 ## When blocked
 
