@@ -60,15 +60,22 @@ When two sources disagree, the higher one wins:
 
 ## Project state
 
-**Last verified: 2026-08-12.** Confirm a file or script still exists before relying on this
+**Last verified: 2026-08-15.** Confirm a file or script still exists before relying on this
 section - it is a snapshot, and a stale one is worse than none.
 
-**Built - the bare-minimum app, plus tenancy and auth.** The `@/*` alias resolves to `./src/*`.
+**Built - the bare-minimum app, plus tenancy, auth, and a concept dashboard.** The `@/*` alias
+resolves to `./src/*`.
 
 - **Shell and token layer** - `src/app/globals.css` (three-tier tokens, enforced by
   `eslint.config.mjs`), the root layout, `global-error.tsx`, the `(app)` shell with
-  sidebar/topbar/user-menu, `(auth)/login`, a placeholder `/inquiries` route, and the 18
-  primitives in `src/components/ui/`.
+  sidebar/topbar/user-menu (nav grouped Sales/Jobs/Settings, with a co-branded tenant/product
+  logo slot via `src/components/brand-logo.tsx`), `(auth)/login`, a placeholder `/inquiries`
+  route, and the 18 primitives in `src/components/ui/`.
+- **A `/dashboard` route that is a pitch mockup, not a real screen** -
+  `src/app/(app)/dashboard/` renders hardcoded sample data for Sales/Jobs/Finance KPIs. Its own
+  header comment is explicit: Jobs is grounded in the committed PRD-043 weekly summary, Sales
+  and Finance are speculative and have no data model in this repo. Nothing here talks to
+  Postgres; treat it as a concept artifact, not scaffolding to wire up.
 - **Supabase plumbing, unwired to any UI** - `src/lib/supabase/` (browser, server, service-role,
   session refresh), `src/proxy.ts`, `src/lib/config.ts` and `src/lib/config.server.ts`.
 - **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and a CI workflow.
@@ -80,14 +87,23 @@ section - it is a snapshot, and a stale one is worse than none.
   `pg_cron` is enabled yet - deferred to the migration that first uses them.
 - **`src/lib/supabase/types.ts` is real, generated output** - `npm run db:types` against the
   applied schema, not the hand-authored placeholder it used to be.
+- **`docs/DATABASE.md` exists but is barely authored** - only §4's conventions block and the two
+  applied migrations are real; §§1-3, 5, 6 are still unwritten. Check `supabase/migrations/` for
+  what actually exists, not this doc.
 
-**Not built.** No Server Actions, no domain screens, no tests, no tenant-provisioning flow. A
-new `auth.users` row gets no `profiles` row - provisioning (self-serve vs. invited, what
-happens to a new tenant's first user) is undecided and undesigned; nothing auto-creates a
-tenant. Nothing in the app reads or writes data yet - the login route renders but does not
-authenticate.
+**Not built.** No Server Actions, no domain screens wired to data, no tests, no
+tenant-provisioning flow. A new `auth.users` row gets no `profiles` row - provisioning
+(self-serve vs. invited, what happens to a new tenant's first user) is undecided and
+undesigned; nothing auto-creates a tenant. Nothing in the app reads or writes data yet - the
+login route renders but does not authenticate.
 
-**CI is red, deliberately.** `npm run test` fails an empty suite; the other four steps pass.
+**CI is not red on the empty test suite.** `.github/workflows/ci.yml` runs four checks - `lint`,
+`typecheck`, `format:check`, `test` - no `build` step exists in the workflow despite
+README.md's "Everyday Checks" table listing five. `package.json`'s `test` script is
+`vitest run --passWithNoTests` (true since the very first commit, not a recent change), so an
+empty suite exits `0` rather than failing - the "CI is red, deliberately" claim previously here
+does not match the source. There are still zero test files (`src/**/*.test.ts`) - correct if
+this is stale.
 
 **The brand palette is provisional** - see docs/DESIGN-SYSTEM.md §1.
 
