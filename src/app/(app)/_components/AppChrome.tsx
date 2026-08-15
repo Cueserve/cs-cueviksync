@@ -6,6 +6,7 @@ import {
   ClipboardList,
   Inbox,
   KanbanSquare,
+  LayoutDashboard,
   SlidersHorizontal,
 } from "lucide-react";
 
@@ -33,6 +34,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // Jobs covers execution after. Settings is its own group rather than folded
 // into either -- it's configuration, not a pipeline stage.
 const NAV_GROUPS: SidebarNavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: <LayoutDashboard className="size-4" />,
+      },
+    ],
+  },
   {
     label: "Sales",
     items: [
@@ -81,6 +92,7 @@ const NAV_GROUPS: SidebarNavGroup[] = [
 // by and withholds the controls — not the page.
 
 const SECTION_LABEL: Record<string, string> = {
+  dashboard: "Dashboard",
   inquiries: "Inquiries",
   contacts: "Contacts",
   pipeline: "Pipeline",
