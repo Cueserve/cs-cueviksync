@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  *  on it; Topbar ignores it. */
 type Crumb = { label: string; href?: string };
 
-// The design system's Topbar (§7.18): breadcrumb-style crumbs, right-aligned
+// The design system's Topbar: breadcrumb-style crumbs, right-aligned
 // action slot, --border-default bottom rule. Not `ui/` for the same reason as
 // Sidebar -- see the comment there.
 //

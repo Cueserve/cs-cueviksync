@@ -404,6 +404,13 @@ change when real quote data replaces them. Treat it as a measurement to retake, 
 run `npm run dev`, set the viewport to the narrow side of the step, and confirm the table is
 not clipped and the page itself does not scroll horizontally (NFR-008).
 
+**Collapsed-rail tap targets are 44x44px** (WCAG 2.5.5/2.5.8 floor) — the rail stays 64px
+(previous paragraph), but its own horizontal inset narrows to `px-2.5` (10px) below `xl` and
+each nav item's vertical padding grows to `py-3.5` (14px), so the 16px icon sits in a 44px box on
+both axes (`src/components/layout/sidebar.tsx`). Below `xl` only — at `xl`+ the inset returns to
+`px-3` (12px) for the §4-driven 24px logo/footer/item alignment, and items carry visible text
+alongside the icon, so the 44px floor is not the binding constraint there.
+
 **Surfaces** — flat color only: no gradients, no photographic imagery, no textures or patterns.
 
 ## 10. Chart series
