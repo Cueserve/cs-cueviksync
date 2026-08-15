@@ -32,10 +32,13 @@ claiming a file, script, or table exists loses to `ls` and to `supabase/migratio
 Arguments (optional): `$ARGUMENTS`
 
 - `align` · `drift` · `absorb` — run one pass only. No argument runs all three, in that order.
+- `docs-only` — skip §4B, the only section that probes the filesystem, and judge prose against
+  prose. Faster, and it changes nothing else about the passes that run.
 - `fix` — after reporting, apply the **Safe** tier (step 8). Never applies an `absorb` finding.
 - a path (e.g. `docs/PRD.md`) — restrict to claims made **by or about** that file.
 
-Combine freely: `/doc-audit align docs/PRD.md`, `/doc-audit drift fix`.
+Combine freely: `/doc-audit align docs/PRD.md`, `/doc-audit drift fix`,
+`/doc-audit drift docs-only`.
 
 ---
 

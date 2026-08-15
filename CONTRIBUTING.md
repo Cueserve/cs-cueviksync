@@ -3,8 +3,8 @@
 This document defines the **governance layer** for CuevikSync: how work is branched,
 committed, reviewed, and merged. Every contributor and AI tool follows these rules.
 
-> The **tooling layer** (test/lint/build commands, hooks) is appended later, once the
-> tech stack is decided (Step-05). Only governance is defined here.
+> Governance is defined here first; the **tooling layer** (run commands, hooks, CI) was
+> appended in Step-05 once the stack was locked, and is the second half of this file.
 
 CuevikSync is **solo / process-enforced**: one person holds both the Product Owner and
 Architect hats. There is **no host-enforced required-reviewer policy** — no second
@@ -187,15 +187,17 @@ npm run prepare
 
 ## Continuous integration
 
-GitHub Actions runs on every PR to `main` (see `docs/TECH-STACK.md` §3). Two jobs:
+GitHub Actions runs on every PR to `main` and every push to `main` (see `docs/TECH-STACK.md`
+§3). One job:
 
-- **Gate (blocking):** `npm run lint`, a TypeScript type-check (`tsc --noEmit`), and
-  `npm run test` (Vitest). A failure here means the PR is not ready to merge.
+- **`check` (blocking):** `npm run lint`, `npm run typecheck` (`tsc --noEmit`),
+  `npm run format:check`, and `npm run test` (Vitest). A failure here means the PR is not ready
+  to merge. There is no `build` step in the workflow.
 
 CI is a self-discipline net: it runs the full suite on the actual merge state, catching what
 the staged-files-only pre-commit hooks miss. It complements — does not replace — the
 self-review checklist, which remains the merge gate for this solo / process-enforced repo.
-The workflow file (`.github/workflows/`) is added when the repository is scaffolded.
+The workflow lives in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Environment
 
