@@ -6,7 +6,7 @@
 follow, whoever or whatever writes it.
 
 > Derived from: docs/ARCHITECTURE.md, docs/TECH-STACK.md
-> Downstream: README.md, docs/BACKLOG.md
+> Downstream: README.md
 
 ---
 

@@ -5,7 +5,7 @@
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
-> Downstream: docs/ARCHITECTURE.md, docs/TECH-STACK.md, README.md, docs/BACKLOG.md
+> Downstream: docs/ARCHITECTURE.md, docs/TECH-STACK.md, README.md
 
 ---
 
@@ -90,6 +90,11 @@ Every feature in §4 traces to one of these problems.
   production work with no shared tracking of dates, status, or delivery, so nothing
   tells the team what's due, late, or delivered. Reflects the operations-staff and
   business-owner need to see accepted work through to delivery.
+- **PS-7 — Repeat business re-enters the funnel from scratch.** A returning client's
+  new order still has to pass through inquiry, qualification, and stage-by-stage
+  pipeline movement even though the outcome isn't in doubt, so reps burn pipeline
+  overhead on business that's already won. Reflects the sales-rep and
+  operations-staff need to get a known repeat order into production quickly.
 
 ## 4. Features / Capabilities
 
@@ -114,6 +119,10 @@ Every feature in §4 traces to one of these problems.
   per-item lines, dates, and status, with automatic turnaround and on-time
   calculation, a weekly KPI summary, and a waste/rework log, so accepted work is
   tracked from acceptance to delivery. (PS-6)
+- **Repeat-order shortcut** — a "Reorder" action on an existing client's prior job
+  creates a new opportunity pre-filled from that job and immediately marks it Won,
+  producing the same Job/Order handoff as any other Won opportunity, so repeat
+  business skips redundant re-qualification. (PS-7)
 
 ## 5. User Stories
 
@@ -153,6 +162,9 @@ Every feature in §4 maps to at least one story below.
   on-time rate so that I can see production performance without asking around.
 - As operations staff, I want to log spoilage and reprints per job so that waste is
   tracked even before we have a formula for the rate.
+- As a sales rep, I want to reorder a prior job for an existing client with one
+  action so that a repeat order becomes a job without re-running the full
+  qualification and pipeline stages.
 
 ## 6. Functional Requirements
 
@@ -328,6 +340,17 @@ MoSCoW priority (Must / Should / Could).
   summary as a table; chart visualization is deferred pending a charting-library
   decision (see TECH-STACK.md).
 
+### Repeat-Order Shortcut
+
+- **PRD-044** — _**Reorder shortcut**_ _(Must)_ — The system MUST let a user
+  trigger a "Reorder" action from an existing client's prior job, creating a new
+  opportunity pre-filled with that job's contact, company, and line items, and
+  immediately setting it to the terminal Won stage. The resulting opportunity MUST
+  be structurally indistinguishable from a manually qualified and Won opportunity
+  — same fields, same audit trail (PRD-013) — and MUST convert to a job through the
+  standard PRD-031 flow. This lets a repeat order skip redundant qualification
+  while preserving the Won-to-Job invariant.
+
 ### Configurable Custom Fields
 
 - **PRD-022** — _**Custom fields**_ _(Must)_ — The system MUST let an administrator add
@@ -471,6 +494,7 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-041        | Jobs with a completed date appear in a Completed view; jobs without one appear in a Pending view, with no manual status field to set.                                                                                                                                                                                                                                                                                                                                                               |
 | PRD-042        | A user can log a spoilage percentage, a reprint Yes/No flag, and a note against a job; no automatic spoilage-rate calculation is performed.                                                                                                                                                                                                                                                                                                                                                         |
 | PRD-043        | A weekly summary table shows jobs completed, average turnaround, on-time percentage, and total invoice value, with one row added per week.                                                                                                                                                                                                                                                                                                                                                          |
+| PRD-044        | Triggering "Reorder" on an existing client's prior job creates a new opportunity pre-filled with that job's contact, company, and line items, already in the terminal Won stage, with an audit entry recording the acting user and timestamp; converting it to a job follows the same PRD-031 flow as any other Won opportunity.                                                                                                                                                                    |
 | PRD-022        | An administrator can add a custom field to a record type without a code deploy; the field appears on that record's form and its value persists.                                                                                                                                                                                                                                                                                                                                                     |
 | PRD-023        | An unauthenticated request for any record is denied and redirected to sign-in; no record data is returned.                                                                                                                                                                                                                                                                                                                                                                                          |
 | PRD-024        | The system provides exactly the thin-core baseline roles (Owner/Admin, Sales Manager, Sales Rep, Office Administrator, Operations), and changing a user's role changes accessible screens and allowed actions accordingly.                                                                                                                                                                                                                                                                          |

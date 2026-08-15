@@ -6,7 +6,7 @@
 Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
 
 > Derived from: (none — starting point)
-> Downstream: README.md, docs/PRD.md, docs/BACKLOG.md
+> Downstream: README.md, docs/PRD.md
 
 ---
 
@@ -122,6 +122,10 @@ become commitment only when captured in an approved PRD.
 - **Job execution & scheduling** — convert won quotes into trackable jobs with milestones
   and change control, then assign people, machines, and time slots on a capacity-aware
   schedule, so accepted work moves to delivery without re-entry or dispatch conflicts.
+- **Repeat-order shortcut** — a "Reorder" action on an existing client's prior job creates
+  a new Opportunity pre-filled from that job and immediately marks it Won, so a repeat
+  order skips redundant re-qualification while still producing the standard
+  Opportunity → Job handoff — no new entity, no bypass of the Won-to-Job rule.
 - **Unified communication timeline** — one chronological feed per contact combining
   calls, emails, texts, and status updates, so staff have full context before they reply.
 - **AI sales assistant** — automated follow-ups, missed-call recovery, suggested next
@@ -174,6 +178,9 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
 - Job/Order execution — convert a Won opportunity into a job with per-item lines,
   dates, status, and turnaround/on-time tracking (no milestones or change control
   this release — that stays roadmap depth, see below)
+- Repeat-order shortcut — "Reorder" on an existing client's prior job auto-creates and
+  auto-marks-Won a new Opportunity, which then follows the same Job/Order conversion
+  as any other Won opportunity above
 - Job-level weekly KPI summary — jobs completed, turnaround, on-time %, and invoice
   value, one row per week (table only; no charts this release)
 - Waste/rework logging — per-job spoilage % (manual entry — see §3A) and reprint

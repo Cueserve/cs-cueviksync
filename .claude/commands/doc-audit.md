@@ -55,7 +55,6 @@ except where Pass B explicitly probes it.
 7. `docs/DESIGN-SYSTEM.md` — brand tokens and the accessibility floor.
 8. `docs/DATABASE.md` — the data model. Currently a stub.
 9. `docs/ENVIRONMENTS.md` — which Supabase environment development targets.
-10. `docs/BACKLOG.md` — epics and stories manifest.
 
 **Governance and agent config:**
 
@@ -81,7 +80,7 @@ PRODUCT.md  (starting point — owns vision, scope, non-goals)
          ├─> ARCHITECTURE.md  (owns structure, boundaries, invariants)
          │     └─> TECH-STACK.md  (owns approved technologies and versions)
          │           └─> ENGINEERING-RULES.md  (owns conventions, banned patterns, testing)
-         └─> README.md, BACKLOG.md  (own nothing — they restate)
+         └─> README.md  (owns nothing — restates)
 ```
 
 Apply top-down. The higher entry is right by construction; the lower one is the defect.
@@ -96,7 +95,7 @@ Apply top-down. The higher entry is right by construction; the lower one is the 
    off-limits paths, and workflow constraints. It also _imports_ `docs/ENGINEERING-RULES.md`.
    Where it restates an imported or upstream doc, that doc wins; on agent behavior CLAUDE.md is
    the sole owner and nothing in `docs/` may contradict it.
-5. **README.md and BACKLOG.md** — own nothing. They lose every tie.
+5. **README.md** — owns nothing. It loses every tie.
 6. **Tier 3** — never authoritative.
 
 Three exceptions, all deliberate:
@@ -107,7 +106,8 @@ Three exceptions, all deliberate:
   verification that did not happen.
 - **A doc specifying intent the repo hasn't built yet is not wrong.** Distinguish "the doc lies
   about what exists" (finding) from "the doc specifies what should exist" (backlog — belongs in
-  `docs/BACKLOG.md` or a GitHub Issue, not this report). When unsure, say which reading you took.
+  the [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue,
+  not this report). When unsure, say which reading you took.
 - **The ladder ranks authority, not quality.** A lower-rung file can hold a _better_ explanation of
   a fact it doesn't own. That is not a drift finding — it is an `absorb` finding (step 5), and the
   fix runs **upward**. Never delete a superior explanation because of where it lives.
@@ -382,7 +382,8 @@ Present each Approval-tier fix as a diff and stop.
 - Edit a file under `supabase/migrations/` committed to `HEAD`. The `PreToolUse` hook blocks it,
   but the rule stands alone: a wrong applied migration is fixed by a **new** migration.
 - Rewrite a doc to match the repo when the doc is a **specification** of work not yet done. That
-  erases the requirement — route it to `docs/BACKLOG.md` or a GitHub Issue.
+  erases the requirement — route it to the
+  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue.
 - Treat a `Tier 3` brainstorming or review file as authoritative over a Tier 2 doc.
 - Treat a labelled "Pending scaffold — unverified" block as drift. The label is the correct
   behavior; a _missing_ label is the finding.

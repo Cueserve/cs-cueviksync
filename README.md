@@ -246,7 +246,7 @@ src/app/         Next.js App Router — routes, layouts, and route-private `_com
 src/components/  Shared UI: `ui/` primitives and `layout/` app chrome
 src/lib/         Framework-free modules: Supabase clients, config, validation, utils
 supabase/        Supabase CLI migrations (migrations/*.sql) and Edge Functions (Intake Receiver, Ingestion Worker)
-docs/            Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, ENGINEERING-RULES, BACKLOG)
+docs/            Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, ENGINEERING-RULES)
 .github/         GitHub Actions CI workflows
 .claude/         Claude Code settings, migration guard hook, and slash commands
 CLAUDE.md        Claude Code rules — agent behavior, scope, escalation, and off-limits paths
@@ -263,7 +263,8 @@ The complete document set, listed in the order each derives from the one above i
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system structure and design decisions
 - [TECH-STACK.md](docs/TECH-STACK.md) — approved technologies and usage rules
 - [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md) — coding conventions, banned patterns, testing
-- [BACKLOG.md](docs/BACKLOG.md) — epics and stories manifest
+- Backlog / work items — tracked in the
+  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17), not in this repo.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — branching, commits, review flow, and run commands
 - [CLAUDE.md](CLAUDE.md) — how Claude Code must behave in this repository
 
