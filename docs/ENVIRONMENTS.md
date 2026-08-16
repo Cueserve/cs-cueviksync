@@ -79,22 +79,45 @@ production on the hosted one. Revisit once the capture path is implemented.
 Supabase dashboard before assuming either way. The constraint that decides which plan is
 required is already fixed by NFR-010 and recorded in docs/TECH-STACK.md §7:
 
-| Plan            | Price                         | Decision                                                                                                                                              |
-| --------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Free**        | $0                            | Viable only before real data exists. Pauses after **1 week of inactivity**; limit of 2 active free projects per org. **No automated backups at all.** |
-| **Pro**         | $25/mo                        | Minimum for anything holding real tenant data. Daily backups, 7-day retention; removes auto-pause.                                                    |
-| **PITR add-on** | +$100/mo per 7 days retention | **Required, not optional.** NFR-010 sets Recovery Point Objective ≤ 24 hours, and docs/TECH-STACK.md §7 states default daily backups MAY NOT meet it. |
+| Plan            | Price                         | Decision                                                                                                                                                                                                              |
+| --------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Free**        | $0                            | Viable only before real data exists. Pauses after **1 week of inactivity**; limit of 2 active free projects per org. **No automated backups at all.**                                                                 |
+| **Pro**         | $25/mo                        | Minimum for anything holding real tenant data. Daily backups, 7-day retention; removes auto-pause.                                                                                                                    |
+| **PITR add-on** | +$100/mo per 7 days retention | **Required on the production project** — NFR-010 sets Recovery Point Objective ≤ 24 hours, and docs/TECH-STACK.md §7 states default daily backups MAY NOT meet it. **Cueserve does not own that project.** See below. |
 
-**This is a budget commitment that has not been made.** Pro + PITR is ~$125/mo per environment
-before the first customer. NFR-010 mandates it; nobody has approved the spend. Settle this
-before creating the production project, not after — the alternative is discovering at cutover
-that the durability requirement and the budget disagree.
+### Who pays, and when — decided 2026-08-16
 
-While on Free with seed data only, the sole recovery mechanism is the one you run yourself:
+**Cueserve stays on the free tier of everything, for the whole of development.** Supabase and
+Vercel both. There is no plan to buy Pro, PITR, database branching, or a paid Vercel plan, and
+a proposal that assumes one is not a proposal for this project.
+
+**The production project is never Cueserve's.** At production cutover the Supabase project and
+the Vercel project are created under **the client's own account and ownership**, and everything
+NFR-010 requires — Pro, PITR, a ≤24-hour Recovery Point Objective — is met there, on the
+client's billing relationship. This is what resolves the contradiction this section used to
+record: the durability requirement was never in conflict with the budget, because the two sit in
+different accounts. NFR-010 is unchanged and remains binding on whoever runs production.
+
+**So the real exposure is UAT, not production.** The window that matters is the one where a
+client is exercising the app against a Cueserve-owned free project and generating data they
+care about, before the transfer. Free has **no automated backups at all**, so during that window
+the only recovery mechanism is the one you run yourself:
 
 ```bash
 npx supabase db dump --linked -f backup-$(date +%Y%m%d).sql   # before destructive migrations
 ```
+
+**Before UAT starts, that dump stops being a manual habit and becomes a scheduled job.** It is
+the only thing standing between a client's UAT data and permanent loss. Nothing automates it
+today.
+
+**Two free-tier limits to plan around rather than discover:**
+
+- **2 active free projects per org.** CuevikSync dev and RedyQuote dev already hold both slots.
+  A third free project does not fit unless it lives in a different organisation.
+- **A free project pauses after one week idle.** The first request after that fails until
+  someone resumes it in the dashboard. Under a client-owned production project this stops being
+  a concern; during UAT it is a real interruption.
 
 ## 3. Working Rules
 
@@ -180,8 +203,11 @@ application code is environment-specific — the Supabase client reads URL and k
 - **§1 says nothing is provisioned. The moment a Supabase project is created, rewrite it.** A
   file that describes a non-existent environment as though it were running is the failure mode
   this section exists to prevent.
-- **§2's PITR spend is an unapproved commitment.** NFR-010 mandates it; the budget has not
-  agreed to it. That contradiction is live until someone resolves it.
+- **§2's plan question was settled on 2026-08-16 and is no longer a live contradiction.** Free
+  tier for everything Cueserve owns; the production project is created under the client's
+  account, and NFR-010's Pro + PITR obligation is met there. If that model ever changes — if
+  Cueserve ends up owning a production project — §2 is wrong again and this becomes the most
+  urgent line in the file.
 - The project names in §1 (`cueviksync-dev`, and a future `cueviksync-prod`) are an intended
   end state. Spelling is `cueviksync` — an infrastructure name with a typo survives into
   connection strings, CI secrets, and runbooks.
