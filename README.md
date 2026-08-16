@@ -271,14 +271,16 @@ Every document names its own upstream and downstream files in its header (`Deriv
 
 ## Open Decisions
 
-Two decisions gate work here, and neither is a coding task:
+One decision gates work here, and it is not a coding task:
 
 - **Tenant provisioning is undecided and undesigned.** A new `auth.users` row gets no `profiles`
   row and nothing auto-creates a tenant. Self-serve vs. invited, and what happens to a new
   tenant's first user, are both open ([CLAUDE.md](CLAUDE.md) § Project state).
-- **The Supabase plan commitment has not been made.** NFR-010's ≤24-hour recovery point
-  objective requires Pro plus the Point-in-Time Recovery add-on — roughly $125/mo per
-  environment ([ENVIRONMENTS.md](docs/ENVIRONMENTS.md) §2).
+
+The Supabase plan question that used to sit beside it was settled on 2026-08-16: Cueserve stays
+on the free tier, and the production project — with the Pro plan and Point-in-Time Recovery
+NFR-010 requires — is created under the client's own account at cutover
+([ENVIRONMENTS.md](docs/ENVIRONMENTS.md) §2).
 
 The hosted development project **is** linked (`tdxojcqkiozmgjkrbypm`) and the brand palette **is**
 ratified ([DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) §1) — both were open decisions here until

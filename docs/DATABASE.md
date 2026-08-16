@@ -84,11 +84,13 @@ _Not yet authored._
 
 ## 6. Open Items
 
-_Not yet authored._ Two items are open and neither is a schema question:
+_Not yet authored._ One item is open, and it is not a schema question:
 
 - **Tenant provisioning is undesigned.** A new `auth.users` row gets no `profiles` row, and
   nothing creates a tenant. Self-serve versus invited, and what happens to a new tenant's first
   user, are undecided — see CLAUDE.md § Project state.
-- **The PITR spend is an unapproved commitment.** NFR-010 sets Recovery Point Objective ≤ 24
-  hours, which default daily backups may not meet; nobody has approved the add-on. See
-  [docs/ENVIRONMENTS.md](ENVIRONMENTS.md) §2.
+
+The PITR spend that used to sit here **was settled on 2026-08-16** and is no longer open:
+NFR-010's Point-in-Time Recovery obligation is met on the client-owned production project, and
+everything Cueserve owns stays on the free tier. See
+[docs/ENVIRONMENTS.md](ENVIRONMENTS.md) §2.

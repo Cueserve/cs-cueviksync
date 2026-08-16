@@ -124,8 +124,11 @@ back is a change to this file first.
   it MUST NOT be introduced as an internal API layer for the app's own screens. Adding one
   requires updating this file first.
 - Supabase Postgres 17. The `pgmq` and `pg_cron` extensions MUST be enabled.
-- Point-in-Time Recovery (PITR) MUST be enabled on the Supabase project to meet NFR-010
-  (Recovery Point Objective (RPO) <= 24 hours); default daily backups alone MAY NOT.
+- Point-in-Time Recovery (PITR) MUST be enabled on the **production** Supabase project to meet
+  NFR-010 (Recovery Point Objective (RPO) <= 24 hours); default daily backups alone MAY NOT.
+  That project is created under the client's own account at cutover, so this requirement is met
+  on their billing relationship, not Cueserve's — see docs/ENVIRONMENTS.md §2. Development runs
+  on the free tier, which has no automated backups and is not covered by this rule.
 - Transport Layer Security (TLS) 1.2 or higher MUST be enforced at both the Vercel and
   Supabase edges; plaintext HTTP MUST be rejected (NFR-009).
 - The Supabase service-role key MUST be used server-side only and MUST NOT be exposed to
