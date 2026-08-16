@@ -29,8 +29,9 @@ rules that follow from that, and the plan for adopting the local Docker stack.
 
 **The hosted development project exists and is linked** (project ref `tdxojcqkiozmgjkrbypm`,
 confirmed 2026-08-12). Two migrations are applied — see CLAUDE.md § Project state for exactly
-what they created. The local test stack is not set up; nothing here needs it yet, since no test
-suite exists (docs/TECH-STACK.md §5).
+what they created. The local test stack is not set up **on the developer machine**; nothing there
+needs it yet, since no test suite exists (docs/TECH-STACK.md §5). It does run in CI — see
+"The local stack in CI" below.
 
 CuevikSync uses **two** Supabase environments. They are not interchangeable.
 
@@ -39,13 +40,30 @@ CuevikSync uses **two** Supabase environments. They are not interchangeable.
 | **Development** | A linked hosted Supabase project (`supabase link`) | All day-to-day development                     | **No.** A bad migration is repaired by a new migration, never by editing the applied one. |
 | **Test / CI**   | The local stack (`supabase start`, Docker)         | Vitest, the GitHub Actions job, and future E2E | Yes — CI resets freely.                                                                   |
 
-|                        | Intended                                                                        | Today                                              |
-| ---------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------- |
-| Dev database           | Hosted Supabase project                                                         | **Exists** — `tdxojcqkiozmgjkrbypm`                |
-| Local stack            | `npx supabase start` — tests and CI only, never for dev work                    | Not set up — no test suite exists yet to need it   |
-| Migrations applied via | `npx supabase db push --linked` against the linked remote                       | `0001`, `0002` applied. See CLAUDE.md for content. |
-| Types generated via    | `npx supabase gen types typescript --linked`                                    | Real, generated `types.ts`                         |
-| Prerequisite           | A Supabase account and project — **required to start**, not just at deploy time | Done                                               |
+|                        | Intended                                                                        | Today                                                    |
+| ---------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Dev database           | Hosted Supabase project                                                         | **Exists** — `tdxojcqkiozmgjkrbypm`                      |
+| Local stack            | `npx supabase start` — tests and CI only, never for dev work                    | **Runs in CI, not on the developer machine** — see below |
+| Migrations applied via | `npx supabase db push --linked` against the linked remote                       | `0001`, `0002` applied. See CLAUDE.md for content.       |
+| Types generated via    | `npx supabase gen types typescript --linked`                                    | Real, generated `types.ts`                               |
+| Prerequisite           | A Supabase account and project — **required to start**, not just at deploy time | Done                                                     |
+
+### The local stack in CI
+
+[.github/workflows/db-replay.yml](../.github/workflows/db-replay.yml) starts a local Postgres on
+a GitHub runner and replays every migration from empty on each pull request that touches
+`supabase/migrations/`, failing hard when the chain does not build. A runner has the Docker
+daemon the Windows development machine does not, which is the whole reason it lives there.
+
+**It closes one specific gap.** Migrations apply only after they merge (see Migration ordering
+below), and a merged migration is immutable — so before this workflow, the first time a migration
+met a real Postgres was after it could no longer be corrected in place. That gap was structural,
+not accidental.
+
+**It is not the local stack, and it does not postpone §4.** It validates that the chain builds.
+It cannot let anyone iterate, and it runs as the superuser, so it asserts nothing about RLS,
+`is_admin()`, or the guards in `0002`. The mandatory tenant-isolation and worker-idempotency
+cases in docs/ENGINEERING-RULES.md §3 still need the stack in §4.
 
 **Why the split.** The mandatory test cases in docs/ENGINEERING-RULES.md §3 — cross-tenant
 read/write rejection and worker idempotency across redelivery — are destructive by construction.
@@ -147,6 +165,11 @@ neither can run without it.
 **Expected friction at step 4.** If `db reset` fails while the remote works, the migration chain
 is not replayable — usually a migration that assumed state created by hand, or ordering that only
 worked incrementally. Fixing that is the point of adopting local, not a setback.
+
+**Step 4 already runs in CI, and `0001`–`0002` pass it** (§1, "The local stack in CI"). The
+friction predicted above has not materialised, which is worth knowing: it means a future red is a
+real defect rather than a backlog of known breakage, and step 4 will not be where this plan
+stalls. Steps 5 through 7 still need a stack you can iterate on.
 
 **Rollback:** `npx supabase stop` and restore the remote values in `.env.local`. Nothing in the
 application code is environment-specific — the Supabase client reads URL and key from env
