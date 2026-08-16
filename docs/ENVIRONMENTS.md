@@ -16,10 +16,11 @@ rules that follow from that, and the plan for adopting the local Docker stack.
 - [2. Plans & Cost](#2-plans-cost)
 - [3. Working Rules](#3-working-rules)
 - [4. Plan: Adopting the Local Docker Stack](#4-plan-adopting-the-local-docker-stack)
-- [5. Keeping This File Honest](#5-keeping-this-file-honest)
+- [5. Production Onboarding](#5-production-onboarding--the-day-a-prod-project-exists)
+- [6. Keeping This File Honest](#6-keeping-this-file-honest)
 
 > **Section structure matches `RedyQuote:docs/ENVIRONMENTS.md` deliberately** — same file, same
-> path, same five sections, so a developer moving between the repos finds the same information
+> path, same six sections, so a developer moving between the repos finds the same information
 > in the same place. **§1's content genuinely differs**, and that difference is a real
 > engineering divergence, not drift: CuevikSync's mandatory tenant-isolation and
 > worker-idempotency tests (docs/ENGINEERING-RULES.md §3) are destructive, so they require a
@@ -198,11 +199,52 @@ stalls. Steps 5 through 7 still need a stack you can iterate on.
 application code is environment-specific — the Supabase client reads URL and key from env
 (`src/lib/config.ts`), so switching is a `.env.local` edit and a dev-server restart.
 
-## 5. Keeping This File Honest
+## 5. Production Onboarding — the day a prod project exists
+
+**Nothing here has happened yet; there is no production project.** This is the checklist for
+creating one, and it changed on 2026-08-16 when §2 settled who owns it.
+
+**The operating model — ownership and operation are deliberately split.** The production
+Supabase project and the production Vercel project are created **under the client's own account
+and ownership**: they hold billing, and NFR-010's Pro + Point-in-Time Recovery obligation is met
+there. **Cueserve operates that project** — invited into the client's Supabase organisation, and
+running `/db-migrate prod` from a Cueserve machine. Development stays on Cueserve's own
+free-tier project, which Cueserve owns outright.
+
+**State the cost of that split before committing to it.** Cueserve ends up holding a credential
+with standing access to a client's live system, and the client's production migration state
+lands in Cueserve's GitHub Actions logs (step 4). That is a term of the engagement, not a side
+effect of a commit. Agree it with the client in writing before step 3, and record the exit in
+step 8.
+
+| #   | Step                                                                                     | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The client creates the project **in their own organisation**                             | Pro plan on their billing, with the PITR add-on enabled — NFR-010 sets Recovery Point Objective ≤ 24 hours and docs/TECH-STACK.md §7 states default daily backups alone MAY NOT meet it. §2's 2-active-free-projects limit does not apply here; this is not a free project and not in Cueserve's organisation.                                                                                                                                             |
+| 2   | Cueserve is invited to that organisation at **the least role that can apply migrations** | Do not accept Owner for convenience. The grant must be revocable by the client without anyone touching this repository.                                                                                                                                                                                                                                                                                                                                    |
+| 3   | Add the prod ref to `supabase/.project-refs.json` with `"label": "prod"`                 | **This is the only thing that makes prod reachable.** A ref absent from that file aborts `/db-migrate` Phase 0 — fail closed, never an assumed dev.                                                                                                                                                                                                                                                                                                        |
+| 4   | **Know what step 3 also does**                                                           | `db-drift.yml`'s `discover` job builds its matrix from that same file. From that commit onward, every manual dispatch and every migration merge runs `db push --dry-run --linked` against the **client's production database**, and the pending-migration list appears in Cueserve's Actions logs. Read-only by construction, and that workflow's header forbids it ever gaining a write — but confirm the client accepts it before the commit, not after. |
+| 5   | `SUPABASE_ACCESS_TOKEN` needs no change, **and that is the thing to notice**             | It is a Cueserve user token. Once you are a member of the client's organisation the same token reaches both projects; there is no per-project token. The secret's blast radius now includes client production — rotate it on any suspicion, and whenever anyone who has seen it leaves.                                                                                                                                                                    |
+| 6   | `SUPABASE_DB_PASSWORD_PROD` **only if the token path is refused**                        | The `_PROD` suffix matches the `label`, upper-cased by the `discover` job. Every connection so far has succeeded on the access token alone — the CLI prints `Initialising login role...` and mints temporary Postgres access. No workflow edit either way.                                                                                                                                                                                                 |
+| 7   | First apply: `/db-migrate prod`                                                          | `prod` is never the default — a prod-labelled ref without the argument aborts. Phase 3 escalates: a full dump **and** a data-only dump, both verified non-empty, abort if either fails, and the ref typed back rather than a plain yes.                                                                                                                                                                                                                    |
+| 8   | **Write down the revocation path**                                                       | What Cueserve loses access to, how, and who executes it when the engagement ends. An access grant with no documented exit is the one that outlives the contract.                                                                                                                                                                                                                                                                                           |
+
+**Re-read `/db-migrate`'s "Never" list against the prod context before the first run.** It was
+written against a development project holding no real rows.
+
+**Two rules from §3 get sharper here, not softer.** Rule 1 — never point a development branch at
+the production project — now also means never pointing it at a database Cueserve does not own.
+Rule 4 — schema changes are migrations, never dashboard edits — matters more on a client's
+production database than anywhere else, because a dashboard edit there is both unreviewable and
+unrepeatable.
+
+## 6. Keeping This File Honest
 
 - **§1 says nothing is provisioned. The moment a Supabase project is created, rewrite it.** A
   file that describes a non-existent environment as though it were running is the failure mode
   this section exists to prevent.
+- **§5 is written entirely in the future tense and must be rewritten the day it is executed.** A
+  prod-onboarding checklist that still reads as a plan after the project exists is the same
+  failure mode as the bullet above.
 - **§2's plan question was settled on 2026-08-16 and is no longer a live contradiction.** Free
   tier for everything Cueserve owns; the production project is created under the client's
   account, and NFR-010's Pro + PITR obligation is met there. If that model ever changes — if
