@@ -78,7 +78,8 @@ resolves to `./src/*`.
   Postgres; treat it as a concept artifact, not scaffolding to wire up.
 - **Supabase plumbing, unwired to any UI** - `src/lib/supabase/` (browser, server, service-role,
   session refresh), `src/proxy.ts`, `src/lib/config.ts` and `src/lib/config.server.ts`.
-- **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and a CI workflow.
+- **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and three GitHub Actions
+  workflows (`ci.yml`, `db-drift.yml`, `db-replay.yml`).
 - **A linked Supabase project** (`tdxojcqkiozmgjkrbypm`), with two applied migrations:
   `0001_extensions_and_types.sql` (pgcrypto, the four-role `user_role` enum) and
   `0002_tenants_profiles_and_auth.sql` (`tenants`, `profiles` with `tenant_id`, `is_admin()`,
@@ -102,6 +103,18 @@ login route renders but does not authenticate.
 step. `package.json`'s `test` script is `vitest run --passWithNoTests`, so the empty suite exits
 `0` rather than failing, and there are still zero test files (`src/**/*.test.ts`) - correct this
 if it is stale.
+
+**Two more workflows exist, both about the database, neither in `ci.yml`.**
+[.github/workflows/db-drift.yml](.github/workflows/db-drift.yml) reports when `main` holds a
+migration the linked project has not applied - warning on merge, hard-failing on manual
+dispatch. [.github/workflows/db-replay.yml](.github/workflows/db-replay.yml) replays every
+migration from an empty Postgres on a runner, on each pull request that touches
+`supabase/migrations/`, and hard-fails when the chain does not build. It is the only place a
+migration meets a real Postgres **before** it merges, which matters because a merged migration
+is immutable and there is no local stack here to rehearse on. It needs no secret and touches no
+hosted project. What it does not do: it runs as the superuser, so it exercises no RLS policy and
+neither guard in `0002`, and a green run says nothing about whether the migration applies to the
+hosted project, which already holds every earlier one.
 
 ## Approved stack
 
