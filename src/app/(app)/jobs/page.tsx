@@ -176,7 +176,7 @@ export default function JobMasterPage() {
               <TableHead className="sticky left-10 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]">
                 Job #
               </TableHead>
-              <TableHead>Line #</TableHead>
+              <TableHead className="text-center">Line #</TableHead>
               <TableHead>Item Description</TableHead>
               <TableHead>Qty</TableHead>
               <TableHead>Status</TableHead>
@@ -184,15 +184,15 @@ export default function JobMasterPage() {
               <TableHead>Promised Date</TableHead>
               <TableHead>Completed Date</TableHead>
               <TableHead>Delivered Date</TableHead>
-              <TableHead>Items in Job</TableHead>
+              <TableHead className="text-center">Items in Job</TableHead>
               <TableHead>Total Qty (Job)</TableHead>
               <TableHead>Invoice Value</TableHead>
-              <TableHead>Turnaround (Days)</TableHead>
-              <TableHead>Days vs Promised</TableHead>
-              <TableHead>On-Time? (Y/N)</TableHead>
-              <TableHead>Overdue Flag</TableHead>
-              <TableHead>Days Overdue</TableHead>
-              <TableHead>Scheduled This Week</TableHead>
+              <TableHead className="text-center">Turnaround (Days)</TableHead>
+              <TableHead className="text-center">Days vs Promised</TableHead>
+              <TableHead className="text-center">On-Time? (Y/N)</TableHead>
+              <TableHead className="text-center">Overdue Flag</TableHead>
+              <TableHead className="text-center">Days Overdue</TableHead>
+              <TableHead className="text-center">Scheduled This Week</TableHead>
               <TableHead>Week Ending (Mon)</TableHead>
               <TableHead>Material Shortage?</TableHead>
               <TableHead>Equipment Issue</TableHead>
@@ -265,14 +265,18 @@ export default function JobMasterPage() {
                               <div className="pl-2 text-muted-foreground border-l-2 border-muted-foreground/30 ml-2"></div>
                             )}
                           </TableCell>
-                          <TableCell>{item.lineNo}</TableCell>
+                          <TableCell className="text-center">
+                            {item.lineNo}
+                          </TableCell>
                           <TableCell
                             className="max-w-[200px] truncate"
                             title={item.itemDescription}
                           >
                             {item.itemDescription}
                           </TableCell>
-                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell className="text-center">
+                            {item.quantity}
+                          </TableCell>
                           <TableCell>
                             {isFirst ? (
                               statusStr.toLowerCase() === "completed" ? (
@@ -306,7 +310,9 @@ export default function JobMasterPage() {
                               ? formatDateUS(job.deliveredDate) || "-"
                               : "-"}
                           </TableCell>
-                          <TableCell>{isFirst ? itemsInJob : "-"}</TableCell>
+                          <TableCell className="text-center">
+                            {isFirst ? itemsInJob : "-"}
+                          </TableCell>
                           <TableCell className="font-semibold">
                             {isFirst ? totalQty : "-"}
                           </TableCell>
@@ -315,14 +321,14 @@ export default function JobMasterPage() {
                               ? `${job.invoiceValue.toFixed(2)}`
                               : "-"}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             {isFirst
                               ? turnaroundDaysVal !== ""
                                 ? turnaroundDaysVal
                                 : "-"
                               : "-"}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             {isFirst ? (
                               daysVsPromisedVal !== "" ? (
                                 <span
@@ -347,14 +353,14 @@ export default function JobMasterPage() {
                               "-"
                             )}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             {isFirst && onTimeVal ? (
                               <StatusBadge value={onTimeVal} />
                             ) : (
                               "-"
                             )}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             {isFirst && overdueFlagVal ? (
                               <span className="inline-flex items-center rounded bg-destructive/20 px-2 py-0.5 text-[10px] font-semibold text-destructive uppercase tracking-wider">
                                 Overdue
@@ -364,13 +370,14 @@ export default function JobMasterPage() {
                             )}
                           </TableCell>
                           <TableCell
-                            className={
+                            className={cn(
+                              "text-center",
                               isFirst &&
-                              daysOverdueVal !== "" &&
-                              Number(daysOverdueVal) > 0
+                                daysOverdueVal !== "" &&
+                                Number(daysOverdueVal) > 0
                                 ? "text-destructive font-bold"
-                                : ""
-                            }
+                                : "",
+                            )}
                           >
                             {isFirst
                               ? daysOverdueVal !== ""
@@ -378,7 +385,7 @@ export default function JobMasterPage() {
                                 : "-"
                               : "-"}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             {isFirst && scheduledThisWeekVal ? (
                               <StatusBadge value={scheduledThisWeekVal} />
                             ) : (
