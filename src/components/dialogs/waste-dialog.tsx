@@ -81,11 +81,23 @@ export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
                 className="flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="">-- Choose a job --</option>
-                {jobs.map((j) => (
-                  <option key={j.id} value={j.id}>
-                    {j.jobNo} - {j.items.length} items
-                  </option>
-                ))}
+                {jobs.map((j) => {
+                  const itemsDesc = j.items
+                    .map((i) => i.itemDescription)
+                    .filter(Boolean)
+                    .join(", ");
+                  const truncatedDesc =
+                    itemsDesc.length > 40
+                      ? itemsDesc.substring(0, 40) + "..."
+                      : itemsDesc;
+                  return (
+                    <option key={j.id} value={j.id}>
+                      {j.jobNo} - {j.items.length}{" "}
+                      {j.items.length === 1 ? "item" : "items"}
+                      {truncatedDesc ? ` - ${truncatedDesc}` : ""}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 

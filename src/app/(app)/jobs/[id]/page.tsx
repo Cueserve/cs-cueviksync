@@ -85,10 +85,10 @@ export default function JobDetailsPage() {
     setDraftJob((prev) => ({ ...prev, [field]: value }));
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleItemChange = (
     index: number,
     field: keyof JobLineItem,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => {
     setDraftJob((prev) => {
@@ -597,7 +597,7 @@ export default function JobDetailsPage() {
               )}
 
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Total Lines</span>
+                <span className="text-muted-foreground">Total Items</span>
                 <span className="font-bold text-lg">
                   {draftJob.items.length}
                 </span>
