@@ -21,7 +21,7 @@ interface WasteDialogProps {
 }
 
 export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
-  const { jobs, updateJobItem } = useTracker();
+  const { jobs, updateJob } = useTracker();
 
   const [selectedJobId, setSelectedJobId] = useState("");
   const [modalSpoilage, setModalSpoilage] = useState("0");
@@ -41,7 +41,7 @@ export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
   const handleSaveLog = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedJobId) return;
-    updateJobItem(selectedJobId, {
+    updateJob(selectedJobId, {
       spoilagePercent: Number(modalSpoilage) || 0,
       reprintRequired: modalReprint,
       notes: modalNotes,
@@ -62,7 +62,7 @@ export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
           <DialogBody className="grid gap-4 py-4">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="jobSelect" className="text-sm font-medium">
-                Select Job Item <span className="text-destructive">*</span>
+                Select Job <span className="text-destructive">*</span>
               </label>
               <select
                 id="jobSelect"
@@ -80,10 +80,10 @@ export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
                 required
                 className="flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
-                <option value="">-- Choose a job line item --</option>
+                <option value="">-- Choose a job --</option>
                 {jobs.map((j) => (
                   <option key={j.id} value={j.id}>
-                    {j.jobNo} (L{j.lineNo}) - {j.itemDescription}
+                    {j.jobNo} - {j.items.length} items
                   </option>
                 ))}
               </select>

@@ -21,7 +21,7 @@ import { WasteDialog } from "@/components/dialogs/waste-dialog";
 import { getWeekEndingMonday, formatDateUS } from "@/lib/date-utils";
 
 export default function WasteReworkPage() {
-  const { jobs, updateJobItem, selectedRole } = useTracker();
+  const { jobs, updateJob, selectedRole } = useTracker();
   const canEdit =
     selectedRole === "admin" ||
     selectedRole === "manager" ||
@@ -59,7 +59,7 @@ export default function WasteReworkPage() {
       },
     }));
     // Save reprint immediately
-    updateJobItem(id, { reprintRequired: checked });
+    updateJob(id, { reprintRequired: checked });
   };
 
   const handleNotesChange = (id: string, val: string) => {
@@ -83,9 +83,9 @@ export default function WasteReworkPage() {
         const cleanedVal = isNaN(parsed)
           ? 0
           : Math.max(0, Math.min(100, parsed));
-        updateJobItem(id, { spoilagePercent: cleanedVal });
+        updateJob(id, { spoilagePercent: cleanedVal });
       } else if (field === "notes") {
-        updateJobItem(id, { notes: edit.notes });
+        updateJob(id, { notes: edit.notes });
       }
     }
   };
@@ -190,9 +190,15 @@ export default function WasteReworkPage() {
                     <TableCell>
                       <div
                         className="max-w-[250px] truncate"
-                        title={job.itemDescription}
+                        title={job.items
+                          .map((i) => i.itemDescription)
+                          .filter(Boolean)
+                          .join(", ")}
                       >
-                        {job.itemDescription}
+                        {job.items
+                          .map((i) => i.itemDescription)
+                          .filter(Boolean)
+                          .join(", ") || "-"}
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-muted-foreground">

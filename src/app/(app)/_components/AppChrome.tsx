@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Layers, Calendar, Trash2 } from "lucide-react";
+import { LayoutDashboard, Layers, Trash2 } from "lucide-react";
 
 import { Sidebar, type SidebarNavItem } from "@/components/layout/sidebar";
 import { Topbar, type Crumb } from "@/components/layout/topbar";
@@ -30,11 +30,6 @@ const NAV: SidebarNavItem[] = [
     label: "Jobs Dashboard",
     href: "/jobs",
     icon: <Layers className="size-4" />,
-  },
-  {
-    label: "This Week Schedule",
-    href: "/schedule",
-    icon: <Calendar className="size-4" />,
   },
   {
     label: "Waste & Rework",

@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const { jobs } = useTracker();
 
   // Metrics calculations
-  const pendingJobs = jobs.filter((j) => !j.completedDate && j.lineNo === 1);
+  const pendingJobs = jobs.filter((j) => !j.completedDate);
   const overdueCount = pendingJobs.filter((j) => {
     const promised = new Date(j.promisedDate);
     const today = new Date();
@@ -44,7 +44,7 @@ export default function DashboardPage() {
     return today > promised;
   }).length;
 
-  const completedJobs = jobs.filter((j) => !!j.completedDate && j.lineNo === 1);
+  const completedJobs = jobs.filter((j) => !!j.completedDate);
   const totalInvoice = completedJobs.reduce(
     (sum, j) => sum + j.invoiceValue,
     0,
@@ -165,7 +165,13 @@ export default function DashboardPage() {
         <MetricCard
           title="Shortages Flagged"
           value={
-            jobs.filter((j) => !!j.materialShortage && j.lineNo === 1).length
+            jobs.filter((j) =>
+              j.items.some(
+                (i) =>
+                  !!i.materialShortage &&
+                  i.materialShortage.toLowerCase() !== "no",
+              ),
+            ).length
           }
           description="Awaiting material deliveries"
           icon={<Trash2 className="size-4 text-warning" />}
@@ -174,11 +180,11 @@ export default function DashboardPage() {
         <MetricCard
           title="Equipment Issues"
           value={
-            jobs.filter(
-              (j) =>
-                !!j.equipmentIssue &&
-                j.equipmentIssue.toLowerCase() !== "no" &&
-                j.lineNo === 1,
+            jobs.filter((j) =>
+              j.items.some(
+                (i) =>
+                  !!i.equipmentIssue && i.equipmentIssue.toLowerCase() !== "no",
+              ),
             ).length
           }
           description="Machine repairs / alerts"
