@@ -458,7 +458,7 @@ export default function JobDetailsPage() {
                               Number(e.target.value),
                             )
                           }
-                          className={cn("h-8 text-right", previewInputClass)}
+                          className={cn("h-8", previewInputClass)}
                           disabled={!canEdit || isPreviewMode}
                         />
                       </td>
@@ -676,8 +676,14 @@ export default function JobDetailsPage() {
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">Turnaround</span>
                 <span className="font-bold">
-                  {turnaroundDaysVal}
-                  {typeof turnaroundDaysVal === "number" ? " days" : ""}
+                  {turnaroundDaysVal !== "" ? (
+                    <>
+                      {turnaroundDaysVal}
+                      {typeof turnaroundDaysVal === "number" ? " days" : ""}
+                    </>
+                  ) : (
+                    "-"
+                  )}
                 </span>
               </div>
 
@@ -686,27 +692,29 @@ export default function JobDetailsPage() {
                 <span
                   className={`font-bold ${typeof daysVsPromisedVal === "number" ? (daysVsPromisedVal > 0 ? "text-destructive" : daysVsPromisedVal <= 0 ? "text-success" : "") : ""}`}
                 >
-                  {typeof daysVsPromisedVal === "number"
-                    ? Math.abs(daysVsPromisedVal)
-                    : daysVsPromisedVal}
+                  {daysVsPromisedVal !== ""
+                    ? typeof daysVsPromisedVal === "number"
+                      ? Math.abs(daysVsPromisedVal)
+                      : daysVsPromisedVal
+                    : "-"}
                 </span>
               </div>
 
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">On-Time? (Y/N)</span>
-                <span className="font-bold">{onTimeVal}</span>
+                <span className="font-bold">{onTimeVal || "-"}</span>
               </div>
 
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">
                   Scheduled This Week
                 </span>
-                <span className="font-bold">{scheduledThisWeekVal}</span>
+                <span className="font-bold">{scheduledThisWeekVal || "-"}</span>
               </div>
 
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">Week Ending (Mon)</span>
-                <span className="font-bold">{weekEndingStr}</span>
+                <span className="font-bold">{weekEndingStr || "-"}</span>
               </div>
 
               {isOverdue && (
