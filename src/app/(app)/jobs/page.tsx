@@ -323,11 +323,29 @@ export default function JobMasterPage() {
                               : "-"}
                           </TableCell>
                           <TableCell>
-                            {isFirst
-                              ? daysVsPromisedVal !== ""
-                                ? daysVsPromisedVal
-                                : "-"
-                              : "-"}
+                            {isFirst ? (
+                              daysVsPromisedVal !== "" ? (
+                                <span
+                                  className={
+                                    typeof daysVsPromisedVal === "number"
+                                      ? daysVsPromisedVal > 0
+                                        ? "text-destructive"
+                                        : daysVsPromisedVal <= 0
+                                          ? "text-success"
+                                          : ""
+                                      : ""
+                                  }
+                                >
+                                  {typeof daysVsPromisedVal === "number"
+                                    ? Math.abs(daysVsPromisedVal)
+                                    : daysVsPromisedVal}
+                                </span>
+                              ) : (
+                                "-"
+                              )
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell>
                             {isFirst && onTimeVal ? (

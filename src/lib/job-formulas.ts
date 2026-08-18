@@ -75,7 +75,7 @@ export function calculateJobFormulas(job: Partial<JobItem>): JobCalculations {
     );
   }
 
-  const scheduledThisWeekVal = job.inThisWeek ? "Y" : "";
+  const scheduledThisWeekVal = job.inThisWeek ? "Y" : "N";
   const itemsInJob = job.items?.length || 0;
   const totalQty = (job.items || []).reduce(
     (sum, i) => sum + Number(i.quantity || 0),

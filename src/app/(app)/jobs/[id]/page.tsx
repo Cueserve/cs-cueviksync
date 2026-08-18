@@ -688,9 +688,11 @@ export default function JobDetailsPage() {
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">Days vs Promised</span>
                 <span
-                  className={`font-bold ${typeof daysVsPromisedVal === "number" ? (daysVsPromisedVal > 0 ? "text-destructive" : "text-success") : ""}`}
+                  className={`font-bold ${typeof daysVsPromisedVal === "number" ? (daysVsPromisedVal > 0 ? "text-destructive" : daysVsPromisedVal <= 0 ? "text-success" : "") : ""}`}
                 >
-                  {daysVsPromisedVal}
+                  {typeof daysVsPromisedVal === "number"
+                    ? Math.abs(daysVsPromisedVal)
+                    : daysVsPromisedVal}
                 </span>
               </div>
 
