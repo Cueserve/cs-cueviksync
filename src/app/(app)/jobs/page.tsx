@@ -23,6 +23,8 @@ import {
   formatDateUS,
 } from "@/lib/date-utils";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { IssueBadge } from "@/components/ui/issue-badge";
 import { MetricCard } from "@/components/ui/metric-card";
 import {
   Table,
@@ -183,7 +185,8 @@ export default function JobMasterPage() {
         >
           <TableHeader>
             <TableRow>
-              <TableHead className="sticky left-0 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]">
+              <TableHead className="sticky left-0 w-10 px-2 bg-muted z-10"></TableHead>
+              <TableHead className="sticky left-10 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]">
                 Job #
               </TableHead>
               <TableHead>Line #</TableHead>
@@ -194,19 +197,19 @@ export default function JobMasterPage() {
               <TableHead>Promised Date</TableHead>
               <TableHead>Completed Date</TableHead>
               <TableHead>Delivered Date</TableHead>
+              <TableHead>Items in Job</TableHead>
+              <TableHead>Total Qty (Job)</TableHead>
+              <TableHead>Invoice Value</TableHead>
               <TableHead>Turnaround (Days)</TableHead>
               <TableHead>Days vs Promised</TableHead>
               <TableHead>On-Time? (Y/N)</TableHead>
               <TableHead>Overdue Flag</TableHead>
               <TableHead>Days Overdue</TableHead>
+              <TableHead>Scheduled This Week</TableHead>
+              <TableHead>Week Ending (Mon)</TableHead>
               <TableHead>Material Shortage?</TableHead>
               <TableHead>Equipment Issue</TableHead>
               <TableHead>Overdue Reason</TableHead>
-              <TableHead>Invoice Value</TableHead>
-              <TableHead>Items in Job</TableHead>
-              <TableHead>Total Qty (Job)</TableHead>
-              <TableHead>Scheduled This Week</TableHead>
-              <TableHead>Week Ending (Mon)</TableHead>
               <TableHead className="sticky right-0 bg-muted z-10 shadow-[-2px_0_0_rgba(0,0,0,0.08)]">
                 Actions
               </TableHead>
@@ -215,7 +218,7 @@ export default function JobMasterPage() {
           <TableBody>
             {filteredJobs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={22} className="p-0">
+                <TableCell colSpan={23} className="p-0">
                   <TableEmptyState
                     colSpan={1}
                     message="No jobs match the active filter."
@@ -288,36 +291,39 @@ export default function JobMasterPage() {
                           key={item.id}
                           className={cn(!isFirst && "bg-muted/30")}
                         >
-                          <TableCell className="sticky left-0 bg-background z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)] font-medium">
-                            {isFirst ? (
-                              <div className="flex items-center gap-1">
-                                {hasMultipleItems ? (
-                                  <button
-                                    onClick={() => toggleJob(job.id)}
-                                    className="p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
-                                  >
-                                    {isExpanded ? (
-                                      <ChevronDown className="size-4" />
-                                    ) : (
-                                      <ChevronRight className="size-4" />
-                                    )}
-                                  </button>
+                          <TableCell className="sticky left-0 bg-background z-10 w-10 px-2 text-center">
+                            {isFirst && hasMultipleItems ? (
+                              <button
+                                onClick={() => toggleJob(job.id)}
+                                className="p-1 hover:bg-muted rounded text-muted-foreground"
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown className="size-4" />
                                 ) : (
-                                  <div className="w-6" /> // spacer for alignment
+                                  <ChevronRight className="size-4" />
                                 )}
-                                <Link
-                                  href={`/jobs/${job.id}`}
-                                  className="text-primary hover:underline"
-                                >
-                                  {job.jobNo}
-                                </Link>
-                              </div>
+                              </button>
+                            ) : null}
+                          </TableCell>
+                          <TableCell className="sticky left-10 bg-background z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)] font-medium">
+                            {isFirst ? (
+                              <Link
+                                href={`/jobs/${job.id}`}
+                                className="text-primary hover:underline"
+                              >
+                                {job.jobNo}
+                              </Link>
                             ) : (
-                              <div className="pl-4 text-muted-foreground border-l-2 border-muted-foreground/30 ml-2"></div>
+                              <div className="pl-2 text-muted-foreground border-l-2 border-muted-foreground/30 ml-2"></div>
                             )}
                           </TableCell>
                           <TableCell>{item.lineNo}</TableCell>
-                          <TableCell>{item.itemDescription}</TableCell>
+                          <TableCell
+                            className="max-w-[200px] truncate"
+                            title={item.itemDescription}
+                          >
+                            {item.itemDescription}
+                          </TableCell>
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>
                             {isFirst ? (
@@ -352,6 +358,15 @@ export default function JobMasterPage() {
                               ? formatDateUS(job.deliveredDate) || "-"
                               : "-"}
                           </TableCell>
+                          <TableCell>{isFirst ? itemsInJob : "-"}</TableCell>
+                          <TableCell className="font-semibold">
+                            {isFirst ? totalQty : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {isFirst && job.invoiceValue > 0
+                              ? `${job.invoiceValue.toFixed(2)}`
+                              : "-"}
+                          </TableCell>
                           <TableCell>
                             {isFirst
                               ? turnaroundDaysVal !== ""
@@ -367,7 +382,11 @@ export default function JobMasterPage() {
                               : "-"}
                           </TableCell>
                           <TableCell>
-                            {isFirst ? onTimeVal || "-" : "-"}
+                            {isFirst && onTimeVal ? (
+                              <StatusBadge value={onTimeVal} />
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell>
                             {isFirst && overdueFlagVal ? (
@@ -394,31 +413,40 @@ export default function JobMasterPage() {
                               : "-"}
                           </TableCell>
                           <TableCell>
-                            {formatYesNo(item.materialShortage)}
+                            {isFirst && scheduledThisWeekVal ? (
+                              <StatusBadge value={scheduledThisWeekVal} />
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell>
-                            {formatYesNo(item.equipmentIssue)}
+                            {isFirst ? weekEndingStr || "-" : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {item.materialShortage ? (
+                              <IssueBadge
+                                type="material"
+                                text={item.materialShortage}
+                              />
+                            ) : (
+                              <IssueBadge type="material" text="No" />
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {item.equipmentIssue ? (
+                              <IssueBadge
+                                type="equipment"
+                                text={item.equipmentIssue}
+                              />
+                            ) : (
+                              <IssueBadge type="equipment" text="No" />
+                            )}
                           </TableCell>
                           <TableCell
                             className="max-w-[200px] truncate"
                             title={isFirst ? job.overdueReason : ""}
                           >
                             {isFirst ? job.overdueReason || "-" : "-"}
-                          </TableCell>
-                          <TableCell>
-                            {isFirst && job.invoiceValue > 0
-                              ? `$${job.invoiceValue.toFixed(2)}`
-                              : "-"}
-                          </TableCell>
-                          <TableCell>{isFirst ? itemsInJob : "-"}</TableCell>
-                          <TableCell className="font-semibold">
-                            {isFirst ? totalQty : "-"}
-                          </TableCell>
-                          <TableCell>
-                            {isFirst ? scheduledThisWeekVal || "-" : "-"}
-                          </TableCell>
-                          <TableCell>
-                            {isFirst ? weekEndingStr || "-" : "-"}
                           </TableCell>
                           <TableCell className="sticky right-0 bg-background z-10 shadow-[-2px_0_0_rgba(0,0,0,0.08)]">
                             {isFirst ? (

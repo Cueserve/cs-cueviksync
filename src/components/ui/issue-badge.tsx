@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertTriangle, Settings, Check } from "lucide-react";
+import { AlertTriangle, Settings } from "lucide-react";
 
 interface IssueBadgeProps {
   type: "material" | "equipment";
@@ -26,7 +26,7 @@ export function IssueBadge({ type, text }: IssueBadgeProps) {
       </span>
     ) : (
       <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-success/10 text-success border border-success/20">
-        <Check className="size-3 shrink-0" /> N
+        N
       </span>
     );
   }
@@ -43,7 +43,7 @@ export function IssueBadge({ type, text }: IssueBadgeProps) {
     </span>
   ) : (
     <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-success/10 text-success border border-success/20">
-      <Check className="size-3 shrink-0" /> N
+      N
     </span>
   );
 }
