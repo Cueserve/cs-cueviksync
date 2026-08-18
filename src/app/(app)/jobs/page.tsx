@@ -7,21 +7,17 @@ import {
   AlertTriangle,
   Clock,
   Package,
+  Plus,
   Pencil,
   Trash2,
-  Plus,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
+import { calculateJobFormulas } from "@/lib/job-formulas";
 import { cn } from "@/lib/utils";
-import {
-  getWeekEndingMonday,
-  getTurnaroundDays,
-  isOnTime,
-  formatDateUS,
-} from "@/lib/date-utils";
+import { formatDateUS } from "@/lib/date-utils";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { IssueBadge } from "@/components/ui/issue-badge";
@@ -35,17 +31,6 @@ import {
   TableCell,
 } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-
-const formatYesNo = (val: string | undefined | null) => {
-  if (!val) return "-";
-  const trimmed = val.trim();
-  const lower = trimmed.toLowerCase();
-  if (lower === "no") return "N";
-  if (lower === "yes") return "Y";
-  if (lower.startsWith("yes")) return "Y" + trimmed.slice(3);
-  if (lower.startsWith("no")) return "N" + trimmed.slice(2);
-  return trimmed;
-};
 
 export default function JobMasterPage() {
   const { jobs, deleteJob } = useTracker();
@@ -227,58 +212,19 @@ export default function JobMasterPage() {
               </TableRow>
             ) : (
               filteredJobs.map((job) => {
-                const isCompleted = !!job.completedDate;
-                const statusStr = isCompleted ? "Completed" : "Pending";
-                const weekEndingStr = isCompleted
-                  ? formatDateUS(getWeekEndingMonday(job.completedDate))
-                  : "";
-
-                let turnaroundDaysVal: string | number = "";
-                let daysVsPromisedVal: string | number = "";
-                let onTimeVal = "";
-
-                if (isCompleted) {
-                  turnaroundDaysVal = getTurnaroundDays(
-                    job.orderDate,
-                    job.completedDate,
-                  );
-                  if (job.deliveredDate) {
-                    const promiseDiff =
-                      new Date(job.deliveredDate).getTime() -
-                      new Date(job.promisedDate).getTime();
-                    daysVsPromisedVal = Math.round(
-                      promiseDiff / (1000 * 60 * 60 * 24),
-                    );
-                    onTimeVal = isOnTime(job.promisedDate, job.deliveredDate)
-                      ? "Y"
-                      : "N";
-                  } else {
-                    daysVsPromisedVal = "-";
-                  }
-                }
-
-                const isOverdue =
-                  !isCompleted &&
-                  job.promisedDate &&
-                  new Date() > new Date(job.promisedDate);
-                const overdueFlagVal = isOverdue ? "Overdue" : "";
-                let daysOverdueVal: string | number = "";
-                if (isOverdue) {
-                  const overdueDiff =
-                    new Date().getTime() - new Date(job.promisedDate).getTime();
-                  daysOverdueVal = Math.max(
-                    0,
-                    Math.round(overdueDiff / (1000 * 60 * 60 * 24)),
-                  );
-                }
-
-                const scheduledThisWeekVal = job.inThisWeek ? "Y" : "";
-                const itemsInJob = job.items.length;
+                const {
+                  statusStr,
+                  weekEndingStr,
+                  turnaroundDaysVal,
+                  daysVsPromisedVal,
+                  onTimeVal,
+                  overdueFlagVal,
+                  daysOverdueVal,
+                  scheduledThisWeekVal,
+                  itemsInJob,
+                  totalQty,
+                } = calculateJobFormulas(job);
                 const hasMultipleItems = itemsInJob > 1;
-                const totalQty = job.items.reduce(
-                  (sum, i) => sum + i.quantity,
-                  0,
-                );
                 const isExpanded = expandedJobs.has(job.id);
                 const visibleItems = isExpanded ? job.items : [job.items[0]];
 

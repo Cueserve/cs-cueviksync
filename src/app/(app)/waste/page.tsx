@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/data-table";
 import { WasteDialog } from "@/components/dialogs/waste-dialog";
 
-import { getWeekEndingMonday, formatDateUS } from "@/lib/date-utils";
+import { calculateJobFormulas } from "@/lib/job-formulas";
 
 export default function WasteReworkPage() {
   const { jobs, updateJob, selectedRole } = useTracker();
@@ -202,9 +202,7 @@ export default function WasteReworkPage() {
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-muted-foreground">
-                      {job.completedDate
-                        ? formatDateUS(getWeekEndingMonday(job.completedDate))
-                        : "-"}
+                      {calculateJobFormulas(job).weekEndingStr || "-"}
                     </TableCell>
                     <TableCell>
                       {canEdit ? (

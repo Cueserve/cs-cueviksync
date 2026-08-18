@@ -19,12 +19,7 @@ import {
   Trash2,
   Calculator,
 } from "lucide-react";
-import {
-  getTurnaroundDays,
-  isOnTime,
-  getWeekEndingMonday,
-  formatDateUS,
-} from "@/lib/date-utils";
+import { calculateJobFormulas } from "@/lib/job-formulas";
 
 export default function JobDetailsPage() {
   const { id } = useParams() as { id: string };
@@ -82,7 +77,40 @@ export default function JobDetailsPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUpdateField = (field: keyof JobItem, value: any) => {
-    setDraftJob((prev) => ({ ...prev, [field]: value }));
+    setDraftJob((prev) => {
+      const next = { ...prev, [field]: value };
+
+      if (field === "orderDate" && value) {
+        if (
+          next.promisedDate &&
+          new Date(value) > new Date(next.promisedDate)
+        ) {
+          next.promisedDate = "";
+        }
+        if (
+          next.completedDate &&
+          new Date(value) > new Date(next.completedDate)
+        ) {
+          next.completedDate = "";
+          next.deliveredDate = "";
+        }
+      }
+
+      if (field === "completedDate") {
+        if (value) {
+          if (
+            !next.deliveredDate ||
+            new Date(value) > new Date(next.deliveredDate)
+          ) {
+            next.deliveredDate = value;
+          }
+        } else {
+          next.deliveredDate = "";
+        }
+      }
+
+      return next;
+    });
   };
 
   const handleItemChange = (
@@ -140,6 +168,14 @@ export default function JobDetailsPage() {
       alert("At least one item is required");
       return;
     }
+    if (
+      draftJob.completedDate &&
+      draftJob.deliveredDate &&
+      new Date(draftJob.deliveredDate) < new Date(draftJob.completedDate)
+    ) {
+      alert("Delivered date cannot be earlier than Completed date.");
+      return;
+    }
 
     if (isNew) {
       addJob(draftJob);
@@ -150,54 +186,17 @@ export default function JobDetailsPage() {
   };
 
   // Calculations for Summary Pane
-  const isCompleted = !!draftJob.completedDate;
-  const isOverdue =
-    !isCompleted &&
-    draftJob.promisedDate &&
-    new Date() > new Date(draftJob.promisedDate);
-  const totalQty = draftJob.items.reduce(
-    (sum, item) => sum + Number(item.quantity || 0),
-    0,
-  );
-
-  let turnaroundDaysVal: string | number = "-";
-  let daysVsPromisedVal: string | number = "-";
-  if (isCompleted && draftJob.orderDate && draftJob.completedDate) {
-    turnaroundDaysVal = getTurnaroundDays(
-      draftJob.orderDate,
-      draftJob.completedDate,
-    );
-  }
-  if (isCompleted && draftJob.deliveredDate && draftJob.promisedDate) {
-    const promiseDiff =
-      new Date(draftJob.deliveredDate).getTime() -
-      new Date(draftJob.promisedDate).getTime();
-    daysVsPromisedVal = Math.round(promiseDiff / (1000 * 60 * 60 * 24));
-  }
-
-  let daysOverdueVal: string | number = "-";
-  if (isOverdue && draftJob.promisedDate) {
-    const overdueDiff =
-      new Date().getTime() - new Date(draftJob.promisedDate).getTime();
-    daysOverdueVal = Math.max(
-      0,
-      Math.round(overdueDiff / (1000 * 60 * 60 * 24)),
-    );
-  }
-
-  let onTimeVal = "-";
-  if (isCompleted && draftJob.promisedDate && draftJob.deliveredDate) {
-    onTimeVal = isOnTime(draftJob.promisedDate, draftJob.deliveredDate)
-      ? "Y"
-      : "N";
-  }
-
-  const weekEndingStr =
-    isCompleted && draftJob.completedDate
-      ? formatDateUS(getWeekEndingMonday(draftJob.completedDate))
-      : "-";
-
-  const scheduledThisWeekVal = draftJob.inThisWeek ? "Y" : "-";
+  const {
+    isCompleted,
+    isOverdue,
+    totalQty,
+    turnaroundDaysVal,
+    daysVsPromisedVal,
+    daysOverdueVal,
+    onTimeVal,
+    weekEndingStr,
+    scheduledThisWeekVal,
+  } = calculateJobFormulas(draftJob);
 
   return (
     <div className="min-h-screen bg-background flex flex-col p-4 md:p-8">
@@ -303,6 +302,7 @@ export default function JobDetailsPage() {
                 <Input
                   id="promisedDate"
                   type="date"
+                  min={draftJob.orderDate || undefined}
                   value={draftJob.promisedDate}
                   onChange={(e) =>
                     handleUpdateField("promisedDate", e.target.value)
@@ -321,6 +321,7 @@ export default function JobDetailsPage() {
                 <Input
                   id="completedDate"
                   type="date"
+                  min={draftJob.orderDate || undefined}
                   value={draftJob.completedDate}
                   onChange={(e) =>
                     handleUpdateField("completedDate", e.target.value)
@@ -338,11 +339,12 @@ export default function JobDetailsPage() {
                 <Input
                   id="deliveredDate"
                   type="date"
+                  min={draftJob.completedDate || undefined}
                   value={draftJob.deliveredDate}
                   onChange={(e) =>
                     handleUpdateField("deliveredDate", e.target.value)
                   }
-                  disabled={!canEdit}
+                  disabled={!canEdit || !draftJob.completedDate}
                 />
               </div>
             </div>
