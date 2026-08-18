@@ -658,21 +658,17 @@ export default function JobDetailsPage() {
 
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">Total Items</span>
-                <span className="font-bold text-lg">
-                  {draftJob.items.length}
-                </span>
+                <span className="font-bold">{draftJob.items.length}</span>
               </div>
 
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">Total Quantity</span>
-                <span className="font-bold text-lg">
-                  {totalQty.toLocaleString()}
-                </span>
+                <span className="font-bold">{totalQty.toLocaleString()}</span>
               </div>
 
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <span className="text-muted-foreground">Invoice Value</span>
-                <span className="font-bold text-lg">
+                <span className="font-bold">
                   ${(draftJob.invoiceValue || 0).toFixed(2)}
                 </span>
               </div>
