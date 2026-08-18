@@ -318,7 +318,7 @@ export default function JobMasterPage() {
                           </TableCell>
                           <TableCell>
                             {isFirst && job.invoiceValue > 0
-                              ? `${job.invoiceValue.toFixed(2)}`
+                              ? `$${job.invoiceValue.toFixed(2)}`
                               : "-"}
                           </TableCell>
                           <TableCell className="text-center">
