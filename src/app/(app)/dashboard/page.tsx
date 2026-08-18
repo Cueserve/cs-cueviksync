@@ -20,8 +20,27 @@ import {
   formatDateUS,
 } from "@/lib/date-utils";
 import { MetricCard } from "@/components/ui/metric-card";
-import { LineChart } from "@/components/charts/line-chart";
-import { BarChart } from "@/components/charts/bar-chart";
+import {
+  Bar,
+  BarChart,
+  Line,
+  LineChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+
+const chartConfig = {
+  turnaround: { label: "Turnaround Time", color: "var(--chart-1)" },
+  onTime: { label: "On-Time %", color: "var(--chart-2)" },
+  completed: { label: "Jobs Completed", color: "var(--chart-4)" },
+} satisfies ChartConfig;
 import {
   Table,
   TableHeader,
@@ -200,13 +219,48 @@ export default function DashboardPage() {
             <TrendingUp className="size-4 text-[var(--chart-1)]" />
             Avg Turnaround Time (Days)
           </h4>
-          <LineChart
-            data={turnaroundData}
-            color="var(--chart-1)"
-            yMax={7}
-            yLabels={["7", "4", "0"]}
-            formatY={(v) => v.toFixed(1)}
-          />
+          <ChartContainer
+            config={chartConfig}
+            className="min-h-[200px] w-full mt-2"
+          >
+            <LineChart
+              accessibilityLayer
+              data={turnaroundData}
+              margin={{ top: 10, right: 10, bottom: 0, left: 0 }}
+            >
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="3 3"
+                className="stroke-muted"
+              />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs text-muted-foreground"
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                domain={[0, 7]}
+                className="text-xs text-muted-foreground"
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
+              />
+              <Line
+                dataKey="value"
+                type="monotone"
+                stroke="var(--color-turnaround)"
+                strokeWidth={2}
+                dot={{ r: 4, fill: "var(--color-turnaround)" }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ChartContainer>
         </Card>
 
         {/* Chart 2: On-Time Delivery */}
@@ -215,13 +269,48 @@ export default function DashboardPage() {
             <TrendingUp className="size-4 text-[var(--chart-2)]" />
             On-Time Delivery %
           </h4>
-          <LineChart
-            data={onTimeData}
-            color="var(--chart-2)"
-            yMax={100}
-            yLabels={["100%", "50%", "0%"]}
-            formatY={(v) => `${v}%`}
-          />
+          <ChartContainer
+            config={chartConfig}
+            className="min-h-[200px] w-full mt-2"
+          >
+            <LineChart
+              accessibilityLayer
+              data={onTimeData}
+              margin={{ top: 10, right: 10, bottom: 0, left: 0 }}
+            >
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="3 3"
+                className="stroke-muted"
+              />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs text-muted-foreground"
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                domain={[0, 100]}
+                className="text-xs text-muted-foreground"
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
+              />
+              <Line
+                dataKey="value"
+                type="monotone"
+                stroke="var(--color-onTime)"
+                strokeWidth={2}
+                dot={{ r: 4, fill: "var(--color-onTime)" }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ChartContainer>
         </Card>
 
         {/* Chart 3: Jobs Completed per Week */}
@@ -230,11 +319,45 @@ export default function DashboardPage() {
             <BarChart2 className="size-4 text-[var(--chart-4)]" />
             Jobs Completed per Week
           </h4>
-          <BarChart
-            data={completedData}
-            color="var(--chart-1)"
-            yMax={maxJobsCompleted}
-          />
+          <ChartContainer
+            config={chartConfig}
+            className="min-h-[200px] w-full mt-2"
+          >
+            <BarChart
+              accessibilityLayer
+              data={completedData}
+              margin={{ top: 10, right: 10, bottom: 0, left: 0 }}
+            >
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="3 3"
+                className="stroke-muted"
+              />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs text-muted-foreground"
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                domain={[0, maxJobsCompleted]}
+                className="text-xs text-muted-foreground"
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
+              />
+              <Bar
+                dataKey="value"
+                fill="var(--color-completed)"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ChartContainer>
         </Card>
       </div>
 
