@@ -17,7 +17,7 @@ import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 import { cn } from "@/lib/utils";
-import { formatDateUS } from "@/lib/date-utils";
+import { formatDateUS, parseLocalDate } from "@/lib/date-utils";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { IssueBadge } from "@/components/ui/issue-badge";
@@ -73,11 +73,13 @@ export default function JobMasterPage() {
   const totalJobsCount = jobs.length;
   const completedJobsCount = jobs.filter((j) => j.completedDate).length;
   const pendingJobsCount = jobs.filter((j) => !j.completedDate).length;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const overdueJobsCount = jobs.filter(
     (j) =>
       !j.completedDate &&
       j.promisedDate &&
-      new Date() > new Date(j.promisedDate),
+      today > parseLocalDate(j.promisedDate),
   ).length;
 
   const filteredJobs = jobs.filter((job) => {

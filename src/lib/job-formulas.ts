@@ -4,6 +4,7 @@ import {
   isOnTime,
   getWeekEndingMonday,
   formatDateUS,
+  parseLocalDate,
 } from "./date-utils";
 
 export interface JobCalculations {
@@ -44,8 +45,8 @@ export function calculateJobFormulas(job: Partial<JobItem>): JobCalculations {
     turnaroundDaysVal = getTurnaroundDays(job.orderDate, job.completedDate);
     if (job.deliveredDate && job.promisedDate) {
       const promiseDiff =
-        new Date(job.deliveredDate).getTime() -
-        new Date(job.promisedDate).getTime();
+        parseLocalDate(job.deliveredDate).getTime() -
+        parseLocalDate(job.promisedDate).getTime();
       daysVsPromisedVal = Math.round(promiseDiff / (1000 * 60 * 60 * 24));
       onTimeVal = isOnTime(job.promisedDate, job.deliveredDate) ? "Y" : "N";
     } else {
@@ -54,17 +55,20 @@ export function calculateJobFormulas(job: Partial<JobItem>): JobCalculations {
     }
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const isOverdue =
     !isCompleted &&
     !!job.promisedDate &&
-    new Date() > new Date(job.promisedDate);
+    today > parseLocalDate(job.promisedDate);
 
   const overdueFlagVal = isOverdue ? "Overdue" : "";
   let daysOverdueVal: string | number = "";
 
   if (isOverdue && job.promisedDate) {
     const overdueDiff =
-      new Date().getTime() - new Date(job.promisedDate).getTime();
+      today.getTime() - parseLocalDate(job.promisedDate).getTime();
     daysOverdueVal = Math.max(
       0,
       Math.round(overdueDiff / (1000 * 60 * 60 * 24)),

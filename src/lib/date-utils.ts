@@ -19,12 +19,15 @@ export function formatDateUS(dateStr: string | undefined): string {
  */
 export function getWeekEndingMonday(dateStr: string | undefined): string {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
   const day = date.getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ...
   const diff = day === 1 ? 0 : day === 0 ? 1 : 8 - day;
   const monday = new Date(date);
   monday.setDate(date.getDate() + diff);
-  return monday.toISOString().split("T")[0];
+  const yy = monday.getFullYear();
+  const mm = String(monday.getMonth() + 1).padStart(2, "0");
+  const dd = String(monday.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
 }
 
 /**

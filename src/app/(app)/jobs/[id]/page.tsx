@@ -175,6 +175,14 @@ export default function JobDetailsPage() {
       alert("Job number is required");
       return;
     }
+    if (!draftJob.orderDate) {
+      alert("Order Date is required");
+      return;
+    }
+    if (!draftJob.promisedDate) {
+      alert("Promised Date is required");
+      return;
+    }
     if (draftJob.items.length === 0) {
       alert("At least one item is required");
       return;
