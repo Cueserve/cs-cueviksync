@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import {
   useTracker,
   type JobItem,
@@ -58,6 +59,16 @@ export default function JobDetailsPage() {
       },
     ],
   });
+
+  const [isPreviewMode, setIsPreviewMode] = useState(!canEdit);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!canEdit) setIsPreviewMode(true);
+  }, [canEdit]);
+
+  const previewInputClass = isPreviewMode
+    ? "border-transparent bg-transparent shadow-none px-0 disabled:opacity-100 disabled:cursor-default disabled:text-foreground"
+    : "";
 
   useEffect(() => {
     if (existingJob) {
@@ -216,19 +227,6 @@ export default function JobDetailsPage() {
             {isNew ? "New Job" : `Job Details: ${draftJob.jobNo}`}
           </h1>
         </div>
-        {canEdit && (
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => router.push("/jobs")}>
-              Discard
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent"
-            >
-              <Save className="size-4 mr-2" /> Save Job
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Main Content Layout */}
@@ -249,7 +247,7 @@ export default function JobDetailsPage() {
                   id="jobNo"
                   value={draftJob.jobNo}
                   onChange={(e) => handleUpdateField("jobNo", e.target.value)}
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPreviewMode}
                   required
                 />
               </div>
@@ -270,7 +268,7 @@ export default function JobDetailsPage() {
                     onChange={(e) =>
                       handleUpdateField("invoiceValue", Number(e.target.value))
                     }
-                    disabled={!canEdit}
+                    disabled={!canEdit || isPreviewMode}
                   />
                 </div>
               </div>
@@ -288,7 +286,7 @@ export default function JobDetailsPage() {
                   onChange={(e) =>
                     handleUpdateField("orderDate", e.target.value)
                   }
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPreviewMode}
                   required
                 />
               </div>
@@ -307,7 +305,7 @@ export default function JobDetailsPage() {
                   onChange={(e) =>
                     handleUpdateField("promisedDate", e.target.value)
                   }
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPreviewMode}
                   required
                 />
               </div>
@@ -326,7 +324,7 @@ export default function JobDetailsPage() {
                   onChange={(e) =>
                     handleUpdateField("completedDate", e.target.value)
                   }
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPreviewMode}
                 />
               </div>
               <div className="space-y-2">
@@ -344,7 +342,9 @@ export default function JobDetailsPage() {
                   onChange={(e) =>
                     handleUpdateField("deliveredDate", e.target.value)
                   }
-                  disabled={!canEdit || !draftJob.completedDate}
+                  disabled={
+                    !canEdit || isPreviewMode || !draftJob.completedDate
+                  }
                 />
               </div>
             </div>
@@ -363,7 +363,9 @@ export default function JobDetailsPage() {
                   onChange={(e) =>
                     handleUpdateField("overdueReason", e.target.value)
                   }
-                  disabled={!canEdit}
+                  className={cn(isPreviewMode && "truncate")}
+                  title={draftJob.overdueReason}
+                  disabled={!canEdit || isPreviewMode}
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -373,7 +375,7 @@ export default function JobDetailsPage() {
                   onCheckedChange={(checked) =>
                     handleUpdateField("inThisWeek", checked)
                   }
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPreviewMode}
                 />
                 <label
                   htmlFor="inThisWeek"
@@ -427,8 +429,14 @@ export default function JobDetailsPage() {
                             )
                           }
                           placeholder="Item description..."
-                          className="h-8"
-                          disabled={!canEdit}
+                          className={cn(
+                            "h-8",
+                            previewInputClass,
+                            isPreviewMode &&
+                              "truncate max-w-[200px] md:max-w-xs xl:max-w-md",
+                          )}
+                          title={item.itemDescription}
+                          disabled={!canEdit || isPreviewMode}
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -442,8 +450,8 @@ export default function JobDetailsPage() {
                               Number(e.target.value),
                             )
                           }
-                          className="h-8 text-right"
-                          disabled={!canEdit}
+                          className={cn("h-8 text-right", previewInputClass)}
+                          disabled={!canEdit || isPreviewMode}
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -457,8 +465,13 @@ export default function JobDetailsPage() {
                             )
                           }
                           placeholder="Y/N or reason"
-                          className="h-8"
-                          disabled={!canEdit}
+                          className={cn(
+                            "h-8",
+                            previewInputClass,
+                            isPreviewMode && "truncate max-w-[150px]",
+                          )}
+                          title={item.materialShortage}
+                          disabled={!canEdit || isPreviewMode}
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -472,8 +485,13 @@ export default function JobDetailsPage() {
                             )
                           }
                           placeholder="Y/N or reason"
-                          className="h-8"
-                          disabled={!canEdit}
+                          className={cn(
+                            "h-8",
+                            previewInputClass,
+                            isPreviewMode && "truncate max-w-[150px]",
+                          )}
+                          title={item.equipmentIssue}
+                          disabled={!canEdit || isPreviewMode}
                         />
                       </td>
                       {canEdit && (
@@ -529,7 +547,7 @@ export default function JobDetailsPage() {
                   onChange={(e) =>
                     handleUpdateField("spoilagePercent", Number(e.target.value))
                   }
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPreviewMode}
                 />
               </div>
               <div className="flex items-center space-x-2 flex-1 pb-2.5">
@@ -539,7 +557,7 @@ export default function JobDetailsPage() {
                   onCheckedChange={(checked) =>
                     handleUpdateField("reprintRequired", checked)
                   }
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPreviewMode}
                 />
                 <label
                   htmlFor="reprintRequired"
@@ -561,7 +579,7 @@ export default function JobDetailsPage() {
                 value={draftJob.notes}
                 onChange={(e) => handleUpdateField("notes", e.target.value)}
                 placeholder="Add any additional job notes here..."
-                disabled={!canEdit}
+                disabled={!canEdit || isPreviewMode}
                 className="min-h-[100px] flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
@@ -570,6 +588,38 @@ export default function JobDetailsPage() {
 
         {/* Right Column: Live Summary */}
         <div className="space-y-6 sticky top-6">
+          {canEdit && (
+            <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                Status / Actions
+              </h2>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setIsPreviewMode(!isPreviewMode)}
+              >
+                {isPreviewMode ? "Exit Preview" : "Preview Mode"}
+              </Button>
+              {!isPreviewMode && (
+                <>
+                  <Button
+                    className="w-full bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent"
+                    onClick={handleSubmit}
+                  >
+                    <Save className="size-4 mr-2" /> Save Job
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => router.push("/jobs")}
+                  >
+                    Discard
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
+
           <div className="bg-card text-card-foreground border border-border rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Calculator className="size-5 text-primary" /> Calculated Fields
