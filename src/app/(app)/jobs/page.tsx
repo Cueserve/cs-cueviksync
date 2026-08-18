@@ -22,6 +22,7 @@ import {
   getTurnaroundDays,
   isOnTime,
   formatDateUS,
+  parseLocalDate,
 } from "@/lib/date-utils";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { MetricCard } from "@/components/ui/metric-card";
@@ -93,11 +94,13 @@ export default function JobMasterPage() {
   const totalJobsCount = parentJobs.length;
   const completedJobsCount = parentJobs.filter((j) => j.completedDate).length;
   const pendingJobsCount = parentJobs.filter((j) => !j.completedDate).length;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const overdueJobsCount = parentJobs.filter(
     (j) =>
       !j.completedDate &&
       j.promisedDate &&
-      new Date() > new Date(j.promisedDate),
+      today > parseLocalDate(j.promisedDate),
   ).length;
 
   const canEdit =
@@ -361,8 +364,8 @@ export default function JobMasterPage() {
                   );
                   if (job.deliveredDate) {
                     const promiseDiff =
-                      new Date(job.deliveredDate).getTime() -
-                      new Date(job.promisedDate).getTime();
+                      parseLocalDate(job.deliveredDate).getTime() -
+                      parseLocalDate(job.promisedDate).getTime();
                     const diffDays = Math.round(
                       promiseDiff / (1000 * 60 * 60 * 24),
                     );
@@ -380,13 +383,14 @@ export default function JobMasterPage() {
                   isParent &&
                   !isCompleted &&
                   job.promisedDate &&
-                  new Date() > new Date(job.promisedDate);
+                  today > parseLocalDate(job.promisedDate);
                 const overdueFlagVal = isOverdue ? "Overdue" : "";
 
                 let daysOverdueVal: string | number = "";
                 if (isOverdue) {
                   const overdueDiff =
-                    new Date().getTime() - new Date(job.promisedDate).getTime();
+                    today.getTime() -
+                    parseLocalDate(job.promisedDate).getTime();
                   daysOverdueVal = Math.max(
                     0,
                     Math.round(overdueDiff / (1000 * 60 * 60 * 24)),

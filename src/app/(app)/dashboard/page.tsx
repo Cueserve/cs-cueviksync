@@ -18,6 +18,7 @@ import {
   getTurnaroundDays,
   isOnTime,
   formatDateUS,
+  parseLocalDate,
 } from "@/lib/date-utils";
 import { MetricCard } from "@/components/ui/metric-card";
 import { LineChart } from "@/components/charts/line-chart";
@@ -37,11 +38,9 @@ export default function DashboardPage() {
   // Metrics calculations
   const pendingJobs = jobs.filter((j) => !j.completedDate && j.lineNo === 1);
   const overdueCount = pendingJobs.filter((j) => {
-    const promised = new Date(j.promisedDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    promised.setHours(0, 0, 0, 0);
-    return today > promised;
+    return today > parseLocalDate(j.promisedDate);
   }).length;
 
   const completedJobs = jobs.filter((j) => !!j.completedDate && j.lineNo === 1);
