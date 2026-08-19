@@ -175,6 +175,15 @@ export default function JobDetailsPage() {
       alert("Job number is required");
       return;
     }
+    const isDuplicateJobNo = jobs.some(
+      (j) =>
+        j.jobNo.trim().toLowerCase() === draftJob.jobNo.trim().toLowerCase() &&
+        j.id !== draftJob.id,
+    );
+    if (isDuplicateJobNo) {
+      alert("Job number already exists. Please choose a unique job number.");
+      return;
+    }
     if (!draftJob.orderDate) {
       alert("Order Date is required");
       return;
@@ -256,8 +265,28 @@ export default function JobDetailsPage() {
                   value={draftJob.jobNo}
                   onChange={(e) => handleUpdateField("jobNo", e.target.value)}
                   disabled={!canEdit || isPreviewMode}
+                  className={cn(
+                    jobs.some(
+                      (j) =>
+                        j.jobNo.trim().toLowerCase() ===
+                          draftJob.jobNo.trim().toLowerCase() &&
+                        j.id !== draftJob.id,
+                    )
+                      ? "border-destructive focus-visible:ring-destructive"
+                      : "",
+                  )}
                   required
                 />
+                {jobs.some(
+                  (j) =>
+                    j.jobNo.trim().toLowerCase() ===
+                      draftJob.jobNo.trim().toLowerCase() &&
+                    j.id !== draftJob.id,
+                ) && (
+                  <p className="text-xs text-destructive">
+                    This job number already exists.
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <label
