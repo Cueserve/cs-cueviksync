@@ -590,6 +590,7 @@ export default function JobDetailsPage() {
                   type="number"
                   step="0.1"
                   min="0"
+                  max="100"
                   value={
                     draftJob.spoilagePercent === 0
                       ? ""
@@ -599,7 +600,7 @@ export default function JobDetailsPage() {
                     const val = e.target.value;
                     handleUpdateField(
                       "spoilagePercent",
-                      val === "" ? 0 : Math.max(0, Number(val)),
+                      val === "" ? 0 : Math.min(100, Math.max(0, Number(val))),
                     );
                   }}
                   disabled={!canEdit || isPreviewMode}

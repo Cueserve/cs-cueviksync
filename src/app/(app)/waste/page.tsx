@@ -36,11 +36,17 @@ export default function WasteReworkPage() {
   const [isLogOpen, setIsLogOpen] = useState(false);
 
   const handleSpoilageChange = (id: string, val: string) => {
+    let restrictedVal = val;
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+      if (num > 100) restrictedVal = "100";
+      else if (num < 0) restrictedVal = "0";
+    }
     const job = jobs.find((j) => j.id === id);
     setEditingValues((prev) => ({
       ...prev,
       [id]: {
-        spoilage: val,
+        spoilage: restrictedVal,
         reprint: prev[id]?.reprint ?? (job?.reprintRequired || false),
         notes: prev[id]?.notes ?? (job?.notes || ""),
       },
