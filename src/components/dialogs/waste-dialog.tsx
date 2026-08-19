@@ -115,7 +115,15 @@ export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
                 min="0"
                 max="100"
                 value={modalSpoilage}
-                onChange={(e) => setModalSpoilage(e.target.value)}
+                onChange={(e) => {
+                  let val = e.target.value;
+                  const num = parseFloat(val);
+                  if (!isNaN(num)) {
+                    if (num > 100) val = "100";
+                    else if (num < 0) val = "0";
+                  }
+                  setModalSpoilage(val);
+                }}
                 className="col-span-3 bg-card border-input focus-visible:ring-ring font-mono"
                 required
               />
