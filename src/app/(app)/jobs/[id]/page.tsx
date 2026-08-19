@@ -271,11 +271,18 @@ export default function JobDetailsPage() {
                   <Input
                     id="invoiceValue"
                     type="number"
+                    min="0"
                     className="pl-9"
-                    value={draftJob.invoiceValue}
-                    onChange={(e) =>
-                      handleUpdateField("invoiceValue", Number(e.target.value))
+                    value={
+                      draftJob.invoiceValue === 0 ? "" : draftJob.invoiceValue
                     }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      handleUpdateField(
+                        "invoiceValue",
+                        val === "" ? 0 : Math.max(0, Number(val)),
+                      );
+                    }}
                     disabled={!canEdit || isPreviewMode}
                   />
                 </div>
@@ -450,14 +457,16 @@ export default function JobDetailsPage() {
                       <td className="px-4 py-2">
                         <Input
                           type="number"
-                          value={item.quantity || ""}
-                          onChange={(e) =>
+                          min="0"
+                          value={item.quantity === 0 ? "" : item.quantity}
+                          onChange={(e) => {
+                            const val = e.target.value;
                             handleItemChange(
                               index,
                               "quantity",
-                              Number(e.target.value),
-                            )
-                          }
+                              val === "" ? 0 : Math.max(0, Number(val)),
+                            );
+                          }}
                           className={cn("h-8", previewInputClass)}
                           disabled={!canEdit || isPreviewMode}
                         />
@@ -551,10 +560,19 @@ export default function JobDetailsPage() {
                   id="spoilagePercent"
                   type="number"
                   step="0.1"
-                  value={draftJob.spoilagePercent}
-                  onChange={(e) =>
-                    handleUpdateField("spoilagePercent", Number(e.target.value))
+                  min="0"
+                  value={
+                    draftJob.spoilagePercent === 0
+                      ? ""
+                      : draftJob.spoilagePercent
                   }
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    handleUpdateField(
+                      "spoilagePercent",
+                      val === "" ? 0 : Math.max(0, Number(val)),
+                    );
+                  }}
                   disabled={!canEdit || isPreviewMode}
                 />
               </div>

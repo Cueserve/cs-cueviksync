@@ -33,7 +33,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function JobMasterPage() {
-  const { jobs, deleteJob } = useTracker();
+  const { jobs, deleteJob, selectedRole } = useTracker();
+  const canEdit = selectedRole !== "rep";
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -97,12 +98,14 @@ export default function JobMasterPage() {
           title="Jobs Dashboard"
           description="Centralized pipeline view. Switch tabs to view All, Pending, Completed, or This Week."
         />
-        <Button asChild>
-          <Link href="/jobs/new">
-            <Plus className="mr-2 size-4" />
-            Add New Job
-          </Link>
-        </Button>
+        {canEdit && (
+          <Button asChild>
+            <Link href="/jobs/new">
+              <Plus className="mr-2 size-4" />
+              Add New Job
+            </Link>
+          </Button>
+        )}
       </div>
 
       {/* KPI Metrics Cards */}
@@ -424,28 +427,40 @@ export default function JobMasterPage() {
                           <TableCell className="sticky right-0 bg-background z-10 shadow-[-2px_0_0_rgba(0,0,0,0.08)]">
                             {isFirst ? (
                               <div className="flex items-center gap-2">
-                                <Link
-                                  href={`/jobs/${job.id}`}
-                                  className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
-                                  title="Edit Job"
-                                >
-                                  <Pencil className="size-4" />
-                                </Link>
-                                <button
-                                  onClick={() => {
-                                    if (
-                                      window.confirm(
-                                        `Are you sure you want to delete Job ${job.jobNo}?`,
-                                      )
-                                    ) {
-                                      deleteJob(job.id);
-                                    }
-                                  }}
-                                  className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
-                                  title="Delete Job"
-                                >
-                                  <Trash2 className="size-4" />
-                                </button>
+                                {canEdit ? (
+                                  <>
+                                    <Link
+                                      href={`/jobs/${job.id}`}
+                                      className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
+                                      title="Edit Job"
+                                    >
+                                      <Pencil className="size-4" />
+                                    </Link>
+                                    <button
+                                      onClick={() => {
+                                        if (
+                                          window.confirm(
+                                            `Are you sure you want to delete Job ${job.jobNo}?`,
+                                          )
+                                        ) {
+                                          deleteJob(job.id);
+                                        }
+                                      }}
+                                      className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
+                                      title="Delete Job"
+                                    >
+                                      <Trash2 className="size-4" />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <Link
+                                    href={`/jobs/${job.id}`}
+                                    className="p-1.5 text-muted-foreground hover:text-primary transition-colors font-medium text-xs uppercase"
+                                    title="View Job"
+                                  >
+                                    View
+                                  </Link>
+                                )}
                               </div>
                             ) : (
                               <span className="text-muted-foreground/30">
