@@ -397,14 +397,20 @@ export default function DashboardPage() {
           <Table caption="Weekly Performance Trends">
             <TableHeader>
               <TableRow>
-                <TableHead>Week Ending (Mon)</TableHead>
-                <TableHead>Jobs Completed</TableHead>
-                <TableHead>Avg Turnaround (Days)</TableHead>
-                <TableHead>On-Time Delivery %</TableHead>
-                <TableHead>Total Invoice Value</TableHead>
+                <TableHead className="text-center">Week Ending (Mon)</TableHead>
+                <TableHead className="text-center">Jobs Completed</TableHead>
+                <TableHead className="text-center">
+                  Avg Turnaround (Days)
+                </TableHead>
+                <TableHead className="text-center">
+                  On-Time Delivery %
+                </TableHead>
+                <TableHead className="text-center">
+                  Total Invoice Value
+                </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="font-mono">
+            <TableBody className="font-mono text-center">
               {weeklyStatsArray.map((stat) => {
                 const avgTurnaround =
                   stat.completedCount > 0
@@ -420,9 +426,13 @@ export default function DashboardPage() {
                     <TableCell className="font-medium text-foreground">
                       {formatDateUS(stat.weekEnding)}
                     </TableCell>
-                    <TableCell numeric>{stat.completedCount}</TableCell>
-                    <TableCell numeric>{avgTurnaround}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
+                      {stat.completedCount}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {avgTurnaround}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {stat.completedCount > 0 && (
                         <span
                           className={
@@ -436,10 +446,7 @@ export default function DashboardPage() {
                       )}
                       {stat.completedCount === 0 && "-"}
                     </TableCell>
-                    <TableCell
-                      className="font-semibold text-foreground"
-                      numeric
-                    >
+                    <TableCell className="font-semibold text-foreground text-center">
                       ${stat.invoiceSum.toLocaleString()}
                     </TableCell>
                   </TableRow>
