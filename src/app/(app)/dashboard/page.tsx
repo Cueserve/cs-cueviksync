@@ -18,6 +18,7 @@ import {
   getTurnaroundDays,
   isOnTime,
   formatDateUS,
+  parseLocalDate,
 } from "@/lib/date-utils";
 import { MetricCard } from "@/components/ui/metric-card";
 import {
@@ -81,8 +82,33 @@ export default function DashboardPage() {
     }
   > = {};
 
-  const defaultWeeks = ["2026-08-03", "2026-08-10", "2026-08-17"];
-  defaultWeeks.forEach((w) => {
+  const jobWeeks = completedJobs
+    .map((job) => getWeekEndingMonday(job.completedDate))
+    .filter(Boolean) as string[];
+
+  const allDates = [...jobWeeks, "2026-08-03", "2026-08-10", "2026-08-17"];
+  const minDateStr = allDates.reduce(
+    (min, w) => (w < min ? w : min),
+    allDates[0],
+  );
+  const maxDateStr = allDates.reduce(
+    (max, w) => (w > max ? w : max),
+    allDates[0],
+  );
+
+  const current = parseLocalDate(minDateStr);
+  const end = parseLocalDate(maxDateStr);
+
+  const generatedWeeks: string[] = [];
+  while (current <= end) {
+    const yy = current.getFullYear();
+    const mm = String(current.getMonth() + 1).padStart(2, "0");
+    const dd = String(current.getDate()).padStart(2, "0");
+    generatedWeeks.push(`${yy}-${mm}-${dd}`);
+    current.setDate(current.getDate() + 7);
+  }
+
+  generatedWeeks.forEach((w) => {
     weeklyGroups[w] = {
       weekEnding: w,
       completedCount: 0,
