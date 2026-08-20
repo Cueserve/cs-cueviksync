@@ -52,6 +52,8 @@ import {
 } from "@/components/ui/data-table";
 import { Pagination } from "@/components/ui/pagination";
 import { usePagination } from "@/hooks/use-pagination";
+import { SortableTableHead } from "@/components/ui/sortable-table-head";
+import { useSort, SortConfig } from "@/hooks/use-sort";
 
 export default function DashboardPage() {
   const { jobs } = useTracker();
@@ -150,6 +152,34 @@ export default function DashboardPage() {
     a.weekEnding.localeCompare(b.weekEnding),
   );
 
+  const sortConfigs: SortConfig<(typeof weeklyStatsArray)[0]>[] = [
+    {
+      key: "weekEnding",
+      getValue: (item) => new Date(item.weekEnding).getTime(),
+    },
+    { key: "completedCount", getValue: (item) => item.completedCount },
+    {
+      key: "avgTurnaround",
+      getValue: (item) =>
+        item.completedCount > 0
+          ? item.totalTurnaround / item.completedCount
+          : 0,
+    },
+    {
+      key: "onTimePercent",
+      getValue: (item) =>
+        item.completedCount > 0 ? item.onTimeCount / item.completedCount : 0,
+    },
+    { key: "invoiceSum", getValue: (item) => item.invoiceSum },
+  ];
+
+  const { sortKey, sortDirection, onSort, sortedData } = useSort(
+    weeklyStatsArray,
+    sortConfigs,
+    "weekEnding", // Default sort
+    "desc",
+  );
+
   const {
     page,
     size,
@@ -157,7 +187,7 @@ export default function DashboardPage() {
     onSizeChange,
     pageCount,
     paginatedData: paginatedStats,
-  } = usePagination(weeklyStatsArray, 25);
+  } = usePagination(sortedData, 25);
 
   // --- Chart Data ---
   const weekLabel = (w: string) => w.substring(5); // "08-03" etc.
@@ -408,17 +438,51 @@ export default function DashboardPage() {
           <Table caption="Weekly Performance Trends">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">Week Ending (Mon)</TableHead>
-                <TableHead className="text-center">Jobs Completed</TableHead>
-                <TableHead className="text-center">
+                <SortableTableHead
+                  className="text-center"
+                  sortKey="weekEnding"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={onSort}
+                >
+                  Week Ending (Mon)
+                </SortableTableHead>
+                <SortableTableHead
+                  className="text-center"
+                  sortKey="completedCount"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={onSort}
+                >
+                  Jobs Completed
+                </SortableTableHead>
+                <SortableTableHead
+                  className="text-center"
+                  sortKey="avgTurnaround"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={onSort}
+                >
                   Avg Turnaround (Days)
-                </TableHead>
-                <TableHead className="text-center">
+                </SortableTableHead>
+                <SortableTableHead
+                  className="text-center"
+                  sortKey="onTimePercent"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={onSort}
+                >
                   On-Time Delivery %
-                </TableHead>
-                <TableHead className="text-center">
+                </SortableTableHead>
+                <SortableTableHead
+                  className="text-center"
+                  sortKey="invoiceSum"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={onSort}
+                >
                   Total Invoice Value
-                </TableHead>
+                </SortableTableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="font-mono text-center">

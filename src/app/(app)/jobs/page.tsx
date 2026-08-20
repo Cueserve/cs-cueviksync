@@ -33,6 +33,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { usePagination } from "@/hooks/use-pagination";
+import { SortableTableHead } from "@/components/ui/sortable-table-head";
+import { useSort, SortConfig } from "@/hooks/use-sort";
 
 export default function JobMasterPage() {
   const { jobs, deleteJob, selectedRole } = useTracker();
@@ -93,6 +95,88 @@ export default function JobMasterPage() {
     return true;
   });
 
+  const jobsWithCalculations = React.useMemo(() => {
+    return filteredJobs.map((job) => ({
+      ...job,
+      ...calculateJobFormulas(job),
+    }));
+  }, [filteredJobs]);
+
+  const sortConfigs: SortConfig<(typeof jobsWithCalculations)[0]>[] = [
+    {
+      key: "orderDate",
+      getValue: (item) => new Date(item.orderDate).getTime(),
+    },
+    {
+      key: "promisedDate",
+      getValue: (item) =>
+        item.promisedDate ? new Date(item.promisedDate).getTime() : null,
+    },
+    {
+      key: "completedDate",
+      getValue: (item) =>
+        item.completedDate ? new Date(item.completedDate).getTime() : null,
+    },
+    {
+      key: "deliveredDate",
+      getValue: (item) =>
+        item.deliveredDate ? new Date(item.deliveredDate).getTime() : null,
+    },
+    { key: "itemsInJob", getValue: (item) => item.itemsInJob },
+    { key: "totalQty", getValue: (item) => item.totalQty },
+    { key: "invoiceValue", getValue: (item) => item.invoiceValue },
+    {
+      key: "turnaroundDays",
+      getValue: (item) =>
+        typeof item.turnaroundDaysVal === "number"
+          ? item.turnaroundDaysVal
+          : null,
+    },
+    {
+      key: "daysVsPromised",
+      getValue: (item) =>
+        typeof item.daysVsPromisedVal === "number"
+          ? item.daysVsPromisedVal
+          : null,
+    },
+    {
+      key: "daysOverdue",
+      getValue: (item) =>
+        typeof item.daysOverdueVal === "number" ? item.daysOverdueVal : null,
+    },
+    { key: "jobNo", getValue: (item) => item.jobNo },
+    {
+      key: "itemDescription",
+      getValue: (item) => item.items[0]?.itemDescription || "",
+    },
+    { key: "qty", getValue: (item) => item.items[0]?.quantity || 0 },
+    { key: "status", getValue: (item) => item.statusStr },
+    { key: "onTime", getValue: (item) => item.onTimeVal },
+    { key: "overdueFlag", getValue: (item) => (item.overdueFlagVal ? 1 : 0) },
+    { key: "scheduledThisWeek", getValue: (item) => item.scheduledThisWeekVal },
+    {
+      key: "weekEnding",
+      getValue: (item) =>
+        item.weekEndingStr ? new Date(item.weekEndingStr).getTime() : 0,
+    },
+    {
+      key: "materialShortage",
+      getValue: (item) => (item.items.some((i) => i.materialShortage) ? 1 : 0),
+    },
+    {
+      key: "equipmentIssue",
+      getValue: (item) => (item.items.some((i) => i.equipmentIssue) ? 1 : 0),
+    },
+    { key: "overdueReason", getValue: (item) => item.overdueReason || "" },
+  ];
+
+  const { sortKey, sortDirection, onSort, sortedData } = useSort(
+    jobsWithCalculations,
+    sortConfigs,
+    "orderDate",
+    "desc",
+  );
+
   const {
     page,
     size,
@@ -100,7 +184,7 @@ export default function JobMasterPage() {
     onSizeChange,
     pageCount,
     paginatedData: paginatedJobs,
-  } = usePagination(filteredJobs, 25);
+  } = usePagination(sortedData, 25);
 
   return (
     <PageBody>
@@ -187,30 +271,183 @@ export default function JobMasterPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="sticky left-0 w-10 px-2 bg-muted z-10"></TableHead>
-              <TableHead className="sticky left-10 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]">
+              <SortableTableHead
+                className="sticky left-10 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]"
+                sortKey="jobNo"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
                 Job #
-              </TableHead>
+              </SortableTableHead>
               <TableHead className="text-center">Line #</TableHead>
-              <TableHead>Item Description</TableHead>
-              <TableHead>Qty</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Order Date</TableHead>
-              <TableHead>Promised Date</TableHead>
-              <TableHead>Completed Date</TableHead>
-              <TableHead>Delivered Date</TableHead>
-              <TableHead className="text-center">Items in Job</TableHead>
-              <TableHead>Total Qty (Job)</TableHead>
-              <TableHead>Invoice Value</TableHead>
-              <TableHead className="text-center">Turnaround (Days)</TableHead>
-              <TableHead className="text-center">Days vs Promised</TableHead>
-              <TableHead className="text-center">On-Time? (Y/N)</TableHead>
-              <TableHead className="text-center">Overdue Flag</TableHead>
-              <TableHead className="text-center">Days Overdue</TableHead>
-              <TableHead className="text-center">Scheduled This Week</TableHead>
-              <TableHead>Week Ending (Mon)</TableHead>
-              <TableHead>Material Shortage?</TableHead>
-              <TableHead>Equipment Issue</TableHead>
-              <TableHead>Overdue Reason</TableHead>
+              <SortableTableHead
+                sortKey="itemDescription"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Item Description
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="qty"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Qty
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="status"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Status
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="orderDate"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Order Date
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="promisedDate"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Promised Date
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="completedDate"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Completed Date
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="deliveredDate"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Delivered Date
+              </SortableTableHead>
+              <SortableTableHead
+                className="text-center"
+                sortKey="itemsInJob"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Items in Job
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="totalQty"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Total Qty (Job)
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="invoiceValue"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Invoice Value
+              </SortableTableHead>
+              <SortableTableHead
+                className="text-center"
+                sortKey="turnaroundDays"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Turnaround (Days)
+              </SortableTableHead>
+              <SortableTableHead
+                className="text-center"
+                sortKey="daysVsPromised"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Days vs Promised
+              </SortableTableHead>
+              <SortableTableHead
+                className="text-center"
+                sortKey="onTime"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                On-Time? (Y/N)
+              </SortableTableHead>
+              <SortableTableHead
+                className="text-center"
+                sortKey="overdueFlag"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Overdue Flag
+              </SortableTableHead>
+              <SortableTableHead
+                className="text-center"
+                sortKey="daysOverdue"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Days Overdue
+              </SortableTableHead>
+              <SortableTableHead
+                className="text-center"
+                sortKey="scheduledThisWeek"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Scheduled This Week
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="weekEnding"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Week Ending (Mon)
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="materialShortage"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Material Shortage?
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="equipmentIssue"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Equipment Issue
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="overdueReason"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Overdue Reason
+              </SortableTableHead>
               <TableHead className="sticky right-0 bg-muted z-10 shadow-[-2px_0_0_rgba(0,0,0,0.08)]">
                 Actions
               </TableHead>
@@ -239,7 +476,8 @@ export default function JobMasterPage() {
                   scheduledThisWeekVal,
                   itemsInJob,
                   totalQty,
-                } = calculateJobFormulas(job);
+                } = job; // Formulas are pre-calculated for sorting
+
                 const hasMultipleItems = itemsInJob > 1;
                 const isExpanded = expandedJobs.has(job.id);
                 const visibleItems = isExpanded ? job.items : [job.items[0]];

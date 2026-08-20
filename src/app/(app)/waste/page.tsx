@@ -19,6 +19,8 @@ import {
 import { WasteDialog } from "@/components/dialogs/waste-dialog";
 import { Pagination } from "@/components/ui/pagination";
 import { usePagination } from "@/hooks/use-pagination";
+import { SortableTableHead } from "@/components/ui/sortable-table-head";
+import { useSort, SortConfig } from "@/hooks/use-sort";
 
 import { calculateJobFormulas } from "@/lib/job-formulas";
 
@@ -115,6 +117,35 @@ export default function WasteReworkPage() {
     (job) => job.spoilagePercent > 0 || job.reprintRequired,
   );
 
+  const sortConfigs: SortConfig<(typeof wasteJobs)[0]>[] = [
+    {
+      key: "weekEnding",
+      getValue: (job) => {
+        const { weekEndingStr } = calculateJobFormulas(job);
+        return weekEndingStr ? new Date(weekEndingStr).getTime() : 0;
+      },
+    },
+    { key: "spoilagePercent", getValue: (job) => job.spoilagePercent },
+    { key: "jobNo", getValue: (job) => job.jobNo },
+    {
+      key: "description",
+      getValue: (job) =>
+        job.items
+          .map((i) => i.itemDescription)
+          .filter(Boolean)
+          .join(", "),
+    },
+    { key: "reprint", getValue: (job) => (job.reprintRequired ? 1 : 0) },
+    { key: "notes", getValue: (job) => job.notes || "" },
+  ];
+
+  const { sortKey, sortDirection, onSort, sortedData } = useSort(
+    wasteJobs,
+    sortConfigs,
+    "weekEnding", // Default sort
+    "desc",
+  );
+
   const {
     page,
     size,
@@ -122,7 +153,7 @@ export default function WasteReworkPage() {
     onSizeChange,
     pageCount,
     paginatedData: paginatedWasteJobs,
-  } = usePagination(wasteJobs, 25);
+  } = usePagination(sortedData, 25);
 
   return (
     <PageBody>
@@ -165,12 +196,54 @@ export default function WasteReworkPage() {
         <Table caption="Waste and Rework Log">
           <TableHeader>
             <TableRow>
-              <TableHead>Job #</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Week Ending (Mon)</TableHead>
-              <TableHead>Spoilage %</TableHead>
-              <TableHead>Reprint? (Y/N)</TableHead>
-              <TableHead>Notes</TableHead>
+              <SortableTableHead
+                sortKey="jobNo"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Job #
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="description"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Description
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="weekEnding"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Week Ending (Mon)
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="spoilagePercent"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Spoilage %
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="reprint"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Reprint? (Y/N)
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="notes"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={onSort}
+              >
+                Notes
+              </SortableTableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
