@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,40 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 py-12">
       <div className="flex flex-col items-center gap-1.5">
-        <h1 className="text-2xl">CuevikSync</h1>
+        {/* The colour lockup, and the one place in the app that gets it: this
+            is the only surface with no chrome competing for attention, and it
+            sits on `--background`, light enough for the light lockup (the
+            brand kit forbids it on anything darker than ~#E8EDF1).
+
+            Two files rather than one `currentColor` inline, because the
+            two-tone fill IS the mark here -- flattening it to a single
+            inherited colour would throw away the thing that makes it the
+            master. `dark:` swaps to the variant whose ink is lifted for dark
+            surfaces.
+
+            `unoptimized` because the source is already an SVG: the optimizer
+            has nothing to do with it, and routing an SVG through it would
+            otherwise require `dangerouslyAllowSVG` in next.config -- a global
+            loosening for zero gain. 220px clears the kit's 130px minimum. */}
+        <h1 className="sr-only">CuevikSync</h1>
+        <Image
+          src="/brand/cueviksync-horizontal.svg"
+          alt=""
+          aria-hidden
+          width={220}
+          height={39}
+          unoptimized
+          className="dark:hidden"
+        />
+        <Image
+          src="/brand/cueviksync-horizontal-dark.svg"
+          alt=""
+          aria-hidden
+          width={220}
+          height={39}
+          unoptimized
+          className="hidden dark:block"
+        />
         <p className="text-sm text-muted-foreground">
           Capture every inbound inquiry and turn it into revenue.
         </p>

@@ -49,8 +49,9 @@ roles, so a lead is never dropped even when the main app is degraded — see [AR
 - **No Docker required.** Development runs against a hosted Supabase project, not the local
   stack — see [ENVIRONMENTS.md](docs/ENVIRONMENTS.md)
 - Git
-- A Supabase account and project (Postgres 17, with the `pgmq` and `pg_cron` extensions enabled)
-  — this is your **development** database, not just a deploy target
+- A Supabase account and project (Postgres 17) — this is your **development** database, not just
+  a deploy target. `pgmq` and `pg_cron` are enabled by the migration that first needs them, not
+  up front; neither is on yet
 - A Vercel account (hosts the Next.js app)
 - Optional accounts, only if the corresponding feature is enabled: Resend (quote-email
   delivery), Sentry (error tracking), PostHog (product analytics)
@@ -89,7 +90,7 @@ npm run dev                    # start the Next.js app locally
 
 ## Everyday Checks
 
-These five are exactly what CI runs on every PR to `main` and every push to `main`
+These four are exactly what CI runs on every PR to `main` and every push to `main`
 ([.github/workflows/ci.yml](.github/workflows/ci.yml)):
 
 ```bash
@@ -97,13 +98,15 @@ npm run lint
 npm run typecheck
 npm run format:check
 npm run test
-npm run build
 ```
 
-**CI is red on `main` and will stay red** until the first Vitest suite lands. `npm run test`
-fails an empty suite by design — `vitest.config.ts` sets no `passWithNoTests`, and adding one
-would make a green run mean nothing. The other four steps pass. Treat them as the real gate
-for now.
+`npm run build` exists but is **not** in the workflow — run it locally when you want the
+production compile checked.
+
+**The `test` step passes on an empty suite, and there are no test files yet.** `npm run test`
+is `vitest run --passWithNoTests`, so zero tests exit `0`. Until the first Vitest suite lands
+the step gates nothing; the other three are the real signal. What that first suite must cover
+is not negotiable — see [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md) §3.
 
 There is no end-to-end suite: no `e2e/`, no `playwright.config.ts`, no `test:e2e`, by decision
 ([TECH-STACK.md](docs/TECH-STACK.md) §5). The automated WCAG 2.1 AA check PRD NFR-012 calls for
@@ -136,18 +139,14 @@ Sources: [frontend-design](https://github.com/anthropics/claude-plugins-official
 
 **No plugin builds UI here — shadcn does.** This is a shadcn project ([components.json](components.json),
 `shadcn@4`), and the primitives in `src/components/ui/` are shadcn components adapted to our
-tokens. Reuse or extend one before running `npx shadcn@latest add`. The order on any UI change
-is **`/impeccable shape` → design system → shadcn → impeccable audit → `npm run lint` +
-`npm run typecheck`**; [CLAUDE.md](CLAUDE.md)'s "Building UI" section is the authority.
+tokens. Reuse or extend one before running `npx shadcn@latest add`.
 
-**Starting new UI-bearing work? `/impeccable shape` is required, not optional** — a new route,
-screen, or user-facing component begins with a shape brief you have explicitly confirmed.
-`/impeccable craft` is **banned**: it builds as well as plans, and nothing in impeccable writes
-UI here. Backend-only work (migration, Server Action, `src/lib/` module) is exempt. CLAUDE.md
-"Building UI" step 1 has the full rule, including how this orders against
-`superpowers:brainstorming`.
+**[CLAUDE.md](CLAUDE.md) § "Building UI" is the authority on the order a UI change follows** —
+when `/impeccable shape` is required, why `/impeccable craft` is banned, which work is exempt,
+and how the design system, shadcn, and the audit sequence. That order is deliberately not
+restated here; a second copy is a copy free to drift.
 
-Five things to know:
+Three things to know before you install:
 
 - **No plugin overrules this repo's design system.** [DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md)
   and the semantic tokens in `src/app/globals.css` win every time, and `eslint.config.mjs`
@@ -157,30 +156,28 @@ Five things to know:
   `globals.css` defines them (`background`, `card`, `primary`, `muted`, `border`, `ring`,
   `chart-1`–`5`, `sidebar-*`). Read the diff anyway — a hardcoded color in generated output is
   a bug, not a starting point.
-- **The impeccable baseline is clean, and contrast is its blind spot.** `npx impeccable detect src/`
-  returns zero findings (verified 2026-08-05, v3.5.0) — `eslint.config.mjs` already bans the raw
-  palette classes most of its detectors key on. But its contrast rules need two resolved colors,
-  and our semantic tokens resolve at runtime, so a source scan **skips** the WCAG AA check rather
-  than passing it. For real contrast coverage, audit the rendered page: `npm run dev`, then
-  `npx impeccable detect http://localhost:3000/<route>` — nothing to install, since `npx` pulls
-  `puppeteer` in as one of impeccable's optional dependencies. Never add it to `package.json`.
-- **A new finding is a real finding.** Because the baseline is empty, anything impeccable
-  reports got past `npm run lint` and deserves a fix, not a suppression. If you do establish a
-  finding contradicts [DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md), suppress it with
-  `npx impeccable ignores add-rule <rule>` — never by changing a token.
 - **Don't install the same tool twice.** All three come from the plugin system. If you
   previously installed one by hand (`npx impeccable skills install` or `claudekit`), delete the
   local copy so you aren't loading two versions of one skill.
 
-`.impeccable/config.local.json` is gitignored: per-developer overrides are machine state, not
-source. Nothing else here is. Plugins install to `~/.claude/plugins/cache/`, outside the repo,
-so there is no local payload to ignore — a `.claude/skills/` directory should not exist, and if
-one appears you hand-installed something (see the bullet above) and it **will** be committed.
+You can also run the auditor outside Claude Code:
 
-`.impeccable/config.json` **is** committed, because a suppression is a team decision. It holds
-one: `cramped-padding`, which misfires on the data table's scroll container (the rationale is in
-the file's `$comment`). That suppression is repo-wide, since the tool has no per-file scope for
-rules — run `npx impeccable detect src/ --no-config` to see what it hides.
+```bash
+npx impeccable detect src/          # exit 0 = clean, exit 2 = findings
+npx impeccable detect --json src/   # machine-readable, for CI
+```
+
+A source scan is **blind to contrast** — impeccable's contrast rules need two resolved colors
+and our semantic tokens resolve at runtime, so `detect src/` skips the WCAG AA check rather
+than passing it. CLAUDE.md § "Building UI" step 4 has what to run instead. If you ever
+establish that a finding contradicts [DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md), suppress it with
+`npx impeccable ignores add-rule <rule>` — never by changing a token.
+
+Plugins install to `~/.claude/plugins/cache/`, outside the repo, so there is no local payload to
+ignore — a `.claude/skills/` directory should not exist, and if one appears you hand-installed
+something (see the bullet above) and it **will** be committed. There is no `.impeccable/`
+directory in the repo today: `config.local.json` is gitignored as per-developer machine state,
+and a `config.json` would be committed if a team-wide suppression is ever agreed.
 
 You can also run the auditor outside Claude Code:
 
@@ -237,16 +234,17 @@ product impact (what does it cost a user or an engineer?). A finding can be `P2 
 
 ## Project Structure
 
-> The `src/`, `supabase/`, and `.github/` directories are the intended layout from
-> [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md)
-> §1. They are created when we scaffold the app. `docs/`, `.claude/`, and `CLAUDE.md` exist today.
+> This layout follows [ARCHITECTURE.md](docs/ARCHITECTURE.md) and
+> [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md) §1, and every directory below exists today.
+> [PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) §1 is the authoritative tree and marks the
+> parts that are still unbuilt; this is the orientation copy.
 
 ```text
 src/app/         Next.js App Router — routes, layouts, and route-private `_components/`
 src/components/  Shared UI: `ui/` primitives and `layout/` app chrome
 src/lib/         Framework-free modules: Supabase clients, config, validation, utils
 supabase/        Supabase CLI migrations (migrations/*.sql) and Edge Functions (Intake Receiver, Ingestion Worker)
-docs/            Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, ENGINEERING-RULES, BACKLOG)
+docs/            Source-of-truth documents (PRODUCT, PRD, ARCHITECTURE, TECH-STACK, ENGINEERING-RULES)
 .github/         GitHub Actions CI workflows
 .claude/         Claude Code settings, migration guard hook, and slash commands
 CLAUDE.md        Claude Code rules — agent behavior, scope, escalation, and off-limits paths
@@ -263,7 +261,8 @@ The complete document set, listed in the order each derives from the one above i
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system structure and design decisions
 - [TECH-STACK.md](docs/TECH-STACK.md) — approved technologies and usage rules
 - [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md) — coding conventions, banned patterns, testing
-- [BACKLOG.md](docs/BACKLOG.md) — epics and stories manifest
+- Backlog / work items — tracked in the
+  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17), not in this repo.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — branching, commits, review flow, and run commands
 - [CLAUDE.md](CLAUDE.md) — how Claude Code must behave in this repository
 
@@ -272,18 +271,23 @@ Every document names its own upstream and downstream files in its header (`Deriv
 
 ## Open Decisions
 
-Two decisions gate work here, and neither is a coding task:
+One decision gates work here, and it is not a coding task:
 
-- **No Supabase project exists or is linked.** Development, migrations, and type generation all
-  target a hosted project that has not been created ([ENVIRONMENTS.md](docs/ENVIRONMENTS.md)
-  §1). `src/lib/supabase/types.ts` is a hand-authored placeholder until it does.
-- **The brand palette is provisional.** The three Tier-1 anchors in
-  [DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) §1 were chosen to clear the WCAG AA floor and to sit
-  clear of RedyQuote's, not from a brand exercise. Replacing them is a three-value edit plus a
-  re-solve of the two derived steps.
+- **Tenant provisioning is undecided and undesigned.** A new `auth.users` row gets no `profiles`
+  row and nothing auto-creates a tenant. Self-serve vs. invited, and what happens to a new
+  tenant's first user, are both open ([CLAUDE.md](CLAUDE.md) § Project state).
+
+The Supabase plan question that used to sit beside it was settled on 2026-08-16: Cueserve stays
+on the free tier, and the production project — with the Pro plan and Point-in-Time Recovery
+NFR-010 requires — is created under the client's own account at cutover
+([ENVIRONMENTS.md](docs/ENVIRONMENTS.md) §2).
+
+The hosted development project **is** linked (`tdxojcqkiozmgjkrbypm`) and the brand palette **is**
+ratified ([DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) §1) — both were open decisions here until
+2026-08-12.
 
 Product-level placeholders are tracked in [PRODUCT.md](docs/PRODUCT.md) §3A.
 
 ---
 
-> _Last updated:_ 2026-08-08 · _Owner:_ Viral Parikh
+> _Last updated:_ 2026-08-15 · _Owner:_ Viral Parikh

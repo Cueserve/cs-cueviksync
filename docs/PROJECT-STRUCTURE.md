@@ -1,7 +1,7 @@
 # PROJECT-STRUCTURE.md — Directory Layout & File Placement
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-08-11
+**Last updated:** 2026-08-14
 **Source of truth for:** where each kind of file lives and the rules for placing new code — so
 features and components land in the right place and don't break the invariants in
 docs/ARCHITECTURE.md.
@@ -11,9 +11,10 @@ docs/ARCHITECTURE.md.
 
 ---
 
-> **Partly built, as of 2026-08-11.** The bare-minimum app exists: the token layer, the 18 `ui/`
-> primitives, the app shell, `src/lib/supabase/`, and `src/proxy.ts`. Everything marked `[ ]`
-> below does not exist yet. Directory names carry no authority — check the filesystem.
+> **Partly built, as of 2026-08-14.** The bare-minimum app exists: the token layer, the 18 `ui/`
+> primitives, the app shell, `src/lib/supabase/`, `src/proxy.ts`, and two applied migrations.
+> Everything marked `[ ]` below does not exist yet. Directory names carry no authority — check
+> the filesystem.
 >
 > This file's section skeleton matches `RedyQuote:docs/PROJECT-STRUCTURE.md` deliberately, and
 > §5 is shared verbatim where the rule is not product-specific. Where the two genuinely differ
@@ -38,9 +39,10 @@ cs-cueviksync/
 ├─ .husky/pre-commit               # npx lint-staged
 ├─ docs/                           # source-of-truth documents
 │  ├─ brainstorming/               # pre-decision exploration, never authoritative
-│  ├─ convergence/                 # the CuevikSync <-> RedyQuote convergence spec
 │  ├─ reviews/                     # dated advisory reviews
-│  └─ specs/                   [ ] # dated transient design specs
+│  └─ specs/                       # dated transient design specs — README only today
+├─ public/
+│  └─ brand/                       # logo SVGs served as-is (next/image, unoptimized)
 ├─ src/
 │  ├─ app/
 │  │  ├─ (app)/                    # authenticated surface
@@ -52,9 +54,11 @@ cs-cueviksync/
 │  │  ├─ api/                  [ ] # ONLY external HTTP surfaces (webhooks). Not an app API.
 │  │  ├─ globals.css               # the three-tier token layer
 │  │  ├─ global-error.tsx          # last-resort boundary; owns its own <html>
+│  │  ├─ icon.svg                  # favicon; Next file convention, auto-emits the <link>
 │  │  ├─ layout.tsx
 │  │  └─ page.tsx                  # redirects to the landing route
 │  ├─ components/
+│  │  ├─ brand-logo.tsx            # inlined, currentColor logo -- see file header for why
 │  │  ├─ layout/                   # sidebar, topbar, user-menu, page-header, route-loading
 │  │  └─ ui/                       # 18 shadcn primitives — app-agnostic, lint-enforced
 │  ├─ lib/
@@ -68,7 +72,7 @@ cs-cueviksync/
 │  └─ proxy.ts                     # Next 16 middleware entry; session refresh only
 └─ supabase/
    ├─ config.toml
-   └─ migrations/               [ ] # authoritative schema; none authored yet
+   └─ migrations/                  # authoritative schema; 0001 and 0002 applied
 ```
 
 ## 2. The Four Placement Questions
@@ -142,8 +146,6 @@ Read these before creating any new feature, route, action, or component.
    docs/TECH-STACK.md §5; anything not listed there is out of scope until that file changes.
 
 ## 5. Naming Conventions
-
-Shared verbatim with `RedyQuote:docs/PROJECT-STRUCTURE.md` §5 except where noted.
 
 - **Routes** — kebab-case folder segments under `src/app/`; `page.tsx` for the view,
   `layout.tsx` for shared chrome. Route groups `(auth)` / `(app)` separate the pre-session and

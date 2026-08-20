@@ -4,7 +4,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Layers, Trash2 } from "lucide-react";
 
-import { Sidebar, type SidebarNavItem } from "@/components/layout/sidebar";
+import { CuevikSyncWordmark } from "@/components/brand-logo";
+import { Sidebar, type SidebarNavGroup } from "@/components/layout/sidebar";
 import { Topbar, type Crumb } from "@/components/layout/topbar";
 import { UserMenu } from "@/components/layout/user-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,21 +21,29 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 // because the rail needs the current pathname to mark the active item; the
 // pages it wraps stay Server Components.
 
-const NAV: SidebarNavItem[] = [
+// Grouped by where a record sits in the inquiry-to-revenue funnel
+// (PRODUCT.md §4): Sales covers everything before an opportunity is Won,
+// Jobs covers execution after. Settings is its own group rather than folded
+// into either -- it's configuration, not a pipeline stage.
+const NAV_GROUPS: SidebarNavGroup[] = [
   {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: <LayoutDashboard className="size-4" />,
-  },
-  {
-    label: "Jobs Dashboard",
-    href: "/jobs",
-    icon: <Layers className="size-4" />,
-  },
-  {
-    label: "Waste & Rework",
-    href: "/waste",
-    icon: <Trash2 className="size-4" />,
+    items: [
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: <LayoutDashboard className="size-4" />,
+      },
+      {
+        label: "Jobs Dashboard",
+        href: "/jobs",
+        icon: <Layers className="size-4" />,
+      },
+      {
+        label: "Waste & Rework",
+        href: "/waste",
+        icon: <Trash2 className="size-4" />,
+      },
+    ],
   },
 ];
 
@@ -101,7 +110,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
         </a>
         <Sidebar
           className="shrink-0"
-          items={NAV}
+          groups={NAV_GROUPS}
           activeHref={activeHref}
           logo={
             <Image

@@ -6,7 +6,7 @@
 follow, whoever or whatever writes it.
 
 > Derived from: docs/ARCHITECTURE.md, docs/TECH-STACK.md
-> Downstream: README.md, docs/BACKLOG.md
+> Downstream: README.md
 
 ---
 
@@ -90,8 +90,7 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 
 - **Frameworks:** Vitest 4.x for unit tests. Do not introduce a competing test runner.
   There is **no end-to-end framework** in the approved stack: no Playwright, no `e2e/`, no
-  `test:e2e`. Adding one is a `docs/TECH-STACK.md` change first, and it must land in both
-  CuevikSync and RedyQuote together.
+  `test:e2e`. Adding one is a `docs/TECH-STACK.md` change first.
 - **Where tests run:** against the **local** Supabase stack (`npx supabase start`), never
   against the linked hosted development project — the mandatory cases below are destructive.
   See `docs/ENVIRONMENTS.md`.
@@ -104,9 +103,9 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 - State-machine tests MUST cover rejected invalid transitions, not only the happy path.
 - Do not mock away the security boundary (RLS, authorization) to make a test pass — a test that
   green-lights a bypassed client is invalid.
-- The blocking Continuous Integration (CI) gate is `lint` + `tsc --noEmit` + `format:check`
-  - Vitest. New feature work MUST land with unit tests in the gate. **There is no numeric
-    line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
-    adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
-    cases in this section that apply (tenant isolation, worker idempotency, state-machine
-    rejections) are asserted. A single happy-path test does not satisfy this.
+- The blocking Continuous Integration (CI) gate is `lint` + `tsc --noEmit` + `format:check` +
+  Vitest. New feature work MUST land with unit tests in the gate. **There is no numeric
+  line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
+  adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
+  cases in this section that apply (tenant isolation, worker idempotency, state-machine
+  rejections) are asserted. A single happy-path test does not satisfy this.

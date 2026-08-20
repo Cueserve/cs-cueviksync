@@ -17,22 +17,28 @@ The letters are the recommended run order. `align` first, because it settles con
 other two passes produce sharper findings once terms are fixed. `absorb` last, because it is the
 only pass that proposes deleting files and the least useful while terms are still unsettled.
 
-**CuevikSync is a documentation repository.** There is no application code on `main` — no
-`package.json`, no `supabase/`, no `app/`. The docs are not describing a system; they _are_ the
-system, and every line in them becomes an instruction the moment scaffolding starts. A stale line
-here is not a typo — it is a wrong instruction that will be built.
+**CuevikSync is docs-heavy and code-light.** The app is scaffolded — `package.json`, `src/`,
+and `supabase/` exist — but it is a shell: the token layer, the 18 `ui/` primitives, the app
+chrome, the Supabase client modules, and two migrations that create the tenancy substrate. There
+are no Server Actions, no domain screens, and no domain tables. So most of what the corpus
+describes is still specification, and every line of it becomes an instruction the moment the
+matching code is written. A stale line here is not a typo — it is a wrong instruction that will
+be built.
 
-That also inverts the usual audit: with no code to check prose against, the ground truth is the
-**filesystem** plus the corpus's own **declared lineage graph** (§2). Use them; do not invent a
-third source.
+Ground truth is the **filesystem** plus the corpus's own **declared lineage graph** (§2). Use
+them; do not invent a third source. Where code exists, it outranks prose about it — a doc
+claiming a file, script, or table exists loses to `ls` and to `supabase/migrations/`.
 
 Arguments (optional): `$ARGUMENTS`
 
 - `align` · `drift` · `absorb` — run one pass only. No argument runs all three, in that order.
+- `docs-only` — skip §4B, the only section that probes the filesystem, and judge prose against
+  prose. Faster, and it changes nothing else about the passes that run.
 - `fix` — after reporting, apply the **Safe** tier (step 8). Never applies an `absorb` finding.
 - a path (e.g. `docs/PRD.md`) — restrict to claims made **by or about** that file.
 
-Combine freely: `/doc-audit align docs/PRD.md`, `/doc-audit drift fix`.
+Combine freely: `/doc-audit align docs/PRD.md`, `/doc-audit drift fix`,
+`/doc-audit drift docs-only`.
 
 ---
 
@@ -52,7 +58,6 @@ except where Pass B explicitly probes it.
 7. `docs/DESIGN-SYSTEM.md` — brand tokens and the accessibility floor.
 8. `docs/DATABASE.md` — the data model. Currently a stub.
 9. `docs/ENVIRONMENTS.md` — which Supabase environment development targets.
-10. `docs/BACKLOG.md` — epics and stories manifest.
 
 **Governance and agent config:**
 
@@ -64,10 +69,8 @@ except where Pass B explicitly probes it.
 "Approved design specs" list in `CLAUDE.md`. A spec not in that list, or a listed spec that no
 longer exists, is a Pass B finding on its own.
 
-**Not the corpus:** `docs/brainstorming/` (never authoritative), `docs/reviews/` (dated
-advisory records — do not report them as drift against current state), and
-`docs/convergence/` (the CuevikSync/RedyQuote convergence spec, which describes intended
-change rather than current state).
+**Not the corpus:** `docs/brainstorming/` (never authoritative) and `docs/reviews/` (dated
+advisory records — do not report them as drift against current state).
 
 ## 2. Authority ladder — who wins when two files disagree
 
@@ -80,7 +83,7 @@ PRODUCT.md  (starting point — owns vision, scope, non-goals)
          ├─> ARCHITECTURE.md  (owns structure, boundaries, invariants)
          │     └─> TECH-STACK.md  (owns approved technologies and versions)
          │           └─> ENGINEERING-RULES.md  (owns conventions, banned patterns, testing)
-         └─> README.md, BACKLOG.md  (own nothing — they restate)
+         └─> README.md  (owns nothing — restates)
 ```
 
 Apply top-down. The higher entry is right by construction; the lower one is the defect.
@@ -95,7 +98,7 @@ Apply top-down. The higher entry is right by construction; the lower one is the 
    off-limits paths, and workflow constraints. It also _imports_ `docs/ENGINEERING-RULES.md`.
    Where it restates an imported or upstream doc, that doc wins; on agent behavior CLAUDE.md is
    the sole owner and nothing in `docs/` may contradict it.
-5. **README.md and BACKLOG.md** — own nothing. They lose every tie.
+5. **README.md** — owns nothing. It loses every tie.
 6. **Tier 3** — never authoritative.
 
 Three exceptions, all deliberate:
@@ -106,7 +109,8 @@ Three exceptions, all deliberate:
   verification that did not happen.
 - **A doc specifying intent the repo hasn't built yet is not wrong.** Distinguish "the doc lies
   about what exists" (finding) from "the doc specifies what should exist" (backlog — belongs in
-  `docs/BACKLOG.md` or a GitHub Issue, not this report). When unsure, say which reading you took.
+  the [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue,
+  not this report). When unsure, say which reading you took.
 - **The ladder ranks authority, not quality.** A lower-rung file can hold a _better_ explanation of
   a fact it doesn't own. That is not a drift finding — it is an `absorb` finding (step 5), and the
   fix runs **upward**. Never delete a superior explanation because of where it lives.
@@ -381,7 +385,8 @@ Present each Approval-tier fix as a diff and stop.
 - Edit a file under `supabase/migrations/` committed to `HEAD`. The `PreToolUse` hook blocks it,
   but the rule stands alone: a wrong applied migration is fixed by a **new** migration.
 - Rewrite a doc to match the repo when the doc is a **specification** of work not yet done. That
-  erases the requirement — route it to `docs/BACKLOG.md` or a GitHub Issue.
+  erases the requirement — route it to the
+  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue.
 - Treat a `Tier 3` brainstorming or review file as authoritative over a Tier 2 doc.
 - Treat a labelled "Pending scaffold — unverified" block as drift. The label is the correct
   behavior; a _missing_ label is the finding.

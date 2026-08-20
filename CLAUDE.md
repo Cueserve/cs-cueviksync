@@ -18,7 +18,8 @@ from memory.**
 - [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) - which Supabase environment dev runs against, and why
 - [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) - brand tokens, the semantic-token rule, the WCAG AA floor
 - [docs/DATABASE.md](docs/DATABASE.md) - the data model. **Stub: not yet authored.**
-- [docs/BACKLOG.md](docs/BACKLOG.md) - epics and stories manifest
+- Backlog and work-item tracking lives in the
+  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17), not in `docs/`.
 
 **Approved design specs** - same authority as the docs above for the slice they cover, but
 **transient**: each is deleted when its content lands in whatever it feeds. They live in
@@ -55,23 +56,30 @@ When two sources disagree, the higher one wins:
 3. `docs/` by lineage: PRODUCT → PRD → ARCHITECTURE → TECH-STACK → ENGINEERING-RULES. Each
    document's header names its own `Derived from:` / `Downstream:` files.
 4. This file, for the Claude-Code behavior rules below that it owns.
-5. `README.md` and `docs/BACKLOG.md` — they restate, they own nothing.
+5. `README.md` — it restates, it owns nothing.
 
 ## Project state
 
-**Last verified: 2026-08-12.** Confirm a file or script still exists before relying on this
+**Last verified: 2026-08-15.** Confirm a file or script still exists before relying on this
 section - it is a snapshot, and a stale one is worse than none.
 
-**Built - the bare-minimum app, plus tenancy and auth.** The `@/*` alias resolves to `./src/*`.
+**Built - the bare-minimum app, plus tenancy, auth, and a concept dashboard.** The `@/*` alias
+resolves to `./src/*`.
 
 - **Shell and token layer** - `src/app/globals.css` (three-tier tokens, enforced by
   `eslint.config.mjs`), the root layout, `global-error.tsx`, the `(app)` shell with
-  sidebar/topbar/user-menu, `(auth)/login`, a placeholder `/inquiries` route, and the 18
-  primitives in `src/components/ui/`. All 18 are byte-identical to RedyQuote's.
+  sidebar/topbar/user-menu (nav grouped Sales/Jobs/Settings, with a co-branded tenant/product
+  logo slot via `src/components/brand-logo.tsx`), `(auth)/login`, a placeholder `/inquiries`
+  route, and the 18 primitives in `src/components/ui/`.
+- **A `/dashboard` route that is a pitch mockup, not a real screen** -
+  `src/app/(app)/dashboard/` renders hardcoded sample data for Sales/Jobs/Finance KPIs. Its own
+  header comment is explicit: Jobs is grounded in the committed PRD-043 weekly summary, Sales
+  and Finance are speculative and have no data model in this repo. Nothing here talks to
+  Postgres; treat it as a concept artifact, not scaffolding to wire up.
 - **Supabase plumbing, unwired to any UI** - `src/lib/supabase/` (browser, server, service-role,
   session refresh), `src/proxy.ts`, `src/lib/config.ts` and `src/lib/config.server.ts`.
-- **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and a CI workflow
-  byte-identical to RedyQuote's.
+- **Toolchain** - Prettier, ESLint, Husky + lint-staged, Vitest, and three GitHub Actions
+  workflows (`ci.yml`, `db-drift.yml`, `db-replay.yml`).
 - **A linked Supabase project** (`tdxojcqkiozmgjkrbypm`), with two applied migrations:
   `0001_extensions_and_types.sql` (pgcrypto, the four-role `user_role` enum) and
   `0002_tenants_profiles_and_auth.sql` (`tenants`, `profiles` with `tenant_id`, `is_admin()`,
@@ -80,16 +88,33 @@ section - it is a snapshot, and a stale one is worse than none.
   `pg_cron` is enabled yet - deferred to the migration that first uses them.
 - **`src/lib/supabase/types.ts` is real, generated output** - `npm run db:types` against the
   applied schema, not the hand-authored placeholder it used to be.
+- **`docs/DATABASE.md` exists but is barely authored** - only §4's conventions block and the two
+  applied migrations are real; §§1-3, 5, 6 are still unwritten. Check `supabase/migrations/` for
+  what actually exists, not this doc.
 
-**Not built.** No Server Actions, no domain screens, no tests, no tenant-provisioning flow. A
-new `auth.users` row gets no `profiles` row - provisioning (self-serve vs. invited, what
-happens to a new tenant's first user) is undecided and undesigned; nothing auto-creates a
-tenant. Nothing in the app reads or writes data yet - the login route renders but does not
-authenticate.
+**Not built.** No Server Actions, no domain screens wired to data, no tests, no
+tenant-provisioning flow. A new `auth.users` row gets no `profiles` row - provisioning
+(self-serve vs. invited, what happens to a new tenant's first user) is undecided and
+undesigned; nothing auto-creates a tenant. Nothing in the app reads or writes data yet - the
+login route renders but does not authenticate.
 
-**CI is red, deliberately.** `npm run test` fails an empty suite; the other four steps pass.
+**CI is green, and the `test` step gates nothing yet.** `.github/workflows/ci.yml` runs a single
+`check` job of four steps - `lint`, `typecheck`, `format:check`, `test`; there is no `build`
+step. `package.json`'s `test` script is `vitest run --passWithNoTests`, so the empty suite exits
+`0` rather than failing, and there are still zero test files (`src/**/*.test.ts`) - correct this
+if it is stale.
 
-**The brand palette is provisional** - see docs/DESIGN-SYSTEM.md §1.
+**Two more workflows exist, both about the database, neither in `ci.yml`.**
+[.github/workflows/db-drift.yml](.github/workflows/db-drift.yml) reports when `main` holds a
+migration the linked project has not applied - warning on merge, hard-failing on manual
+dispatch. [.github/workflows/db-replay.yml](.github/workflows/db-replay.yml) replays every
+migration from an empty Postgres on a runner, on each pull request that touches
+`supabase/migrations/`, and hard-fails when the chain does not build. It is the only place a
+migration meets a real Postgres **before** it merges, which matters because a merged migration
+is immutable and there is no local stack here to rehearse on. It needs no secret and touches no
+hosted project. What it does not do: it runs as the superuser, so it exercises no RLS policy and
+neither guard in `0002`, and a green run says nothing about whether the migration applies to the
+hosted project, which already holds every earlier one.
 
 ## Approved stack
 
@@ -104,6 +129,34 @@ authenticate.
 - **npm only** - do not use pnpm or yarn.
 - **Not used:** TanStack Query, Playwright/E2E, any ORM, external queue vendors,
   headless-browser PDF rendering, LLM/vector stores. Each with its reason in TECH-STACK.md §5.
+
+## Operating the codebase
+
+Facts written nowhere else. Everything already documented stays where it is - `package.json`
+owns the script list, [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) owns placement - so
+follow the pointer rather than expecting a copy here.
+
+- **`npm run dev` serves on port 3001**, not 3000 (`next dev --port 3001`; `.claude/launch.json`
+  matches).
+- **Run one test file:** `npx vitest run src/lib/foo.test.ts`; `npx vitest` watches. The include
+  glob is `src/**/*.test.ts` only (`vitest.config.ts`), so a `*.spec.ts` is never collected.
+- **Check formatting through `npm run format:check`, never a bare `npx prettier`.** With no
+  `node_modules` installed, `npx` can resolve a different Prettier than the `package-lock.json`
+  pin and report failures CI never sees - `next.config.ts` and the generated
+  `src/lib/supabase/types.ts` are both formatted differently by 3.8.1 than by the pinned 3.9.6.
+  Never "fix" a file the pinned version considers clean.
+- **A test that touches the database runs on the local stack** (`npx supabase start`), never
+  against the linked hosted project - the mandatory cases are destructive
+  ([docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) §1). That stack is not set up yet.
+- **Which Supabase client:** `server.ts` in Server Components and Server Actions, `client.ts` in
+  client components, `service-role.ts` only in the three system paths. The first two carry the
+  caller's JWT, so RLS scopes the query for you; `service-role.ts` bypasses RLS and the caller
+  MUST set `tenant_id` itself.
+- **A new Server Action** lives in `src/server/actions/<aggregate>.ts` under
+  `import 'server-only'`, validates its input against a Zod schema from `src/lib/validation/`,
+  reads and writes through the session-bound client, and invalidates with
+  `revalidatePath`/`revalidateTag` - there is no client-side cache library. Neither directory
+  exists yet; the first one of each is yours to create.
 
 ## Non-negotiable invariants
 
@@ -217,9 +270,10 @@ specific to working as an agent:
   file already present in `origin/main`, because merged means applied to the hosted project and
   applied migrations are immutable. If it fires, author a **new** migration — do not work around
   the hook.
-- **Repository state.** The app is not scaffolded — there is no `package.json`, `src/`, or
-  `supabase/` on `main`. Do not assume a command, script, or path exists; check first, and say so
-  plainly when something is missing rather than inventing a plausible substitute.
+- **Repository state.** The app is scaffolded — `package.json`, `src/`, and `supabase/` all
+  exist on `main`. **Project state** above says what is built and what is not; it is a dated
+  snapshot, not a guarantee. Do not assume a command, script, or path exists; check first, and
+  say so plainly when something is missing rather than inventing a plausible substitute.
 
 ## Building UI
 
@@ -230,25 +284,44 @@ comes from there. Never a hex literal, never a raw Tailwind color class (`bg-sla
 a font other than the two declared in `src/lib/fonts.ts`. Adding a token is a DESIGN-SYSTEM.md
 change requiring approval.
 
-**The Tier-1 brand anchors are provisional** (DESIGN-SYSTEM.md §1). Everything below Tier 1 is
-settled and shared verbatim with RedyQuote.
+**The Tier-1 brand anchors are the ratified Cueserve logo colors** (DESIGN-SYSTEM.md §1).
+`--clay-600` and `--moss-600` are the literal logo hexes and are load-bearing - do not touch
+either. Everything below Tier 1 is settled.
 
-**shadcn/ui builds it.** This is a shadcn project ([components.json](components.json), style
-`radix-nova`, `cssVariables: true`), and the 18 primitives in `src/components/ui/` are shadcn
-components already adapted to our tokens.
+### The order on a UI-bearing change
 
-- **Reuse before you add.** Check `src/components/ui/` first, then extend a primitive with a
-  `cva` variant before pulling in a new one.
-- **Adding a primitive:** `npx shadcn@latest add <name>`. Its output is compatible by
-  construction - shadcn names its tokens exactly as `globals.css` defines them. Read the diff
-  anyway: a hardcoded color in generated output is a bug, not a starting point.
-- **`src/components/ui/` must stay app-agnostic.** `eslint.config.mjs` bans imports from
-  `@/server/*`, `@/lib/supabase/*`, and `@/app/*` there. It is the extraction boundary for a
-  future shared Cuevik library, and it is byte-identical to RedyQuote's - a change here is a
-  change to both.
+A new route, screen, or user-facing component follows these steps in order. **Backend-only work
+(a migration, a Server Action, a `src/lib/` module) is exempt and starts at step 5.** This
+section is the authority on the order; README's "Claude Code Setup" covers installing the
+plugins and nothing else.
 
-**Ship gate:** `npm run lint` and `npm run typecheck`. A suggestion that fails lint was never a
-valid suggestion.
+1. **`/impeccable shape` first, and confirm the brief before building.** Required, not optional.
+   If the _problem_ is still open - what the screen is for, whether it should exist at all -
+   `superpowers:brainstorming` runs before this. Shaping settles how a screen behaves and looks,
+   never whether to build it.
+2. **Design system.** Resolve every value to a token before writing markup, per the rule above.
+3. **shadcn builds it - no plugin does.** This is a shadcn project
+   ([components.json](components.json), style `radix-nova`, `cssVariables: true`), and the 18
+   primitives in `src/components/ui/` are shadcn components already adapted to our tokens.
+   - **Reuse before you add.** Check `src/components/ui/` first, then extend a primitive with a
+     `cva` variant before pulling in a new one.
+   - **Adding a primitive:** `npx shadcn@latest add <name>`. Its output is compatible by
+     construction - shadcn names its tokens exactly as `globals.css` defines them. Read the diff
+     anyway: a hardcoded color in generated output is a bug, not a starting point.
+   - **`src/components/ui/` must stay app-agnostic.** `eslint.config.mjs` bans imports from
+     `@/server/*`, `@/lib/supabase/*`, and `@/app/*` there. It is the extraction boundary for a
+     future shared Cuevik library.
+4. **Audit the rendered route, not the source.** A source scan cannot check contrast - our
+   semantic tokens resolve at runtime, so `npx impeccable detect src/` _skips_ WCAG rather than
+   passing it. Run `npm run dev` and audit the URL instead:
+   `npx impeccable detect http://localhost:3001/<route>`. Because `eslint.config.mjs` already
+   bans the raw palette classes most of its detectors key on, anything it reports got past
+   `npm run lint` and is a real finding - fix it, never silence it by changing a token.
+5. **Ship gate:** `npm run lint` and `npm run typecheck`. A suggestion that fails lint was never
+   a valid suggestion.
+
+**`/impeccable craft` is banned** - it builds as well as plans, and nothing but shadcn writes UI
+in this repo.
 
 ## When blocked
 
