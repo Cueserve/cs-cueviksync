@@ -614,8 +614,15 @@ export default function JobMasterPage() {
                           </TableCell>
                           <TableCell className="text-center">
                             {isFirst && overdueFlagVal ? (
-                              <span className="inline-flex items-center rounded bg-destructive/20 px-2 py-0.5 text-[10px] font-semibold text-destructive uppercase tracking-wider">
-                                Overdue
+                              <span
+                                className={cn(
+                                  "inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+                                  overdueFlagVal === "Overdue"
+                                    ? "bg-destructive/20 text-destructive"
+                                    : "bg-muted text-muted-foreground",
+                                )}
+                              >
+                                {overdueFlagVal}
                               </span>
                             ) : (
                               "-"

@@ -58,12 +58,19 @@ export function calculateJobFormulas(job: Partial<JobItem>): JobCalculations {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const isDelivered = !!job.deliveredDate;
+
   const isOverdue =
-    !isCompleted &&
+    !isDelivered &&
     !!job.promisedDate &&
     today > parseLocalDate(job.promisedDate);
 
-  const overdueFlagVal = isOverdue ? "Overdue" : "";
+  const overdueFlagVal =
+    !isDelivered && !!job.promisedDate
+      ? isOverdue
+        ? "Overdue"
+        : "On Track"
+      : "";
   let daysOverdueVal: string | number = "";
 
   if (isOverdue && job.promisedDate) {
