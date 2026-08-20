@@ -31,6 +31,8 @@ import {
   TableCell,
 } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
+import { usePagination } from "@/hooks/use-pagination";
 
 export default function JobMasterPage() {
   const { jobs, deleteJob, selectedRole } = useTracker();
@@ -90,6 +92,15 @@ export default function JobMasterPage() {
     if (selectedTab === "this-week") return job.inThisWeek;
     return true;
   });
+
+  const {
+    page,
+    size,
+    onPageChange,
+    onSizeChange,
+    pageCount,
+    paginatedData: paginatedJobs,
+  } = usePagination(filteredJobs, 25);
 
   return (
     <PageBody>
@@ -206,7 +217,7 @@ export default function JobMasterPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredJobs.length === 0 ? (
+            {paginatedJobs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={23} className="p-0">
                   <TableEmptyState
@@ -216,7 +227,7 @@ export default function JobMasterPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredJobs.map((job) => {
+              paginatedJobs.map((job) => {
                 const {
                   statusStr,
                   weekEndingStr,
@@ -477,6 +488,17 @@ export default function JobMasterPage() {
             )}
           </TableBody>
         </Table>
+        {filteredJobs.length > 0 && (
+          <div className="mt-4 px-2">
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              size={size}
+              onPageChange={onPageChange}
+              onSizeChange={onSizeChange}
+            />
+          </div>
+        )}
       </div>
     </PageBody>
   );

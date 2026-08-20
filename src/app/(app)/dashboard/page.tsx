@@ -50,6 +50,8 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/data-table";
+import { Pagination } from "@/components/ui/pagination";
+import { usePagination } from "@/hooks/use-pagination";
 
 export default function DashboardPage() {
   const { jobs } = useTracker();
@@ -147,6 +149,15 @@ export default function DashboardPage() {
   const weeklyStatsArray = Object.values(weeklyGroups).sort((a, b) =>
     a.weekEnding.localeCompare(b.weekEnding),
   );
+
+  const {
+    page,
+    size,
+    onPageChange,
+    onSizeChange,
+    pageCount,
+    paginatedData: paginatedStats,
+  } = usePagination(weeklyStatsArray, 25);
 
   // --- Chart Data ---
   const weekLabel = (w: string) => w.substring(5); // "08-03" etc.
@@ -411,7 +422,7 @@ export default function DashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody className="font-mono text-center">
-              {weeklyStatsArray.map((stat) => {
+              {paginatedStats.map((stat) => {
                 const avgTurnaround =
                   stat.completedCount > 0
                     ? (stat.totalTurnaround / stat.completedCount).toFixed(1)
@@ -454,6 +465,17 @@ export default function DashboardPage() {
               })}
             </TableBody>
           </Table>
+          {weeklyStatsArray.length > 0 && (
+            <div className="mt-4 px-2 pb-4">
+              <Pagination
+                page={page}
+                pageCount={pageCount}
+                size={size}
+                onPageChange={onPageChange}
+                onSizeChange={onSizeChange}
+              />
+            </div>
+          )}
         </div>
       </div>
     </PageBody>

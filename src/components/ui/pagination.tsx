@@ -32,9 +32,11 @@ import {
  * page turn -- a second live region would just talk over it.
  */
 
-const PAGE_SIZES = [25, 50, 100, "all"] as const;
+const PAGE_SIZES = [5, 10, 25, 50, 100, "all"] as const;
 
 const SIZE_LABEL: Record<string, string> = {
+  "5": "5",
+  "10": "10",
   "25": "25",
   "50": "50",
   "100": "100",

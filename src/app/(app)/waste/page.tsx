@@ -17,6 +17,8 @@ import {
   TableCell,
 } from "@/components/ui/data-table";
 import { WasteDialog } from "@/components/dialogs/waste-dialog";
+import { Pagination } from "@/components/ui/pagination";
+import { usePagination } from "@/hooks/use-pagination";
 
 import { calculateJobFormulas } from "@/lib/job-formulas";
 
@@ -113,6 +115,15 @@ export default function WasteReworkPage() {
     (job) => job.spoilagePercent > 0 || job.reprintRequired,
   );
 
+  const {
+    page,
+    size,
+    onPageChange,
+    onSizeChange,
+    pageCount,
+    paginatedData: paginatedWasteJobs,
+  } = usePagination(wasteJobs, 25);
+
   return (
     <PageBody>
       <div className="flex items-center justify-between">
@@ -163,7 +174,7 @@ export default function WasteReworkPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {wasteJobs.length === 0 ? (
+            {paginatedWasteJobs.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={6}
@@ -175,7 +186,7 @@ export default function WasteReworkPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              wasteJobs.map((job) => {
+              paginatedWasteJobs.map((job) => {
                 const currentEdit = editingValues[job.id];
                 const displaySpoilage =
                   currentEdit !== undefined
@@ -282,6 +293,17 @@ export default function WasteReworkPage() {
             )}
           </TableBody>
         </Table>
+        {wasteJobs.length > 0 && (
+          <div className="mt-4 px-2 mb-4">
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              size={size}
+              onPageChange={onPageChange}
+              onSizeChange={onSizeChange}
+            />
+          </div>
+        )}
       </div>
 
       {/* Manual Waste / Rework Logging Dialog */}
