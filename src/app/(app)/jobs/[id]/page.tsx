@@ -192,8 +192,20 @@ export default function JobDetailsPage() {
       alert("Promised Date is required");
       return;
     }
-    if (draftJob.items.length === 0) {
-      alert("At least one item is required");
+    const validItemsCount = draftJob.items.filter(
+      (item) => item.itemDescription.trim() && item.quantity > 0,
+    ).length;
+
+    if (validItemsCount === 0) {
+      alert("At least one line item is necessary.");
+      return;
+    }
+
+    const hasInvalidItem = draftJob.items.some(
+      (item) => !item.itemDescription.trim() || item.quantity <= 0,
+    );
+    if (hasInvalidItem) {
+      alert("Description and quantity are required for all line items.");
       return;
     }
     if (
@@ -446,9 +458,11 @@ export default function JobDetailsPage() {
                   <tr>
                     <th className="px-4 py-3 font-medium">Line</th>
                     <th className="px-4 py-3 font-medium min-w-[200px]">
-                      Description
+                      Description <span className="text-destructive">*</span>
                     </th>
-                    <th className="px-4 py-3 font-medium w-24">Qty</th>
+                    <th className="px-4 py-3 font-medium w-24">
+                      Qty <span className="text-destructive">*</span>
+                    </th>
                     <th className="px-4 py-3 font-medium">Mat. Shortage</th>
                     <th className="px-4 py-3 font-medium">Eq. Issue</th>
                     {canEdit && (
