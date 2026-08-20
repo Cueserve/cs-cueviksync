@@ -379,12 +379,14 @@ export default function JobMasterPage() {
                   }
                 }
 
-                const isOverdue =
-                  isParent &&
-                  !isCompleted &&
-                  job.promisedDate &&
-                  today > parseLocalDate(job.promisedDate);
-                const overdueFlagVal = isOverdue ? "Overdue" : "";
+                const isDelivered = !!job.deliveredDate;
+                let isOverdue = false;
+                let overdueFlagVal = "";
+
+                if (isParent && !isDelivered && job.promisedDate) {
+                  isOverdue = today > parseLocalDate(job.promisedDate);
+                  overdueFlagVal = isOverdue ? "Overdue" : "On Track";
+                }
 
                 let daysOverdueVal: string | number = "";
                 if (isOverdue) {
@@ -508,7 +510,14 @@ export default function JobMasterPage() {
                             <StatusBadge value={onTimeVal} />
                           )}
                         </TableCell>
-                        <TableCell className="text-destructive font-semibold">
+                        <TableCell
+                          className={cn(
+                            "font-semibold",
+                            overdueFlagVal === "Overdue"
+                              ? "text-destructive"
+                              : "text-muted-foreground",
+                          )}
+                        >
                           {isParent ? overdueFlagVal || "-" : "-"}
                         </TableCell>
                         <TableCell numeric>
