@@ -23,6 +23,23 @@
       "Bash(npx supabase functions deploy *)",
       "Bash(supabase functions deploy *)",
       "Bash(git push *)"
+    ],
+    "allow": [
+      "Bash(npm run lint:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run format:check:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc --noEmit:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(npx impeccable detect:*)",
+      "Bash(npx supabase migration list:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)"
     ]
   },
   "hooks": {
