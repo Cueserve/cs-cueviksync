@@ -120,6 +120,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
               height={36}
               priority
               className="h-9 w-auto"
+              style={{ width: "auto", height: "auto" }}
             />
           }
         />
