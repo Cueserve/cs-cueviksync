@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { RefreshCw, Plus } from "lucide-react";
+import { RefreshCw, Plus, Search } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +38,9 @@ export default function WasteReworkPage() {
 
   // Dialog state for manually adding/logging waste
   const [isLogOpen, setIsLogOpen] = useState(false);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSpoilageChange = (id: string, val: string) => {
     let restrictedVal = val;
@@ -113,9 +116,18 @@ export default function WasteReworkPage() {
       : "0.00";
   const reprintCount = jobs.filter((j) => j.reprintRequired).length;
 
-  const wasteJobs = jobs.filter(
-    (job) => job.spoilagePercent > 0 || job.reprintRequired,
-  );
+  const wasteJobs = jobs.filter((job) => {
+    if (!(job.spoilagePercent > 0 || job.reprintRequired)) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchesJobNo = job.jobNo.toLowerCase().includes(q);
+      const matchesDesc = job.items.some((i) =>
+        i.itemDescription?.toLowerCase().includes(q),
+      );
+      if (!matchesJobNo && !matchesDesc) return false;
+    }
+    return true;
+  });
 
   const sortConfigs: SortConfig<(typeof wasteJobs)[0]>[] = [
     {
@@ -192,7 +204,21 @@ export default function WasteReworkPage() {
         </div>
       </div>
 
-      <div className="mt-6 bg-card rounded-md">
+      {/* Search Bar */}
+      <div className="mt-6 flex justify-between items-end">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search waste/rework..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 w-[250px] h-9"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 bg-card rounded-md">
         <Table caption="Waste and Rework Log">
           <TableHeader>
             <TableRow>

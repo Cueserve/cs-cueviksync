@@ -12,6 +12,7 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
+  Search,
 } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
@@ -22,6 +23,7 @@ import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { IssueBadge } from "@/components/ui/issue-badge";
 import { MetricCard } from "@/components/ui/metric-card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableHeader,
@@ -65,6 +67,7 @@ export default function JobMasterPage() {
     "all" | "pending" | "completed" | "this-week"
   >("all");
   const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleJob = (jobId: string) => {
     setExpandedJobs((prev) => {
@@ -88,10 +91,18 @@ export default function JobMasterPage() {
   ).length;
 
   const filteredJobs = jobs.filter((job) => {
-    if (selectedTab === "all") return true;
-    if (selectedTab === "pending") return !job.completedDate;
-    if (selectedTab === "completed") return !!job.completedDate;
-    if (selectedTab === "this-week") return job.inThisWeek;
+    if (selectedTab === "pending" && !!job.completedDate) return false;
+    if (selectedTab === "completed" && !job.completedDate) return false;
+    if (selectedTab === "this-week" && !job.inThisWeek) return false;
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchesJobNo = job.jobNo.toLowerCase().includes(q);
+      const matchesDesc = job.items.some((i) =>
+        i.itemDescription?.toLowerCase().includes(q),
+      );
+      if (!matchesJobNo && !matchesDesc) return false;
+    }
     return true;
   });
 
@@ -249,6 +260,18 @@ export default function JobMasterPage() {
               </button>
             ),
           )}
+        </div>
+        <div className="pb-2 flex items-center">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search jobs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 w-[250px] h-9"
+            />
+          </div>
         </div>
       </div>
 
