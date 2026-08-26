@@ -1,81 +1,34 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import {
-  useTracker,
-  type JobItem,
-  type JobLineItem,
-} from "@/components/providers/tracker-provider";
-import {
-  Hash,
-  DollarSign,
-  ArrowLeft,
-  Save,
-  Plus,
-  Trash2,
-  Calculator,
-} from "lucide-react";
-import { calculateJobFormulas } from "@/lib/job-formulas";
+import { Hash, ArrowLeft, DollarSign } from "lucide-react";
+import { useJobForm } from "@/hooks/use-job-form";
+import { JobLineItemsTable } from "./_components/JobLineItemsTable";
+import { JobSummaryPane } from "./_components/JobSummaryPane";
 
 export default function JobDetailsPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
-  const { jobs, addJob, updateJob, selectedRole } = useTracker();
 
-  const isNew = id === "new";
-  const existingJob = isNew ? null : jobs.find((j) => j.id === id);
-
-  const canEdit =
-    selectedRole === "admin" ||
-    selectedRole === "operator" ||
-    selectedRole === "manager";
-
-  const [draftJob, setDraftJob] = useState<JobItem>({
-    id: "",
-    jobNo: "",
-    orderDate: new Date().toISOString().split("T")[0],
-    promisedDate: "",
-    completedDate: "",
-    deliveredDate: "",
-    overdueReason: "",
-    inThisWeek: false,
-    invoiceValue: 0,
-    spoilagePercent: 0,
-    reprintRequired: false,
-    notes: "",
-    items: [
-      {
-        id: "temp-1",
-        lineNo: 1,
-        itemDescription: "",
-        quantity: 0,
-        materialShortage: "",
-        equipmentIssue: "",
-      },
-    ],
-  });
-
-  const [isPreviewMode, setIsPreviewMode] = useState(!canEdit);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!canEdit) setIsPreviewMode(true);
-  }, [canEdit]);
-
-  const previewInputClass = isPreviewMode
-    ? "border-transparent bg-transparent shadow-none px-0 disabled:opacity-100 disabled:cursor-default disabled:text-foreground"
-    : "";
-
-  useEffect(() => {
-    if (existingJob) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDraftJob(JSON.parse(JSON.stringify(existingJob))); // deep copy
-    }
-  }, [existingJob]);
+  const {
+    isNew,
+    existingJob,
+    canEdit,
+    draftJob,
+    isPreviewMode,
+    setIsPreviewMode,
+    handleUpdateField,
+    handleItemChange,
+    handleAddItem,
+    handleDeleteItem,
+    handleSubmit,
+    jobs,
+  } = useJobForm(id);
 
   if (!isNew && !existingJob) {
     return (
@@ -85,158 +38,6 @@ export default function JobDetailsPage() {
       </div>
     );
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleUpdateField = (field: keyof JobItem, value: any) => {
-    setDraftJob((prev) => {
-      const next = { ...prev, [field]: value };
-
-      if (field === "orderDate" && value) {
-        if (
-          next.promisedDate &&
-          new Date(value) > new Date(next.promisedDate)
-        ) {
-          next.promisedDate = "";
-        }
-        if (
-          next.completedDate &&
-          new Date(value) > new Date(next.completedDate)
-        ) {
-          next.completedDate = "";
-          next.deliveredDate = "";
-        }
-      }
-
-      if (field === "completedDate") {
-        if (value) {
-          if (
-            !next.deliveredDate ||
-            new Date(value) > new Date(next.deliveredDate)
-          ) {
-            next.deliveredDate = value;
-          }
-        } else {
-          next.deliveredDate = "";
-        }
-      }
-
-      return next;
-    });
-  };
-
-  const handleItemChange = (
-    index: number,
-    field: keyof JobLineItem,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
-  ) => {
-    setDraftJob((prev) => {
-      const newItems = [...prev.items];
-      newItems[index] = { ...newItems[index], [field]: value };
-      return { ...prev, items: newItems };
-    });
-  };
-
-  const handleAddItem = () => {
-    setDraftJob((prev) => {
-      const newLineNo =
-        prev.items.length > 0
-          ? Math.max(...prev.items.map((i) => i.lineNo)) + 1
-          : 1;
-      const newItem: JobLineItem = {
-        id: `temp-${Date.now()}`,
-        lineNo: newLineNo,
-        itemDescription: "",
-        quantity: 0,
-        materialShortage: "",
-        equipmentIssue: "",
-      };
-      return { ...prev, items: [...prev.items, newItem] };
-    });
-  };
-
-  const handleDeleteItem = (index: number) => {
-    setDraftJob((prev) => {
-      const newItems = [...prev.items];
-      newItems.splice(index, 1);
-      // Reindex line numbers
-      newItems.forEach((item, i) => {
-        item.lineNo = i + 1;
-      });
-      return { ...prev, items: newItems };
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!canEdit) return;
-
-    if (!draftJob.jobNo) {
-      alert("Job number is required");
-      return;
-    }
-    const isDuplicateJobNo = jobs.some(
-      (j) =>
-        j.jobNo.trim().toLowerCase() === draftJob.jobNo.trim().toLowerCase() &&
-        j.id !== draftJob.id,
-    );
-    if (isDuplicateJobNo) {
-      alert("Job number already exists. Please choose a unique job number.");
-      return;
-    }
-    if (!draftJob.orderDate) {
-      alert("Order Date is required");
-      return;
-    }
-    if (!draftJob.promisedDate) {
-      alert("Promised Date is required");
-      return;
-    }
-    const validItemsCount = draftJob.items.filter(
-      (item) => item.itemDescription.trim() && item.quantity > 0,
-    ).length;
-
-    if (validItemsCount === 0) {
-      alert("At least one line item is necessary.");
-      return;
-    }
-
-    const hasInvalidItem = draftJob.items.some(
-      (item) => !item.itemDescription.trim() || item.quantity <= 0,
-    );
-    if (hasInvalidItem) {
-      alert("Description and quantity are required for all line items.");
-      return;
-    }
-    if (
-      draftJob.completedDate &&
-      draftJob.deliveredDate &&
-      new Date(draftJob.deliveredDate) < new Date(draftJob.completedDate)
-    ) {
-      alert("Delivered date cannot be earlier than Completed date.");
-      return;
-    }
-
-    if (isNew) {
-      addJob(draftJob);
-    } else {
-      updateJob(draftJob.id, draftJob);
-    }
-    router.push("/jobs");
-  };
-
-  // Calculations for Summary Pane
-  const {
-    isCompleted,
-    isOverdue,
-    totalQty,
-    turnaroundDaysVal,
-    daysVsPromisedVal,
-    daysOverdueVal,
-    onTimeVal,
-    weekEndingStr,
-    scheduledThisWeekVal,
-  } = calculateJobFormulas(draftJob);
 
   return (
     <div className="min-h-screen bg-background flex flex-col p-4 md:p-8">
@@ -443,151 +244,14 @@ export default function JobDetailsPage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
-            <div className="p-6 border-b border-border flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Items in this Job</h2>
-              {canEdit && (
-                <Button variant="outline" size="sm" onClick={handleAddItem}>
-                  <Plus className="size-4 mr-2" /> Add Item
-                </Button>
-              )}
-            </div>
-            <div className="p-0 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted text-muted-foreground text-left">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Line</th>
-                    <th className="px-4 py-3 font-medium min-w-[200px]">
-                      Description <span className="text-destructive">*</span>
-                    </th>
-                    <th className="px-4 py-3 font-medium w-24">
-                      Qty <span className="text-destructive">*</span>
-                    </th>
-                    <th className="px-4 py-3 font-medium">Mat. Shortage</th>
-                    <th className="px-4 py-3 font-medium">Eq. Issue</th>
-                    {canEdit && (
-                      <th className="px-4 py-3 font-medium w-16"></th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {draftJob.items.map((item, index) => (
-                    <tr key={item.id} className="hover:bg-muted/30">
-                      <td className="px-4 py-3 text-center text-muted-foreground">
-                        {item.lineNo}
-                      </td>
-                      <td className="px-4 py-2">
-                        <Input
-                          value={item.itemDescription}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "itemDescription",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Item description..."
-                          className={cn(
-                            "h-8",
-                            previewInputClass,
-                            isPreviewMode &&
-                              "truncate max-w-[200px] md:max-w-xs xl:max-w-md",
-                          )}
-                          title={item.itemDescription}
-                          disabled={!canEdit || isPreviewMode}
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <Input
-                          type="number"
-                          min="0"
-                          value={item.quantity === 0 ? "" : item.quantity}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            handleItemChange(
-                              index,
-                              "quantity",
-                              val === "" ? 0 : Math.max(0, Number(val)),
-                            );
-                          }}
-                          className={cn("h-8", previewInputClass)}
-                          disabled={!canEdit || isPreviewMode}
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <Input
-                          value={item.materialShortage}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "materialShortage",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Y/N or reason"
-                          className={cn(
-                            "h-8",
-                            previewInputClass,
-                            isPreviewMode && "truncate max-w-[150px]",
-                          )}
-                          title={item.materialShortage}
-                          disabled={!canEdit || isPreviewMode}
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <Input
-                          value={item.equipmentIssue}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "equipmentIssue",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Y/N or reason"
-                          className={cn(
-                            "h-8",
-                            previewInputClass,
-                            isPreviewMode && "truncate max-w-[150px]",
-                          )}
-                          title={item.equipmentIssue}
-                          disabled={!canEdit || isPreviewMode}
-                        />
-                      </td>
-                      {canEdit && (
-                        <td className="px-4 py-2 text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                            onClick={() => handleDeleteItem(index)}
-                            disabled={draftJob.items.length === 1}
-                            title={
-                              draftJob.items.length === 1
-                                ? "Cannot delete the last item"
-                                : "Delete Item"
-                            }
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                  {draftJob.items.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="px-4 py-8 text-center text-muted-foreground"
-                      >
-                        No items. Click &quot;Add Item&quot; to begin.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <JobLineItemsTable
+            draftJob={draftJob}
+            canEdit={canEdit}
+            isPreviewMode={isPreviewMode}
+            onAddItem={handleAddItem}
+            onItemChange={handleItemChange}
+            onDeleteItem={handleDeleteItem}
+          />
 
           <div className="bg-card rounded-xl shadow-sm border border-border p-6">
             <h2 className="text-lg font-semibold mb-4">Waste & Notes</h2>
@@ -657,141 +321,14 @@ export default function JobDetailsPage() {
         </div>
 
         {/* Right Column: Live Summary */}
-        <div className="space-y-6 sticky top-6">
-          {canEdit && (
-            <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                Status / Actions
-              </h2>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setIsPreviewMode(!isPreviewMode)}
-              >
-                {isPreviewMode ? "Exit Preview" : "Preview Mode"}
-              </Button>
-              {!isPreviewMode && (
-                <>
-                  <Button
-                    className="w-full bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent"
-                    onClick={handleSubmit}
-                  >
-                    <Save className="size-4 mr-2" /> Save Job
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => router.push("/jobs")}
-                  >
-                    Discard
-                  </Button>
-                </>
-              )}
-            </div>
-          )}
-
-          <div className="bg-card text-card-foreground border border-border rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Calculator className="size-5 text-primary" /> Calculated Fields
-            </h2>
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Status</span>
-                {isCompleted ? (
-                  <span className="inline-flex items-center rounded bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
-                    Completed
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center rounded bg-warning/10 px-2 py-0.5 text-xs font-semibold text-warning">
-                    Pending
-                  </span>
-                )}
-              </div>
-
-              {isOverdue && (
-                <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                  <span className="text-muted-foreground">Overdue Flag</span>
-                  <span className="inline-flex items-center rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
-                    Overdue
-                  </span>
-                </div>
-              )}
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Total Items</span>
-                <span className="font-bold">{draftJob.items.length}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Total Quantity</span>
-                <span className="font-bold">{totalQty.toLocaleString()}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Invoice Value</span>
-                <span className="font-bold">
-                  ${(draftJob.invoiceValue || 0).toFixed(2)}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Turnaround</span>
-                <span className="font-bold">
-                  {turnaroundDaysVal !== "" ? (
-                    <>
-                      {turnaroundDaysVal}
-                      {typeof turnaroundDaysVal === "number" ? " days" : ""}
-                    </>
-                  ) : (
-                    "-"
-                  )}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Days vs Promised</span>
-                <span
-                  className={`font-bold ${typeof daysVsPromisedVal === "number" ? (daysVsPromisedVal > 0 ? "text-destructive" : daysVsPromisedVal <= 0 ? "text-success" : "") : ""}`}
-                >
-                  {daysVsPromisedVal !== ""
-                    ? typeof daysVsPromisedVal === "number"
-                      ? Math.abs(daysVsPromisedVal)
-                      : daysVsPromisedVal
-                    : "-"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">On-Time? (Y/N)</span>
-                <span className="font-bold">{onTimeVal || "-"}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">
-                  Scheduled This Week
-                </span>
-                <span className="font-bold">{scheduledThisWeekVal || "-"}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                <span className="text-muted-foreground">Week Ending (Mon)</span>
-                <span className="font-bold">{weekEndingStr || "-"}</span>
-              </div>
-
-              {isOverdue && (
-                <div className="flex justify-between items-center pb-1">
-                  <span className="text-destructive font-medium">
-                    Days Overdue
-                  </span>
-                  <span className="font-bold text-destructive">
-                    {daysOverdueVal}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <JobSummaryPane
+          draftJob={draftJob}
+          canEdit={canEdit}
+          isPreviewMode={isPreviewMode}
+          onTogglePreview={() => setIsPreviewMode(!isPreviewMode)}
+          onSubmit={handleSubmit}
+          onDiscard={() => router.push("/jobs")}
+        />
       </div>
     </div>
   );
