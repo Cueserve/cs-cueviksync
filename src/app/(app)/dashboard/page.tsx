@@ -11,6 +11,7 @@ import {
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
 import { MetricCard } from "@/components/ui/metric-card";
+import { formatMoney } from "@/lib/utils";
 import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
 import { DashboardCharts } from "./_components/DashboardCharts";
 import { WeeklyPerformanceTable } from "./_components/WeeklyPerformanceTable";
@@ -40,7 +41,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5 mt-6">
         <MetricCard
           title="Total Invoiced"
-          value={`$${totalInvoice.toLocaleString()}`}
+          value={formatMoney(totalInvoice)}
           description={`From ${completedJobs.length} completed items`}
           icon={<CheckCircle2 className="size-4 text-success" />}
         />

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatMoney } from "@/lib/utils";
 import { formatDateUS } from "@/lib/date-utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { IssueBadge } from "@/components/ui/issue-badge";
@@ -116,7 +116,7 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
             </TableCell>
             <TableCell>
               {isFirst && job.invoiceValue > 0
-                ? `$${job.invoiceValue.toFixed(2)}`
+                ? formatMoney(job.invoiceValue)
                 : "-"}
             </TableCell>
             <TableCell className="text-center">

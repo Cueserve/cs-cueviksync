@@ -6,6 +6,8 @@ import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { MetricCard } from "@/components/ui/metric-card";
+import { SearchInput } from "@/components/ui/search-input";
 import {
   Table,
   TableHeader,
@@ -117,36 +119,26 @@ export default function WasteReworkPage() {
 
       {/* Highlights Grid */}
       <div className="grid gap-4 md:grid-cols-2 mt-6">
-        <div className="p-4 rounded-xl border border-border bg-card">
-          <div className="text-xs font-medium text-muted-foreground">
-            Average Spoilage Rate
-          </div>
-          <div className="text-2xl font-semibold mt-1 font-mono text-warning">
-            {avgSpoilage}%
-          </div>
-        </div>
-        <div className="p-4 rounded-xl border border-border bg-card">
-          <div className="text-xs font-medium text-muted-foreground">
-            Reprint Jobs Flagged
-          </div>
-          <div className="text-2xl font-semibold mt-1 font-mono text-destructive">
-            {reprintCount}
-          </div>
-        </div>
+        <MetricCard
+          title="Average Spoilage Rate"
+          value={`${avgSpoilage}%`}
+          valueClassName="text-warning"
+        />
+        <MetricCard
+          title="Reprint Jobs Flagged"
+          value={reprintCount}
+          valueClassName="text-destructive"
+        />
       </div>
 
       {/* Search Bar */}
       <div className="mt-6 flex justify-between items-end">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search waste/rework..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 w-[250px] h-9"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search waste/rework..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-[250px]"
+        />
       </div>
 
       <div className="mt-4 bg-card rounded-md">

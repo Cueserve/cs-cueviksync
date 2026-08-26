@@ -23,6 +23,7 @@ import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { IssueBadge } from "@/components/ui/issue-badge";
 import { MetricCard } from "@/components/ui/metric-card";
+import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -253,16 +254,12 @@ export default function JobMasterPage() {
           )}
         </div>
         <div className="pb-2 flex items-center">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search jobs..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 w-[250px] h-9"
-            />
-          </div>
+          <SearchInput
+            placeholder="Search jobs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-[250px]"
+          />
         </div>
       </div>
 
