@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
+import { useJobMetrics } from "@/hooks/use-job-metrics";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/ui/metric-card";
@@ -41,13 +42,7 @@ export default function WasteReworkPage() {
   };
 
   // Total metrics
-  const avgSpoilage =
-    jobs.length > 0
-      ? (
-          jobs.reduce((sum, j) => sum + j.spoilagePercent, 0) / jobs.length
-        ).toFixed(2)
-      : "0.00";
-  const reprintCount = jobs.filter((j) => j.reprintRequired).length;
+  const { avgSpoilage, reprintCount } = useJobMetrics(jobs);
 
   const wasteJobs = jobs.filter((job) => {
     if (!(job.spoilagePercent > 0 || job.reprintRequired)) return false;

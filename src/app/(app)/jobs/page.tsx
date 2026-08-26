@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
+import { useJobMetrics } from "@/hooks/use-job-metrics";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 import { cn } from "@/lib/utils";
 import { formatDateUS, parseLocalDate } from "@/lib/date-utils";
@@ -70,17 +71,15 @@ export default function JobMasterPage() {
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const totalJobsCount = jobs.length;
-  const completedJobsCount = jobs.filter((j) => j.completedDate).length;
-  const pendingJobsCount = jobs.filter((j) => !j.completedDate).length;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const overdueJobsCount = jobs.filter(
-    (j) =>
-      !j.completedDate &&
-      j.promisedDate &&
-      today > parseLocalDate(j.promisedDate),
-  ).length;
+  const {
+    totalJobs: totalJobsCount,
+    completedJobs,
+    pendingJobs,
+    overdueCount: overdueJobsCount,
+  } = useJobMetrics(jobs);
+
+  const completedJobsCount = completedJobs.length;
+  const pendingJobsCount = pendingJobs.length;
 
   const filteredJobs = jobs.filter((job) => {
     if (selectedTab === "pending" && !!job.completedDate) return false;

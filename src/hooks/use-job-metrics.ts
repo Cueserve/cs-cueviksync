@@ -15,7 +15,7 @@ export type WeeklyStat = {
   invoiceSum: number;
 };
 
-export function useDashboardMetrics(jobs: JobItem[]) {
+export function useJobMetrics(jobs: JobItem[]) {
   return useMemo(() => {
     const pendingJobs = jobs.filter((j) => !j.completedDate);
     const overdueCount = pendingJobs.filter((j) => {
@@ -31,6 +31,29 @@ export function useDashboardMetrics(jobs: JobItem[]) {
       (sum, j) => sum + j.invoiceValue,
       0,
     );
+
+    // Additional global metrics
+    const shortagesFlaggedCount = jobs.filter((j) =>
+      j.items.some(
+        (i) =>
+          !!i.materialShortage && i.materialShortage.toLowerCase() !== "no",
+      ),
+    ).length;
+
+    const equipmentIssuesCount = jobs.filter((j) =>
+      j.items.some(
+        (i) => !!i.equipmentIssue && i.equipmentIssue.toLowerCase() !== "no",
+      ),
+    ).length;
+
+    const avgSpoilage =
+      jobs.length > 0
+        ? (
+            jobs.reduce((sum, j) => sum + j.spoilagePercent, 0) / jobs.length
+          ).toFixed(2)
+        : "0.00";
+
+    const reprintCount = jobs.filter((j) => j.reprintRequired).length;
 
     const weeklyGroups: Record<string, WeeklyStat> = {};
 
@@ -127,10 +150,15 @@ export function useDashboardMetrics(jobs: JobItem[]) {
     const maxJobsCompleted = Math.max(...completedData.map((d) => d.value), 5);
 
     return {
+      totalJobs: jobs.length,
       pendingJobs,
       overdueCount,
       completedJobs,
       totalInvoice,
+      shortagesFlaggedCount,
+      equipmentIssuesCount,
+      avgSpoilage,
+      reprintCount,
       weeklyStatsArray,
       chartData: {
         turnaroundData,

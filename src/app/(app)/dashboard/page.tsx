@@ -12,7 +12,7 @@ import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { useTracker } from "@/components/providers/tracker-provider";
 import { MetricCard } from "@/components/ui/metric-card";
 import { formatMoney } from "@/lib/utils";
-import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
+import { useJobMetrics } from "@/hooks/use-job-metrics";
 import { DashboardCharts } from "./_components/DashboardCharts";
 import { WeeklyPerformanceTable } from "./_components/WeeklyPerformanceTable";
 
@@ -24,9 +24,11 @@ export default function DashboardPage() {
     overdueCount,
     completedJobs,
     totalInvoice,
+    shortagesFlaggedCount,
+    equipmentIssuesCount,
     weeklyStatsArray,
     chartData,
-  } = useDashboardMetrics(jobs);
+  } = useJobMetrics(jobs);
 
   return (
     <PageBody>
@@ -63,29 +65,14 @@ export default function DashboardPage() {
 
         <MetricCard
           title="Shortages Flagged"
-          value={
-            jobs.filter((j) =>
-              j.items.some(
-                (i) =>
-                  !!i.materialShortage &&
-                  i.materialShortage.toLowerCase() !== "no",
-              ),
-            ).length
-          }
+          value={shortagesFlaggedCount}
           description="Awaiting material deliveries"
           icon={<Trash2 className="size-4 text-warning" />}
         />
 
         <MetricCard
           title="Equipment Issues"
-          value={
-            jobs.filter((j) =>
-              j.items.some(
-                (i) =>
-                  !!i.equipmentIssue && i.equipmentIssue.toLowerCase() !== "no",
-              ),
-            ).length
-          }
+          value={equipmentIssuesCount}
           description="Machine repairs / alerts"
           icon={<RefreshCw className="size-4 text-destructive" />}
         />
