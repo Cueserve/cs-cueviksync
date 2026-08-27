@@ -12,7 +12,7 @@ import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { useSort, SortConfig } from "@/hooks/use-sort";
 import { formatDateUS } from "@/lib/date-utils";
 import { BarChart2 } from "lucide-react";
-import type { WeeklyStat } from "@/hooks/use-dashboard-metrics";
+import type { WeeklyStat } from "@/hooks/use-job-metrics";
 
 interface WeeklyPerformanceTableProps {
   weeklyStatsArray: WeeklyStat[];
