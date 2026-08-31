@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { JobItem } from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 import {
   getWeekEndingMonday,
   getTurnaroundDays,
@@ -15,7 +15,7 @@ export type WeeklyStat = {
   invoiceSum: number;
 };
 
-export function useJobMetrics(jobs: JobItem[]) {
+export function useJobMetrics(jobs: JobWithItems[]) {
   return useMemo(() => {
     const pendingJobs = jobs.filter((j) => !j.completedDate);
     const overdueCount = pendingJobs.filter((j) => {

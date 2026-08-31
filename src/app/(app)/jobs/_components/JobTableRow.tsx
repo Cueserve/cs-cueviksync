@@ -7,14 +7,11 @@ import { formatDateUS } from "@/lib/date-utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { IssueBadge } from "@/components/ui/issue-badge";
 import { TableRow, TableCell } from "@/components/ui/data-table";
-import type {
-  JobItem,
-  JobLineItem,
-} from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 
 // The job object passed here is already decorated with formula results
-type CalculatedJob = JobItem & ReturnType<typeof calculateJobFormulas>;
+type CalculatedJob = JobWithItems & ReturnType<typeof calculateJobFormulas>;
 
 interface JobTableRowProps {
   job: CalculatedJob;
@@ -204,7 +201,7 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
             </TableCell>
             <TableCell
               className="max-w-[200px] truncate"
-              title={isFirst ? job.overdueReason : ""}
+              title={isFirst ? job.overdueReason || "" : ""}
             >
               {isFirst ? job.overdueReason || "-" : "-"}
             </TableCell>

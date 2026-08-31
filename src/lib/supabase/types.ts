@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -7,11 +7,6 @@ export type Json =
   | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.15";
-  };
   graphql_public: {
     Tables: {
       [_ in never]: never;
@@ -39,13 +34,101 @@ export type Database = {
   };
   public: {
     Tables: {
+      job_line_items: {
+        Row: {
+          equipmentIssue: string | null;
+          id: string;
+          itemDescription: string;
+          job_id: string;
+          lineNo: number;
+          materialShortage: string | null;
+          quantity: number;
+        };
+        Insert: {
+          equipmentIssue?: string | null;
+          id: string;
+          itemDescription: string;
+          job_id: string;
+          lineNo: number;
+          materialShortage?: string | null;
+          quantity: number;
+        };
+        Update: {
+          equipmentIssue?: string | null;
+          id?: string;
+          itemDescription?: string;
+          job_id?: string;
+          lineNo?: number;
+          materialShortage?: string | null;
+          quantity?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_line_items_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      jobs: {
+        Row: {
+          completedDate: string | null;
+          created_at: string;
+          deliveredDate: string | null;
+          id: string;
+          inThisWeek: boolean;
+          invoiceValue: number;
+          jobNo: string;
+          notes: string | null;
+          orderDate: string;
+          overdueReason: string | null;
+          promisedDate: string;
+          reprintRequired: boolean;
+          spoilagePercent: number;
+          updated_at: string;
+        };
+        Insert: {
+          completedDate?: string | null;
+          created_at?: string;
+          deliveredDate?: string | null;
+          id: string;
+          inThisWeek?: boolean;
+          invoiceValue?: number;
+          jobNo: string;
+          notes?: string | null;
+          orderDate: string;
+          overdueReason?: string | null;
+          promisedDate: string;
+          reprintRequired?: boolean;
+          spoilagePercent?: number;
+          updated_at?: string;
+        };
+        Update: {
+          completedDate?: string | null;
+          created_at?: string;
+          deliveredDate?: string | null;
+          id?: string;
+          inThisWeek?: boolean;
+          invoiceValue?: number;
+          jobNo?: string;
+          notes?: string | null;
+          orderDate?: string;
+          overdueReason?: string | null;
+          promisedDate?: string;
+          reprintRequired?: boolean;
+          spoilagePercent?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           created_at: string;
           full_name: string;
           id: string;
           role: Database["public"]["Enums"]["user_role"];
-          tenant_id: string;
           updated_at: string;
         };
         Insert: {
@@ -53,7 +136,6 @@ export type Database = {
           full_name: string;
           id: string;
           role?: Database["public"]["Enums"]["user_role"];
-          tenant_id: string;
           updated_at?: string;
         };
         Update: {
@@ -61,36 +143,6 @@ export type Database = {
           full_name?: string;
           id?: string;
           role?: Database["public"]["Enums"]["user_role"];
-          tenant_id?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "profiles_tenant_id_fkey";
-            columns: ["tenant_id"];
-            isOneToOne: false;
-            referencedRelation: "tenants";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      tenants: {
-        Row: {
-          created_at: string;
-          id: string;
-          name: string;
-          updated_at: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          name: string;
-          updated_at?: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          name?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -100,8 +152,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      current_tenant_id: { Args: never; Returns: string };
-      is_admin: { Args: never; Returns: boolean };
+      get_user_role: {
+        Args: never;
+        Returns: Database["public"]["Enums"]["user_role"];
+      };
     };
     Enums: {
       user_role: "owner_admin" | "sales_manager" | "sales_rep" | "office_admin";

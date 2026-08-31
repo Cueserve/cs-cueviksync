@@ -1,4 +1,4 @@
-import { JobItem } from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 import {
   getTurnaroundDays,
   isOnTime,
@@ -29,7 +29,9 @@ export interface JobCalculations {
  * Centralized business logic formulas for a job.
  * These are used across the dashboard, schedule, and job details pages.
  */
-export function calculateJobFormulas(job: Partial<JobItem>): JobCalculations {
+export function calculateJobFormulas(
+  job: Partial<JobWithItems>,
+): JobCalculations {
   const isCompleted = !!job.completedDate;
   const statusStr = isCompleted ? "Completed" : "Pending";
   const weekEndingStr =

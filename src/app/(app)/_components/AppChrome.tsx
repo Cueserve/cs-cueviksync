@@ -15,7 +15,15 @@ import { UserRoleDropdown } from "./UserRoleDropdown";
 // because the rail needs the current pathname to mark the active item; the
 // pages it wraps stay Server Components.
 
-export function AppChrome({ children }: { children: React.ReactNode }) {
+export function AppChrome({
+  children,
+  userRole,
+  userEmail,
+}: {
+  children: React.ReactNode;
+  userRole: string;
+  userEmail: string;
+}) {
   const pathname = usePathname();
   const activeHref = `/${pathname.split("/").filter(Boolean)[0] ?? ""}`;
 
@@ -48,11 +56,12 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           }
         />
         <div className="flex min-w-0 flex-1 flex-col">
-          {/* Identity is hardcoded until Supabase Auth is wired. `UserRoleDropdown`
-              takes plain props precisely so this line is the only thing that
-              changes: a server-read profile replaces the literals, and
-              `onSignOut` gains a Server Action. */}
-          <Topbar crumbs={crumbsFor(pathname)} right={<UserRoleDropdown />} />
+          <Topbar
+            crumbs={crumbsFor(pathname)}
+            right={
+              <UserRoleDropdown userRole={userRole} userEmail={userEmail} />
+            }
+          />
           <main
             id="main-content"
             tabIndex={-1}

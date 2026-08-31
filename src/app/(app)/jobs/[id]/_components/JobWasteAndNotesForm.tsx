@@ -1,15 +1,16 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { JobItem } from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 
 interface JobWasteAndNotesFormProps {
-  draftJob: JobItem;
+  draftJob: JobWithItems;
   canEdit: boolean;
   isPreviewMode: boolean;
   handleUpdateField: (
-    field: keyof JobItem,
-    value: string | number | boolean,
+    field: keyof JobWithItems,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any,
   ) => void;
 }
 
@@ -72,7 +73,7 @@ export function JobWasteAndNotesForm({
         </label>
         <textarea
           id="notes"
-          value={draftJob.notes}
+          value={draftJob.notes || ""}
           onChange={(e) => handleUpdateField("notes", e.target.value)}
           placeholder="Add any additional job notes here..."
           disabled={!canEdit || isPreviewMode}

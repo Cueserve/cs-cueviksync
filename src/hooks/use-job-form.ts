@@ -1,44 +1,49 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  useTracker,
-  type JobItem,
-  type JobLineItem,
-} from "@/components/providers/tracker-provider";
+  addJob,
+  updateJob as updateJobAction,
+} from "@/app/actions/job-actions";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { Database } from "@/lib/supabase/types";
 
-export function useJobForm(id: string) {
+type JobLineItemInsert =
+  Database["public"]["Tables"]["job_line_items"]["Insert"];
+
+export function useJobForm(
+  initialJob: JobWithItems | null,
+  canEdit: boolean,
+  allJobs: JobWithItems[],
+) {
   const router = useRouter();
-  const { jobs, addJob, updateJob, selectedRole } = useTracker();
 
-  const isNew = id === "new";
-  const existingJob = isNew ? null : jobs.find((j) => j.id === id);
+  const isNew = !initialJob;
+  const existingJob = initialJob;
 
-  const canEdit =
-    selectedRole === "admin" ||
-    selectedRole === "operator" ||
-    selectedRole === "manager";
-
-  const [draftJob, setDraftJob] = useState<JobItem>({
+  const [draftJob, setDraftJob] = useState<JobWithItems>({
     id: "",
     jobNo: "",
     orderDate: new Date().toISOString().split("T")[0],
     promisedDate: "",
-    completedDate: "",
-    deliveredDate: "",
-    overdueReason: "",
+    completedDate: null,
+    deliveredDate: null,
+    overdueReason: null,
     inThisWeek: false,
     invoiceValue: 0,
     spoilagePercent: 0,
     reprintRequired: false,
-    notes: "",
+    notes: null,
+    created_at: "",
+    updated_at: "",
     items: [
       {
         id: "temp-1",
+        job_id: "",
         lineNo: 1,
         itemDescription: "",
         quantity: 0,
-        materialShortage: "",
-        equipmentIssue: "",
+        materialShortage: null,
+        equipmentIssue: null,
       },
     ],
   });
@@ -58,7 +63,7 @@ export function useJobForm(id: string) {
   }, [existingJob]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleUpdateField = (field: keyof JobItem, value: any) => {
+  const handleUpdateField = (field: keyof JobWithItems, value: any) => {
     setDraftJob((prev) => {
       const next = { ...prev, [field]: value };
 
@@ -73,8 +78,8 @@ export function useJobForm(id: string) {
           next.completedDate &&
           new Date(value) > new Date(next.completedDate)
         ) {
-          next.completedDate = "";
-          next.deliveredDate = "";
+          next.completedDate = null;
+          next.deliveredDate = null;
         }
       }
 
@@ -87,17 +92,17 @@ export function useJobForm(id: string) {
             next.deliveredDate = value;
           }
         } else {
-          next.deliveredDate = "";
+          next.deliveredDate = null;
         }
       }
 
-      return next;
+      return next as JobWithItems;
     });
   };
 
   const handleItemChange = (
     index: number,
-    field: keyof JobLineItem,
+    field: keyof JobWithItems["items"][0],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => {
@@ -114,15 +119,19 @@ export function useJobForm(id: string) {
         prev.items.length > 0
           ? Math.max(...prev.items.map((i) => i.lineNo)) + 1
           : 1;
-      const newItem: JobLineItem = {
+      const newItem: JobLineItemInsert = {
         id: `temp-${Date.now()}`,
+        job_id: prev.id,
         lineNo: newLineNo,
         itemDescription: "",
         quantity: 0,
-        materialShortage: "",
-        equipmentIssue: "",
+        materialShortage: null,
+        equipmentIssue: null,
       };
-      return { ...prev, items: [...prev.items, newItem] };
+      return {
+        ...prev,
+        items: [...prev.items, newItem as JobWithItems["items"][0]],
+      };
     });
   };
 
@@ -138,7 +147,7 @@ export function useJobForm(id: string) {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canEdit) return;
 
@@ -146,7 +155,7 @@ export function useJobForm(id: string) {
       alert("Job number is required");
       return;
     }
-    const isDuplicateJobNo = jobs.some(
+    const isDuplicateJobNo = allJobs.some(
       (j) =>
         j.jobNo.trim().toLowerCase() === draftJob.jobNo.trim().toLowerCase() &&
         j.id !== draftJob.id,
@@ -189,9 +198,40 @@ export function useJobForm(id: string) {
     }
 
     if (isNew) {
-      addJob(draftJob);
+      const { items, ...jobWithoutItems } = draftJob;
+      await addJob(
+        jobWithoutItems,
+        items.map((i) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id: _id, ...itemWithoutId } = i;
+          return itemWithoutId as JobLineItemInsert;
+        }),
+      );
     } else {
-      updateJob(draftJob.id, draftJob);
+      const { items, ...jobWithoutItems } = draftJob;
+      const originalItems = existingJob?.items || [];
+      const currentItemIds = items
+        .map((i) => i.id)
+        .filter((id) => !id.startsWith("temp-"));
+      const itemsToDelete = originalItems
+        .filter((i) => !currentItemIds.includes(i.id))
+        .map((i) => i.id);
+
+      const itemsToUpsert = items.map((i) => {
+        if (i.id.startsWith("temp-")) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id: _id, ...itemWithoutId } = i;
+          return { ...itemWithoutId, job_id: draftJob.id } as JobLineItemInsert;
+        }
+        return { ...i, job_id: draftJob.id } as JobLineItemInsert;
+      });
+
+      await updateJobAction(
+        draftJob.id,
+        jobWithoutItems,
+        itemsToUpsert,
+        itemsToDelete,
+      );
     }
     router.push("/jobs");
   };
@@ -208,6 +248,6 @@ export function useJobForm(id: string) {
     handleAddItem,
     handleDeleteItem,
     handleSubmit,
-    jobs, // exposing jobs just in case for validation
+    jobs: allJobs, // exposing jobs just in case for validation
   };
 }

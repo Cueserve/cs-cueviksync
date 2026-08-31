@@ -1,3 +1,4 @@
+/*
 -- ============================================================================
 -- 0002: tenants, profiles, auth integration, is_admin(), and RLS
 --
@@ -155,3 +156,4 @@ create policy "profiles_update_self_or_admin"
 -- no INSERT policy: profiles are created only by tenant provisioning
 -- (a future service-role system path), never by client code
 -- no DELETE policy: profiles are never deleted by the app
+*/

@@ -1,11 +1,11 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Calculator, Save } from "lucide-react";
-import type { JobItem } from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 
 interface JobSummaryPaneProps {
-  draftJob: JobItem;
+  draftJob: JobWithItems;
   canEdit: boolean;
   isPreviewMode: boolean;
   onTogglePreview: () => void;

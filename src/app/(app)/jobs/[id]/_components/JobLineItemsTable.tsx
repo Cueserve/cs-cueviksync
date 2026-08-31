@@ -2,18 +2,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type {
-  JobItem,
-  JobLineItem,
-} from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 
 interface JobLineItemsTableProps {
-  draftJob: JobItem;
+  draftJob: JobWithItems;
   canEdit: boolean;
   isPreviewMode: boolean;
   onAddItem: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onItemChange: (index: number, field: keyof JobLineItem, value: any) => void;
+  onItemChange: (
+    index: number,
+    field: keyof JobWithItems["items"][0],
+    value: any,
+  ) => void;
   onDeleteItem: (index: number) => void;
 }
 
@@ -63,7 +64,7 @@ export function JobLineItemsTable({
                 </td>
                 <td className="px-4 py-2">
                   <Input
-                    value={item.itemDescription}
+                    value={item.itemDescription || ""}
                     onChange={(e) =>
                       onItemChange(index, "itemDescription", e.target.value)
                     }
@@ -74,7 +75,7 @@ export function JobLineItemsTable({
                       isPreviewMode &&
                         "truncate max-w-[200px] md:max-w-xs xl:max-w-md",
                     )}
-                    title={item.itemDescription}
+                    title={item.itemDescription || undefined}
                     disabled={!canEdit || isPreviewMode}
                   />
                 </td>
@@ -97,7 +98,7 @@ export function JobLineItemsTable({
                 </td>
                 <td className="px-4 py-2">
                   <Input
-                    value={item.materialShortage}
+                    value={item.materialShortage || ""}
                     onChange={(e) =>
                       onItemChange(index, "materialShortage", e.target.value)
                     }
@@ -107,13 +108,13 @@ export function JobLineItemsTable({
                       previewInputClass,
                       isPreviewMode && "truncate max-w-[150px]",
                     )}
-                    title={item.materialShortage}
+                    title={item.materialShortage || undefined}
                     disabled={!canEdit || isPreviewMode}
                   />
                 </td>
                 <td className="px-4 py-2">
                   <Input
-                    value={item.equipmentIssue}
+                    value={item.equipmentIssue || ""}
                     onChange={(e) =>
                       onItemChange(index, "equipmentIssue", e.target.value)
                     }
@@ -123,7 +124,7 @@ export function JobLineItemsTable({
                       previewInputClass,
                       isPreviewMode && "truncate max-w-[150px]",
                     )}
-                    title={item.equipmentIssue}
+                    title={item.equipmentIssue || undefined}
                     disabled={!canEdit || isPreviewMode}
                   />
                 </td>

@@ -3,16 +3,17 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
-import type { JobItem } from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 
 interface JobDetailsFormProps {
-  draftJob: JobItem;
+  draftJob: JobWithItems;
   canEdit: boolean;
   isPreviewMode: boolean;
-  jobs: JobItem[];
+  jobs: JobWithItems[];
   handleUpdateField: (
-    field: keyof JobItem,
-    value: string | number | boolean,
+    field: keyof JobWithItems,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any,
   ) => void;
 }
 
@@ -127,7 +128,7 @@ export function JobDetailsForm({
             id="completedDate"
             type="date"
             min={draftJob.orderDate || undefined}
-            value={draftJob.completedDate}
+            value={draftJob.completedDate || ""}
             onChange={(e) => handleUpdateField("completedDate", e.target.value)}
             disabled={!canEdit || isPreviewMode}
           />
@@ -143,7 +144,7 @@ export function JobDetailsForm({
             id="deliveredDate"
             type="date"
             min={draftJob.completedDate || undefined}
-            value={draftJob.deliveredDate}
+            value={draftJob.deliveredDate || ""}
             onChange={(e) => handleUpdateField("deliveredDate", e.target.value)}
             disabled={!canEdit || isPreviewMode || !draftJob.completedDate}
           />
@@ -160,10 +161,10 @@ export function JobDetailsForm({
           </label>
           <Input
             id="overdueReason"
-            value={draftJob.overdueReason}
+            value={draftJob.overdueReason || ""}
             onChange={(e) => handleUpdateField("overdueReason", e.target.value)}
             className={cn(isPreviewMode && "truncate")}
-            title={draftJob.overdueReason}
+            title={draftJob.overdueReason || undefined}
             disabled={!canEdit || isPreviewMode}
           />
         </div>

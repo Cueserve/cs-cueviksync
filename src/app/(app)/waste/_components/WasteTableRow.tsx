@@ -5,12 +5,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw } from "lucide-react";
 import { calculateJobFormulas } from "@/lib/job-formulas";
-import type { JobItem } from "@/components/providers/tracker-provider";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 
 interface WasteTableRowProps {
-  job: JobItem;
+  job: JobWithItems;
   canEdit: boolean;
-  onUpdateJob: (id: string, updates: Partial<JobItem>) => void;
+  onUpdateJob: (id: string, updates: Partial<JobWithItems>) => void;
 }
 
 export function WasteTableRow({

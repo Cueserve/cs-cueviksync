@@ -7,7 +7,7 @@
  * Formats a stored ISO date string (YYYY-MM-DD) to American format (MM/DD/YYYY).
  * Returns "" if the date string is falsy.
  */
-export function formatDateUS(dateStr: string | undefined): string {
+export function formatDateUS(dateStr: string | null | undefined): string {
   if (!dateStr) return "";
   const [year, month, day] = dateStr.split("-");
   if (!year || !month || !day) return dateStr;
@@ -17,7 +17,9 @@ export function formatDateUS(dateStr: string | undefined): string {
 /**
  * Calculates the week ending Monday (starts Tuesday, ends on that Monday) for a given date.
  */
-export function getWeekEndingMonday(dateStr: string | undefined): string {
+export function getWeekEndingMonday(
+  dateStr: string | null | undefined,
+): string {
   if (!dateStr) return "";
   const date = parseLocalDate(dateStr);
   const day = date.getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ...
@@ -35,7 +37,7 @@ export function getWeekEndingMonday(dateStr: string | undefined): string {
  * bug where new Date("2026-08-10") = Aug 10 00:00 UTC = Aug 10 05:30 IST,
  * making diffs come out 1 day too large when rounded.
  */
-export function parseLocalDate(dateStr: string | undefined): Date {
+export function parseLocalDate(dateStr: string | null | undefined): Date {
   if (!dateStr) return new Date(NaN);
   const [y, m, d] = dateStr.split("-").map(Number);
   return new Date(y, m - 1, d); // local time, no timezone shift
@@ -45,8 +47,8 @@ export function parseLocalDate(dateStr: string | undefined): Date {
  * Calculates the calendar days turnaround between the order date and the completion date.
  */
 export function getTurnaroundDays(
-  orderStr: string | undefined,
-  completedStr: string | undefined,
+  orderStr: string | null | undefined,
+  completedStr: string | null | undefined,
 ): number {
   if (!orderStr || !completedStr) return 0;
   const order = parseLocalDate(orderStr);
@@ -61,8 +63,8 @@ export function getTurnaroundDays(
  * Checks if a delivered date is on or before the promised date.
  */
 export function isOnTime(
-  promisedStr: string | undefined,
-  deliveredStr: string | undefined,
+  promisedStr: string | null | undefined,
+  deliveredStr: string | null | undefined,
 ): boolean {
   if (!promisedStr || !deliveredStr) return false;
   return parseLocalDate(deliveredStr) <= parseLocalDate(promisedStr);

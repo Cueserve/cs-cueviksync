@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useTracker } from "@/components/providers/tracker-provider";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -15,14 +14,16 @@ import {
   DialogBody,
 } from "@/components/ui/dialog";
 
+import { updateJob } from "@/app/actions/job-actions";
+import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+
 interface WasteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  jobs: JobWithItems[];
 }
 
-export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
-  const { jobs, updateJob } = useTracker();
-
+export function WasteDialog({ open, onOpenChange, jobs }: WasteDialogProps) {
   const [selectedJobId, setSelectedJobId] = useState("");
   const [modalSpoilage, setModalSpoilage] = useState("0");
   const [modalReprint, setModalReprint] = useState(false);
@@ -38,10 +39,10 @@ export function WasteDialog({ open, onOpenChange }: WasteDialogProps) {
     }
   }, [open]);
 
-  const handleSaveLog = (e: React.FormEvent) => {
+  const handleSaveLog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedJobId) return;
-    updateJob(selectedJobId, {
+    await updateJob(selectedJobId, {
       spoilagePercent: Number(modalSpoilage) || 0,
       reprintRequired: modalReprint,
       notes: modalNotes,
