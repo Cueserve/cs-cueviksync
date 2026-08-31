@@ -9,6 +9,7 @@ import type { Database } from "@/lib/supabase/types";
 
 type JobLineItemInsert =
   Database["public"]["Tables"]["job_line_items"]["Insert"];
+type JobInsert = Database["public"]["Tables"]["jobs"]["Insert"];
 
 export function useJobForm(
   initialJob: JobWithItems | null,
@@ -198,15 +199,21 @@ export function useJobForm(
     }
 
     if (isNew) {
-      const { items, ...jobWithoutItems } = draftJob;
-      await addJob(
-        jobWithoutItems,
+      const { items, id, created_at, updated_at, ...jobWithoutItems } =
+        draftJob;
+      const res = await addJob(
+        jobWithoutItems as JobInsert,
         items.map((i) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: _id, ...itemWithoutId } = i;
+          const { id: _id, job_id, ...itemWithoutId } = i;
           return itemWithoutId as JobLineItemInsert;
         }),
       );
+      if (!res?.success) {
+        console.error("Failed to add job:", res?.error);
+        alert(`Failed to add job: ${res?.error}`);
+        return;
+      }
     } else {
       const { items, ...jobWithoutItems } = draftJob;
       const originalItems = existingJob?.items || [];
@@ -226,12 +233,17 @@ export function useJobForm(
         return { ...i, job_id: draftJob.id } as JobLineItemInsert;
       });
 
-      await updateJobAction(
+      const res = await updateJobAction(
         draftJob.id,
         jobWithoutItems,
         itemsToUpsert,
         itemsToDelete,
       );
+      if (!res?.success) {
+        console.error("Failed to update job:", res?.error);
+        alert(`Failed to update job: ${res?.error}`);
+        return;
+      }
     }
     router.push("/jobs");
   };

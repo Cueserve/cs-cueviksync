@@ -39,7 +39,6 @@ export default async function JobDetailsPage({
       initialJob={initialJob}
       allJobs={allJobs}
       canEdit={canEdit}
-      id={params.id}
     />
   );
 }

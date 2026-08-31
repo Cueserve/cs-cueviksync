@@ -13,6 +13,10 @@ type JobLineItemInsert =
 export async function addJob(job: JobInsert, lineItems: JobLineItemInsert[]) {
   const supabase = await createClient();
 
+  if (!job.id) {
+    job.id = crypto.randomUUID();
+  }
+
   // Insert the parent job
   const { data: insertedJob, error: jobError } = await supabase
     .from("jobs")
@@ -28,6 +32,7 @@ export async function addJob(job: JobInsert, lineItems: JobLineItemInsert[]) {
   if (lineItems && lineItems.length > 0) {
     const lineItemsToInsert = lineItems.map((item) => ({
       ...item,
+      id: item.id || crypto.randomUUID(),
       job_id: insertedJob.id,
     }));
 
@@ -79,7 +84,11 @@ export async function updateJob(
 
   if (lineItemsToUpsert && lineItemsToUpsert.length > 0) {
     const { error: upsertError } = await supabase.from("job_line_items").upsert(
-      lineItemsToUpsert.map((item) => ({ ...item, job_id: id })),
+      lineItemsToUpsert.map((item) => ({
+        ...item,
+        id: item.id || crypto.randomUUID(),
+        job_id: id,
+      })),
       { onConflict: "id" },
     );
 

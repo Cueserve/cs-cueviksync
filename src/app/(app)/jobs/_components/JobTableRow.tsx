@@ -44,7 +44,7 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
         const isFirst = idx === 0;
         return (
           <TableRow key={item.id} className={cn(!isFirst && "bg-muted/30")}>
-            <TableCell className="sticky left-0 bg-background z-10 w-10 px-2 text-center">
+            <TableCell className="sticky left-0 bg-background z-10 min-w-[40px] max-w-[40px] w-[40px] px-2 text-center">
               {isFirst && hasMultipleItems ? (
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}

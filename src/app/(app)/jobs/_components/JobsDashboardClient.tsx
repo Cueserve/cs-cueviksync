@@ -285,7 +285,7 @@ export default function JobsDashboardClient({
         >
           <TableHeader>
             <TableRow>
-              <TableHead className="sticky left-0 w-10 px-2 bg-muted z-10"></TableHead>
+              <TableHead className="sticky left-0 min-w-[40px] max-w-[40px] w-[40px] px-2 bg-muted z-10"></TableHead>
               <SortableTableHead
                 className="sticky left-10 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]"
                 sortKey="jobNo"
