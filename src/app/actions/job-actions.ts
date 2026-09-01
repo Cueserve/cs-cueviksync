@@ -17,16 +17,8 @@ export async function addJob(job: JobInsert, lineItems: JobLineItemInsert[]) {
     job.id = crypto.randomUUID();
   }
 
-  const { data: jobNo, error: rpcError } =
-    await supabase.rpc("fn_next_job_number");
-  if (rpcError) {
-    console.error("Error generating job number:", rpcError);
-    return { success: false, error: "Failed to generate job number" };
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (job as any).jobNo = jobNo; // Or if type allows, job.jobNo = jobNo
-
   // Insert the parent job
+  // trg_assign_job_number trigger automatically assigns jobNo.
   const { data: insertedJob, error: jobError } = await supabase
     .from("jobs")
     .insert(job)
