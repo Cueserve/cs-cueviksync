@@ -37,7 +37,21 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
   } = job;
 
   const hasMultipleItems = itemsInJob > 1;
-  const visibleItems = isExpanded ? job.items : [job.items[0]];
+  const visibleItems = isExpanded
+    ? job.items
+    : job.items && job.items.length > 0
+      ? [job.items[0]]
+      : [
+          {
+            id: "dummy",
+            lineNo: "-",
+            itemDescription: "No items",
+            quantity: "-",
+            materialShortage: null,
+            equipmentIssue: null,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as any,
+        ];
 
   return (
     <React.Fragment>
