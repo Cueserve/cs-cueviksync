@@ -61,7 +61,7 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
             <TableCell className="sticky left-10 bg-background z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)] font-medium">
               {isFirst ? (
                 <Link
-                  href={`/jobs/${job.id}`}
+                  href={`/jobs/${job.jobNo}`}
                   className="text-primary hover:underline"
                 >
                   {job.jobNo}
@@ -211,7 +211,7 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
                   {canEdit ? (
                     <>
                       <Link
-                        href={`/jobs/${job.id}`}
+                        href={`/jobs/${job.jobNo}`}
                         className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
                         title="Edit Job"
                       >
@@ -235,7 +235,7 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
                     </>
                   ) : (
                     <Link
-                      href={`/jobs/${job.id}`}
+                      href={`/jobs/${job.jobNo}`}
                       className="p-1.5 text-muted-foreground hover:text-primary transition-colors font-medium text-xs uppercase"
                       title="View Job"
                     >

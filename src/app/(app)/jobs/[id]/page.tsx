@@ -17,7 +17,7 @@ export default async function JobDetailsPage({
         : supabase
             .from("jobs")
             .select("*, items:job_line_items(*)")
-            .eq("id", id)
+            .eq("jobNo", id)
             .single(),
       supabase
         .from("jobs")
