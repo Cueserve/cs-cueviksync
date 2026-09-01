@@ -9,11 +9,10 @@ interface JobLineItemsTableProps {
   canEdit: boolean;
   isPreviewMode: boolean;
   onAddItem: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onItemChange: (
+  onItemChange: <K extends keyof JobWithItems["items"][0]>(
     index: number,
-    field: keyof JobWithItems["items"][0],
-    value: any,
+    field: K,
+    value: JobWithItems["items"][0][K],
   ) => void;
   onDeleteItem: (index: number) => void;
 }

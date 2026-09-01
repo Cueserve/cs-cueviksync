@@ -72,10 +72,26 @@ export type Database = {
           },
         ];
       };
+      job_number_sequences: {
+        Row: {
+          last_number: number;
+          year: number;
+        };
+        Insert: {
+          last_number?: number;
+          year: number;
+        };
+        Update: {
+          last_number?: number;
+          year?: number;
+        };
+        Relationships: [];
+      };
       jobs: {
         Row: {
           completedDate: string | null;
           created_at: string;
+          deleted_at: string | null;
           deliveredDate: string | null;
           id: string;
           inThisWeek: boolean;
@@ -92,6 +108,7 @@ export type Database = {
         Insert: {
           completedDate?: string | null;
           created_at?: string;
+          deleted_at?: string | null;
           deliveredDate?: string | null;
           id: string;
           inThisWeek?: boolean;
@@ -108,6 +125,7 @@ export type Database = {
         Update: {
           completedDate?: string | null;
           created_at?: string;
+          deleted_at?: string | null;
           deliveredDate?: string | null;
           id?: string;
           inThisWeek?: boolean;
@@ -152,6 +170,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      fn_next_job_number: { Args: never; Returns: string };
       get_user_role: {
         Args: never;
         Returns: Database["public"]["Enums"]["user_role"];

@@ -116,7 +116,10 @@ export async function updateJob(
 export async function deleteJob(id: string) {
   const supabase = await createClient();
 
-  const { error } = await supabase.from("jobs").delete().eq("id", id);
+  const { error } = await supabase
+    .from("jobs")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id);
 
   if (error) {
     console.error("Error deleting job:", error);

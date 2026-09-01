@@ -72,24 +72,36 @@ export default function JobsDashboardClient({
   };
 
   const [selectedTab, setSelectedTab] = useState<
-    "all" | "pending" | "completed" | "this-week"
+    "all" | "pending" | "completed" | "this-week" | "archived"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const activeJobs = React.useMemo(
+    () => jobs.filter((j) => !j.deleted_at),
+    [jobs],
+  );
 
   const {
     totalJobs: totalJobsCount,
     completedJobs,
     pendingJobs,
     overdueCount: overdueJobsCount,
-  } = useJobMetrics(jobs);
+  } = useJobMetrics(activeJobs);
 
   const completedJobsCount = completedJobs.length;
   const pendingJobsCount = pendingJobs.length;
 
   const filteredJobs = jobs.filter((job) => {
-    if (selectedTab === "pending" && !!job.completedDate) return false;
-    if (selectedTab === "completed" && !job.completedDate) return false;
-    if (selectedTab === "this-week" && !job.inThisWeek) return false;
+    const isArchived = !!job.deleted_at;
+
+    if (selectedTab === "archived") {
+      if (!isArchived) return false;
+    } else {
+      if (isArchived) return false;
+      if (selectedTab === "pending" && !!job.completedDate) return false;
+      if (selectedTab === "completed" && !job.completedDate) return false;
+      if (selectedTab === "this-week" && !job.inThisWeek) return false;
+    }
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -240,22 +252,22 @@ export default function JobsDashboardClient({
       {/* Status Tabs */}
       <div className="flex items-center justify-between border-b border-border mt-8">
         <div className="flex">
-          {(["all", "pending", "completed", "this-week"] as const).map(
-            (tab) => (
-              <button
-                key={tab}
-                onClick={() => setSelectedTab(tab)}
-                className={cn(
-                  "px-4 py-2 text-sm font-semibold transition-colors border-b-2 -mb-[2px] capitalize",
-                  selectedTab === tab
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {tab.replace("-", " ")}
-              </button>
-            ),
-          )}
+          {(
+            ["all", "pending", "completed", "this-week", "archived"] as const
+          ).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setSelectedTab(tab)}
+              className={cn(
+                "px-4 py-2 text-sm font-semibold transition-colors border-b-2 -mb-[2px] capitalize",
+                selectedTab === tab
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {tab.replace("-", " ")}
+            </button>
+          ))}
         </div>
         <div className="pb-2 flex items-center">
           <SearchInput

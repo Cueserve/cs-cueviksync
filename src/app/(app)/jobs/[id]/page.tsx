@@ -18,10 +18,12 @@ export default async function JobDetailsPage({
             .from("jobs")
             .select("*, items:job_line_items(*)")
             .eq("jobNo", id)
-            .single(),
+            .limit(1)
+            .maybeSingle(),
       supabase
         .from("jobs")
         .select("*, items:job_line_items(*)")
+        .is("deleted_at", null)
         .order("created_at", { ascending: false }),
       supabase.rpc("get_user_role"),
     ]);
@@ -30,16 +32,19 @@ export default async function JobDetailsPage({
   const allJobs = (allJobsData || []) as unknown as JobWithItems[];
   const userRole = roleData || "viewer";
 
+  const isArchived = initialJob?.deleted_at != null;
   const canEdit =
-    userRole === "owner_admin" ||
-    userRole === "sales_manager" ||
-    userRole === "office_admin";
+    !isArchived &&
+    (userRole === "owner_admin" ||
+      userRole === "sales_manager" ||
+      userRole === "office_admin");
 
   return (
     <JobDetailsClient
       initialJob={initialJob}
       allJobs={allJobs}
       canEdit={canEdit}
+      isNewRoute={id === "new"}
     />
   );
 }

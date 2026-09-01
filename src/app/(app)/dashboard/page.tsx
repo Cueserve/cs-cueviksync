@@ -12,6 +12,7 @@ export default async function DashboardPage() {
       items:job_line_items(*)
     `,
     )
+    .is("deleted_at", null)
     .order("orderDate", { ascending: false });
 
   if (error) {

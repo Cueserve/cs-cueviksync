@@ -27,6 +27,7 @@ export default async function WasteReworkPage() {
       items:job_line_items(*)
     `,
     )
+    .is("deleted_at", null)
     .order("orderDate", { ascending: false });
 
   if (error) {

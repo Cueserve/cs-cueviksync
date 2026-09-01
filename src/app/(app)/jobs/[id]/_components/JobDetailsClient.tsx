@@ -15,10 +15,12 @@ export default function JobDetailsClient({
   initialJob,
   allJobs,
   canEdit: canEditProp,
+  isNewRoute,
 }: {
   initialJob: JobWithItems | null;
   allJobs: JobWithItems[];
   canEdit: boolean;
+  isNewRoute?: boolean;
 }) {
   const router = useRouter();
 
@@ -35,9 +37,9 @@ export default function JobDetailsClient({
     handleDeleteItem,
     handleSubmit,
     jobs,
-  } = useJobForm(initialJob, canEditProp, allJobs);
+  } = useJobForm(initialJob, canEditProp, allJobs, isNewRoute);
 
-  if (!isNew && !existingJob) {
+  if (!isNewRoute && !existingJob) {
     return (
       <div className="p-8">
         <p>Job not found.</p>

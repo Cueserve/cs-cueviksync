@@ -15,10 +15,11 @@ export function useJobForm(
   initialJob: JobWithItems | null,
   canEdit: boolean,
   allJobs: JobWithItems[],
+  isNewRoute?: boolean,
 ) {
   const router = useRouter();
 
-  const isNew = !initialJob;
+  const isNew = isNewRoute ?? !initialJob;
   const existingJob = initialJob;
 
   const [draftJob, setDraftJob] = useState<JobWithItems>({
@@ -187,6 +188,7 @@ export function useJobForm(
     }
 
     if (isNew) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { items, id, created_at, updated_at, ...jobWithoutItems } =
         draftJob;
       const res = await addJob(

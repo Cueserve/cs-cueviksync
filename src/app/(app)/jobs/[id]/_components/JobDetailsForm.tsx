@@ -21,7 +21,6 @@ export function JobDetailsForm({
   draftJob,
   canEdit,
   isPreviewMode,
-  jobs,
   handleUpdateField,
 }: JobDetailsFormProps) {
   return (

@@ -21,6 +21,7 @@ interface JobTableRowProps {
 
 export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isArchived = !!job.deleted_at;
 
   const {
     statusStr,
@@ -211,13 +212,19 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
                   {canEdit ? (
                     <>
                       <Link
-                        href={`/jobs/${job.jobNo}`}
-                        className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
-                        title="Edit Job"
+                        href={isArchived ? "#" : `/jobs/${job.jobNo}`}
+                        className={cn(
+                          "p-1.5 transition-colors",
+                          isArchived
+                            ? "text-muted-foreground/30 cursor-not-allowed pointer-events-none"
+                            : "text-muted-foreground hover:text-primary",
+                        )}
+                        title={isArchived ? "Archived (View Only)" : "Edit Job"}
                       >
                         <Pencil className="size-4" />
                       </Link>
                       <button
+                        disabled={isArchived}
                         onClick={() => {
                           if (
                             window.confirm(
@@ -227,8 +234,17 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
                             onDeleteJob(job.id);
                           }
                         }}
-                        className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
-                        title="Delete Job"
+                        className={cn(
+                          "p-1.5 transition-colors",
+                          isArchived
+                            ? "text-muted-foreground/30 cursor-not-allowed"
+                            : "text-muted-foreground hover:text-destructive",
+                        )}
+                        title={
+                          isArchived
+                            ? "Cannot delete archived job"
+                            : "Delete Job"
+                        }
                       >
                         <Trash2 className="size-4" />
                       </button>
