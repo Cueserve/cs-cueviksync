@@ -152,19 +152,7 @@ export function useJobForm(
     e.preventDefault();
     if (!canEdit) return;
 
-    if (!draftJob.jobNo) {
-      alert("Job number is required");
-      return;
-    }
-    const isDuplicateJobNo = allJobs.some(
-      (j) =>
-        j.jobNo.trim().toLowerCase() === draftJob.jobNo.trim().toLowerCase() &&
-        j.id !== draftJob.id,
-    );
-    if (isDuplicateJobNo) {
-      alert("Job number already exists. Please choose a unique job number.");
-      return;
-    }
+    // Job number is generated securely on the server now
     if (!draftJob.orderDate) {
       alert("Order Date is required");
       return;

@@ -5,18 +5,19 @@ import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardCli
 export default async function JobDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const supabase = await createClient();
 
   const [{ data: jobData }, { data: allJobsData }, { data: roleData }] =
     await Promise.all([
-      params.id === "new"
+      id === "new"
         ? Promise.resolve({ data: null })
         : supabase
             .from("jobs")
             .select("*, items:job_line_items(*)")
-            .eq("id", params.id)
+            .eq("id", id)
             .single(),
       supabase
         .from("jobs")

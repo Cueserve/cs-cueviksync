@@ -27,63 +27,7 @@ export function JobDetailsForm({
   return (
     <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <h2 className="text-lg font-semibold mb-4">Job Information</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium leading-none" htmlFor="jobNo">
-            Job Number *
-          </label>
-          <Input
-            id="jobNo"
-            value={draftJob.jobNo}
-            onChange={(e) => handleUpdateField("jobNo", e.target.value)}
-            disabled={!canEdit || isPreviewMode}
-            className={cn(
-              jobs.some(
-                (j) =>
-                  j.jobNo.trim().toLowerCase() ===
-                    draftJob.jobNo.trim().toLowerCase() && j.id !== draftJob.id,
-              )
-                ? "border-destructive focus-visible:ring-destructive"
-                : "",
-            )}
-            required
-          />
-          {jobs.some(
-            (j) =>
-              j.jobNo.trim().toLowerCase() ===
-                draftJob.jobNo.trim().toLowerCase() && j.id !== draftJob.id,
-          ) && (
-            <p className="text-xs text-destructive">
-              This job number already exists.
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <label
-            className="text-sm font-medium leading-none"
-            htmlFor="invoiceValue"
-          >
-            Invoice Value ($)
-          </label>
-          <div className="relative">
-            <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="invoiceValue"
-              type="number"
-              min="0"
-              className="pl-9"
-              value={draftJob.invoiceValue === 0 ? "" : draftJob.invoiceValue}
-              onChange={(e) => {
-                const val = e.target.value;
-                handleUpdateField(
-                  "invoiceValue",
-                  val === "" ? 0 : Math.max(0, Number(val)),
-                );
-              }}
-              disabled={!canEdit || isPreviewMode}
-            />
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label
             className="text-sm font-medium leading-none"
@@ -117,6 +61,7 @@ export function JobDetailsForm({
             required
           />
         </div>
+
         <div className="space-y-2">
           <label
             className="text-sm font-medium leading-none"
@@ -149,9 +94,34 @@ export function JobDetailsForm({
             disabled={!canEdit || isPreviewMode || !draftJob.completedDate}
           />
         </div>
-      </div>
 
-      <div className="mt-4 space-y-4">
+        <div className="space-y-2">
+          <label
+            className="text-sm font-medium leading-none"
+            htmlFor="invoiceValue"
+          >
+            Invoice Value ($)
+          </label>
+          <div className="relative">
+            <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="invoiceValue"
+              type="number"
+              min="0"
+              className="pl-9"
+              value={draftJob.invoiceValue === 0 ? "" : draftJob.invoiceValue}
+              onChange={(e) => {
+                const val = e.target.value;
+                handleUpdateField(
+                  "invoiceValue",
+                  val === "" ? 0 : Math.max(0, Number(val)),
+                );
+              }}
+              disabled={!canEdit || isPreviewMode}
+            />
+          </div>
+        </div>
+
         <div className="space-y-2">
           <label
             className="text-sm font-medium leading-none"
@@ -168,22 +138,23 @@ export function JobDetailsForm({
             disabled={!canEdit || isPreviewMode}
           />
         </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="inThisWeek"
-            checked={draftJob.inThisWeek}
-            onCheckedChange={(checked) =>
-              handleUpdateField("inThisWeek", checked)
-            }
-            disabled={!canEdit || isPreviewMode}
-          />
-          <label
-            htmlFor="inThisWeek"
-            className="text-sm font-medium leading-none cursor-pointer"
-          >
-            Scheduled This Week
-          </label>
-        </div>
+      </div>
+
+      <div className="mt-6 flex items-center space-x-2">
+        <Checkbox
+          id="inThisWeek"
+          checked={draftJob.inThisWeek}
+          onCheckedChange={(checked) =>
+            handleUpdateField("inThisWeek", checked)
+          }
+          disabled={!canEdit || isPreviewMode}
+        />
+        <label
+          htmlFor="inThisWeek"
+          className="text-sm font-medium leading-none cursor-pointer"
+        >
+          Scheduled This Week
+        </label>
       </div>
     </div>
   );
