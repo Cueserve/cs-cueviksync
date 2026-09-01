@@ -24,7 +24,7 @@ export async function signIn(prevState: unknown, formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/jobs");
+  redirect("/dashboard");
 }
 
 export async function signOut() {

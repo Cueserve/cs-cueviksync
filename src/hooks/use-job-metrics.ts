@@ -61,7 +61,23 @@ export function useJobMetrics(jobs: JobWithItems[]) {
       .map((job) => getWeekEndingMonday(job.completedDate))
       .filter(Boolean) as string[];
 
-    const allDates = [...jobWeeks, "2026-08-03", "2026-08-10", "2026-08-17"];
+    let allDates = [...jobWeeks];
+
+    if (allDates.length === 0) {
+      const today = new Date();
+      const yy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      const todayStr = `${yy}-${mm}-${dd}`;
+
+      const incomingMonday = getWeekEndingMonday(todayStr);
+      const prev = parseLocalDate(incomingMonday);
+      prev.setDate(prev.getDate() - 7);
+      const prevMonday = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}-${String(prev.getDate()).padStart(2, "0")}`;
+
+      allDates = [prevMonday, incomingMonday];
+    }
+
     const minDateStr = allDates.reduce(
       (min, w) => (w < min ? w : min),
       allDates[0],
