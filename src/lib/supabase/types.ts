@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -34,6 +34,47 @@ export type Database = {
   };
   public: {
     Tables: {
+      job_history: {
+        Row: {
+          action_type: string;
+          changes: Json;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string;
+          id: string;
+          job_id: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          action_type: string;
+          changes: Json;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: string;
+          job_id?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          action_type?: string;
+          changes?: Json;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: string;
+          job_id?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_history_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       job_line_items: {
         Row: {
           equipmentIssue: string | null;

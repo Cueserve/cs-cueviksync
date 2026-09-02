@@ -9,16 +9,19 @@ import { JobLineItemsTable } from "./JobLineItemsTable";
 import { JobSummaryPane } from "./JobSummaryPane";
 import { JobDetailsForm } from "./JobDetailsForm";
 import { JobWasteAndNotesForm } from "./JobWasteAndNotesForm";
+import { JobHistorySection, JobHistoryEntry } from "./JobHistorySection";
 import { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 
 export default function JobDetailsClient({
   initialJob,
   allJobs,
+  jobHistory = [],
   canEdit: canEditProp,
   isNewRoute,
 }: {
   initialJob: JobWithItems | null;
   allJobs: JobWithItems[];
+  jobHistory?: JobHistoryEntry[];
   canEdit: boolean;
   isNewRoute?: boolean;
 }) {
@@ -97,7 +100,6 @@ export default function JobDetailsClient({
           />
         </div>
 
-        {/* Right Column: Live Summary */}
         <JobSummaryPane
           draftJob={draftJob}
           canEdit={canEdit}
@@ -107,6 +109,13 @@ export default function JobDetailsClient({
           onDiscard={() => router.push("/jobs")}
         />
       </div>
+
+      {/* History Section spanning full width below */}
+      {!isNewRoute && jobHistory && jobHistory.length > 0 && (
+        <div className="max-w-7xl mx-auto w-full mt-4">
+          <JobHistorySection history={jobHistory} />
+        </div>
+      )}
     </div>
   );
 }
