@@ -47,8 +47,10 @@ export type JobHistoryEntry = {
   created_at: string;
   action_type: string;
   entity_type: string;
-  entity_id: string;
-  changes: Record<string, HistoryChange | unknown>;
+  entity_id: string | null;
+  job_id?: string | null;
+  user_id?: string | null;
+  changes: Record<string, unknown> | null;
   user: {
     full_name: string;
   };
@@ -120,6 +122,7 @@ export function JobHistorySection({ history }: { history: JobHistoryEntry[] }) {
                       typeof values === "object" &&
                       ("old" in values || "new" in values)
                     ) {
+                      const change = values as HistoryChange;
                       return (
                         <div
                           key={field}
@@ -131,13 +134,13 @@ export function JobHistorySection({ history }: { history: JobHistoryEntry[] }) {
                           changed from
                           <span className="font-medium text-foreground mx-1">
                             <ExpandableText
-                              text={String(values.old ?? "empty")}
+                              text={String(change.old ?? "empty")}
                             />
                           </span>{" "}
                           to
                           <span className="font-medium text-foreground ml-1">
                             <ExpandableText
-                              text={String(values.new ?? "empty")}
+                              text={String(change.new ?? "empty")}
                             />
                           </span>
                         </div>
