@@ -62,6 +62,7 @@ export default async function JobDetailsPage({
 
         jobHistory = historyData.map((h) => ({
           ...h,
+          changes: h.changes as Record<string, unknown> | null,
           user: {
             full_name: (h.user_id && profileMap[h.user_id]) || "Unknown User",
           },
@@ -69,6 +70,7 @@ export default async function JobDetailsPage({
       } else {
         jobHistory = historyData.map((h) => ({
           ...h,
+          changes: h.changes as Record<string, unknown> | null,
           user: { full_name: "Unknown User" },
         }));
       }
