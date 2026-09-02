@@ -7,6 +7,17 @@ import { formatDateUS } from "@/lib/date-utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { IssueBadge } from "@/components/ui/issue-badge";
 import { TableRow, TableCell } from "@/components/ui/data-table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 
@@ -237,31 +248,44 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
                       >
                         <Pencil className="size-4" />
                       </Link>
-                      <button
-                        disabled={isArchived}
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              `Are you sure you want to delete Job ${job.jobNo}?`,
-                            )
-                          ) {
-                            onDeleteJob(job.id);
-                          }
-                        }}
-                        className={cn(
-                          "p-1.5 transition-colors",
-                          isArchived
-                            ? "text-muted-foreground/30 cursor-not-allowed"
-                            : "text-muted-foreground hover:text-destructive",
-                        )}
-                        title={
-                          isArchived
-                            ? "Cannot delete archived job"
-                            : "Delete Job"
-                        }
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button
+                            disabled={isArchived}
+                            className={cn(
+                              "p-1.5 transition-colors",
+                              isArchived
+                                ? "text-muted-foreground/30 cursor-not-allowed"
+                                : "text-muted-foreground hover:text-destructive",
+                            )}
+                            title={
+                              isArchived
+                                ? "Cannot delete archived job"
+                                : "Delete Job"
+                            }
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to archive Job {job.jobNo}?
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => onDeleteJob(job.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Archive Job
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </>
                   ) : (
                     <Link
