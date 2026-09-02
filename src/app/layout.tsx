@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: "Capture every inbound inquiry and turn it into revenue.",
 };
 
+import { Toaster } from "@/components/ui/sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,7 +21,10 @@ export default function RootLayout({
       className={`${fontVariables} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        <Toaster richColors />
+      </body>
     </html>
   );
 }

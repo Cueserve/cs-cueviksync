@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   addJob,
   updateJob as updateJobAction,
@@ -35,6 +36,7 @@ export function useJobForm(
     spoilagePercent: 0,
     reprintRequired: false,
     notes: null,
+    deleted_at: null,
     created_at: "",
     updated_at: "",
     items: [
@@ -155,11 +157,11 @@ export function useJobForm(
 
     // Job number is generated securely on the server now
     if (!draftJob.orderDate) {
-      alert("Order Date is required");
+      toast.warning("Order Date is required");
       return;
     }
     if (!draftJob.promisedDate) {
-      alert("Promised Date is required");
+      toast.warning("Promised Date is required");
       return;
     }
     const validItemsCount = draftJob.items.filter(
@@ -167,7 +169,7 @@ export function useJobForm(
     ).length;
 
     if (validItemsCount === 0) {
-      alert("At least one line item is necessary.");
+      toast.warning("At least one line item is necessary.");
       return;
     }
 
@@ -175,7 +177,9 @@ export function useJobForm(
       (item) => !item.itemDescription.trim() || item.quantity <= 0,
     );
     if (hasInvalidItem) {
-      alert("Description and quantity are required for all line items.");
+      toast.warning(
+        "Description and quantity are required for all line items.",
+      );
       return;
     }
     if (
@@ -183,7 +187,7 @@ export function useJobForm(
       draftJob.deliveredDate &&
       new Date(draftJob.deliveredDate) < new Date(draftJob.completedDate)
     ) {
-      alert("Delivered date cannot be earlier than Completed date.");
+      toast.warning("Delivered date cannot be earlier than Completed date.");
       return;
     }
 
@@ -201,9 +205,10 @@ export function useJobForm(
       );
       if (!res?.success) {
         console.error("Failed to add job:", res?.error);
-        alert(`Failed to add job: ${res?.error}`);
+        toast.error(`Failed to add job: ${res?.error}`);
         return;
       }
+      toast.success("Job created successfully!");
     } else {
       const { items, ...jobWithoutItems } = draftJob;
       const originalItems = existingJob?.items || [];
@@ -231,9 +236,10 @@ export function useJobForm(
       );
       if (!res?.success) {
         console.error("Failed to update job:", res?.error);
-        alert(`Failed to update job: ${res?.error}`);
+        toast.error(`Failed to update job: ${res?.error}`);
         return;
       }
+      toast.success("Job updated successfully!");
     }
     router.push("/jobs");
   };

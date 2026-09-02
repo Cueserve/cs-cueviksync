@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { signIn } from "@/app/actions/auth";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +11,12 @@ import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
   const [state, action, isPending] = useActionState(signIn, null);
+
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state]);
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 py-12">
@@ -55,13 +62,6 @@ export default function LoginPage() {
               required
             />
           </div>
-
-          <p
-            aria-live="polite"
-            className="text-sm text-destructive font-medium"
-          >
-            {state?.error}
-          </p>
 
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Signing in..." : "Sign in"}
