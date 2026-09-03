@@ -10,18 +10,26 @@ type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"];
 type JobLineItemInsert =
   Database["public"]["Tables"]["job_line_items"]["Insert"];
 
+function cleanDate(val: string | null | undefined): string | null {
+  if (!val || typeof val !== "string" || val.trim() === "") return null;
+  return val.trim();
+}
+
 export async function addJob(job: JobInsert, lineItems: JobLineItemInsert[]) {
   const supabase = await createClient();
 
-  if (!job.id) {
-    job.id = crypto.randomUUID();
-  }
+  const sanitizedJob: JobInsert = {
+    ...job,
+    id: job.id || crypto.randomUUID(),
+    completedDate: cleanDate(job.completedDate),
+    deliveredDate: cleanDate(job.deliveredDate),
+  };
 
   // Insert the parent job
   // trg_assign_job_number trigger automatically assigns jobNo.
   const { data: insertedJob, error: jobError } = await supabase
     .from("jobs")
-    .insert(job)
+    .insert(sanitizedJob)
     .select()
     .single();
 
@@ -62,9 +70,19 @@ export async function updateJob(
 ) {
   const supabase = await createClient();
 
+  const sanitizedUpdates: JobUpdate = {
+    ...updates,
+    ...(updates.completedDate !== undefined && {
+      completedDate: cleanDate(updates.completedDate),
+    }),
+    ...(updates.deliveredDate !== undefined && {
+      deliveredDate: cleanDate(updates.deliveredDate),
+    }),
+  };
+
   const { error: jobError } = await supabase
     .from("jobs")
-    .update(updates)
+    .update(sanitizedUpdates)
     .eq("id", id);
 
   if (jobError) {

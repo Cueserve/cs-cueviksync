@@ -11,6 +11,7 @@ import type { Database } from "@/lib/supabase/types";
 type JobLineItemInsert =
   Database["public"]["Tables"]["job_line_items"]["Insert"];
 type JobInsert = Database["public"]["Tables"]["jobs"]["Insert"];
+type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"];
 
 export function useJobForm(
   initialJob: JobWithItems | null,
@@ -69,7 +70,11 @@ export function useJobForm(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUpdateField = (field: keyof JobWithItems, value: any) => {
     setDraftJob((prev) => {
-      const next = { ...prev, [field]: value };
+      const val =
+        (field === "completedDate" || field === "deliveredDate") && value === ""
+          ? null
+          : value;
+      const next = { ...prev, [field]: val };
 
       if (field === "orderDate" && value) {
         if (
@@ -195,8 +200,13 @@ export function useJobForm(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { items, id, created_at, updated_at, ...jobWithoutItems } =
         draftJob;
+      const sanitizedJob = {
+        ...jobWithoutItems,
+        completedDate: jobWithoutItems.completedDate || null,
+        deliveredDate: jobWithoutItems.deliveredDate || null,
+      } as JobInsert;
       const res = await addJob(
-        jobWithoutItems as JobInsert,
+        sanitizedJob,
         items.map((i) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id: _id, job_id, ...itemWithoutId } = i;
@@ -211,6 +221,11 @@ export function useJobForm(
       toast.success("Job created successfully!");
     } else {
       const { items, ...jobWithoutItems } = draftJob;
+      const sanitizedJob: JobUpdate = {
+        ...jobWithoutItems,
+        completedDate: jobWithoutItems.completedDate || null,
+        deliveredDate: jobWithoutItems.deliveredDate || null,
+      };
       const originalItems = existingJob?.items || [];
       const currentItemIds = items
         .map((i) => i.id)
@@ -230,7 +245,7 @@ export function useJobForm(
 
       const res = await updateJobAction(
         draftJob.id,
-        jobWithoutItems,
+        sanitizedJob,
         itemsToUpsert,
         itemsToDelete,
       );
