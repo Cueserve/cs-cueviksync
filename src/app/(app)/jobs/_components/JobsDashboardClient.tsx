@@ -2,7 +2,14 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { CheckCircle, AlertTriangle, Clock, Package, Plus } from "lucide-react";
+import {
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  Package,
+  Plus,
+  X,
+} from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 
 import { useJobMetrics } from "@/hooks/use-job-metrics";
@@ -24,6 +31,7 @@ import { usePagination } from "@/hooks/use-pagination";
 import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { useSort, SortConfig } from "@/hooks/use-sort";
 import { JobTableRow } from "./JobTableRow";
+import { ColumnDateFilter } from "./ColumnDateFilter";
 
 import { deleteJob } from "@/app/actions/job-actions";
 import type { Database } from "@/lib/supabase/types";
@@ -76,6 +84,17 @@ export default function JobsDashboardClient({
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [dateFilters, setDateFilters] = useState<{
+    orderDate?: { from: string; to: string };
+    promisedDate?: { from: string; to: string };
+    completedDate?: { from: string; to: string };
+    deliveredDate?: { from: string; to: string };
+  }>({});
+
+  const hasActiveDateFilters = Object.values(dateFilters).some(
+    (f) => f && (f.from || f.to),
+  );
+
   const activeJobs = React.useMemo(
     () => jobs.filter((j) => !j.deleted_at),
     [jobs],
@@ -111,6 +130,45 @@ export default function JobsDashboardClient({
       );
       if (!matchesJobNo && !matchesDesc) return false;
     }
+
+    if (
+      dateFilters.orderDate?.from &&
+      job.orderDate < dateFilters.orderDate.from
+    )
+      return false;
+    if (dateFilters.orderDate?.to && job.orderDate > dateFilters.orderDate.to)
+      return false;
+    if (
+      dateFilters.promisedDate?.from &&
+      (!job.promisedDate || job.promisedDate < dateFilters.promisedDate.from)
+    )
+      return false;
+    if (
+      dateFilters.promisedDate?.to &&
+      (!job.promisedDate || job.promisedDate > dateFilters.promisedDate.to)
+    )
+      return false;
+    if (
+      dateFilters.completedDate?.from &&
+      (!job.completedDate || job.completedDate < dateFilters.completedDate.from)
+    )
+      return false;
+    if (
+      dateFilters.completedDate?.to &&
+      (!job.completedDate || job.completedDate > dateFilters.completedDate.to)
+    )
+      return false;
+    if (
+      dateFilters.deliveredDate?.from &&
+      (!job.deliveredDate || job.deliveredDate < dateFilters.deliveredDate.from)
+    )
+      return false;
+    if (
+      dateFilters.deliveredDate?.to &&
+      (!job.deliveredDate || job.deliveredDate > dateFilters.deliveredDate.to)
+    )
+      return false;
+
     return true;
   });
 
@@ -269,7 +327,18 @@ export default function JobsDashboardClient({
             </button>
           ))}
         </div>
-        <div className="pb-2 flex items-center">
+        <div className="pb-2 flex items-center gap-2">
+          {hasActiveDateFilters && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDateFilters({})}
+              className="h-9 px-2.5 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-3.5 mr-1" />
+              Clear Date Filters
+            </Button>
+          )}
           <SearchInput
             placeholder="Search jobs..."
             value={searchQuery}
@@ -338,7 +407,15 @@ export default function JobsDashboardClient({
                 currentSortDirection={sortDirection}
                 onSort={onSort}
               >
-                Order Date
+                <span>Order Date</span>
+                <ColumnDateFilter
+                  title="Order Date"
+                  from={dateFilters.orderDate?.from || ""}
+                  to={dateFilters.orderDate?.to || ""}
+                  onChange={(range) =>
+                    setDateFilters((prev) => ({ ...prev, orderDate: range }))
+                  }
+                />
               </SortableTableHead>
               <SortableTableHead
                 sortKey="promisedDate"
@@ -346,7 +423,15 @@ export default function JobsDashboardClient({
                 currentSortDirection={sortDirection}
                 onSort={onSort}
               >
-                Promised Date
+                <span>Promised Date</span>
+                <ColumnDateFilter
+                  title="Promised Date"
+                  from={dateFilters.promisedDate?.from || ""}
+                  to={dateFilters.promisedDate?.to || ""}
+                  onChange={(range) =>
+                    setDateFilters((prev) => ({ ...prev, promisedDate: range }))
+                  }
+                />
               </SortableTableHead>
               <SortableTableHead
                 sortKey="completedDate"
@@ -354,7 +439,18 @@ export default function JobsDashboardClient({
                 currentSortDirection={sortDirection}
                 onSort={onSort}
               >
-                Completed Date
+                <span>Completed Date</span>
+                <ColumnDateFilter
+                  title="Completed Date"
+                  from={dateFilters.completedDate?.from || ""}
+                  to={dateFilters.completedDate?.to || ""}
+                  onChange={(range) =>
+                    setDateFilters((prev) => ({
+                      ...prev,
+                      completedDate: range,
+                    }))
+                  }
+                />
               </SortableTableHead>
               <SortableTableHead
                 sortKey="deliveredDate"
@@ -362,7 +458,18 @@ export default function JobsDashboardClient({
                 currentSortDirection={sortDirection}
                 onSort={onSort}
               >
-                Delivered Date
+                <span>Delivered Date</span>
+                <ColumnDateFilter
+                  title="Delivered Date"
+                  from={dateFilters.deliveredDate?.from || ""}
+                  to={dateFilters.deliveredDate?.to || ""}
+                  onChange={(range) =>
+                    setDateFilters((prev) => ({
+                      ...prev,
+                      deliveredDate: range,
+                    }))
+                  }
+                />
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"

@@ -42,9 +42,12 @@ export function DashboardCharts({
   completedData,
   maxJobsCompleted,
 }: DashboardChartsProps) {
-  const scroll1 = useDraggableScroll<HTMLDivElement>({ scrollToEnd: true });
-  const scroll2 = useDraggableScroll<HTMLDivElement>({ scrollToEnd: true });
-  const scroll3 = useDraggableScroll<HTMLDivElement>({ scrollToEnd: true });
+  const { isDragging: isDragging1, ...scrollProps1 } =
+    useDraggableScroll<HTMLDivElement>({ scrollToEnd: true });
+  const { isDragging: isDragging2, ...scrollProps2 } =
+    useDraggableScroll<HTMLDivElement>({ scrollToEnd: true });
+  const { isDragging: isDragging3, ...scrollProps3 } =
+    useDraggableScroll<HTMLDivElement>({ scrollToEnd: true });
 
   return (
     <div className="grid gap-6 md:grid-cols-3 mt-8">
@@ -55,9 +58,9 @@ export function DashboardCharts({
           Avg Turnaround Time (Days)
         </h4>
         <div
-          {...scroll1}
+          {...scrollProps1}
           className={`overflow-x-auto w-full pb-2 scrollbar-thin ${
-            scroll1.isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+            isDragging1 ? "cursor-grabbing select-none" : "cursor-grab"
           }`}
         >
           <div
@@ -119,9 +122,9 @@ export function DashboardCharts({
           On-Time Delivery %
         </h4>
         <div
-          {...scroll2}
+          {...scrollProps2}
           className={`overflow-x-auto w-full pb-2 scrollbar-thin ${
-            scroll2.isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+            isDragging2 ? "cursor-grabbing select-none" : "cursor-grab"
           }`}
         >
           <div
@@ -183,9 +186,9 @@ export function DashboardCharts({
           Jobs Completed per Week
         </h4>
         <div
-          {...scroll3}
+          {...scrollProps3}
           className={`overflow-x-auto w-full pb-2 scrollbar-thin ${
-            scroll3.isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+            isDragging3 ? "cursor-grabbing select-none" : "cursor-grab"
           }`}
         >
           <div
