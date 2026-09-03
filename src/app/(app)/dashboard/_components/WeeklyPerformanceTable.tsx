@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -12,6 +12,7 @@ import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { useSort, SortConfig } from "@/hooks/use-sort";
 import { formatDateUS } from "@/lib/date-utils";
 import { BarChart2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import type { WeeklyStat } from "@/hooks/use-job-metrics";
 
 interface WeeklyPerformanceTableProps {
@@ -21,6 +22,15 @@ interface WeeklyPerformanceTableProps {
 export function WeeklyPerformanceTable({
   weeklyStatsArray,
 }: WeeklyPerformanceTableProps) {
+  const [onlyActiveWeeks, setOnlyActiveWeeks] = useState(true);
+
+  const displayData = useMemo(() => {
+    if (onlyActiveWeeks) {
+      return weeklyStatsArray.filter((stat) => stat.completedCount > 0);
+    }
+    return weeklyStatsArray;
+  }, [weeklyStatsArray, onlyActiveWeeks]);
+
   const sortConfigs: SortConfig<WeeklyStat>[] = [
     {
       key: "weekEnding",
@@ -43,7 +53,7 @@ export function WeeklyPerformanceTable({
   ];
 
   const { sortKey, sortDirection, onSort, sortedData } = useSort(
-    weeklyStatsArray,
+    displayData,
     sortConfigs,
     "weekEnding", // Default sort
     "desc",
@@ -60,11 +70,26 @@ export function WeeklyPerformanceTable({
 
   return (
     <div className="mt-8">
-      <h3 className="text-md font-semibold mb-4 flex items-center gap-2">
-        <BarChart2 className="size-4 text-sidebar-primary" />
-        Weekly Performance Trends
-      </h3>
-      <div className="bg-card rounded-md mt-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h3 className="text-md font-semibold flex items-center gap-2">
+          <BarChart2 className="size-4 text-sidebar-primary" />
+          Weekly Performance Trends
+        </h3>
+        <div className="flex items-center gap-2">
+          <Switch
+            id="only-active-weeks"
+            checked={onlyActiveWeeks}
+            onCheckedChange={setOnlyActiveWeeks}
+          />
+          <label
+            htmlFor="only-active-weeks"
+            className="text-xs font-medium text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+          >
+            Only weeks with activity
+          </label>
+        </div>
+      </div>
+      <div className="bg-card rounded-md mt-2">
         <Table caption="Weekly Performance Trends">
           <TableHeader>
             <TableRow>
@@ -116,48 +141,61 @@ export function WeeklyPerformanceTable({
             </TableRow>
           </TableHeader>
           <TableBody className="font-mono text-center">
-            {paginatedStats.map((stat) => {
-              const avgTurnaround =
-                stat.completedCount > 0
-                  ? (stat.totalTurnaround / stat.completedCount).toFixed(1)
-                  : "-";
-              const onTimePercent =
-                stat.completedCount > 0
-                  ? `${Math.round((stat.onTimeCount / stat.completedCount) * 100)}%`
-                  : "-";
+            {paginatedStats.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  className="py-8 text-center text-muted-foreground font-sans"
+                >
+                  No completed jobs found for the selected filter.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedStats.map((stat) => {
+                const avgTurnaround =
+                  stat.completedCount > 0
+                    ? (stat.totalTurnaround / stat.completedCount).toFixed(1)
+                    : "-";
+                const onTimePercent =
+                  stat.completedCount > 0
+                    ? `${Math.round((stat.onTimeCount / stat.completedCount) * 100)}%`
+                    : "-";
 
-              return (
-                <TableRow key={stat.weekEnding}>
-                  <TableCell className="font-medium text-foreground">
-                    {formatDateUS(stat.weekEnding)}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {stat.completedCount}
-                  </TableCell>
-                  <TableCell className="text-center">{avgTurnaround}</TableCell>
-                  <TableCell className="text-center">
-                    {stat.completedCount > 0 && (
-                      <span
-                        className={
-                          stat.onTimeCount / stat.completedCount >= 0.7
-                            ? "text-success font-semibold"
-                            : "text-destructive font-semibold"
-                        }
-                      >
-                        {onTimePercent}
-                      </span>
-                    )}
-                    {stat.completedCount === 0 && "-"}
-                  </TableCell>
-                  <TableCell className="font-semibold text-foreground text-center">
-                    ${stat.invoiceSum.toLocaleString()}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow key={stat.weekEnding}>
+                    <TableCell className="font-medium text-foreground">
+                      {formatDateUS(stat.weekEnding)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {stat.completedCount}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {avgTurnaround}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {stat.completedCount > 0 && (
+                        <span
+                          className={
+                            stat.onTimeCount / stat.completedCount >= 0.7
+                              ? "text-success font-semibold"
+                              : "text-destructive font-semibold"
+                          }
+                        >
+                          {onTimePercent}
+                        </span>
+                      )}
+                      {stat.completedCount === 0 && "-"}
+                    </TableCell>
+                    <TableCell className="font-semibold text-foreground text-center">
+                      ${stat.invoiceSum.toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
-        {weeklyStatsArray.length > 0 && (
+        {displayData.length > 0 && (
           <div className="mt-4 px-2 pb-4">
             <Pagination
               page={page}

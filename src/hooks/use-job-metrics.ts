@@ -15,7 +15,7 @@ export type WeeklyStat = {
   invoiceSum: number;
 };
 
-export function useJobMetrics(jobs: JobWithItems[]) {
+export function useJobMetrics(jobs: JobWithItems[], selectedYear?: number) {
   return useMemo(() => {
     const pendingJobs = jobs.filter((j) => !j.completedDate);
     const overdueCount = pendingJobs.filter((j) => {
@@ -26,7 +26,14 @@ export function useJobMetrics(jobs: JobWithItems[]) {
       return today > promised;
     }).length;
 
-    const completedJobs = jobs.filter((j) => !!j.completedDate);
+    const completedJobs = jobs.filter((j) => {
+      if (!j.completedDate) return false;
+      if (selectedYear) {
+        return j.completedDate.startsWith(`${selectedYear}-`);
+      }
+      return true;
+    });
+
     const totalInvoice = completedJobs.reduce(
       (sum, j) => sum + j.invoiceValue,
       0,
@@ -56,47 +63,75 @@ export function useJobMetrics(jobs: JobWithItems[]) {
     const reprintCount = jobs.filter((j) => j.reprintRequired).length;
 
     const weeklyGroups: Record<string, WeeklyStat> = {};
-
-    const jobWeeks = completedJobs
-      .map((job) => getWeekEndingMonday(job.completedDate))
-      .filter(Boolean) as string[];
-
-    let allDates = [...jobWeeks];
-
-    if (allDates.length === 0) {
-      const today = new Date();
-      const yy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, "0");
-      const dd = String(today.getDate()).padStart(2, "0");
-      const todayStr = `${yy}-${mm}-${dd}`;
-
-      const incomingMonday = getWeekEndingMonday(todayStr);
-      const prev = parseLocalDate(incomingMonday);
-      prev.setDate(prev.getDate() - 7);
-      const prevMonday = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}-${String(prev.getDate()).padStart(2, "0")}`;
-
-      allDates = [prevMonday, incomingMonday];
-    }
-
-    const minDateStr = allDates.reduce(
-      (min, w) => (w < min ? w : min),
-      allDates[0],
-    );
-    const maxDateStr = allDates.reduce(
-      (max, w) => (w > max ? w : max),
-      allDates[0],
-    );
-
-    const current = parseLocalDate(minDateStr);
-    const end = parseLocalDate(maxDateStr);
-
     const generatedWeeks: string[] = [];
-    while (current <= end) {
-      const yy = current.getFullYear();
-      const mm = String(current.getMonth() + 1).padStart(2, "0");
-      const dd = String(current.getDate()).padStart(2, "0");
-      generatedWeeks.push(`${yy}-${mm}-${dd}`);
-      current.setDate(current.getDate() + 7);
+
+    if (selectedYear) {
+      const today = new Date();
+      const currentYear = today.getFullYear();
+
+      // Start with first Monday of selectedYear
+      const firstMondayStr = getWeekEndingMonday(`${selectedYear}-01-01`);
+      const current = parseLocalDate(firstMondayStr);
+
+      // If selectedYear is current year, bound up to current week's Monday.
+      // Otherwise, generate all Mondays of that calendar year.
+      let maxMondayStr: string;
+      if (selectedYear === currentYear) {
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+        maxMondayStr = getWeekEndingMonday(todayStr);
+      } else {
+        maxMondayStr = `${selectedYear}-12-31`;
+      }
+      const end = parseLocalDate(maxMondayStr);
+
+      while (current <= end && current.getFullYear() === selectedYear) {
+        const yy = current.getFullYear();
+        const mm = String(current.getMonth() + 1).padStart(2, "0");
+        const dd = String(current.getDate()).padStart(2, "0");
+        generatedWeeks.push(`${yy}-${mm}-${dd}`);
+        current.setDate(current.getDate() + 7);
+      }
+    } else {
+      const jobWeeks = completedJobs
+        .map((job) => getWeekEndingMonday(job.completedDate))
+        .filter(Boolean) as string[];
+
+      let allDates = [...jobWeeks];
+
+      if (allDates.length === 0) {
+        const today = new Date();
+        const yy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const todayStr = `${yy}-${mm}-${dd}`;
+
+        const incomingMonday = getWeekEndingMonday(todayStr);
+        const prev = parseLocalDate(incomingMonday);
+        prev.setDate(prev.getDate() - 7);
+        const prevMonday = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}-${String(prev.getDate()).padStart(2, "0")}`;
+
+        allDates = [prevMonday, incomingMonday];
+      }
+
+      const minDateStr = allDates.reduce(
+        (min, w) => (w < min ? w : min),
+        allDates[0],
+      );
+      const maxDateStr = allDates.reduce(
+        (max, w) => (w > max ? w : max),
+        allDates[0],
+      );
+
+      const current = parseLocalDate(minDateStr);
+      const end = parseLocalDate(maxDateStr);
+
+      while (current <= end) {
+        const yy = current.getFullYear();
+        const mm = String(current.getMonth() + 1).padStart(2, "0");
+        const dd = String(current.getDate()).padStart(2, "0");
+        generatedWeeks.push(`${yy}-${mm}-${dd}`);
+        current.setDate(current.getDate() + 7);
+      }
     }
 
     generatedWeeks.forEach((w) => {
@@ -114,13 +149,18 @@ export function useJobMetrics(jobs: JobWithItems[]) {
       if (!week) return;
 
       if (!weeklyGroups[week]) {
-        weeklyGroups[week] = {
-          weekEnding: week,
-          completedCount: 0,
-          totalTurnaround: 0,
-          onTimeCount: 0,
-          invoiceSum: 0,
-        };
+        if (!selectedYear) {
+          weeklyGroups[week] = {
+            weekEnding: week,
+            completedCount: 0,
+            totalTurnaround: 0,
+            onTimeCount: 0,
+            invoiceSum: 0,
+          };
+        } else {
+          // Strictly ignore any week not belonging to the selected year
+          return;
+        }
       }
 
       const group = weeklyGroups[week];
@@ -183,5 +223,5 @@ export function useJobMetrics(jobs: JobWithItems[]) {
         maxJobsCompleted,
       },
     };
-  }, [jobs]);
+  }, [jobs, selectedYear]);
 }
