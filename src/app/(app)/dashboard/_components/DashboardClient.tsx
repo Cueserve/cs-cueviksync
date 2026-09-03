@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   CheckCircle2,
   Layers,
@@ -23,25 +24,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function DashboardClient({ jobs }: { jobs: JobWithItems[] }) {
-  const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+interface DashboardClientProps {
+  jobs: JobWithItems[];
+  initialYear: number;
+  availableYears: number[];
+}
 
-  const availableYears = useMemo(() => {
-    const yearsSet = new Set<number>();
-    yearsSet.add(currentYear);
-    jobs.forEach((j) => {
-      if (j.completedDate) {
-        const y = parseInt(j.completedDate.substring(0, 4), 10);
-        if (!isNaN(y)) yearsSet.add(y);
-      }
-      if (j.orderDate) {
-        const y = parseInt(j.orderDate.substring(0, 4), 10);
-        if (!isNaN(y)) yearsSet.add(y);
-      }
-    });
-    return Array.from(yearsSet).sort((a, b) => b - a);
-  }, [jobs, currentYear]);
+export default function DashboardClient({
+  jobs,
+  initialYear,
+  availableYears,
+}: DashboardClientProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const selectedYear = initialYear;
 
   const {
     pendingJobs,
@@ -53,6 +49,11 @@ export default function DashboardClient({ jobs }: { jobs: JobWithItems[] }) {
     weeklyStatsArray,
     chartData,
   } = useJobMetrics(jobs, selectedYear);
+
+  const handleYearChange = (val: string) => {
+    const year = parseInt(val, 10);
+    router.push(`${pathname}?year=${year}`);
+  };
 
   return (
     <PageBody>
@@ -67,7 +68,7 @@ export default function DashboardClient({ jobs }: { jobs: JobWithItems[] }) {
           </span>
           <Select
             value={selectedYear.toString()}
-            onValueChange={(val) => setSelectedYear(parseInt(val, 10))}
+            onValueChange={handleYearChange}
           >
             <SelectTrigger className="w-[110px] h-9 bg-card border-border font-medium">
               <SelectValue placeholder="Year" />

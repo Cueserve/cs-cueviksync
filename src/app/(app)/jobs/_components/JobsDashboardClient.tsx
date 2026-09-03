@@ -1,7 +1,14 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import Link from "next/link";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   CheckCircle,
   AlertTriangle,
@@ -12,7 +19,6 @@ import {
 } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 
-import { useJobMetrics } from "@/hooks/use-job-metrics";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 import { cn } from "@/lib/utils";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
@@ -27,9 +33,7 @@ import {
 } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
-import { usePagination } from "@/hooks/use-pagination";
 import { SortableTableHead } from "@/components/ui/sortable-table-head";
-import { useSort, SortConfig } from "@/hooks/use-sort";
 import { JobTableRow } from "./JobTableRow";
 import { ColumnDateFilter } from "./ColumnDateFilter";
 
@@ -46,12 +50,29 @@ export type JobWithItems = JobRow & {
 interface JobsDashboardClientProps {
   jobs: JobWithItems[];
   userRole: string | null;
+  totalCount: number;
+  currentPage: number;
+  pageSize: number | "all";
+  kpiMetrics: {
+    total: number;
+    pending: number;
+    completed: number;
+    overdue: number;
+  };
 }
 
 export default function JobsDashboardClient({
   jobs,
   userRole,
+  totalCount,
+  currentPage,
+  pageSize,
+  kpiMetrics,
 }: JobsDashboardClientProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const canEdit = userRole !== "sales_rep";
 
   const handleDeleteJob = async (id: string) => {
@@ -79,189 +100,119 @@ export default function JobsDashboardClient({
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const [selectedTab, setSelectedTab] = useState<
-    "all" | "pending" | "completed" | "this-week" | "archived"
-  >("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  // URL query helper
+  const updateFilters = useCallback(
+    (updates: Record<string, string | null | undefined>) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      for (const [key, value] of Object.entries(updates)) {
+        if (!value) {
+          current.delete(key);
+        } else {
+          current.set(key, value);
+        }
+      }
+      router.push(`${pathname}?${current.toString()}`);
+    },
+    [router, pathname, searchParams],
+  );
 
-  const [dateFilters, setDateFilters] = useState<{
-    orderDate?: { from: string; to: string };
-    promisedDate?: { from: string; to: string };
-    completedDate?: { from: string; to: string };
-    deliveredDate?: { from: string; to: string };
-  }>({});
+  const selectedTab =
+    (searchParams.get("tab") as
+      "all" | "pending" | "completed" | "this-week" | "archived") || "all";
+  const currentSortKey = searchParams.get("sortBy") || "orderDate";
+  const currentSortDirection =
+    (searchParams.get("sortDir") as "asc" | "desc") || "desc";
+
+  // Search input state with debouncing to URL
+  const currentSearchInUrl = searchParams.get("search") || "";
+  const [searchInputVal, setSearchInputVal] = useState(currentSearchInUrl);
+  const [prevSearchParam, setPrevSearchParam] = useState(currentSearchInUrl);
+
+  if (prevSearchParam !== currentSearchInUrl) {
+    setPrevSearchParam(currentSearchInUrl);
+    setSearchInputVal(currentSearchInUrl);
+  }
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const currentInUrl = searchParams.get("search") || "";
+      if (searchInputVal !== currentInUrl) {
+        updateFilters({ search: searchInputVal || null, page: "1" });
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchInputVal, searchParams, updateFilters]);
+
+  // Date filters parsed from URL
+  const dateFilters = useMemo(
+    () => ({
+      orderDate: {
+        from: searchParams.get("orderDateFrom") || "",
+        to: searchParams.get("orderDateTo") || "",
+      },
+      promisedDate: {
+        from: searchParams.get("promisedDateFrom") || "",
+        to: searchParams.get("promisedDateTo") || "",
+      },
+      completedDate: {
+        from: searchParams.get("completedDateFrom") || "",
+        to: searchParams.get("completedDateTo") || "",
+      },
+      deliveredDate: {
+        from: searchParams.get("deliveredDateFrom") || "",
+        to: searchParams.get("deliveredDateTo") || "",
+      },
+    }),
+    [searchParams],
+  );
 
   const hasActiveDateFilters = Object.values(dateFilters).some(
     (f) => f && (f.from || f.to),
   );
 
-  const activeJobs = React.useMemo(
-    () => jobs.filter((j) => !j.deleted_at),
-    [jobs],
-  );
+  const clearAllDateFilters = () => {
+    updateFilters({
+      orderDateFrom: null,
+      orderDateTo: null,
+      promisedDateFrom: null,
+      promisedDateTo: null,
+      completedDateFrom: null,
+      completedDateTo: null,
+      deliveredDateFrom: null,
+      deliveredDateTo: null,
+      page: "1",
+    });
+  };
 
-  const {
-    totalJobs: totalJobsCount,
-    completedJobs,
-    pendingJobs,
-    overdueCount: overdueJobsCount,
-  } = useJobMetrics(activeJobs);
+  const handleSort = (key: string) => {
+    const nextDir =
+      currentSortKey === key && currentSortDirection === "desc"
+        ? "asc"
+        : "desc";
+    updateFilters({
+      sortBy: key,
+      sortDir: nextDir,
+      page: "1",
+    });
+  };
 
-  const completedJobsCount = completedJobs.length;
-  const pendingJobsCount = pendingJobs.length;
+  const pageCount =
+    pageSize === "all"
+      ? 1
+      : Math.max(
+          1,
+          Math.ceil(
+            totalCount / (typeof pageSize === "number" ? pageSize : 25),
+          ),
+        );
 
-  const filteredJobs = jobs.filter((job) => {
-    const isArchived = !!job.deleted_at;
-
-    if (selectedTab === "archived") {
-      if (!isArchived) return false;
-    } else {
-      if (isArchived) return false;
-      if (selectedTab === "pending" && !!job.completedDate) return false;
-      if (selectedTab === "completed" && !job.completedDate) return false;
-      if (selectedTab === "this-week" && !job.inThisWeek) return false;
-    }
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesJobNo = job.jobNo.toLowerCase().includes(q);
-      const matchesDesc = job.items.some((i) =>
-        i.itemDescription?.toLowerCase().includes(q),
-      );
-      if (!matchesJobNo && !matchesDesc) return false;
-    }
-
-    if (
-      dateFilters.orderDate?.from &&
-      job.orderDate < dateFilters.orderDate.from
-    )
-      return false;
-    if (dateFilters.orderDate?.to && job.orderDate > dateFilters.orderDate.to)
-      return false;
-    if (
-      dateFilters.promisedDate?.from &&
-      (!job.promisedDate || job.promisedDate < dateFilters.promisedDate.from)
-    )
-      return false;
-    if (
-      dateFilters.promisedDate?.to &&
-      (!job.promisedDate || job.promisedDate > dateFilters.promisedDate.to)
-    )
-      return false;
-    if (
-      dateFilters.completedDate?.from &&
-      (!job.completedDate || job.completedDate < dateFilters.completedDate.from)
-    )
-      return false;
-    if (
-      dateFilters.completedDate?.to &&
-      (!job.completedDate || job.completedDate > dateFilters.completedDate.to)
-    )
-      return false;
-    if (
-      dateFilters.deliveredDate?.from &&
-      (!job.deliveredDate || job.deliveredDate < dateFilters.deliveredDate.from)
-    )
-      return false;
-    if (
-      dateFilters.deliveredDate?.to &&
-      (!job.deliveredDate || job.deliveredDate > dateFilters.deliveredDate.to)
-    )
-      return false;
-
-    return true;
-  });
-
-  const jobsWithCalculations = React.useMemo(() => {
-    return filteredJobs.map((job) => ({
+  const jobsWithCalculations = useMemo(() => {
+    return jobs.map((job) => ({
       ...job,
       ...calculateJobFormulas(job),
     }));
-  }, [filteredJobs]);
-
-  const sortConfigs: SortConfig<(typeof jobsWithCalculations)[0]>[] = [
-    {
-      key: "orderDate",
-      getValue: (item) => new Date(item.orderDate).getTime(),
-    },
-    {
-      key: "promisedDate",
-      getValue: (item) =>
-        item.promisedDate ? new Date(item.promisedDate).getTime() : null,
-    },
-    {
-      key: "completedDate",
-      getValue: (item) =>
-        item.completedDate ? new Date(item.completedDate).getTime() : null,
-    },
-    {
-      key: "deliveredDate",
-      getValue: (item) =>
-        item.deliveredDate ? new Date(item.deliveredDate).getTime() : null,
-    },
-    { key: "itemsInJob", getValue: (item) => item.itemsInJob },
-    { key: "totalQty", getValue: (item) => item.totalQty },
-    { key: "invoiceValue", getValue: (item) => item.invoiceValue },
-    {
-      key: "turnaroundDays",
-      getValue: (item) =>
-        typeof item.turnaroundDaysVal === "number"
-          ? item.turnaroundDaysVal
-          : null,
-    },
-    {
-      key: "daysVsPromised",
-      getValue: (item) =>
-        typeof item.daysVsPromisedVal === "number"
-          ? item.daysVsPromisedVal
-          : null,
-    },
-    {
-      key: "daysOverdue",
-      getValue: (item) =>
-        typeof item.daysOverdueVal === "number" ? item.daysOverdueVal : null,
-    },
-    { key: "jobNo", getValue: (item) => item.jobNo },
-    {
-      key: "itemDescription",
-      getValue: (item) => item.items[0]?.itemDescription || "",
-    },
-    { key: "qty", getValue: (item) => item.items[0]?.quantity || 0 },
-    { key: "status", getValue: (item) => item.statusStr },
-    { key: "onTime", getValue: (item) => item.onTimeVal },
-    { key: "overdueFlag", getValue: (item) => (item.overdueFlagVal ? 1 : 0) },
-    { key: "scheduledThisWeek", getValue: (item) => item.scheduledThisWeekVal },
-    {
-      key: "weekEnding",
-      getValue: (item) =>
-        item.weekEndingStr ? new Date(item.weekEndingStr).getTime() : 0,
-    },
-    {
-      key: "materialShortage",
-      getValue: (item) => (item.items.some((i) => i.materialShortage) ? 1 : 0),
-    },
-    {
-      key: "equipmentIssue",
-      getValue: (item) => (item.items.some((i) => i.equipmentIssue) ? 1 : 0),
-    },
-    { key: "overdueReason", getValue: (item) => item.overdueReason || "" },
-  ];
-
-  const { sortKey, sortDirection, onSort, sortedData } = useSort(
-    jobsWithCalculations,
-    sortConfigs,
-    "orderDate",
-    "desc",
-  );
-
-  const {
-    page,
-    size,
-    onPageChange,
-    onSizeChange,
-    pageCount,
-    paginatedData: paginatedJobs,
-  } = usePagination(sortedData, 25);
+  }, [jobs]);
 
   return (
     <PageBody>
@@ -284,25 +235,25 @@ export default function JobsDashboardClient({
       <div className="grid gap-4 md:grid-cols-4 mt-6">
         <MetricCard
           title="Total Jobs"
-          value={totalJobsCount}
+          value={kpiMetrics.total}
           icon={<Package className="size-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Pending Jobs"
-          value={pendingJobsCount}
+          value={kpiMetrics.pending}
           icon={<Clock className="size-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Completed Jobs"
-          value={completedJobsCount}
+          value={kpiMetrics.completed}
           icon={<CheckCircle className="size-4 text-success" />}
         />
         <MetricCard
           title="Overdue Jobs"
-          value={overdueJobsCount}
+          value={kpiMetrics.overdue}
           icon={<AlertTriangle className="size-4 text-destructive" />}
           valueClassName={
-            overdueJobsCount > 0 ? "text-destructive font-bold" : ""
+            kpiMetrics.overdue > 0 ? "text-destructive font-bold" : ""
           }
         />
       </div>
@@ -315,7 +266,7 @@ export default function JobsDashboardClient({
           ).map((tab) => (
             <button
               key={tab}
-              onClick={() => setSelectedTab(tab)}
+              onClick={() => updateFilters({ tab, page: "1" })}
               className={cn(
                 "px-4 py-2 text-sm font-semibold transition-colors border-b-2 -mb-[2px] capitalize",
                 selectedTab === tab
@@ -332,7 +283,7 @@ export default function JobsDashboardClient({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setDateFilters({})}
+              onClick={clearAllDateFilters}
               className="h-9 px-2.5 text-xs text-muted-foreground hover:text-foreground"
             >
               <X className="size-3.5 mr-1" />
@@ -341,8 +292,8 @@ export default function JobsDashboardClient({
           )}
           <SearchInput
             placeholder="Search jobs..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchInputVal}
+            onChange={(e) => setSearchInputVal(e.target.value)}
             className="w-[250px]"
           />
         </div>
@@ -370,215 +321,225 @@ export default function JobsDashboardClient({
               <SortableTableHead
                 className="sticky left-10 bg-muted z-10 shadow-[2px_0_0_rgba(0,0,0,0.08)]"
                 sortKey="jobNo"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Job #
               </SortableTableHead>
               <TableHead className="text-center">Line #</TableHead>
               <SortableTableHead
                 sortKey="itemDescription"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Item Description
               </SortableTableHead>
               <SortableTableHead
                 sortKey="qty"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Qty
               </SortableTableHead>
               <SortableTableHead
                 sortKey="status"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Status
               </SortableTableHead>
               <SortableTableHead
                 sortKey="orderDate"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 <span>Order Date</span>
                 <ColumnDateFilter
                   title="Order Date"
-                  from={dateFilters.orderDate?.from || ""}
-                  to={dateFilters.orderDate?.to || ""}
+                  from={dateFilters.orderDate.from}
+                  to={dateFilters.orderDate.to}
                   onChange={(range) =>
-                    setDateFilters((prev) => ({ ...prev, orderDate: range }))
+                    updateFilters({
+                      orderDateFrom: range.from || null,
+                      orderDateTo: range.to || null,
+                      page: "1",
+                    })
                   }
                 />
               </SortableTableHead>
               <SortableTableHead
                 sortKey="promisedDate"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 <span>Promised Date</span>
                 <ColumnDateFilter
                   title="Promised Date"
-                  from={dateFilters.promisedDate?.from || ""}
-                  to={dateFilters.promisedDate?.to || ""}
+                  from={dateFilters.promisedDate.from}
+                  to={dateFilters.promisedDate.to}
                   onChange={(range) =>
-                    setDateFilters((prev) => ({ ...prev, promisedDate: range }))
+                    updateFilters({
+                      promisedDateFrom: range.from || null,
+                      promisedDateTo: range.to || null,
+                      page: "1",
+                    })
                   }
                 />
               </SortableTableHead>
               <SortableTableHead
                 sortKey="completedDate"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 <span>Completed Date</span>
                 <ColumnDateFilter
                   title="Completed Date"
-                  from={dateFilters.completedDate?.from || ""}
-                  to={dateFilters.completedDate?.to || ""}
+                  from={dateFilters.completedDate.from}
+                  to={dateFilters.completedDate.to}
                   onChange={(range) =>
-                    setDateFilters((prev) => ({
-                      ...prev,
-                      completedDate: range,
-                    }))
+                    updateFilters({
+                      completedDateFrom: range.from || null,
+                      completedDateTo: range.to || null,
+                      page: "1",
+                    })
                   }
                 />
               </SortableTableHead>
               <SortableTableHead
                 sortKey="deliveredDate"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 <span>Delivered Date</span>
                 <ColumnDateFilter
                   title="Delivered Date"
-                  from={dateFilters.deliveredDate?.from || ""}
-                  to={dateFilters.deliveredDate?.to || ""}
+                  from={dateFilters.deliveredDate.from}
+                  to={dateFilters.deliveredDate.to}
                   onChange={(range) =>
-                    setDateFilters((prev) => ({
-                      ...prev,
-                      deliveredDate: range,
-                    }))
+                    updateFilters({
+                      deliveredDateFrom: range.from || null,
+                      deliveredDateTo: range.to || null,
+                      page: "1",
+                    })
                   }
                 />
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"
                 sortKey="itemsInJob"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Items in Job
               </SortableTableHead>
               <SortableTableHead
                 sortKey="totalQty"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Total Qty (Job)
               </SortableTableHead>
               <SortableTableHead
                 sortKey="invoiceValue"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Invoice Value
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"
                 sortKey="turnaroundDays"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Turnaround (Days)
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"
                 sortKey="daysVsPromised"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Days vs Promised
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"
                 sortKey="onTime"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 On-Time? (Y/N)
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"
                 sortKey="overdueFlag"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Overdue Flag
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"
                 sortKey="daysOverdue"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Days Overdue
               </SortableTableHead>
               <SortableTableHead
                 className="text-center"
                 sortKey="scheduledThisWeek"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Scheduled This Week
               </SortableTableHead>
               <SortableTableHead
                 sortKey="weekEnding"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Week Ending (Mon)
               </SortableTableHead>
               <SortableTableHead
                 sortKey="materialShortage"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Material Shortage?
               </SortableTableHead>
               <SortableTableHead
                 sortKey="equipmentIssue"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Equipment Issue
               </SortableTableHead>
               <SortableTableHead
                 sortKey="overdueReason"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Overdue Reason
               </SortableTableHead>
@@ -588,13 +549,13 @@ export default function JobsDashboardClient({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedJobs.length === 0 ? (
+            {jobsWithCalculations.length === 0 ? (
               <TableEmptyState
                 colSpan={23}
                 message="No jobs match the active filter."
               />
             ) : (
-              paginatedJobs.map((job) => (
+              jobsWithCalculations.map((job) => (
                 <JobTableRow
                   key={job.id}
                   job={job}
@@ -605,14 +566,18 @@ export default function JobsDashboardClient({
             )}
           </TableBody>
         </Table>
-        {filteredJobs.length > 0 && (
+        {totalCount > 0 && (
           <div className="mt-4 px-2">
             <Pagination
-              page={page}
+              page={currentPage}
               pageCount={pageCount}
-              size={size}
-              onPageChange={onPageChange}
-              onSizeChange={onSizeChange}
+              size={pageSize}
+              onPageChange={(newPage) =>
+                updateFilters({ page: newPage.toString() })
+              }
+              onSizeChange={(newSize) =>
+                updateFilters({ size: newSize.toString(), page: "1" })
+              }
             />
           </div>
         )}

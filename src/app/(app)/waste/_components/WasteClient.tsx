@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
-import { useJobMetrics } from "@/hooks/use-job-metrics";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/ui/metric-card";
 import { SearchInput } from "@/components/ui/search-input";
@@ -13,13 +13,11 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableHead,
 } from "@/components/ui/data-table";
 import { WasteDialog } from "@/components/dialogs/waste-dialog";
 import { Pagination } from "@/components/ui/pagination";
-import { usePagination } from "@/hooks/use-pagination";
 import { SortableTableHead } from "@/components/ui/sortable-table-head";
-import { useSort, SortConfig } from "@/hooks/use-sort";
-import { calculateJobFormulas } from "@/lib/job-formulas";
 import { WasteTableRow } from "./WasteTableRow";
 import { updateJob } from "@/app/actions/job-actions";
 import { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
@@ -29,10 +27,29 @@ type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"];
 
 interface WasteClientProps {
   jobs: JobWithItems[];
+  allJobsForDialog: JobWithItems[];
   userRole: string | null;
+  totalCount: number;
+  currentPage: number;
+  pageSize: number | "all";
+  avgSpoilage: string;
+  reprintCount: number;
 }
 
-export default function WasteClient({ jobs, userRole }: WasteClientProps) {
+export default function WasteClient({
+  jobs,
+  allJobsForDialog,
+  userRole,
+  totalCount,
+  currentPage,
+  pageSize,
+  avgSpoilage,
+  reprintCount,
+}: WasteClientProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const canEdit =
     userRole === "owner_admin" ||
     userRole === "sales_manager" ||
@@ -41,69 +58,71 @@ export default function WasteClient({ jobs, userRole }: WasteClientProps) {
   const handleUpdateJob = async (id: string, updates: JobUpdate) => {
     await updateJob(id, updates);
   };
+
   // Dialog state for manually adding/logging waste
   const [isLogOpen, setIsLogOpen] = useState(false);
 
-  // Search state
-  const [searchQuery, setSearchQuery] = useState("");
+  // Search state with debouncing to URL
+  const currentSearchInUrl = searchParams.get("search") || "";
+  const [searchQuery, setSearchQuery] = useState(currentSearchInUrl);
+  const [prevSearchParam, setPrevSearchParam] = useState(currentSearchInUrl);
 
-  const handleOpenLog = () => {
-    setIsLogOpen(true);
-  };
+  if (prevSearchParam !== currentSearchInUrl) {
+    setPrevSearchParam(currentSearchInUrl);
+    setSearchQuery(currentSearchInUrl);
+  }
 
-  // Total metrics
-  const { avgSpoilage, reprintCount } = useJobMetrics(jobs);
-
-  const wasteJobs = jobs.filter((job) => {
-    if (!(job.spoilagePercent > 0 || job.reprintRequired)) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesJobNo = job.jobNo.toLowerCase().includes(q);
-      const matchesDesc = job.items.some((i) =>
-        i.itemDescription?.toLowerCase().includes(q),
-      );
-      if (!matchesJobNo && !matchesDesc) return false;
-    }
-    return true;
-  });
-
-  const sortConfigs: SortConfig<(typeof wasteJobs)[0]>[] = [
-    {
-      key: "weekEnding",
-      getValue: (job) => {
-        const { weekEndingStr } = calculateJobFormulas(job);
-        return weekEndingStr ? new Date(weekEndingStr).getTime() : 0;
-      },
+  const updateFilters = useCallback(
+    (updates: Record<string, string | null | undefined>) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      for (const [key, value] of Object.entries(updates)) {
+        if (!value) {
+          current.delete(key);
+        } else {
+          current.set(key, value);
+        }
+      }
+      router.push(`${pathname}?${current.toString()}`);
     },
-    { key: "spoilagePercent", getValue: (job) => job.spoilagePercent },
-    { key: "jobNo", getValue: (job) => job.jobNo },
-    {
-      key: "description",
-      getValue: (job) =>
-        job.items
-          .map((i) => i.itemDescription)
-          .filter(Boolean)
-          .join(", "),
-    },
-    { key: "reprint", getValue: (job) => (job.reprintRequired ? 1 : 0) },
-    { key: "notes", getValue: (job) => job.notes || "" },
-  ];
-
-  const { sortKey, sortDirection, onSort, sortedData } = useSort(
-    wasteJobs,
-    sortConfigs,
-    "weekEnding", // Default sort
-    "desc",
+    [router, pathname, searchParams],
   );
 
-  const {
-    page,
-    size,
-    onPageChange,
-    onSizeChange,
-    pageCount,
-    paginatedData: paginatedWasteJobs,
-  } = usePagination(sortedData, 25);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const currentInUrl = searchParams.get("search") || "";
+      if (searchQuery !== currentInUrl) {
+        updateFilters({ search: searchQuery || null, page: "1" });
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery, searchParams, updateFilters]);
+
+  const currentSortKey = searchParams.get("sortBy") || "spoilagePercent";
+  const currentSortDirection =
+    (searchParams.get("sortDir") as "asc" | "desc") || "desc";
+
+  const handleSort = (key: string) => {
+    const nextDir =
+      currentSortKey === key && currentSortDirection === "desc"
+        ? "asc"
+        : "desc";
+    updateFilters({
+      sortBy: key,
+      sortDir: nextDir,
+      page: "1",
+    });
+  };
+
+  const pageCount =
+    pageSize === "all"
+      ? 1
+      : Math.max(
+          1,
+          Math.ceil(
+            totalCount / (typeof pageSize === "number" ? pageSize : 25),
+          ),
+        );
 
   return (
     <PageBody>
@@ -114,7 +133,7 @@ export default function WasteClient({ jobs, userRole }: WasteClientProps) {
         />
         {canEdit && (
           <Button
-            onClick={handleOpenLog}
+            onClick={() => setIsLogOpen(true)}
             className="gap-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shrink-0"
           >
             <Plus className="size-4" /> Log Waste / Rework
@@ -152,56 +171,35 @@ export default function WasteClient({ jobs, userRole }: WasteClientProps) {
             <TableRow>
               <SortableTableHead
                 sortKey="jobNo"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Job #
               </SortableTableHead>
-              <SortableTableHead
-                sortKey="description"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
-              >
-                Description
-              </SortableTableHead>
-              <SortableTableHead
-                sortKey="weekEnding"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
-              >
-                Week Ending (Mon)
-              </SortableTableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Week Ending (Mon)</TableHead>
               <SortableTableHead
                 sortKey="spoilagePercent"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Spoilage %
               </SortableTableHead>
               <SortableTableHead
-                sortKey="reprint"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
+                sortKey="reprintRequired"
+                currentSortKey={currentSortKey}
+                currentSortDirection={currentSortDirection}
+                onSort={handleSort}
               >
                 Reprint? (Y/N)
               </SortableTableHead>
-              <SortableTableHead
-                sortKey="notes"
-                currentSortKey={sortKey}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
-              >
-                Notes
-              </SortableTableHead>
+              <TableHead>Notes</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedWasteJobs.length === 0 ? (
+            {jobs.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={6}
@@ -213,7 +211,7 @@ export default function WasteClient({ jobs, userRole }: WasteClientProps) {
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedWasteJobs.map((job) => (
+              jobs.map((job) => (
                 <WasteTableRow
                   key={job.id}
                   job={job}
@@ -224,21 +222,29 @@ export default function WasteClient({ jobs, userRole }: WasteClientProps) {
             )}
           </TableBody>
         </Table>
-        {wasteJobs.length > 0 && (
+        {totalCount > 0 && (
           <div className="mt-4 px-2 mb-4">
             <Pagination
-              page={page}
+              page={currentPage}
               pageCount={pageCount}
-              size={size}
-              onPageChange={onPageChange}
-              onSizeChange={onSizeChange}
+              size={pageSize}
+              onPageChange={(newPage) =>
+                updateFilters({ page: newPage.toString() })
+              }
+              onSizeChange={(newSize) =>
+                updateFilters({ size: newSize.toString(), page: "1" })
+              }
             />
           </div>
         )}
       </div>
 
       {/* Manual Waste / Rework Logging Dialog */}
-      <WasteDialog open={isLogOpen} onOpenChange={setIsLogOpen} jobs={jobs} />
+      <WasteDialog
+        open={isLogOpen}
+        onOpenChange={setIsLogOpen}
+        jobs={allJobsForDialog}
+      />
     </PageBody>
   );
 }
