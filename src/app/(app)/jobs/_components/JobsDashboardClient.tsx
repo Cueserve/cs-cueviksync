@@ -328,14 +328,7 @@ export default function JobsDashboardClient({
               >
                 Item Description
               </SortableTableHead>
-              <SortableTableHead
-                sortKey="qty"
-                currentSortKey={currentSortKey}
-                currentSortDirection={currentSortDirection}
-                onSort={handleSort}
-              >
-                Qty
-              </SortableTableHead>
+              <TableHead className="text-center">Qty</TableHead>
               <SortableTableHead
                 sortKey="status"
                 currentSortKey={currentSortKey}

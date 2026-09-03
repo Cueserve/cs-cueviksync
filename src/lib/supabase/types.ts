@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -211,7 +211,20 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      fn_create_job_with_items: {
+        Args: { p_job: Json; p_line_items?: Json };
+        Returns: Json;
+      };
       fn_next_job_number: { Args: never; Returns: string };
+      fn_update_job_with_items: {
+        Args: {
+          p_job_id: string;
+          p_line_items_delete?: string[];
+          p_line_items_upsert?: Json;
+          p_updates: Json;
+        };
+        Returns: undefined;
+      };
       get_user_role: {
         Args: never;
         Returns: Database["public"]["Enums"]["user_role"];

@@ -114,15 +114,7 @@ export default function WasteClient({
     });
   };
 
-  const pageCount =
-    pageSize === "all"
-      ? 1
-      : Math.max(
-          1,
-          Math.ceil(
-            totalCount / (typeof pageSize === "number" ? pageSize : 25),
-          ),
-        );
+  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <PageBody>
