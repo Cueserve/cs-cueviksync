@@ -3,15 +3,25 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { signInSchema } from "@/lib/validation/auth";
 
 export async function signIn(prevState: unknown, formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const rawData = {
+    email: formData.get("email"),
+    password: formData.get("password"),
+  };
 
-  if (!email || !password) {
-    return { error: "Email and password are required.", email, password };
+  const parsed = signInSchema.safeParse(rawData);
+
+  if (!parsed.success) {
+    const errorMessage = parsed.error.issues[0]?.message || "Invalid input.";
+    return {
+      error: errorMessage,
+      email: typeof rawData.email === "string" ? rawData.email : "",
+    };
   }
 
+  const { email, password } = parsed.data;
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -20,7 +30,7 @@ export async function signIn(prevState: unknown, formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message, email, password };
+    return { error: error.message, email };
   }
 
   revalidatePath("/", "layout");

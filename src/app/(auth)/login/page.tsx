@@ -58,7 +58,6 @@ export default function LoginPage() {
               name="password"
               type="password"
               autoComplete="current-password"
-              defaultValue={state?.password || ""}
               required
             />
           </div>
