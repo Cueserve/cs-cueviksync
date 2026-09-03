@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserRole } from "@/lib/auth";
 import JobsDashboardClient from "./_components/JobsDashboardClient";
 import type { Database } from "@/lib/supabase/types";
 
@@ -17,21 +18,8 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
   const params = await searchParams;
   const supabase = await createClient();
 
-  // 1. Get user role
-  const { data: userData } = await supabase.auth.getUser();
-  let userRole = "sales_rep";
-
-  if (userData.user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userData.user.id)
-      .single();
-
-    if (profile) {
-      userRole = profile.role;
-    }
-  }
+  // 1. Get user role (memoized across layout & page)
+  const userRole = await getCurrentUserRole();
 
   // 2. Parse search parameters
   const pageParam = typeof params.page === "string" ? params.page : "1";
