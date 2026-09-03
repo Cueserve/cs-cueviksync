@@ -31,7 +31,7 @@ interface WasteClientProps {
   userRole: string | null;
   totalCount: number;
   currentPage: number;
-  pageSize: number | "all";
+  pageSize: number;
   avgSpoilage: string;
   reprintCount: number;
 }

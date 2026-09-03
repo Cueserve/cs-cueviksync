@@ -1,16 +1,14 @@
 import { useState, useMemo } from "react";
 
-export function usePagination<T>(data: T[], initialSize: number | "all" = 25) {
+export function usePagination<T>(data: T[], initialSize: number = 25) {
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState<number | "all">(initialSize);
+  const [size, setSize] = useState<number>(initialSize);
 
   const pageCount = useMemo(() => {
-    if (size === "all") return 1;
     return Math.max(1, Math.ceil(data.length / size));
   }, [data.length, size]);
 
   const paginatedData = useMemo(() => {
-    if (size === "all") return data;
     const start = (page - 1) * size;
     return data.slice(start, start + size);
   }, [data, page, size]);
@@ -24,7 +22,7 @@ export function usePagination<T>(data: T[], initialSize: number | "all" = 25) {
     page,
     size,
     onPageChange: setPage,
-    onSizeChange: (newSize: number | "all") => {
+    onSizeChange: (newSize: number) => {
       setSize(newSize);
       setPage(1);
     },

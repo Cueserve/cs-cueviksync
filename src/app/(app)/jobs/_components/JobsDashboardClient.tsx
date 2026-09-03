@@ -52,7 +52,7 @@ interface JobsDashboardClientProps {
   userRole: string | null;
   totalCount: number;
   currentPage: number;
-  pageSize: number | "all";
+  pageSize: number;
   kpiMetrics: {
     total: number;
     pending: number;
@@ -197,15 +197,7 @@ export default function JobsDashboardClient({
     });
   };
 
-  const pageCount =
-    pageSize === "all"
-      ? 1
-      : Math.max(
-          1,
-          Math.ceil(
-            totalCount / (typeof pageSize === "number" ? pageSize : 25),
-          ),
-        );
+  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const jobsWithCalculations = useMemo(() => {
     return jobs.map((job) => ({

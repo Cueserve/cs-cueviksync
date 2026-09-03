@@ -32,7 +32,7 @@ import {
  * page turn -- a second live region would just talk over it.
  */
 
-const PAGE_SIZES = [5, 10, 25, 50, 100, "all"] as const;
+const PAGE_SIZES = [5, 10, 25, 50, 100] as const;
 
 const SIZE_LABEL: Record<string, string> = {
   "5": "5",
@@ -40,7 +40,6 @@ const SIZE_LABEL: Record<string, string> = {
   "25": "25",
   "50": "50",
   "100": "100",
-  all: "All",
 };
 
 export function Pagination({
@@ -53,9 +52,9 @@ export function Pagination({
 }: {
   page: number;
   pageCount: number;
-  size: number | "all";
+  size: number;
   onPageChange: (page: number) => void;
-  onSizeChange: (size: number | "all") => void;
+  onSizeChange: (size: number) => void;
   className?: string;
 }) {
   const atStart = page <= 1;
@@ -74,9 +73,7 @@ export function Pagination({
         Rows per page
         <Select
           value={String(size)}
-          onValueChange={(next) =>
-            onSizeChange(next === "all" ? "all" : Number(next))
-          }
+          onValueChange={(next) => onSizeChange(Number(next))}
         >
           <SelectTrigger aria-label="Rows per page" className="w-24">
             <SelectValue />

@@ -160,8 +160,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
   // Pagination calculation
   const currentPage = Math.max(1, parseInt(pageParam, 10) || 1);
-  const isAll = sizeParam === "all";
-  const pageSize = isAll ? 1000 : Math.max(1, parseInt(sizeParam, 10) || 25);
+  const pageSize = Math.max(1, parseInt(sizeParam, 10) || 25);
   const from = (currentPage - 1) * pageSize;
   const to = from + pageSize - 1;
 
@@ -184,7 +183,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
       userRole={userRole}
       totalCount={filteredTotalCount ?? 0}
       currentPage={currentPage}
-      pageSize={isAll ? "all" : pageSize}
+      pageSize={pageSize}
       kpiMetrics={{
         total: totalCount ?? 0,
         pending: pendingCount ?? 0,
