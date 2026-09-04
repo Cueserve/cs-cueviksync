@@ -3,6 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { Database } from "@/lib/supabase/types";
+import {
+  createJobWithItemsSchema,
+  updateJobWithItemsSchema,
+  deleteJobSchema,
+  type JobInsertInput,
+  type JobUpdateInput,
+  type LineItemInsertInput,
+} from "@/lib/validation/jobs";
 
 type JobInsert = Database["public"]["Tables"]["jobs"]["Insert"];
 type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"];
@@ -15,14 +23,26 @@ function cleanDate(val: string | null | undefined): string | null {
   return val.trim();
 }
 
-export async function addJob(job: JobInsert, lineItems: JobLineItemInsert[]) {
+export async function addJob(
+  job: JobInsert | JobInsertInput,
+  lineItems: (JobLineItemInsert | LineItemInsertInput)[] = [],
+) {
+  const parsed = createJobWithItemsSchema.safeParse({ job, lineItems });
+  if (!parsed.success) {
+    const errorMsg = parsed.error.issues.map((i) => i.message).join("; ");
+    console.error("Validation error in addJob:", errorMsg);
+    return { success: false, error: errorMsg };
+  }
+
+  const { job: validatedJob, lineItems: validatedLineItems } = parsed.data;
   const supabase = await createClient();
 
   const sanitizedJob: JobInsert = {
-    ...job,
-    id: job.id || crypto.randomUUID(),
-    completedDate: cleanDate(job.completedDate),
-    deliveredDate: cleanDate(job.deliveredDate),
+    ...validatedJob,
+    id: validatedJob.id || crypto.randomUUID(),
+    jobNo: validatedJob.jobNo || "",
+    completedDate: cleanDate(validatedJob.completedDate),
+    deliveredDate: cleanDate(validatedJob.deliveredDate),
   };
 
   // Insert the parent job
@@ -38,8 +58,8 @@ export async function addJob(job: JobInsert, lineItems: JobLineItemInsert[]) {
     return { success: false, error: jobError.message };
   }
 
-  if (lineItems && lineItems.length > 0) {
-    const lineItemsToInsert = lineItems.map((item) => ({
+  if (validatedLineItems && validatedLineItems.length > 0) {
+    const lineItemsToInsert = validatedLineItems.map((item) => ({
       ...item,
       id: item.id || crypto.randomUUID(),
       job_id: insertedJob.id,
@@ -64,49 +84,69 @@ export async function addJob(job: JobInsert, lineItems: JobLineItemInsert[]) {
 
 export async function updateJob(
   id: string,
-  updates: JobUpdate,
-  lineItemsToUpsert?: JobLineItemInsert[],
+  updates: JobUpdate | JobUpdateInput,
+  lineItemsToUpsert?: (JobLineItemInsert | LineItemInsertInput)[],
   lineItemsToDelete?: string[],
 ) {
+  const parsed = updateJobWithItemsSchema.safeParse({
+    id,
+    updates,
+    lineItemsToUpsert,
+    lineItemsToDelete,
+  });
+
+  if (!parsed.success) {
+    const errorMsg = parsed.error.issues.map((i) => i.message).join("; ");
+    console.error("Validation error in updateJob:", errorMsg);
+    return { success: false, error: errorMsg };
+  }
+
+  const {
+    id: validatedId,
+    updates: validatedUpdates,
+    lineItemsToUpsert: validatedLineItemsToUpsert,
+    lineItemsToDelete: validatedLineItemsToDelete,
+  } = parsed.data;
+
   const supabase = await createClient();
 
   const sanitizedUpdates: JobUpdate = {
-    ...updates,
-    ...(updates.completedDate !== undefined && {
-      completedDate: cleanDate(updates.completedDate),
+    ...validatedUpdates,
+    ...(validatedUpdates.completedDate !== undefined && {
+      completedDate: cleanDate(validatedUpdates.completedDate),
     }),
-    ...(updates.deliveredDate !== undefined && {
-      deliveredDate: cleanDate(updates.deliveredDate),
+    ...(validatedUpdates.deliveredDate !== undefined && {
+      deliveredDate: cleanDate(validatedUpdates.deliveredDate),
     }),
   };
 
   const { error: jobError } = await supabase
     .from("jobs")
     .update(sanitizedUpdates)
-    .eq("id", id);
+    .eq("id", validatedId);
 
   if (jobError) {
     console.error("Error updating job:", jobError);
     return { success: false, error: jobError.message };
   }
 
-  if (lineItemsToDelete && lineItemsToDelete.length > 0) {
+  if (validatedLineItemsToDelete && validatedLineItemsToDelete.length > 0) {
     const { error: delError } = await supabase
       .from("job_line_items")
       .delete()
-      .in("id", lineItemsToDelete);
+      .in("id", validatedLineItemsToDelete);
 
     if (delError) {
       console.error("Error deleting line items:", delError);
     }
   }
 
-  if (lineItemsToUpsert && lineItemsToUpsert.length > 0) {
+  if (validatedLineItemsToUpsert && validatedLineItemsToUpsert.length > 0) {
     const { error: upsertError } = await supabase.from("job_line_items").upsert(
-      lineItemsToUpsert.map((item) => ({
+      validatedLineItemsToUpsert.map((item) => ({
         ...item,
         id: item.id || crypto.randomUUID(),
-        job_id: id,
+        job_id: validatedId,
       })),
       { onConflict: "id" },
     );
@@ -124,12 +164,20 @@ export async function updateJob(
 }
 
 export async function deleteJob(id: string) {
+  const parsed = deleteJobSchema.safeParse({ id });
+  if (!parsed.success) {
+    const errorMsg = parsed.error.issues.map((i) => i.message).join("; ");
+    console.error("Validation error in deleteJob:", errorMsg);
+    return { success: false, error: errorMsg };
+  }
+
+  const { id: validatedId } = parsed.data;
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("jobs")
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", validatedId);
 
   if (error) {
     console.error("Error deleting job:", error);

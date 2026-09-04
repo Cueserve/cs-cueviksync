@@ -5,41 +5,108 @@ const dateStringSchema = z
   .trim()
   .refine((val) => !val || !isNaN(Date.parse(val)), {
     message: "Invalid date format",
-  });
+  })
+  .transform((val) => (!val || val === "" ? null : val));
 
 export const lineItemInsertSchema = z.object({
   id: z.string().optional(),
   job_id: z.string().optional(),
-  lineNo: z.number().int().positive("Line number must be a positive integer."),
+  lineNo: z.coerce
+    .number()
+    .int()
+    .positive("Line number must be a positive integer."),
   itemDescription: z
     .string()
     .trim()
     .min(1, "Item description cannot be empty."),
-  quantity: z
+  quantity: z.coerce
     .number()
     .int()
     .nonnegative("Quantity must be greater than or equal to 0."),
-  materialShortage: z.string().nullable().optional(),
-  equipmentIssue: z.string().nullable().optional(),
+  materialShortage: z
+    .string()
+    .trim()
+    .nullable()
+    .optional()
+    .transform((val) => (!val || val === "" ? null : val)),
+  equipmentIssue: z
+    .string()
+    .trim()
+    .nullable()
+    .optional()
+    .transform((val) => (!val || val === "" ? null : val)),
 });
 
-export const jobInsertSchema = z.object({
+const baseJobSchema = z.object({
   id: z.string().optional(),
   jobNo: z.string().optional(),
-  orderDate: z.string().trim().min(1, "Order date is required."),
-  promisedDate: z.string().trim().min(1, "Promised date is required."),
+  orderDate: z
+    .string()
+    .trim()
+    .min(1, "Order date is required.")
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: "Invalid order date format",
+    }),
+  promisedDate: z
+    .string()
+    .trim()
+    .min(1, "Promised date is required.")
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: "Invalid promised date format",
+    }),
   completedDate: dateStringSchema.nullable().optional(),
   deliveredDate: dateStringSchema.nullable().optional(),
-  overdueReason: z.string().nullable().optional(),
+  overdueReason: z
+    .string()
+    .trim()
+    .nullable()
+    .optional()
+    .transform((val) => (!val || val === "" ? null : val)),
   inThisWeek: z.boolean().default(false),
-  invoiceValue: z.number().nonnegative().default(0),
-  spoilagePercent: z.number().min(0).max(100).default(0),
+  invoiceValue: z.coerce
+    .number()
+    .nonnegative("Invoice value must be greater than or equal to 0.")
+    .default(0),
+  spoilagePercent: z.coerce
+    .number()
+    .min(0, "Spoilage percent cannot be negative.")
+    .max(100, "Spoilage percent cannot exceed 100.")
+    .default(0),
   reprintRequired: z.boolean().default(false),
-  notes: z.string().nullable().optional(),
+  notes: z
+    .string()
+    .trim()
+    .nullable()
+    .optional()
+    .transform((val) => (!val || val === "" ? null : val)),
   deleted_at: dateStringSchema.nullable().optional(),
 });
 
-export const jobUpdateSchema = jobInsertSchema.partial();
+export const jobInsertSchema = baseJobSchema.refine(
+  (data) => {
+    if (data.completedDate && data.deliveredDate) {
+      return new Date(data.deliveredDate) >= new Date(data.completedDate);
+    }
+    return true;
+  },
+  {
+    message: "Delivered date cannot be earlier than Completed date",
+    path: ["deliveredDate"],
+  },
+);
+
+export const jobUpdateSchema = baseJobSchema.partial().refine(
+  (data) => {
+    if (data.completedDate && data.deliveredDate) {
+      return new Date(data.deliveredDate) >= new Date(data.completedDate);
+    }
+    return true;
+  },
+  {
+    message: "Delivered date cannot be earlier than Completed date",
+    path: ["deliveredDate"],
+  },
+);
 
 export const createJobWithItemsSchema = z.object({
   job: jobInsertSchema,
@@ -57,6 +124,9 @@ export const deleteJobSchema = z.object({
   id: z.string().min(1, "Job ID is required."),
 });
 
-export type JobInsertInput = z.infer<typeof jobInsertSchema>;
-export type JobUpdateInput = z.infer<typeof jobUpdateSchema>;
-export type LineItemInsertInput = z.infer<typeof lineItemInsertSchema>;
+export type JobInsertInput = z.input<typeof jobInsertSchema>;
+export type JobInsertOutput = z.output<typeof jobInsertSchema>;
+export type JobUpdateInput = z.input<typeof jobUpdateSchema>;
+export type JobUpdateOutput = z.output<typeof jobUpdateSchema>;
+export type LineItemInsertInput = z.input<typeof lineItemInsertSchema>;
+export type LineItemInsertOutput = z.output<typeof lineItemInsertSchema>;
