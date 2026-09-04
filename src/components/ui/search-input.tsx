@@ -7,11 +7,19 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
   className?: string;
 }
 
-export function SearchInput({ className, ...props }: SearchInputProps) {
-  return (
-    <div className="relative">
-      <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-      <Input type="search" className={cn("pl-9 h-9", className)} {...props} />
-    </div>
-  );
-}
+export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+        <Input
+          ref={ref}
+          type="search"
+          className={cn("pl-9 h-9", className)}
+          {...props}
+        />
+      </div>
+    );
+  },
+);
+SearchInput.displayName = "SearchInput";
