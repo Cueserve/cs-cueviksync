@@ -8,18 +8,16 @@ export function usePagination<T>(data: T[], initialSize: number = 25) {
     return Math.max(1, Math.ceil(data.length / size));
   }, [data.length, size]);
 
-  const paginatedData = useMemo(() => {
-    const start = (page - 1) * size;
-    return data.slice(start, start + size);
-  }, [data, page, size]);
+  // Keep page within valid bounds safely without render-time setState or effect cascading
+  const safePage = Math.min(Math.max(1, page), pageCount);
 
-  // Ensure page is valid when data length changes
-  if (page > pageCount && pageCount > 0) {
-    setPage(pageCount);
-  }
+  const paginatedData = useMemo(() => {
+    const start = (safePage - 1) * size;
+    return data.slice(start, start + size);
+  }, [data, safePage, size]);
 
   return {
-    page,
+    page: safePage,
     size,
     onPageChange: setPage,
     onSizeChange: (newSize: number) => {
