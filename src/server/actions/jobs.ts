@@ -25,6 +25,20 @@ function cleanDate(val: string | null | undefined): string | null {
   return val.trim();
 }
 
+/**
+ * Centralized revalidation helper for job mutations.
+ * Purges cache for list/KPI routes and dynamic job detail routes.
+ */
+function revalidateJobData(jobNo?: string) {
+  revalidatePath("/dashboard");
+  revalidatePath("/jobs");
+  revalidatePath("/waste");
+  revalidatePath("/jobs/[id]", "page");
+  if (jobNo) {
+    revalidatePath(`/jobs/${jobNo}`);
+  }
+}
+
 export async function addJob(
   job: JobInsert | JobInsertInput,
   lineItems: (JobLineItemInsert | LineItemInsertInput)[] = [],
@@ -64,13 +78,13 @@ export async function addJob(
     return { success: false, error: rpcError.message };
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/jobs");
-  revalidatePath("/waste");
+  const jobResult =
+    insertedJob as unknown as Database["public"]["Tables"]["jobs"]["Row"];
+  revalidateJobData(jobResult?.jobNo || sanitizedJob.jobNo);
 
   return {
     success: true,
-    data: insertedJob as unknown as Database["public"]["Tables"]["jobs"]["Row"],
+    data: jobResult,
   };
 }
 
@@ -131,9 +145,7 @@ export async function updateJob(
     return { success: false, error: rpcError.message };
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/jobs");
-  revalidatePath("/waste");
+  revalidateJobData(sanitizedUpdates.jobNo as string | undefined);
 
   return { success: true };
 }
@@ -159,9 +171,7 @@ export async function deleteJob(id: string) {
     return { success: false, error: error.message };
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/jobs");
-  revalidatePath("/waste");
+  revalidateJobData();
 
   return { success: true };
 }
