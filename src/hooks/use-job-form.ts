@@ -59,7 +59,7 @@ export function useJobForm(
   useEffect(() => {
     if (existingJob) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDraftJob(JSON.parse(JSON.stringify(existingJob))); // deep copy
+      setDraftJob(structuredClone(existingJob));
     }
   }, [existingJob]);
 
