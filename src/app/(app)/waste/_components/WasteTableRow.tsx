@@ -57,9 +57,14 @@ export function WasteTableRow({
     if (field === "spoilage" && editState.spoilage !== undefined) {
       const parsed = parseFloat(editState.spoilage);
       const cleanedVal = isNaN(parsed) ? 0 : Math.max(0, Math.min(100, parsed));
-      onUpdateJob(job.id, { spoilagePercent: cleanedVal });
+      if (cleanedVal !== job.spoilagePercent) {
+        onUpdateJob(job.id, { spoilagePercent: cleanedVal });
+      }
     } else if (field === "notes" && editState.notes !== undefined) {
-      onUpdateJob(job.id, { notes: editState.notes });
+      const currentNotes = job.notes || "";
+      if (editState.notes.trim() !== currentNotes.trim()) {
+        onUpdateJob(job.id, { notes: editState.notes });
+      }
     }
   };
 

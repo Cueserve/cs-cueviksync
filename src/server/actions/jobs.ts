@@ -116,7 +116,7 @@ export async function updateJob(
 
   const supabase = await createClient();
 
-  const sanitizedUpdates: JobUpdate = {
+  const rawUpdates: JobUpdate = {
     ...validatedUpdates,
     ...(validatedUpdates.completedDate !== undefined && {
       completedDate: cleanDate(validatedUpdates.completedDate),
@@ -125,6 +125,11 @@ export async function updateJob(
       deliveredDate: cleanDate(validatedUpdates.deliveredDate),
     }),
   };
+
+  // Strip undefined keys so PostgreSQL only updates explicitly supplied columns
+  const sanitizedUpdates: JobUpdate = Object.fromEntries(
+    Object.entries(rawUpdates).filter(([, v]) => v !== undefined),
+  );
 
   const lineItemsWithIds = (validatedLineItemsToUpsert || []).map((item) => ({
     ...item,

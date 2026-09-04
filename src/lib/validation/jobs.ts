@@ -37,7 +37,7 @@ export const lineItemInsertSchema = z.object({
     .transform((val) => (!val || val === "" ? null : val)),
 });
 
-const baseJobSchema = z.object({
+const rawJobFields = {
   id: z.string().optional(),
   jobNo: z.string().optional(),
   orderDate: z
@@ -62,17 +62,15 @@ const baseJobSchema = z.object({
     .nullable()
     .optional()
     .transform((val) => (!val || val === "" ? null : val)),
-  inThisWeek: z.boolean().default(false),
+  inThisWeek: z.boolean(),
   invoiceValue: z.coerce
     .number()
-    .nonnegative("Invoice value must be greater than or equal to 0.")
-    .default(0),
+    .nonnegative("Invoice value must be greater than or equal to 0."),
   spoilagePercent: z.coerce
     .number()
     .min(0, "Spoilage percent cannot be negative.")
-    .max(100, "Spoilage percent cannot exceed 100.")
-    .default(0),
-  reprintRequired: z.boolean().default(false),
+    .max(100, "Spoilage percent cannot exceed 100."),
+  reprintRequired: z.boolean(),
   notes: z
     .string()
     .trim()
@@ -80,33 +78,44 @@ const baseJobSchema = z.object({
     .optional()
     .transform((val) => (!val || val === "" ? null : val)),
   deleted_at: dateStringSchema.nullable().optional(),
-});
+};
 
-export const jobInsertSchema = baseJobSchema.refine(
-  (data) => {
-    if (data.completedDate && data.deliveredDate) {
-      return new Date(data.deliveredDate) >= new Date(data.completedDate);
-    }
-    return true;
-  },
-  {
-    message: "Delivered date cannot be earlier than Completed date",
-    path: ["deliveredDate"],
-  },
-);
+export const jobInsertSchema = z
+  .object({
+    ...rawJobFields,
+    inThisWeek: rawJobFields.inThisWeek.default(false),
+    invoiceValue: rawJobFields.invoiceValue.default(0),
+    spoilagePercent: rawJobFields.spoilagePercent.default(0),
+    reprintRequired: rawJobFields.reprintRequired.default(false),
+  })
+  .refine(
+    (data) => {
+      if (data.completedDate && data.deliveredDate) {
+        return new Date(data.deliveredDate) >= new Date(data.completedDate);
+      }
+      return true;
+    },
+    {
+      message: "Delivered date cannot be earlier than Completed date",
+      path: ["deliveredDate"],
+    },
+  );
 
-export const jobUpdateSchema = baseJobSchema.partial().refine(
-  (data) => {
-    if (data.completedDate && data.deliveredDate) {
-      return new Date(data.deliveredDate) >= new Date(data.completedDate);
-    }
-    return true;
-  },
-  {
-    message: "Delivered date cannot be earlier than Completed date",
-    path: ["deliveredDate"],
-  },
-);
+export const jobUpdateSchema = z
+  .object(rawJobFields)
+  .partial()
+  .refine(
+    (data) => {
+      if (data.completedDate && data.deliveredDate) {
+        return new Date(data.deliveredDate) >= new Date(data.completedDate);
+      }
+      return true;
+    },
+    {
+      message: "Delivered date cannot be earlier than Completed date",
+      path: ["deliveredDate"],
+    },
+  );
 
 export const createJobWithItemsSchema = z.object({
   job: jobInsertSchema,
