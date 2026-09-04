@@ -37,7 +37,7 @@ import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { JobTableRow } from "./JobTableRow";
 import { ColumnDateFilter } from "./ColumnDateFilter";
 
-import { deleteJob } from "@/app/actions/job-actions";
+import { deleteJob } from "@/server/actions/jobs";
 import type { JobWithItems } from "@/lib/types/jobs";
 
 export type { JobWithItems };

@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  addJob,
-  updateJob as updateJobAction,
-} from "@/app/actions/job-actions";
+import { addJob, updateJob as updateJobAction } from "@/server/actions/jobs";
 import type { JobWithItems } from "@/lib/types/jobs";
 import type { Database } from "@/lib/supabase/types";
 

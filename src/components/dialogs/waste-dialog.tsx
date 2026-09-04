@@ -14,7 +14,7 @@ import {
   DialogBody,
 } from "@/components/ui/dialog";
 
-import { updateJob } from "@/app/actions/job-actions";
+import { updateJob } from "@/server/actions/jobs";
 import type { JobWithItems } from "@/lib/types/jobs";
 
 interface WasteDialogProps {

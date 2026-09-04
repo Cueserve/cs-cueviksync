@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useActionState, useEffect } from "react";
-import { signIn } from "@/app/actions/auth";
+import { signIn } from "@/server/actions/auth";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";

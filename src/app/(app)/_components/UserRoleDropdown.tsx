@@ -2,7 +2,7 @@
 
 import React from "react";
 import { UserMenu } from "@/components/layout/user-menu";
-import { signOut } from "@/app/actions/auth";
+import { signOut } from "@/server/actions/auth";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administrator",
