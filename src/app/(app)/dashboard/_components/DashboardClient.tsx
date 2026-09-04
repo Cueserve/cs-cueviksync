@@ -87,7 +87,7 @@ export default function DashboardClient({
       {/* KPI Stats Grid */}
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5 mt-6">
         <MetricCard
-          title="Total Invoiced"
+          title={`Total Invoiced (${selectedYear})`}
           value={formatMoney(totalInvoice)}
           description={`From ${completedJobs.length} completed items`}
           icon={<CheckCircle2 className="size-4 text-success" />}

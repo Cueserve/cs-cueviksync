@@ -39,19 +39,25 @@ export function useJobMetrics(jobs: JobWithItems[], selectedYear?: number) {
       0,
     );
 
-    // Additional global metrics
-    const shortagesFlaggedCount = jobs.filter((j) =>
-      j.items.some(
-        (i) =>
-          !!i.materialShortage && i.materialShortage.toLowerCase() !== "no",
-      ),
-    ).length;
+    // Additional global metrics - count total line items with shortages/issues
+    const shortagesFlaggedCount = jobs.reduce(
+      (acc, j) =>
+        acc +
+        (j.items?.filter(
+          (i) =>
+            !!i.materialShortage && i.materialShortage.toLowerCase() !== "no",
+        ).length ?? 0),
+      0,
+    );
 
-    const equipmentIssuesCount = jobs.filter((j) =>
-      j.items.some(
-        (i) => !!i.equipmentIssue && i.equipmentIssue.toLowerCase() !== "no",
-      ),
-    ).length;
+    const equipmentIssuesCount = jobs.reduce(
+      (acc, j) =>
+        acc +
+        (j.items?.filter(
+          (i) => !!i.equipmentIssue && i.equipmentIssue.toLowerCase() !== "no",
+        ).length ?? 0),
+      0,
+    );
 
     const avgSpoilage =
       jobs.length > 0
