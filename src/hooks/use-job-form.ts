@@ -5,7 +5,7 @@ import {
   addJob,
   updateJob as updateJobAction,
 } from "@/app/actions/job-actions";
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 import type { Database } from "@/lib/supabase/types";
 
 type JobLineItemInsert =

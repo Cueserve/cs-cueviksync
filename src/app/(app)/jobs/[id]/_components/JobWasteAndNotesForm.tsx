@@ -1,7 +1,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 
 interface JobWasteAndNotesFormProps {
   draftJob: JobWithItems;

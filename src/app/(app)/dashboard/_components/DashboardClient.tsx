@@ -10,7 +10,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
-import { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 import { MetricCard } from "@/components/ui/metric-card";
 import { formatMoney } from "@/lib/utils";
 import { useJobMetrics } from "@/hooks/use-job-metrics";

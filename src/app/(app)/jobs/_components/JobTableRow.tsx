@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 
 // The job object passed here is already decorated with formula results

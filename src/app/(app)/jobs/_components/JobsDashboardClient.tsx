@@ -38,14 +38,9 @@ import { JobTableRow } from "./JobTableRow";
 import { ColumnDateFilter } from "./ColumnDateFilter";
 
 import { deleteJob } from "@/app/actions/job-actions";
-import type { Database } from "@/lib/supabase/types";
+import type { JobWithItems } from "@/lib/types/jobs";
 
-type JobRow = Database["public"]["Tables"]["jobs"]["Row"];
-type JobLineItemRow = Database["public"]["Tables"]["job_line_items"]["Row"];
-
-export type JobWithItems = JobRow & {
-  items: JobLineItemRow[];
-};
+export type { JobWithItems };
 
 interface JobsDashboardClientProps {
   jobs: JobWithItems[];

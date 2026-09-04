@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserRole } from "@/lib/auth";
 import { JobHistoryEntry } from "./_components/JobHistorySection";
 import JobDetailsClient from "./_components/JobDetailsClient";
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 
 export default async function JobDetailsPage({
   params,

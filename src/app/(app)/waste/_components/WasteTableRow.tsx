@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw } from "lucide-react";
 import { calculateJobFormulas } from "@/lib/job-formulas";
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 
 interface WasteTableRowProps {
   job: JobWithItems;

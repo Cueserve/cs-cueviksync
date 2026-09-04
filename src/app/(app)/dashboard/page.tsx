@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import DashboardClient from "./_components/DashboardClient";
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 
 interface DashboardPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

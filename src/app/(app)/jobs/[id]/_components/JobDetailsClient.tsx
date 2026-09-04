@@ -10,7 +10,7 @@ import { JobSummaryPane } from "./JobSummaryPane";
 import { JobDetailsForm } from "./JobDetailsForm";
 import { JobWasteAndNotesForm } from "./JobWasteAndNotesForm";
 import { JobHistorySection, JobHistoryEntry } from "./JobHistorySection";
-import { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 
 export default function JobDetailsClient({
   initialJob,

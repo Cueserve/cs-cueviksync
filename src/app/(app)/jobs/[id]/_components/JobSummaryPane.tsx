@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Calculator, Save } from "lucide-react";
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 import { calculateJobFormulas } from "@/lib/job-formulas";
 
 interface JobSummaryPaneProps {

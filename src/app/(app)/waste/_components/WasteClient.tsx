@@ -20,7 +20,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { WasteTableRow } from "./WasteTableRow";
 import { updateJob } from "@/app/actions/job-actions";
-import { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 import type { Database } from "@/lib/supabase/types";
 
 type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"];

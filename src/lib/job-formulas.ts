@@ -1,4 +1,4 @@
-import type { JobWithItems } from "@/app/(app)/jobs/_components/JobsDashboardClient";
+import type { JobWithItems } from "@/lib/types/jobs";
 import {
   getTurnaroundDays,
   isOnTime,

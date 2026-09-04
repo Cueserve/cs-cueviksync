@@ -1,14 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserRole } from "@/lib/auth";
 import JobsDashboardClient from "./_components/JobsDashboardClient";
-import type { Database } from "@/lib/supabase/types";
+import type { JobWithItems } from "@/lib/types/jobs";
 
-type JobRow = Database["public"]["Tables"]["jobs"]["Row"];
-type JobLineItemRow = Database["public"]["Tables"]["job_line_items"]["Row"];
-
-export type JobWithItems = JobRow & {
-  items: JobLineItemRow[];
-};
+export type { JobWithItems };
 
 interface JobsPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
