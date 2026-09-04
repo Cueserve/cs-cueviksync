@@ -47,8 +47,17 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
     totalQty,
   } = job;
 
+  type DisplayItem = {
+    id: string;
+    lineNo: number | string;
+    itemDescription: string;
+    quantity: number | string;
+    materialShortage?: string | null;
+    equipmentIssue?: string | null;
+  };
+
   const hasMultipleItems = itemsInJob > 1;
-  const visibleItems = isExpanded
+  const visibleItems: DisplayItem[] = isExpanded
     ? job.items
     : job.items && job.items.length > 0
       ? [job.items[0]]
@@ -60,8 +69,7 @@ export function JobTableRow({ job, canEdit, onDeleteJob }: JobTableRowProps) {
             quantity: "-",
             materialShortage: null,
             equipmentIssue: null,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } as any,
+          },
         ];
 
   return (

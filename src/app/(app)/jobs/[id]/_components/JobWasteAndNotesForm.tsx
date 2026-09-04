@@ -7,10 +7,9 @@ interface JobWasteAndNotesFormProps {
   draftJob: JobWithItems;
   canEdit: boolean;
   isPreviewMode: boolean;
-  handleUpdateField: (
-    field: keyof JobWithItems,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
+  handleUpdateField: <K extends keyof JobWithItems>(
+    field: K,
+    value: JobWithItems[K],
   ) => void;
 }
 
@@ -55,7 +54,7 @@ export function JobWasteAndNotesForm({
             id="reprintRequired"
             checked={draftJob.reprintRequired}
             onCheckedChange={(checked) =>
-              handleUpdateField("reprintRequired", checked)
+              handleUpdateField("reprintRequired", checked === true)
             }
             disabled={!canEdit || isPreviewMode}
           />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { addJob, updateJob as updateJobAction } from "@/server/actions/jobs";
@@ -20,51 +20,54 @@ export function useJobForm(
   const isNew = isNewRoute ?? !initialJob;
   const existingJob = initialJob;
 
-  const [draftJob, setDraftJob] = useState<JobWithItems>({
-    id: "",
-    jobNo: "",
-    orderDate: new Date().toISOString().split("T")[0],
-    promisedDate: "",
-    completedDate: null,
-    deliveredDate: null,
-    overdueReason: null,
-    inThisWeek: false,
-    invoiceValue: 0,
-    spoilagePercent: 0,
-    reprintRequired: false,
-    notes: null,
-    deleted_at: null,
-    created_at: "",
-    updated_at: "",
-    items: [
-      {
-        id: "temp-1",
-        job_id: "",
-        lineNo: 1,
-        itemDescription: "",
-        quantity: 0,
-        materialShortage: null,
-        equipmentIssue: null,
-      },
-    ],
+  const [draftJob, setDraftJob] = useState<JobWithItems>(() => {
+    if (existingJob) return structuredClone(existingJob);
+    return {
+      id: "",
+      jobNo: "",
+      orderDate: new Date().toISOString().split("T")[0],
+      promisedDate: "",
+      completedDate: null,
+      deliveredDate: null,
+      overdueReason: null,
+      inThisWeek: false,
+      invoiceValue: 0,
+      spoilagePercent: 0,
+      reprintRequired: false,
+      notes: null,
+      deleted_at: null,
+      created_at: "",
+      updated_at: "",
+      items: [
+        {
+          id: "temp-1",
+          job_id: "",
+          lineNo: 1,
+          itemDescription: "",
+          quantity: 0,
+          materialShortage: null,
+          equipmentIssue: null,
+        },
+      ],
+    };
   });
 
-  const [isPreviewMode, setIsPreviewMode] = useState(!canEdit);
+  // Adjust state during render when existingJob changes (official React recommended pattern)
+  const [prevJobId, setPrevJobId] = useState(existingJob?.id);
+  if (existingJob && existingJob.id !== prevJobId) {
+    setPrevJobId(existingJob.id);
+    setDraftJob(structuredClone(existingJob));
+  }
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!canEdit) setIsPreviewMode(true);
-  }, [canEdit]);
+  // Derive preview mode: if !canEdit, always preview; otherwise follow user state
+  const [userPreviewMode, setUserPreviewMode] = useState(false);
+  const isPreviewMode = !canEdit || userPreviewMode;
+  const setIsPreviewMode = (val: boolean) => setUserPreviewMode(val);
 
-  useEffect(() => {
-    if (existingJob) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDraftJob(structuredClone(existingJob));
-    }
-  }, [existingJob]);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleUpdateField = (field: keyof JobWithItems, value: any) => {
+  const handleUpdateField = <K extends keyof JobWithItems>(
+    field: K,
+    value: JobWithItems[K],
+  ) => {
     setDraftJob((prev) => {
       const val =
         (field === "completedDate" || field === "deliveredDate") && value === ""
@@ -72,7 +75,7 @@ export function useJobForm(
           : value;
       const next = { ...prev, [field]: val };
 
-      if (field === "orderDate" && value) {
+      if (field === "orderDate" && typeof value === "string" && value) {
         if (
           next.promisedDate &&
           new Date(value) > new Date(next.promisedDate)
@@ -89,7 +92,7 @@ export function useJobForm(
       }
 
       if (field === "completedDate") {
-        if (value) {
+        if (value && typeof value === "string") {
           if (
             !next.deliveredDate ||
             new Date(value) > new Date(next.deliveredDate)
@@ -105,11 +108,10 @@ export function useJobForm(
     });
   };
 
-  const handleItemChange = (
+  const handleItemChange = <K extends keyof JobWithItems["items"][0]>(
     index: number,
-    field: keyof JobWithItems["items"][0],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
+    field: K,
+    value: JobWithItems["items"][0][K],
   ) => {
     setDraftJob((prev) => {
       const newItems = [...prev.items];
@@ -192,22 +194,36 @@ export function useJobForm(
       return;
     }
 
+    const sanitizedJobData = {
+      jobNo: draftJob.jobNo,
+      orderDate: draftJob.orderDate,
+      promisedDate: draftJob.promisedDate,
+      completedDate: draftJob.completedDate || null,
+      deliveredDate: draftJob.deliveredDate || null,
+      overdueReason: draftJob.overdueReason,
+      inThisWeek: draftJob.inThisWeek,
+      invoiceValue: draftJob.invoiceValue,
+      spoilagePercent: draftJob.spoilagePercent,
+      reprintRequired: draftJob.reprintRequired,
+      notes: draftJob.notes,
+    };
+
     if (isNew) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { items, id, created_at, updated_at, ...jobWithoutItems } =
-        draftJob;
-      const sanitizedJob = {
-        ...jobWithoutItems,
-        completedDate: jobWithoutItems.completedDate || null,
-        deliveredDate: jobWithoutItems.deliveredDate || null,
-      } as JobInsert;
+      const sanitizedJob: JobInsert = {
+        ...sanitizedJobData,
+        id: crypto.randomUUID(),
+      };
       const res = await addJob(
         sanitizedJob,
-        items.map((i) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: _id, job_id, ...itemWithoutId } = i;
-          return itemWithoutId as JobLineItemInsert;
-        }),
+        draftJob.items.map((i) => ({
+          id: crypto.randomUUID(),
+          job_id: "",
+          lineNo: i.lineNo,
+          itemDescription: i.itemDescription,
+          quantity: i.quantity,
+          materialShortage: i.materialShortage,
+          equipmentIssue: i.equipmentIssue,
+        })),
       );
       if (!res?.success) {
         console.error("Failed to add job:", res?.error);
@@ -216,28 +232,24 @@ export function useJobForm(
       }
       toast.success("Job created successfully!");
     } else {
-      const { items, ...jobWithoutItems } = draftJob;
-      const sanitizedJob: JobUpdate = {
-        ...jobWithoutItems,
-        completedDate: jobWithoutItems.completedDate || null,
-        deliveredDate: jobWithoutItems.deliveredDate || null,
-      };
+      const sanitizedJob: JobUpdate = sanitizedJobData;
       const originalItems = existingJob?.items || [];
-      const currentItemIds = items
+      const currentItemIds = draftJob.items
         .map((i) => i.id)
         .filter((id) => !id.startsWith("temp-"));
       const itemsToDelete = originalItems
         .filter((i) => !currentItemIds.includes(i.id))
         .map((i) => i.id);
 
-      const itemsToUpsert = items.map((i) => {
-        if (i.id.startsWith("temp-")) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: _id, ...itemWithoutId } = i;
-          return { ...itemWithoutId, job_id: draftJob.id } as JobLineItemInsert;
-        }
-        return { ...i, job_id: draftJob.id } as JobLineItemInsert;
-      });
+      const itemsToUpsert: JobLineItemInsert[] = draftJob.items.map((i) => ({
+        id: i.id.startsWith("temp-") ? crypto.randomUUID() : i.id,
+        job_id: draftJob.id,
+        lineNo: i.lineNo,
+        itemDescription: i.itemDescription,
+        quantity: i.quantity,
+        materialShortage: i.materialShortage,
+        equipmentIssue: i.equipmentIssue,
+      }));
 
       const res = await updateJobAction(
         draftJob.id,

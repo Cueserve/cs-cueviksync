@@ -9,10 +9,9 @@ interface JobDetailsFormProps {
   draftJob: JobWithItems;
   canEdit: boolean;
   isPreviewMode: boolean;
-  handleUpdateField: (
-    field: keyof JobWithItems,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
+  handleUpdateField: <K extends keyof JobWithItems>(
+    field: K,
+    value: JobWithItems[K],
   ) => void;
 }
 
@@ -143,7 +142,7 @@ export function JobDetailsForm({
           id="inThisWeek"
           checked={draftJob.inThisWeek}
           onCheckedChange={(checked) =>
-            handleUpdateField("inThisWeek", checked)
+            handleUpdateField("inThisWeek", checked === true)
           }
           disabled={!canEdit || isPreviewMode}
         />
