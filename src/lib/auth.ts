@@ -2,9 +2,14 @@ import "server-only";
 
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/types";
+import { type UserRole } from "@/lib/permissions";
 
-export type UserRole = Database["public"]["Enums"]["user_role"] | "viewer";
+export {
+  canEditJobs,
+  JOB_EDIT_ROLES,
+  type UserRole,
+  type JobEditRole,
+} from "@/lib/permissions";
 
 /**
  * Request-memoized helper to get the authenticated user.

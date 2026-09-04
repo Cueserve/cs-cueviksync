@@ -20,6 +20,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { WasteTableRow } from "./WasteTableRow";
 import { updateJob } from "@/server/actions/jobs";
+import { canEditJobs } from "@/lib/permissions";
 import type { JobWithItems } from "@/lib/types/jobs";
 import type { Database } from "@/lib/supabase/types";
 
@@ -50,10 +51,7 @@ export default function WasteClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const canEdit =
-    userRole === "owner_admin" ||
-    userRole === "sales_manager" ||
-    userRole === "office_admin";
+  const canEdit = canEditJobs(userRole);
 
   const handleUpdateJob = async (id: string, updates: JobUpdate) => {
     await updateJob(id, updates);

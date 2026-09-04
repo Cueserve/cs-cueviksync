@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 
 import { calculateJobFormulas } from "@/lib/job-formulas";
+import { canEditJobs } from "@/lib/permissions";
 import { deleteJob } from "@/server/actions/jobs";
 import type { JobWithItems } from "@/lib/types/jobs";
 
@@ -44,7 +45,7 @@ export default function JobsDashboardClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const canEdit = userRole !== "sales_rep";
+  const canEdit = canEditJobs(userRole);
 
   const handleDeleteJob = async (id: string) => {
     await deleteJob(id);

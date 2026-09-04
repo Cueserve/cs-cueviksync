@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserRole } from "@/lib/auth";
+import { getCurrentUserRole, canEditJobs } from "@/lib/auth";
 import { JobHistoryEntry } from "./_components/JobHistorySection";
 import JobDetailsClient from "./_components/JobDetailsClient";
 import type { JobWithItems } from "@/lib/types/jobs";
@@ -71,11 +71,7 @@ export default async function JobDetailsPage({
   }
 
   const isArchived = initialJob?.deleted_at != null;
-  const canEdit =
-    !isArchived &&
-    (userRole === "owner_admin" ||
-      userRole === "sales_manager" ||
-      userRole === "office_admin");
+  const canEdit = !isArchived && canEditJobs(userRole);
 
   return (
     <JobDetailsClient
