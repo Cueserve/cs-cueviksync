@@ -138,6 +138,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     "deliveredDate",
     "invoiceValue",
     "inThisWeek",
+    "overdueReason",
     "created_at",
   ];
   const sortColumn = directSortColumns.includes(sortBy) ? sortBy : "orderDate";

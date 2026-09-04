@@ -85,23 +85,9 @@ export function JobsTable({
             Job #
           </SortableTableHead>
           <TableHead className="text-center">Line #</TableHead>
-          <SortableTableHead
-            sortKey="itemDescription"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Item Description
-          </SortableTableHead>
+          <TableHead>Item Description</TableHead>
           <TableHead className="text-center">Qty</TableHead>
-          <SortableTableHead
-            sortKey="status"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Status
-          </SortableTableHead>
+          <TableHead>Status</TableHead>
           <SortableTableHead
             sortKey="orderDate"
             currentSortKey={currentSortKey}
@@ -182,23 +168,8 @@ export function JobsTable({
               }
             />
           </SortableTableHead>
-          <SortableTableHead
-            className="text-center"
-            sortKey="itemsInJob"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Items in Job
-          </SortableTableHead>
-          <SortableTableHead
-            sortKey="totalQty"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Total Qty (Job)
-          </SortableTableHead>
+          <TableHead className="text-center">Items in Job</TableHead>
+          <TableHead>Total Qty (Job)</TableHead>
           <SortableTableHead
             sortKey="invoiceValue"
             currentSortKey={currentSortKey}
@@ -207,84 +178,15 @@ export function JobsTable({
           >
             Invoice Value
           </SortableTableHead>
-          <SortableTableHead
-            className="text-center"
-            sortKey="turnaroundDays"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Turnaround (Days)
-          </SortableTableHead>
-          <SortableTableHead
-            className="text-center"
-            sortKey="daysVsPromised"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Days vs Promised
-          </SortableTableHead>
-          <SortableTableHead
-            className="text-center"
-            sortKey="onTime"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            On-Time? (Y/N)
-          </SortableTableHead>
-          <SortableTableHead
-            className="text-center"
-            sortKey="overdueFlag"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Overdue Flag
-          </SortableTableHead>
-          <SortableTableHead
-            className="text-center"
-            sortKey="daysOverdue"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Days Overdue
-          </SortableTableHead>
-          <SortableTableHead
-            className="text-center"
-            sortKey="scheduledThisWeek"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Scheduled This Week
-          </SortableTableHead>
-          <SortableTableHead
-            sortKey="weekEnding"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Week Ending (Mon)
-          </SortableTableHead>
-          <SortableTableHead
-            sortKey="materialShortage"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Material Shortage?
-          </SortableTableHead>
-          <SortableTableHead
-            sortKey="equipmentIssue"
-            currentSortKey={currentSortKey}
-            currentSortDirection={currentSortDirection}
-            onSort={onSort}
-          >
-            Equipment Issue
-          </SortableTableHead>
+          <TableHead className="text-center">Turnaround (Days)</TableHead>
+          <TableHead className="text-center">Days vs Promised</TableHead>
+          <TableHead className="text-center">On-Time? (Y/N)</TableHead>
+          <TableHead className="text-center">Overdue Flag</TableHead>
+          <TableHead className="text-center">Days Overdue</TableHead>
+          <TableHead className="text-center">Scheduled This Week</TableHead>
+          <TableHead>Week Ending (Mon)</TableHead>
+          <TableHead>Material Shortage?</TableHead>
+          <TableHead>Equipment Issue</TableHead>
           <SortableTableHead
             sortKey="overdueReason"
             currentSortKey={currentSortKey}
