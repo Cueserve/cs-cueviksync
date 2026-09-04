@@ -45,41 +45,31 @@ export async function addJob(
     deliveredDate: cleanDate(validatedJob.deliveredDate),
   };
 
-  // Insert the parent job
-  // trg_assign_job_number trigger automatically assigns jobNo.
-  const { data: insertedJob, error: jobError } = await supabase
-    .from("jobs")
-    .insert(sanitizedJob)
-    .select()
-    .single();
+  // Execute atomic job and line items creation via Postgres transaction
+  const { data: insertedJob, error: rpcError } = await supabase.rpc(
+    "fn_create_job_with_items",
+    {
+      p_job: sanitizedJob,
+      p_line_items: validatedLineItems.map((item) => ({
+        ...item,
+        id: item.id || crypto.randomUUID(),
+      })),
+    },
+  );
 
-  if (jobError) {
-    console.error("Error inserting job:", jobError);
-    return { success: false, error: jobError.message };
-  }
-
-  if (validatedLineItems && validatedLineItems.length > 0) {
-    const lineItemsToInsert = validatedLineItems.map((item) => ({
-      ...item,
-      id: item.id || crypto.randomUUID(),
-      job_id: insertedJob.id,
-    }));
-
-    const { error: lineItemsError } = await supabase
-      .from("job_line_items")
-      .insert(lineItemsToInsert);
-
-    if (lineItemsError) {
-      console.error("Error inserting line items:", lineItemsError);
-      return { success: false, error: lineItemsError.message };
-    }
+  if (rpcError) {
+    console.error("Error creating job with items (atomic):", rpcError);
+    return { success: false, error: rpcError.message };
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/jobs");
   revalidatePath("/waste");
 
-  return { success: true, data: insertedJob };
+  return {
+    success: true,
+    data: insertedJob as unknown as Database["public"]["Tables"]["jobs"]["Row"],
+  };
 }
 
 export async function updateJob(
@@ -120,40 +110,23 @@ export async function updateJob(
     }),
   };
 
-  const { error: jobError } = await supabase
-    .from("jobs")
-    .update(sanitizedUpdates)
-    .eq("id", validatedId);
+  const lineItemsWithIds = (validatedLineItemsToUpsert || []).map((item) => ({
+    ...item,
+    id: item.id || crypto.randomUUID(),
+    job_id: validatedId,
+  }));
 
-  if (jobError) {
-    console.error("Error updating job:", jobError);
-    return { success: false, error: jobError.message };
-  }
+  // Execute atomic job update and line items upsert/delete via Postgres transaction
+  const { error: rpcError } = await supabase.rpc("fn_update_job_with_items", {
+    p_job_id: validatedId,
+    p_updates: sanitizedUpdates,
+    p_line_items_upsert: lineItemsWithIds,
+    p_line_items_delete: validatedLineItemsToDelete || [],
+  });
 
-  if (validatedLineItemsToDelete && validatedLineItemsToDelete.length > 0) {
-    const { error: delError } = await supabase
-      .from("job_line_items")
-      .delete()
-      .in("id", validatedLineItemsToDelete);
-
-    if (delError) {
-      console.error("Error deleting line items:", delError);
-    }
-  }
-
-  if (validatedLineItemsToUpsert && validatedLineItemsToUpsert.length > 0) {
-    const { error: upsertError } = await supabase.from("job_line_items").upsert(
-      validatedLineItemsToUpsert.map((item) => ({
-        ...item,
-        id: item.id || crypto.randomUUID(),
-        job_id: validatedId,
-      })),
-      { onConflict: "id" },
-    );
-
-    if (upsertError) {
-      console.error("Error upserting line items:", upsertError);
-    }
+  if (rpcError) {
+    console.error("Error updating job with items (atomic):", rpcError);
+    return { success: false, error: rpcError.message };
   }
 
   revalidatePath("/dashboard");
