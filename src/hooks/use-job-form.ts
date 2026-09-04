@@ -40,7 +40,7 @@ export function useJobForm(
       updated_at: "",
       items: [
         {
-          id: "temp-1",
+          id: crypto.randomUUID(),
           job_id: "",
           lineNo: 1,
           itemDescription: "",
@@ -127,7 +127,7 @@ export function useJobForm(
           ? Math.max(...prev.items.map((i) => i.lineNo)) + 1
           : 1;
       const newItem: JobLineItemInsert = {
-        id: `temp-${Date.now()}`,
+        id: crypto.randomUUID(),
         job_id: prev.id,
         lineNo: newLineNo,
         itemDescription: "",
@@ -216,7 +216,7 @@ export function useJobForm(
       const res = await addJob(
         sanitizedJob,
         draftJob.items.map((i) => ({
-          id: crypto.randomUUID(),
+          id: i.id,
           job_id: "",
           lineNo: i.lineNo,
           itemDescription: i.itemDescription,
@@ -234,15 +234,13 @@ export function useJobForm(
     } else {
       const sanitizedJob: JobUpdate = sanitizedJobData;
       const originalItems = existingJob?.items || [];
-      const currentItemIds = draftJob.items
-        .map((i) => i.id)
-        .filter((id) => !id.startsWith("temp-"));
+      const currentItemIds = new Set(draftJob.items.map((i) => i.id));
       const itemsToDelete = originalItems
-        .filter((i) => !currentItemIds.includes(i.id))
+        .filter((i) => !currentItemIds.has(i.id))
         .map((i) => i.id);
 
       const itemsToUpsert: JobLineItemInsert[] = draftJob.items.map((i) => ({
-        id: i.id.startsWith("temp-") ? crypto.randomUUID() : i.id,
+        id: i.id,
         job_id: draftJob.id,
         lineNo: i.lineNo,
         itemDescription: i.itemDescription,
