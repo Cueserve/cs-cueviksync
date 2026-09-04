@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
@@ -63,12 +69,14 @@ export default function WasteClient({
   // Search state with debouncing to URL
   const currentSearchInUrl = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(currentSearchInUrl);
-  const [prevSearchParam, setPrevSearchParam] = useState(currentSearchInUrl);
+  const lastUpdatedFromUrl = useRef(currentSearchInUrl);
 
-  if (prevSearchParam !== currentSearchInUrl) {
-    setPrevSearchParam(currentSearchInUrl);
-    setSearchQuery(currentSearchInUrl);
-  }
+  useEffect(() => {
+    if (currentSearchInUrl !== lastUpdatedFromUrl.current) {
+      setSearchQuery(currentSearchInUrl);
+      lastUpdatedFromUrl.current = currentSearchInUrl;
+    }
+  }, [currentSearchInUrl]);
 
   const updateFilters = useCallback(
     (updates: Record<string, string | null | undefined>) => {
@@ -87,6 +95,7 @@ export default function WasteClient({
 
   useEffect(() => {
     const handler = setTimeout(() => {
+      lastUpdatedFromUrl.current = searchQuery;
       const currentInUrl = searchParams.get("search") || "";
       if (searchQuery !== currentInUrl) {
         updateFilters({ search: searchQuery || null, page: "1" });

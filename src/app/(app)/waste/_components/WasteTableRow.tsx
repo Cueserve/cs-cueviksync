@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Link from "next/link";
 import { TableRow, TableCell } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -64,7 +65,14 @@ export function WasteTableRow({
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{job.jobNo}</TableCell>
+      <TableCell className="font-medium">
+        <Link
+          href={`/jobs/${job.jobNo}`}
+          className="text-primary hover:underline"
+        >
+          {job.jobNo}
+        </Link>
+      </TableCell>
       <TableCell>
         <div
           className="max-w-[250px] truncate"

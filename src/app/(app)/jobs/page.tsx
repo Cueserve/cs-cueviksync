@@ -118,9 +118,11 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
       new Set((matchingItems || []).map((i) => i.job_id)),
     );
 
+    const escapedSearch = search.replace(/"/g, '""');
+
     if (matchingJobIds.length > 0) {
       query = query.or(
-        `jobNo.ilike.%${search}%,id.in.(${matchingJobIds.join(",")})`,
+        `jobNo.ilike."%${escapedSearch}%",id.in.(${matchingJobIds.join(",")})`,
       );
     } else {
       query = query.ilike("jobNo", `%${search}%`);

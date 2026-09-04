@@ -35,7 +35,7 @@ export default function AppNotFound() {
         </div>
         <div>
           <Button asChild variant="outline">
-            <Link href="/inquiries">Back to inquiries</Link>
+            <Link href="/dashboard">Back to dashboard</Link>
           </Button>
         </div>
       </Card>

@@ -1,8 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -48,7 +55,12 @@ export default function JobsDashboardClient({
   const canEdit = canEditJobs(userRole);
 
   const handleDeleteJob = async (id: string) => {
-    await deleteJob(id);
+    const res = await deleteJob(id);
+    if (!res?.success) {
+      toast.error(`Failed to delete job: ${res?.error}`);
+    } else {
+      toast.success("Job deleted successfully");
+    }
   };
 
   // URL query helper
@@ -75,15 +87,18 @@ export default function JobsDashboardClient({
   // Search input state with debouncing to URL
   const currentSearchInUrl = searchParams.get("search") || "";
   const [searchInputVal, setSearchInputVal] = useState(currentSearchInUrl);
-  const [prevSearchParam, setPrevSearchParam] = useState(currentSearchInUrl);
+  const lastUpdatedFromUrl = useRef(currentSearchInUrl);
 
-  if (prevSearchParam !== currentSearchInUrl) {
-    setPrevSearchParam(currentSearchInUrl);
-    setSearchInputVal(currentSearchInUrl);
-  }
+  useEffect(() => {
+    if (currentSearchInUrl !== lastUpdatedFromUrl.current) {
+      setSearchInputVal(currentSearchInUrl);
+      lastUpdatedFromUrl.current = currentSearchInUrl;
+    }
+  }, [currentSearchInUrl]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
+      lastUpdatedFromUrl.current = searchInputVal;
       const currentInUrl = searchParams.get("search") || "";
       if (searchInputVal !== currentInUrl) {
         updateFilters({ search: searchInputVal || null, page: "1" });
