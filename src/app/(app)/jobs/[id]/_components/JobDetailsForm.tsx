@@ -9,7 +9,6 @@ interface JobDetailsFormProps {
   draftJob: JobWithItems;
   canEdit: boolean;
   isPreviewMode: boolean;
-  jobs: JobWithItems[];
   handleUpdateField: (
     field: keyof JobWithItems,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

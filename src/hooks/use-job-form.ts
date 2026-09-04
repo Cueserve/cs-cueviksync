@@ -16,7 +16,6 @@ type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"];
 export function useJobForm(
   initialJob: JobWithItems | null,
   canEdit: boolean,
-  allJobs: JobWithItems[],
   isNewRoute?: boolean,
 ) {
   const router = useRouter();
@@ -271,6 +270,5 @@ export function useJobForm(
     handleAddItem,
     handleDeleteItem,
     handleSubmit,
-    jobs: allJobs, // exposing jobs just in case for validation
   };
 }

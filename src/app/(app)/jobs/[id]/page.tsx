@@ -12,28 +12,19 @@ export default async function JobDetailsPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [[{ data: jobData }, { data: allJobsData }], userRole] =
-    await Promise.all([
-      Promise.all([
-        id === "new"
-          ? Promise.resolve({ data: null })
-          : supabase
-              .from("jobs")
-              .select("*, items:job_line_items(*)")
-              .eq("jobNo", id)
-              .limit(1)
-              .maybeSingle(),
-        supabase
+  const [{ data: jobData }, userRole] = await Promise.all([
+    id === "new"
+      ? Promise.resolve({ data: null })
+      : supabase
           .from("jobs")
           .select("*, items:job_line_items(*)")
-          .is("deleted_at", null)
-          .order("created_at", { ascending: false }),
-      ]),
-      getCurrentUserRole(),
-    ]);
+          .eq("jobNo", id)
+          .limit(1)
+          .maybeSingle(),
+    getCurrentUserRole(),
+  ]);
 
   const initialJob = jobData as unknown as JobWithItems | null;
-  const allJobs = (allJobsData || []) as unknown as JobWithItems[];
 
   // Fetch job history and map profiles
   let jobHistory: JobHistoryEntry[] = [];
@@ -89,7 +80,6 @@ export default async function JobDetailsPage({
   return (
     <JobDetailsClient
       initialJob={initialJob}
-      allJobs={allJobs}
       jobHistory={jobHistory}
       canEdit={canEdit}
       isNewRoute={id === "new"}

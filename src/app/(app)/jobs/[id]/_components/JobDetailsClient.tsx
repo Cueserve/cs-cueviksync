@@ -14,13 +14,11 @@ import type { JobWithItems } from "@/lib/types/jobs";
 
 export default function JobDetailsClient({
   initialJob,
-  allJobs,
   jobHistory = [],
   canEdit: canEditProp,
   isNewRoute,
 }: {
   initialJob: JobWithItems | null;
-  allJobs: JobWithItems[];
   jobHistory?: JobHistoryEntry[];
   canEdit: boolean;
   isNewRoute?: boolean;
@@ -39,8 +37,7 @@ export default function JobDetailsClient({
     handleAddItem,
     handleDeleteItem,
     handleSubmit,
-    jobs,
-  } = useJobForm(initialJob, canEditProp, allJobs, isNewRoute);
+  } = useJobForm(initialJob, canEditProp, isNewRoute);
 
   if (!isNewRoute && !existingJob) {
     return (
@@ -79,7 +76,6 @@ export default function JobDetailsClient({
             draftJob={draftJob}
             canEdit={canEdit}
             isPreviewMode={isPreviewMode}
-            jobs={jobs}
             handleUpdateField={handleUpdateField}
           />
 
