@@ -122,7 +122,7 @@ export default function WasteClient({
       <div className="flex items-center justify-between">
         <PageHeader
           title="Waste / Rework Log"
-          description="Placeholder tracking — spoilage % formula to be defined once we have enough data (flagged by Hitesh)."
+          description="Placeholder tracking — spoilage % formula to be defined once we have enough data."
         />
         {canEdit && (
           <Button
