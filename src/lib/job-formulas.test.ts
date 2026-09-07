@@ -116,5 +116,7 @@ describe("calculateJobFormulas", () => {
     expect(res.isCompleted).toBe(true);
     expect(res.onTimeVal).toBe("N");
     expect(res.daysVsPromisedVal).toBe(3);
+    expect(res.isLateDelivery).toBe(true);
+    expect(res.isOverdueOrLate).toBe(true);
   });
 });

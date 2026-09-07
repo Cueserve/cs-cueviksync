@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { addJob, updateJob as updateJobAction } from "@/server/actions/jobs";
 import type { JobWithItems } from "@/lib/types/jobs";
 import type { Database } from "@/lib/supabase/types";
+import { calculateJobFormulas } from "@/lib/job-formulas";
 
 type JobLineItemInsert =
   Database["public"]["Tables"]["job_line_items"]["Insert"];
@@ -104,6 +105,12 @@ export function useJobForm(
         }
       }
 
+      // If the job is not overdue or delivered late, reset overdueReason to null
+      const { isOverdueOrLate } = calculateJobFormulas(next);
+      if (!isOverdueOrLate) {
+        next.overdueReason = null;
+      }
+
       return next as JobWithItems;
     });
   };
@@ -194,13 +201,15 @@ export function useJobForm(
       return;
     }
 
+    const { isOverdueOrLate: isJobOverdueOrLate } =
+      calculateJobFormulas(draftJob);
     const sanitizedJobData = {
       jobNo: draftJob.jobNo,
       orderDate: draftJob.orderDate,
       promisedDate: draftJob.promisedDate,
       completedDate: draftJob.completedDate || null,
       deliveredDate: draftJob.deliveredDate || null,
-      overdueReason: draftJob.overdueReason,
+      overdueReason: isJobOverdueOrLate ? draftJob.overdueReason : null,
       inThisWeek: draftJob.inThisWeek,
       invoiceValue: draftJob.invoiceValue,
       spoilagePercent: draftJob.spoilagePercent,

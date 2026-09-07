@@ -18,6 +18,8 @@ export interface JobCalculations {
   onTimeVal: string; // "Y" | "N" | "-"
 
   isOverdue: boolean;
+  isLateDelivery: boolean;
+  isOverdueOrLate: boolean;
   overdueFlagVal: string; // "Overdue" | ""
   daysOverdueVal: string | number;
 
@@ -62,10 +64,18 @@ export function calculateJobFormulas(
 
   const isDelivered = !!job.deliveredDate;
 
+  const isLateDelivery =
+    isDelivered &&
+    !!job.promisedDate &&
+    !!job.deliveredDate &&
+    parseLocalDate(job.deliveredDate) > parseLocalDate(job.promisedDate);
+
   const isOverdue =
     !isDelivered &&
     !!job.promisedDate &&
     today > parseLocalDate(job.promisedDate);
+
+  const isOverdueOrLate = isOverdue || isLateDelivery;
 
   const overdueFlagVal =
     !isDelivered && !!job.promisedDate
@@ -100,6 +110,8 @@ export function calculateJobFormulas(
     daysVsPromisedVal,
     onTimeVal,
     isOverdue,
+    isLateDelivery,
+    isOverdueOrLate,
     overdueFlagVal,
     daysOverdueVal,
     scheduledThisWeekVal,

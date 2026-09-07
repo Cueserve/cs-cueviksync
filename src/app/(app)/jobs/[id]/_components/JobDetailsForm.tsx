@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import type { JobWithItems } from "@/lib/types/jobs";
+import { calculateJobFormulas } from "@/lib/job-formulas";
 
 interface JobDetailsFormProps {
   draftJob: JobWithItems;
@@ -21,6 +22,8 @@ export function JobDetailsForm({
   isPreviewMode,
   handleUpdateField,
 }: JobDetailsFormProps) {
+  const { isOverdueOrLate } = calculateJobFormulas(draftJob);
+
   return (
     <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <h2 className="text-lg font-semibold mb-4">Job Information</h2>
@@ -119,22 +122,26 @@ export function JobDetailsForm({
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label
-            className="text-sm font-medium leading-none"
-            htmlFor="overdueReason"
-          >
-            Overdue Reason
-          </label>
-          <Input
-            id="overdueReason"
-            value={draftJob.overdueReason || ""}
-            onChange={(e) => handleUpdateField("overdueReason", e.target.value)}
-            className={cn(isPreviewMode && "truncate")}
-            title={draftJob.overdueReason || undefined}
-            disabled={!canEdit || isPreviewMode}
-          />
-        </div>
+        {isOverdueOrLate && (
+          <div className="space-y-2">
+            <label
+              className="text-sm font-medium leading-none"
+              htmlFor="overdueReason"
+            >
+              Overdue Reason
+            </label>
+            <Input
+              id="overdueReason"
+              value={draftJob.overdueReason || ""}
+              onChange={(e) =>
+                handleUpdateField("overdueReason", e.target.value)
+              }
+              className={cn(isPreviewMode && "truncate")}
+              title={draftJob.overdueReason || undefined}
+              disabled={!canEdit || isPreviewMode}
+            />
+          </div>
+        )}
       </div>
 
       <div className="mt-6 flex items-center space-x-2">
