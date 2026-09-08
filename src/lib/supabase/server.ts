@@ -41,5 +41,24 @@ export async function createClient() {
         }
       },
     },
+    global: {
+      fetch: async (url, options) => {
+        let res = await fetch(url, options);
+        if (!res.ok) {
+          // Detect Docker/WSL local clock drift issues ("JWT issued at future")
+          const clonedRes = res.clone();
+          try {
+            const body = await clonedRes.text();
+            if (body.includes("JWT issued at future")) {
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              res = await fetch(url, options);
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+        return res;
+      },
+    },
   });
 }
