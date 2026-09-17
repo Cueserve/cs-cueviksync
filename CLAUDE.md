@@ -25,8 +25,13 @@ from memory.**
 **transient**: each is deleted when its content lands in whatever it feeds. They live in
 `docs/specs/`, dated-filename-first.
 
-_None currently._ When one lands, add it to this list in the same change, and remove it in the
-change that deletes it.
+- [docs/specs/2026-09-17-contact-management.md](docs/specs/2026-09-17-contact-management.md) -
+  Person/Organization data model, categories/roles/duties/lifecycle-status lists, and the
+  Opportunity/Job attachment contract. Deleted once absorbed into PRODUCT.md, PRD.md,
+  ARCHITECTURE.md, and a migration.
+
+When one lands, add it to this list in the same change, and remove it in the change that deletes
+it.
 
 **Everything else in `docs/*.md` is permanent.**
 
