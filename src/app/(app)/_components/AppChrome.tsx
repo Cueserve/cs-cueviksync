@@ -31,8 +31,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Grouped by where a record sits in the inquiry-to-revenue funnel
 // (PRODUCT.md §4): Sales covers everything before an opportunity is Won,
-// Jobs covers execution after. Settings is its own group rather than folded
-// into either -- it's configuration, not a pipeline stage.
+// Jobs covers execution after. Control Center groups shared records and
+// settings that are not a sales or jobs stage.
 const NAV_GROUPS: SidebarNavGroup[] = [
   {
     label: "Overview",
@@ -53,11 +53,6 @@ const NAV_GROUPS: SidebarNavGroup[] = [
         icon: <Inbox className="size-4" />,
       },
       {
-        label: "Contacts",
-        href: "/contacts",
-        icon: <Building2 className="size-4" />,
-      },
-      {
         label: "Pipeline",
         href: "/pipeline",
         icon: <KanbanSquare className="size-4" />,
@@ -75,8 +70,13 @@ const NAV_GROUPS: SidebarNavGroup[] = [
     ],
   },
   {
-    label: "Settings",
+    label: "Control Center",
     items: [
+      {
+        label: "Contacts",
+        href: "/contacts",
+        icon: <Building2 className="size-4" />,
+      },
       {
         label: "Settings",
         href: "/settings",
@@ -182,7 +182,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
             // tenant logo is invisible on the stone-900 rail and legible here
             // (globals.css --sidebar-logo-chip).
             <span className="text-lg font-semibold tracking-tight text-foreground">
-              Your Company
+              Your Logo
             </span>
           }
           footer={
