@@ -110,6 +110,19 @@ creates duplicates" — not an empty bullet.
 Slug the folder `docs/work/<YYYY-MM-DD>-<issue#>-<slug>/`, zero-padding the issue number to
 three digits. The date is today.
 
+Label the issue `shaping` in the same breath:
+
+```sh
+gh issue edit <n> --repo Cueserve/cs-cueviksync --add-label shaping
+```
+
+**`shaping` on an issue means a work folder exists for it whose plan is not approved** —
+`/work:3-plan` removes it. That biconditional is the whole value of the label: the board can be
+scanned for what is in your hands without opening anything. Do not apply it before the folder
+exists, and do not leave it on after the plan lands.
+
+This is a write to the shared board. It prompts; let it.
+
 ```markdown
 # <Title> — Intent
 
@@ -162,24 +175,9 @@ On an explicit yes, and only then, change the header to `**Status:** Approved`. 
 refuses to run against a `Draft`, so this flip is the gate — never set it on your own
 initiative, and never because the file looks finished to you.
 
-Then move the board item to **`Ready`** — the problem is understood, which is more than the
-fifty-odd items sitting in `Backlog` can say.
-
-### Moving the card
-
-```sh
-# 1. find the project item id for the issue (its `id` field, PVTI_...)
-gh project item-list 17 --owner Cueserve --format json --limit 100
-
-# 2. set Status to Ready
-gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id 5c76395f
-```
-
-The two long ids are the project and its `Status` field; `5c76395f` is `Ready`.
-If any is rejected, re-read them with `gh project field-list 17 --owner Cueserve --format json`
-rather than guessing — a recreated project changes them.
-
-This is a write to the shared board. It prompts; let it.
+**The board Status does not move here, and neither does it at `/work:2-spec`.** The item is
+not `Ready` until there is a plan to build from; until then the `shaping` label carries the
+only true statement available — that this one is in your hands. `/work:3-plan` sets `Ready`.
 
 ## Phase 7 — Write the folder README
 

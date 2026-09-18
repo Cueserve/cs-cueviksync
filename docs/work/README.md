@@ -50,7 +50,7 @@ opening the folder after two weeks away tells you where you are and what to type
 # Contact and company records
 
 **Work item:** [#41 PRD-008: Contact and company records](https://github.com/Cueserve/cs-cueviksync/issues/41)
-**Board:** Ready
+**Board:** Backlog · `shaping`
 **Folder opened:** 2026-09-18
 
 Person and Organization as first-class records, with the duplicate detection PRD-010 requires.
@@ -68,22 +68,39 @@ Scoped to the Print & Signage vertical; the painter's-company variant stays out.
 ```
 
 The preface is two to four sentences, written from the approved intent and refreshed by a later
-step only if the framing actually changed.
+step only if the framing actually changed. **Board** is the Status plus any state label, copied
+from the item as the command last left it — the mapping is below.
 
 ## The board
 
-The commands move the card on [project 17](https://github.com/orgs/Cueserve/projects/17) at the
-two transitions that mean something. Both prompt before they run — nothing reaches the board
-without an approval click.
+**Status is pipeline position.** It only moves forward, and only when something about the code
+has changed. Shaping is carried by a **label** instead, because one single-select field cannot
+say both "how far along is this" and "is this in my hands right now" without being wrong
+somewhere in the week.
 
-| When                               | Status becomes | Because                                              |
-| ---------------------------------- | -------------- | ---------------------------------------------------- |
-| `/work:1-intent` files a new issue | `Backlog`      | it exists; nothing has been decided about it yet     |
-| `intent.md` approved               | `Ready`        | it is an understood work item, not a line in the PRD |
-| `plan.md` approved                 | `Working`      | shaping is done; it is buildable now                 |
+| When                            | Status      | Label                         | Set by                |
+| ------------------------------- | ----------- | ----------------------------- | --------------------- |
+| a new issue is filed            | `Backlog`   | —                             | `/work:1-intent`      |
+| the work folder is created      | `Backlog`   | +`shaping`                    | `/work:1-intent`      |
+| `spec.md` approved, §8 unticked | unchanged   | +`decision-needed`            | `/work:2-spec`        |
+| `plan.md` approved              | `Ready`     | −`shaping` −`decision-needed` | `/work:3-plan`        |
+| the build session starts        | `Working`   | —                             | the executing session |
+| the PR opens                    | `Reviewing` | —                             | the executing session |
+| the PR merges                   | `Done`      | —                             | **you**               |
 
-`Testing`, `Reviewing`, `Blocked`, and `Done` are yours. They track what happens to the code,
-which is past where these three commands stop.
+**`shaping` on an issue means a work folder is open for it whose plan is not approved.** That
+biconditional is the whole value of the label: the board answers "what am I in the middle of"
+without opening anything.
+
+`decision-needed` already meant "Open product decision; no code until decided", which is
+exactly an approved spec with an unticked §8 escalation trigger. `/work:3-plan` removes it on
+the run that gets past that gate.
+
+**`Done` is deliberately yours.** You merge the PR — `.claude/hooks/block-remote-writes.mjs`
+exists to keep that a human act — so you close the card. `Testing` and `Blocked` are untouched
+by these commands and free for you.
+
+Every board write prompts. Nothing reaches GitHub without an approval click.
 
 ## Authority
 

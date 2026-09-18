@@ -36,7 +36,14 @@ Two, both hard:
 2. **Every box in `spec.md` §8 is ticked.** An unticked escalation trigger — a migration, a
    package, an auth or RLS change, a service-role path — means the human has not signed off on
    something the plan would tell an agent to do. Stop, name the unticked boxes, and ask. Do not
-   plan around it, and do not plan it as a "pending approval" task.
+   plan around it, and do not plan it as a "pending approval" task. The issue should already
+   carry `decision-needed` from `/work:2-spec`; add it if it does not.
+
+Once both gates pass, drop `decision-needed` if it is there — the decision has been made:
+
+```sh
+gh issue edit <n> --repo Cueserve/cs-cueviksync --remove-label decision-needed
+```
 
 ## Phase 2 — Read the code
 
@@ -70,7 +77,7 @@ consumes; a plan executed top-to-bottom by one agent gets the same result, slowe
 
 ## Phase 4 — Write it
 
-```markdown
+````markdown
 # <Title> — Plan
 
 **Work item:** [#<n> <issue title>](<issue url>)
@@ -100,6 +107,17 @@ Read this before starting, and again whenever the repo does not look the way a t
 5. **Never push to `main`, never force-push, never merge or close the PR.** Enforced by
    `.claude/hooks/block-remote-writes.mjs`; stated here because the executing session reads
    this file first.
+6. **Move the card twice.** Set Status to `Working` before task 1, and to `Reviewing` when the
+   PR opens — nothing else knows when either happened. `Done` is not yours: the human merges,
+   so the human closes it out.
+
+```sh
+# Working, before task 1
+gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id f75ad846
+# Reviewing, when the PR opens
+gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id ae2be21a
+```
+````
 
 ## Waves
 
@@ -131,7 +149,8 @@ Read this before starting, and again whenever the repo does not look the way a t
 
 <Empty at planning time. The executing session appends here — what the plan said, what the
 repo actually held, and which task it stopped at.>
-```
+
+````
 
 ## Phase 5 — Self-review, then approve
 
@@ -147,7 +166,8 @@ Before showing it, check:
 Then show it and ask whether it is approved. On an explicit yes, and only then, set
 `**Status:** Approved`.
 
-Then move the board item to **`Working`** — shaping is done and this is buildable.
+Then move the board item to **`Ready`** — shaping is done and there is a plan to build
+from. `Working` belongs to the session that starts building, not to this one.
 
 ### Moving the card
 
@@ -155,15 +175,21 @@ Then move the board item to **`Working`** — shaping is done and this is builda
 # 1. find the project item id for the issue (its `id` field, PVTI_...)
 gh project item-list 17 --owner Cueserve --format json --limit 100
 
-# 2. set Status to Working
-gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id f75ad846
-```
+# 2. set Status to Ready
+gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id 5c76395f
+````
 
-The two long ids are the project and its `Status` field; `f75ad846` is `Working`.
+The two long ids are the project and its `Status` field; `5c76395f` is `Ready`.
 If any is rejected, re-read them with `gh project field-list 17 --owner Cueserve --format json`
 rather than guessing — a recreated project changes them.
 
-This is a write to the shared board. It prompts; let it.
+Then drop `shaping` — the folder is complete, and the label means an open one:
+
+```sh
+gh issue edit <n> --repo Cueserve/cs-cueviksync --remove-label shaping
+```
+
+These are writes to the shared board. They prompt; let them.
 
 ## Phase 6 — Regenerate the folder README
 

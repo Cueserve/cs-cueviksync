@@ -154,8 +154,23 @@ Read the file with fresh eyes before showing it:
 Then show it and ask whether it is approved. On an explicit yes, and only then, set
 `**Status:** Approved`.
 
-The board does not move here. Shaping is not finished until there is a plan, and a card that
-advances twice for one stretch of work says less than one that advances once.
+**The board Status does not move here.** Shaping is not finished until there is a plan, and
+the `shaping` label already says this item is in your hands.
+
+**If §8 has any unticked box after approval, label the issue `decision-needed`:**
+
+```sh
+gh issue edit <n> --repo Cueserve/cs-cueviksync --add-label decision-needed
+```
+
+Its description is exactly this case — "Open product decision; no code until decided." An
+approved spec with an unticked escalation trigger is a design waiting on a person, and the
+board should say so rather than leaving it indistinguishable from one that is ready to plan.
+`/work:3-plan` removes the label when it gets past that gate.
+
+If §8 is empty or fully ticked, add nothing.
+
+This is a write to the shared board. It prompts; let it.
 
 ## Phase 7 — Regenerate the folder README
 

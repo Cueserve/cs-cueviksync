@@ -277,8 +277,10 @@ more than the rest:
   Never improvise past a wrong plan.
 - **The folder's own `README.md` is the rollup** — preface, progress table, what to run next.
   Every command regenerates it from the artifacts' `**Status:**` headers, which are the truth.
-- **The card moves twice.** `intent.md` approved → `Ready`; `plan.md` approved → `Working`.
-  `Testing`, `Reviewing`, `Blocked`, and `Done` stay yours.
+- **Status is pipeline position; `shaping` is a label.** Opening a work folder adds `shaping`;
+  `plan.md` approved sets `Ready` and removes it; the build session sets `Working`, then
+  `Reviewing` when the PR opens. `Done` is yours, because you are the one who merges. The full
+  mapping is in [docs/work/README.md](docs/work/README.md).
 
 Work that is not one of the three — a typo, a lint fix, a dependency bump — does not need a
 folder. Anything that needs a migration, a new route, or a new Server Action does.
