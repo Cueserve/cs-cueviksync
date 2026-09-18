@@ -164,6 +164,13 @@ implementation quietly picking a default.
   Product Owner, informed by the Phase 1 Print & Signage validation partner
   (PRD §10).
 
+- **Direct booking with no Inquiry or Opportunity** — undecided. A walk-in or phone order
+  that becomes a Job without ever having been an Inquiry contradicts the zero-leak capture
+  guarantee as PRD-001 and NFR-002 are currently written, and touches both Capture & Triage
+  and Job Execution, neither of which is built. Until resolved, no implementation may
+  create a Job outside the Inquiry-to-Opportunity chain. **Decided by:** Product Owner,
+  informed by the Phase 1 Print & Signage validation partner (PRD §10).
+
 When a placeholder closes, mark it **resolved YYYY-MM-DD** and cite the requirement that
 now owns it. The entry stays in place, resolved — it is the record of the decision.
 
@@ -363,5 +370,10 @@ readable but not canonical — prefer the canonical term in specs.
   expected value/date (informal: "deal").
 - **Quote** — a commercial offer generated from an estimate; tracks version and acceptance.
 - **Job / Order** — a won quote converted into execution work.
-- **Account / Customer** — the relationship entity that inquiries, opportunities, and jobs
-  attach to.
+- **Person** — an individual contact record, and the relationship entity an inquiry,
+  opportunity, or job attaches to. An Organization alongside it is optional (informal:
+  "contact").
+- **Organization** — a company or institution record. Optional on any Person, and the
+  entity a Person may hold a role and duties within (informal: "company", "account").
+- **Contact** — the user-interface umbrella term for Persons and Organizations shown
+  together. Never a synonym for Person alone in a data model or in code.
