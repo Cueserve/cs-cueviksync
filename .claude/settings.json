@@ -40,6 +40,10 @@
       "Bash(git branch:*)",
       "Bash(git fetch:*)",
       "Bash(git push *)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh project item-list:*)",
+      "Bash(gh project field-list:*)",
       "Bash(gh pr create *)",
       "Bash(gh pr comment *)"
     ]
