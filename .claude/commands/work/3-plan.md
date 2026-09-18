@@ -77,7 +77,7 @@ consumes; a plan executed top-to-bottom by one agent gets the same result, slowe
 
 ## Phase 4 — Write it
 
-````markdown
+```markdown
 # <Title> — Plan
 
 **Work item:** [#<n> <issue title>](<issue url>)
@@ -100,7 +100,7 @@ Read this before starting, and again whenever the repo does not look the way a t
    blocked, and report. Do not improvise past a wrong plan: a plan that was wrong about one
    thing is evidence, not a rounding error.
 3. **Scope is the task list.** No refactor, no error handling, no abstraction that no task
-   asked for ([CLAUDE.md](../../../CLAUDE.md), "No invented scope").
+   asked for ([CLAUDE.md](../../CLAUDE.md), "No invented scope").
 4. **Ship gate before the PR:** `npm run lint`, `npm run typecheck`, `npm run format:check`,
    `npm run test`. All four pass → regular PR. Any fail → **draft** PR titled with the failure,
    and stop. Never weaken a check to force green.
@@ -108,16 +108,9 @@ Read this before starting, and again whenever the repo does not look the way a t
    `.claude/hooks/block-remote-writes.mjs`; stated here because the executing session reads
    this file first.
 6. **Move the card twice.** Set Status to `Working` before task 1, and to `Reviewing` when the
-   PR opens — nothing else knows when either happened. `Done` is not yours: the human merges,
-   so the human closes it out.
-
-```sh
-# Working, before task 1
-gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id f75ad846
-# Reviewing, when the PR opens
-gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id ae2be21a
-```
-````
+   PR opens — nothing else knows when either happened. The exact calls and ids are in
+   [docs/work/README.md](../README.md), "The board". `Done` is not yours: the human merges, so
+   the human closes it out.
 
 ## Waves
 
@@ -149,8 +142,7 @@ gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id
 
 <Empty at planning time. The executing session appends here — what the plan said, what the
 repo actually held, and which task it stopped at.>
-
-````
+```
 
 ## Phase 5 — Self-review, then approve
 
@@ -177,7 +169,7 @@ gh project item-list 17 --owner Cueserve --format json --limit 100
 
 # 2. set Status to Ready
 gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id 5c76395f
-````
+```
 
 The two long ids are the project and its `Status` field; `5c76395f` is `Ready`.
 If any is rejected, re-read them with `gh project field-list 17 --owner Cueserve --format json`

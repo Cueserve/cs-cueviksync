@@ -100,6 +100,25 @@ the run that gets past that gate.
 exists to keep that a human act — so you close the card. `Testing` and `Blocked` are untouched
 by these commands and free for you.
 
+### The calls
+
+```sh
+# the project item id for an issue (its `id`, PVTI_...)
+gh project item-list 17 --owner Cueserve --format json --limit 100
+
+# Status
+gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id <option>
+
+# labels
+gh issue edit <n> --repo Cueserve/cs-cueviksync --add-label shaping
+gh issue edit <n> --repo Cueserve/cs-cueviksync --remove-label shaping
+```
+
+Option ids: `40feac3a` Backlog · `5c76395f` Ready · `f75ad846` Working · `47fc9ee4` Testing ·
+`ae2be21a` Reviewing · `0cd4f388` Blocked · `98236657` Done. If any id is rejected, re-read
+them with `gh project field-list 17 --owner Cueserve --format json` rather than guessing — a
+recreated project changes them.
+
 Every board write prompts. Nothing reaches GitHub without an approval click.
 
 ## Authority

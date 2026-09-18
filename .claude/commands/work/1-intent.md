@@ -159,7 +159,7 @@ terms, with no solution in it.>
 
 ## 6. Constraints
 
-- <constraint> — [docs/<FILE>.md](../../../<FILE>.md) §<n>
+- <constraint> — [docs/<FILE>.md](../../<FILE>.md) §<n>
 
 ## 7. Open questions
 
