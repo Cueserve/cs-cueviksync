@@ -259,11 +259,11 @@ Never touch the following without explicit human instruction:
 **Every feature, function, or major change goes Plan → Design → Build before any code.** Each
 step is one command, one session, and one artifact, under `docs/work/<YYYY-MM-DD>-<issue#>-<slug>/`:
 
-| Step      | Command   | Artifact    | Answers                                        |
-| --------- | --------- | ----------- | ---------------------------------------------- |
-| 1. Plan   | `/intent` | `intent.md` | what problem, why now, what is out of scope    |
-| 2. Design | `/spec`   | `spec.md`   | what exactly, under which of this repo's rules |
-| 3. Build  | `/plan`   | `plan.md`   | which files, in which order, proved how        |
+| Step      | Command          | Artifact    | Answers                                        |
+| --------- | ---------------- | ----------- | ---------------------------------------------- |
+| 1. Plan   | `/work:1-intent` | `intent.md` | what problem, why now, what is out of scope    |
+| 2. Design | `/work:2-spec`   | `spec.md`   | what exactly, under which of this repo's rules |
+| 3. Build  | `/work:3-plan`   | `plan.md`   | which files, in which order, proved how        |
 
 The rules of the folder are in [docs/work/README.md](docs/work/README.md). Three things matter
 more than the rest:
@@ -275,6 +275,10 @@ more than the rest:
 - **`plan.md` carries an execution contract.** When the repo contradicts the plan mid-flight,
   stop, append the contradiction to its `## Deviations` section, and open the PR as a **draft**.
   Never improvise past a wrong plan.
+- **The folder's own `README.md` is the rollup** — preface, progress table, what to run next.
+  Every command regenerates it from the artifacts' `**Status:**` headers, which are the truth.
+- **The card moves twice.** `intent.md` approved → `Ready`; `plan.md` approved → `Working`.
+  `Testing`, `Reviewing`, `Blocked`, and `Done` stay yours.
 
 Work that is not one of the three — a typo, a lint fix, a dependency bump — does not need a
 folder. Anything that needs a migration, a new route, or a new Server Action does.
@@ -312,7 +316,7 @@ specific to working as an agent:
   - `/db-migrate` — applies pending Supabase migrations to the linked hosted project, then
     regenerates types and verifies.
   - `/doc-audit` — audits the documentation set for drift, gaps, and duplication.
-  - `/intent`, `/spec`, `/plan` — one command per step of "The three-step process" above.
+  - `/work:1-intent`, `/work:2-spec`, `/work:3-plan` — one command per step of "The three-step process" above.
 - **Migration guard.** `.claude/hooks/block-applied-migration.mjs` denies edits to any migration
   file already present in `origin/main`, because merged means applied to the hosted project and
   applied migrations are immutable. If it fires, author a **new** migration — do not work around

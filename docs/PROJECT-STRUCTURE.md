@@ -187,9 +187,10 @@ Read these before creating any new feature, route, action, or component.
   **`docs/work/` is a folder per work item, not a file**, and it carries the GitHub issue
   number as well as the date: `2026-09-18-041-contact-records/`. The date keeps the
   chronological sort the other folders rely on; the number is the key you actually arrive
-  by, because you reach a work folder from the board and never the reverse. Its three
-  artifacts are named `intent.md`, `spec.md`, and `plan.md` — fixed names, because each is
-  read by the command that produces the next one. See [work/README.md](work/README.md).
+  by, because you reach a work folder from the board and never the reverse. It holds four
+  files under fixed names: `intent.md`, `spec.md`, and `plan.md`, because each is read by the
+  command that produces the next one, plus a `README.md` that rolls up which of them are done.
+  See [work/README.md](work/README.md).
 
 ## 6. Keeping This File Honest
 

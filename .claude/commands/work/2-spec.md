@@ -6,13 +6,13 @@ argument-hint: "[<issue#> | <folder>]"
 
 # Spec
 
-Step 2 of the three-step process ([docs/work/README.md](../../docs/work/README.md)). Turn an
+Step 2 of the three-step process ([docs/work/README.md](../../../docs/work/README.md)). Turn an
 approved `intent.md` into `spec.md`: requirements and design in one pass, with this repo's
 policy applied while it is written rather than discovered in review.
 
 **This command designs. It does not sequence work and does not name a branch.** That is
-`/plan`. It also does not revisit whether the thing should be built — `intent.md` settled that,
-and reopening it here means going back to `/intent`, not arguing it in the spec.
+`/work:3-plan`. It also does not revisit whether the thing should be built — `intent.md` settled that,
+and reopening it here means going back to `/work:1-intent`, not arguing it in the spec.
 
 Arguments (optional): `$ARGUMENTS` — an issue number or a folder name. Empty resolves to the
 only folder with an approved `intent.md` and no `spec.md`; if there is more than one, ask.
@@ -30,24 +30,24 @@ only folder with an approved `intent.md` and no `spec.md`; if there is more than
 
 `intent.md` must exist and its header must read `**Status:** Approved`.
 
-Missing, or still `Draft` → **stop**. Report which, and say to run `/intent`. Do not offer to
+Missing, or still `Draft` → **stop**. Report which, and say to run `/work:1-intent`. Do not offer to
 write the intent yourself in this session; the steps are separate so that each one is read
 cold, and collapsing them defeats the only reason there are three.
 
 ## Phase 2 — Load the policy
 
 A spec is only worth writing if it is constrained. Read the files that constrain this slice
-before designing anything — never recall them ([CLAUDE.md](../../CLAUDE.md), "Read before
+before designing anything — never recall them ([CLAUDE.md](../../../CLAUDE.md), "Read before
 proposing"):
 
-- [docs/PRD.md](../../docs/PRD.md) for every `PRD-NNN` the intent cites, plus the
+- [docs/PRD.md](../../../docs/PRD.md) for every `PRD-NNN` the intent cites, plus the
   Non-Functional Requirements (NFRs) that apply.
-- [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the module this lands in.
-- [docs/PROJECT-STRUCTURE.md](../../docs/PROJECT-STRUCTURE.md) §2, for where every new file
+- [docs/ARCHITECTURE.md](../../../docs/ARCHITECTURE.md) for the module this lands in.
+- [docs/PROJECT-STRUCTURE.md](../../../docs/PROJECT-STRUCTURE.md) §2, for where every new file
   goes. This is not optional and its answer goes in the spec.
-- [docs/ENGINEERING-RULES.md](../../docs/ENGINEERING-RULES.md) §2 for the banned patterns this
+- [docs/ENGINEERING-RULES.md](../../../docs/ENGINEERING-RULES.md) §2 for the banned patterns this
   design could walk into, and §3 for which mandatory test cases apply.
-- [docs/DESIGN-SYSTEM.md](../../docs/DESIGN-SYSTEM.md) and `src/components/ui/`, if a screen is
+- [docs/DESIGN-SYSTEM.md](../../../docs/DESIGN-SYSTEM.md) and `src/components/ui/`, if a screen is
   involved.
 - Any approved spec in `docs/specs/` covering the same entities.
 
@@ -57,7 +57,7 @@ says so.
 
 ## Phase 3 — Design
 
-Batch the questions ([CLAUDE.md](../../CLAUDE.md)). Where two designs are genuinely open,
+Batch the questions ([CLAUDE.md](../../../CLAUDE.md)). Where two designs are genuinely open,
 state the trade-off and let the human pick — do not silently choose.
 
 **If this slice is UI-bearing, run `/impeccable shape` here**, inside this step. CLAUDE.md's
@@ -70,13 +70,13 @@ Resolve every value to a design token before any markup appears in the spec.
 ## Phase 4 — Apply policy as you write
 
 The spec is where a governance problem is supposed to surface, not the PR. Walk
-[CLAUDE.md](../../CLAUDE.md)'s "Decision escalation" and "Off-limits" against this design and
+[CLAUDE.md](../../../CLAUDE.md)'s "Decision escalation" and "Off-limits" against this design and
 **flag every trigger in §8 of the artifact** — a schema or migration change, a new or removed
 package, a change to a service-role path, anything touching auth or Row-Level Security (RLS),
 a new runtime role.
 
-Flagging is not approval. §8 is a list of what the human has to sign off before `/plan` runs,
-and `/plan` reads it.
+Flagging is not approval. §8 is a list of what the human has to sign off before `/work:3-plan` runs,
+and `/work:3-plan` reads it.
 
 ## Phase 5 — Write it
 
@@ -132,7 +132,7 @@ reason.>
 <Which files under `docs/` this makes stale, and what each needs. Each lands in its own Pull
 Request (PR) per CONTRIBUTING.md. "None" is a valid answer.>
 
-## 8. Requires human approval before `/plan`
+## 8. Requires human approval before `/work:3-plan`
 
 - [ ] <trigger from CLAUDE.md "Decision escalation" or "Off-limits">, because <reason>
 
@@ -154,4 +154,16 @@ Read the file with fresh eyes before showing it:
 Then show it and ask whether it is approved. On an explicit yes, and only then, set
 `**Status:** Approved`.
 
-Report the path and stop. Do not invoke `/plan`.
+The board does not move here. Shaping is not finished until there is a plan, and a card that
+advances twice for one stretch of work says less than one that advances once.
+
+## Phase 7 — Regenerate the folder README
+
+Rewrite the work folder's `README.md` from the `**Status:**` header of each artifact that
+exists, to the template in [docs/work/README.md](../../../docs/work/README.md). Read the
+headers; never carry a status over from memory.
+
+Refresh the preface **only if the design changed what this work item is**. A spec that merely
+detailed the intent leaves it alone.
+
+Report the path and stop. Do not invoke `/work:3-plan`.

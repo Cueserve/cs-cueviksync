@@ -13,7 +13,7 @@ the decision now lives.
 This is not `docs/work/`. A folder there is a **committed** work item — it has a GitHub issue
 number, an approved intent, and a route to merge. A file here is open exploration of a topic
 with none of those. The boundary is the decision: while the question is still whether a thing
-should exist, it belongs here; once it should, it moves to `/intent` and a work folder.
+should exist, it belongs here; once it should, it moves to `/work:1-intent` and a work folder.
 
 See [docs/PROJECT-STRUCTURE.md](../PROJECT-STRUCTURE.md) §5 for the full document-kind table —
 which folder each kind of document lives in, and which kinds are transient.

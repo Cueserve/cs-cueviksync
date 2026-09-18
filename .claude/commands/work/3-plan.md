@@ -6,7 +6,7 @@ argument-hint: "[<issue#> | <folder>]"
 
 # Plan
 
-Step 3 of the three-step process ([docs/work/README.md](../../docs/work/README.md)). Turn an
+Step 3 of the three-step process ([docs/work/README.md](../../../docs/work/README.md)). Turn an
 approved `spec.md` into `plan.md`: a dependency-ordered set of task blocks that a session with
 no memory of this conversation can execute and turn into a Pull Request (PR).
 
@@ -32,7 +32,7 @@ only folder with an approved `spec.md` and no `plan.md`; if there is more than o
 Two, both hard:
 
 1. **`spec.md` exists and reads `**Status:** Approved`.** Missing or `Draft` → stop, and say to
-   run `/spec`.
+   run `/work:2-spec`.
 2. **Every box in `spec.md` §8 is ticked.** An unticked escalation trigger — a migration, a
    package, an auth or RLS change, a service-role path — means the human has not signed off on
    something the plan would tell an agent to do. Stop, name the unticked boxes, and ask. Do not
@@ -44,7 +44,7 @@ Read every file the spec says this touches, and find the ones it missed. A plan 
 the spec alone will name files that do not exist and miss the ones that do.
 
 Confirm placement for each new file against
-[docs/PROJECT-STRUCTURE.md](../../docs/PROJECT-STRUCTURE.md) §2 before it appears in a task.
+[docs/PROJECT-STRUCTURE.md](../../../docs/PROJECT-STRUCTURE.md) §2 before it appears in a task.
 
 ## Phase 3 — Decompose
 
@@ -61,7 +61,7 @@ run src/lib/validation/person.test.ts`, not "tests pass".
 
 **The proof command must fail before the task starts.** That is what makes it proof rather
 than decoration, and it is test-driven development stated as a property of the plan
-([docs/ENGINEERING-RULES.md](../../docs/ENGINEERING-RULES.md) §3). Where a task's proof is a
+([docs/ENGINEERING-RULES.md](../../../docs/ENGINEERING-RULES.md) §3). Where a task's proof is a
 test, writing that test is part of that task, not a later one.
 
 Then group the tasks into waves: wave 1 is every task with no dependency, wave 2 is every task
@@ -93,7 +93,7 @@ Read this before starting, and again whenever the repo does not look the way a t
    blocked, and report. Do not improvise past a wrong plan: a plan that was wrong about one
    thing is evidence, not a rounding error.
 3. **Scope is the task list.** No refactor, no error handling, no abstraction that no task
-   asked for ([CLAUDE.md](../../CLAUDE.md), "No invented scope").
+   asked for ([CLAUDE.md](../../../CLAUDE.md), "No invented scope").
 4. **Ship gate before the PR:** `npm run lint`, `npm run typecheck`, `npm run format:check`,
    `npm run test`. All four pass → regular PR. Any fail → **draft** PR titled with the failure,
    and stop. Never weaken a check to force green.
@@ -146,6 +146,30 @@ Before showing it, check:
 
 Then show it and ask whether it is approved. On an explicit yes, and only then, set
 `**Status:** Approved`.
+
+Then move the board item to **`Working`** — shaping is done and this is buildable.
+
+### Moving the card
+
+```sh
+# 1. find the project item id for the issue (its `id` field, PVTI_...)
+gh project item-list 17 --owner Cueserve --format json --limit 100
+
+# 2. set Status to Working
+gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id f75ad846
+```
+
+The two long ids are the project and its `Status` field; `f75ad846` is `Working`.
+If any is rejected, re-read them with `gh project field-list 17 --owner Cueserve --format json`
+rather than guessing — a recreated project changes them.
+
+This is a write to the shared board. It prompts; let it.
+
+## Phase 6 — Regenerate the folder README
+
+Rewrite the work folder's `README.md` from the `**Status:**` header of each artifact, to the
+template in [docs/work/README.md](../../../docs/work/README.md). All three rows are filled in
+now; **Next** becomes executing the plan.
 
 Report the path and stop. Executing the plan is a separate session — that is the point of
 writing it down.

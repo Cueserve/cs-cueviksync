@@ -6,15 +6,15 @@ argument-hint: "[<issue#> | <free description>]"
 
 # Intent
 
-Step 1 of the three-step process ([docs/work/README.md](../../docs/work/README.md)). Produce
+Step 1 of the three-step process ([docs/work/README.md](../../../docs/work/README.md)). Produce
 `intent.md`: the problem, stated, before anyone has proposed a solution to it.
 
 **This command does not design and does not plan.** No schema, no file names, no components,
 no libraries. The moment a solution appears in this session, the step has failed at the only
-thing it exists to do — which is to stop you reaching for one. `/spec` designs. `/plan` plans.
+thing it exists to do — which is to stop you reaching for one. `/work:2-spec` designs. `/work:3-plan` plans.
 
 **Every question is batched.** Ask them in groups, never one per message
-([CLAUDE.md](../../CLAUDE.md), "Ask, don't assume").
+([CLAUDE.md](../../../CLAUDE.md), "Ask, don't assume").
 
 Arguments (optional): `$ARGUMENTS` —
 
@@ -64,7 +64,7 @@ and ask which one to resume.
 Search the issue title and body for a `PRD-NNN` reference.
 
 - **Found → slice contract.** The problem is already stated in
-  [docs/PRD.md](../../docs/PRD.md); restating it produces a file that copies the PRD and
+  [docs/PRD.md](../../../docs/PRD.md); restating it produces a file that copies the PRD and
   teaches you nothing. The job here is the **cut**: why this slice now, what is in it, and —
   the part that actually earns the file — what is deliberately _not_ in it. `PRD-018: Quote
 total` says nothing about whether tax and discount are in this pass. That is the gap this
@@ -92,9 +92,9 @@ soft answer here is a hole in the file:
   three service-role paths.
 - **Constraints.** Every one must be **cited to a file** under `docs/` —
   `docs/ARCHITECTURE.md §2`, not "the architecture says". Read the file. Never recall it
-  ([CLAUDE.md](../../CLAUDE.md), "Read before proposing").
+  ([CLAUDE.md](../../../CLAUDE.md), "Read before proposing").
 - **Open questions.** What you do not know yet, and which of those must be settled before
-  `/spec` can run.
+  `/work:2-spec` can run.
 
 Challenge the answers. Agreement before pressure-testing is worth nothing here.
 
@@ -146,20 +146,49 @@ terms, with no solution in it.>
 
 ## 6. Constraints
 
-- <constraint> — [docs/<FILE>.md](../../<FILE>.md) §<n>
+- <constraint> — [docs/<FILE>.md](../../../<FILE>.md) §<n>
 
 ## 7. Open questions
 
 - **<question>** — answered: <answer>
-- **<question>** — deferred: <reason it can wait past `/spec`>
+- **<question>** — deferred: <reason it can wait past `/work:2-spec`>
 ```
 
 ## Phase 6 — Approve
 
 Show the file. Ask whether it is approved.
 
-On an explicit yes, and only then, change the header to `**Status:** Approved`. `/spec`
+On an explicit yes, and only then, change the header to `**Status:** Approved`. `/work:2-spec`
 refuses to run against a `Draft`, so this flip is the gate — never set it on your own
 initiative, and never because the file looks finished to you.
 
-Report the path and stop. Do not invoke `/spec`. It is a separate session by design.
+Then move the board item to **`Ready`** — the problem is understood, which is more than the
+fifty-odd items sitting in `Backlog` can say.
+
+### Moving the card
+
+```sh
+# 1. find the project item id for the issue (its `id` field, PVTI_...)
+gh project item-list 17 --owner Cueserve --format json --limit 100
+
+# 2. set Status to Ready
+gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id 5c76395f
+```
+
+The two long ids are the project and its `Status` field; `5c76395f` is `Ready`.
+If any is rejected, re-read them with `gh project field-list 17 --owner Cueserve --format json`
+rather than guessing — a recreated project changes them.
+
+This is a write to the shared board. It prompts; let it.
+
+## Phase 7 — Write the folder README
+
+Write `README.md` in the work folder, to the template in
+[docs/work/README.md](../../../docs/work/README.md): the work item, the board status you just
+set, a two-to-four sentence preface drawn from §1 and §2 of the intent, the progress table, and
+what to run next.
+
+The preface is for you in three weeks, not for the agent. Say what this work item is, not what
+the file contains.
+
+Report both paths and stop. Do not invoke `/work:2-spec`. It is a separate session by design.
