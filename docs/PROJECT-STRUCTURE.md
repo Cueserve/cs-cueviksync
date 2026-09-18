@@ -166,7 +166,7 @@ Read these before creating any new feature, route, action, or component.
   adopted, its specs are `*.spec.ts` under `e2e/` so the Vitest include glob never picks them
   up.
 - **Docs** — top-level `docs/*.md`, named by content in SCREAMING-KEBAB (`ARCHITECTURE.md`,
-  `TECH-STACK.md`). Four kinds of document live under `docs/`, and the folder says which:
+  `TECH-STACK.md`). Five kinds of document live under `docs/`, and the folder says which:
 
   | Kind                     | Path                  | Filename                          | Lifetime                                               |
   | ------------------------ | --------------------- | --------------------------------- | ------------------------------------------------------ |
@@ -174,12 +174,22 @@ Read these before creating any new feature, route, action, or component.
   | Design spec              | `docs/specs/`         | `YYYY-MM-DD-<slug>.md`            | transient — listed in CLAUDE.md, deleted when absorbed |
   | Advisory review          | `docs/reviews/`       | `YYYY-MM-DD-<subject>-review.md`  | permanent                                              |
   | Pre-decision exploration | `docs/brainstorming/` | `<topic>.md`, `**Status:** Draft` | permanent, never authoritative                         |
+  | Work artifact            | `docs/work/`          | `YYYY-MM-DD-<issue#>-<slug>/`     | transient — deleted once the work has landed           |
 
   **Permanent vs. transient is a property of the file, not its folder.** Every transient file
-  declares it in its own header **and** is listed in CLAUDE.md's "Approved design specs" block.
-  Don't add one without doing both; don't assume a `docs/*.md` is permanent without checking
-  that list. Date-first filenames in `specs/` and `reviews/` so a directory listing sorts
+  declares it in its own header. A **design spec** additionally appears in CLAUDE.md's
+  "Approved design specs" block — add it there in the same change, and remove it in the change
+  that deletes it; don't assume a `docs/*.md` is permanent without checking that list. A **work
+  artifact** is not listed there: its folder name carries the issue number that says what it
+  belongs to, and the board says whether that is still open. Date-first filenames in `specs/` and `reviews/` so a directory listing sorts
   chronologically, which is how both are read.
+
+  **`docs/work/` is a folder per work item, not a file**, and it carries the GitHub issue
+  number as well as the date: `2026-09-18-041-contact-records/`. The date keeps the
+  chronological sort the other folders rely on; the number is the key you actually arrive
+  by, because you reach a work folder from the board and never the reverse. Its three
+  artifacts are named `intent.md`, `spec.md`, and `plan.md` — fixed names, because each is
+  read by the command that produces the next one. See [work/README.md](work/README.md).
 
 ## 6. Keeping This File Honest
 
