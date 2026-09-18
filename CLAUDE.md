@@ -223,8 +223,13 @@ Never touch the following without explicit human instruction:
   secrets MUST NOT carry `NEXT_PUBLIC_`. `.claude/settings.json` denies these reads outright;
   that is the mechanical backstop, not a substitute for the rule.
 - **Lock files** — `package-lock.json` is a side-effect of `npm`, not a direct edit.
-- **Database migrations** — never create, modify, or delete files under `supabase/migrations/`
-  autonomously.
+- **Database migrations** — creating or editing a migration file is allowed once it implements
+  an approved spec or plan (a `docs/specs/` or `docs/plans/` file you've signed off on).
+  **Running one is the exception — never an agent action**, not `npm run db:push`, not
+  `npx supabase db push`, not `/db-migrate`. Open a PR that only touches
+  `supabase/migrations/`; you apply it after review. Not mechanically enforced beyond the
+  existing `ask` gate on the push/deploy commands — nothing checks that an approved spec
+  actually exists before a migration file gets written.
 - **CI/CD config** — `.github/workflows/`, Vercel configuration, and deployment settings require
   human review.
 - **Auth-related code** — RLS policies, JWT/role-claim handling, Supabase Auth wiring, session
@@ -254,10 +259,20 @@ Never touch the following without explicit human instruction:
 gate. Those rules are **not restated here** — read them there. These are the constraints
 specific to working as an agent:
 
-- **Branch creation is a human action** — never create a branch autonomously.
-- **PRs** — never open, close, or comment on a Pull Request without explicit instruction.
-- **Pushing to remote** — never push to any remote branch without explicit human approval. This
-  includes the branch you are currently working on, not just `main`.
+- **Branch creation is allowed autonomously.** Name it per `CONTRIBUTING.md`'s branch-naming
+  convention; nothing to ask permission for.
+- **Pushing a feature branch to remote is required once ready for review** — a PR needs its
+  branch on the remote to exist at all.
+- **Pushing to `main` directly, or force-pushing any branch (including `--force-with-lease`),
+  is never an agent action.** Mechanically enforced by
+  `.claude/hooks/block-remote-writes.mjs` — a direct push to `main` has the same effect as
+  merging without review, and force-push orphans comments already left on a pushed branch.
+- **PRs** — opening one and commenting on your own is allowed autonomously. Open a **regular
+  PR** when `lint`/`typecheck`/`format:check`/`test` all pass; open a **draft PR** titled with
+  the failure and stop when a gate fails — never weaken a check to force green. **Merging or
+  closing a PR is never an agent action, no exception** — mechanically enforced by the same
+  hook, because the branch ruleset on `main` does not actually stop this account from merging
+  (its bypass actor is a team this account maintains).
 
 ## Claude Code-specific config
 

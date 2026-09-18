@@ -21,8 +21,7 @@
       "Bash(supabase db push)",
       "Bash(supabase db push *)",
       "Bash(npx supabase functions deploy *)",
-      "Bash(supabase functions deploy *)",
-      "Bash(git push *)"
+      "Bash(supabase functions deploy *)"
     ],
     "allow": [
       "Bash(npm run lint:*)",
@@ -39,7 +38,10 @@
       "Bash(git log:*)",
       "Bash(git show:*)",
       "Bash(git branch:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git push *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr comment *)"
     ]
   },
   "hooks": {
@@ -52,6 +54,17 @@
             "command": "node .claude/hooks/block-applied-migration.mjs",
             "timeout": 10,
             "statusMessage": "Checking migration immutability"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/block-remote-writes.mjs",
+            "timeout": 10,
+            "statusMessage": "Checking push target and PR action"
           }
         ]
       }
