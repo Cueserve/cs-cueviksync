@@ -1,7 +1,7 @@
 # PRD.md — Product Requirements Document
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-18
+**Last updated:** 2026-09-23
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
@@ -33,13 +33,14 @@ PRODUCT.md defines the full product narrative and the intended end-state scope o
 Phase 1. This PRD defines the **Phase 1 thin-core release**: the first release
 inside Phase 1, limited to the smallest slice that proves the product's central
 promise — zero-leak capture — and a configurable path from an inquiry to a tracked
-quote.
+quote, and from a won quote to a tracked job.
 
 The Phase 1 thin-core release covers inquiry capture, person/organization management,
-adaptive pipelines, basic quotation, custom fields, and role-based access. It is
-validated against Print & Signage operations (see PRODUCT.md §7). Estimation depth,
-job execution, the AI sales assistant, workflow automation, and reporting are
-deferred to later Phase 1 PRDs and listed in §9.
+adaptive pipelines, basic quotation, job/order execution as a flat tracking record, the
+repeat-order shortcut, custom fields, and role-based access. It is validated against
+Print & Signage operations (see PRODUCT.md §7). Estimation depth, job execution beyond
+a flat tracking record, the AI sales assistant, workflow automation, and
+opportunity-level reporting are deferred to later Phase 1 PRDs and listed in §9.
 
 This PRD defines the only committed Phase 1 release scope at this time (thin-core).
 Any broader capabilities mentioned in PRODUCT.md or brainstorming docs are roadmap
@@ -50,6 +51,7 @@ Core goals for this release:
 - Capture every inbound inquiry so none is lost.
 - Let a team shape its own pipeline with no code.
 - Turn a captured inquiry into a tracked, sendable quote.
+- Turn a won quote into a tracked job, and let a repeat customer reorder in one step.
 - Keep sensitive data scoped through role-based access.
 
 ## 2. Target Users
