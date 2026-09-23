@@ -18,6 +18,6 @@ gets tested before any user interface review is added on top.
 | 2. Design | [spec.md](spec.md)     | Approved | 2026-09-23 |
 | 3. Build  | plan.md                | —        | —          |
 
-**Next:** `spec.md` §8 has five unticked boxes, so `/work:3-plan` will refuse. One is a documentation
-change that must merge first — PRD §1's scope sentence (#98). The other four are sign-off on the
-schema, the RLS policies, the `operations` enum value, and the seed function.
+**Next:** `spec.md` §8 has four unticked boxes, so `/work:3-plan` will refuse. All four are
+sign-off on the design in §2 — the schema, the RLS policies, the `operations` enum value, and the
+seed function. The one documentation change §8 required merged in #98.

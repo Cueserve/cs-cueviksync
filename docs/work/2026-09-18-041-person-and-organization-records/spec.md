@@ -695,21 +695,16 @@ exists. Recorded in §9, not skipped.
 
 Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 
-1. **`docs/PRD.md` §1 — the scope sentence is wrong and must be corrected. Blocking.** It reads
-   "Estimation depth, **job execution**, the AI sales assistant, workflow automation, and
-   reporting are deferred to later Phase 1 PRDs and listed in §9." That contradicts §6, which
-   carries PRD-031 through PRD-043; §9, which excludes only depth _beyond_ thin-core and points
-   at "this release's job record"; and PRODUCT §4, which lists Job/Order execution as committed
-   thin-core scope. Job execution is in this release. The sentence is the reason this spec first
-   proposed removing the Operations role, so it is a live hazard, not a typo.
+1. **`docs/PRD.md` §1 — done, #98.** It said job execution was deferred, contradicting §6, §9,
+   and PRODUCT §4, and was the evidence behind this spec first proposing to drop the Operations
+   role. Corrected on 2026-09-23.
 2. **`docs/PRD.md` PRD-024 and PRD-027 — no change needed, and that is the finding.** Both name
    five roles including Operations, and both are correct. The database is what was wrong, and
    §2.1 fixes it.
-3. **`docs/ARCHITECTURE.md` §5 — the Opportunity and Job contract.** `person_id not null`,
-   `organization_id` nullable, a trigger requiring the pair to be linked, both columns frozen once
-   Won, Job inherits and never edits, Reorder copies without re-checking, an inactive link warns
-   rather than blocks. It belongs to ARCHITECTURE because it constrains modules this slice does
-   not build.
+3. **`docs/ARCHITECTURE.md` §5 — done, #99.** The Opportunity and Job contract now lives there:
+   `person_id not null`, `organization_id` nullable, both `on delete restrict`; the pair must be
+   linked; frozen once Won; Job inherits; Reorder copies without re-checking; an inactive link
+   warns; lifecycle events target the Organization when there is one. Added on 2026-09-23.
 4. **`docs/DATABASE.md`** — §§1–3, 5, and 6 are unwritten. This is the first real domain model in
    the repo and should fill them.
 5. **`CLAUDE.md` "Project state"** — currently says no Server Actions and no tests exist. Both
@@ -730,9 +725,9 @@ Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 - [ ] **`alter type user_role add value 'operations'`** — a change to the role enum every future
       policy in the repo reads, and CLAUDE.md "Decision escalation" names a new runtime role
       explicitly. An enum value is far easier to add than to remove.
-- [ ] **`docs/PRD.md` §1's scope sentence is corrected** — §7.1. A documentation change that must
-      merge before the migration is written, because it is currently evidence for the opposite
-      decision.
+- [x] **`docs/PRD.md` §1's scope sentence is corrected** — merged in #98 on 2026-09-23. It
+      had said job execution was deferred, which was the evidence behind the first draft of this
+      spec proposing to drop the Operations role.
 - [ ] **`seed_tenant_contact_lists` is adjacent to provisioning**, one of the three service-role
       system paths. It does not change provisioning, but provisioning will call it, which makes
       its signature a contract. CLAUDE.md "Scope boundaries" puts changes to those paths out of
