@@ -64,6 +64,7 @@ reviewer can see which boxes you actually ticked.
       invented scope, no opportunistic refactor, no "while I was in there".
 - [ ] No source-of-truth document under `docs/`, nor `CLAUDE.md`, nor this file, is touched in
       this PR — unless the PR is _only_ that documentation change (see "Documentation changes").
+      Files under `docs/work/` do not count; they are expected here.
 - [ ] No secret, key, connection string, or `.env*` value appears anywhere in the diff, in a
       code comment, or in a fixture.
 - [ ] No dependency added or removed without the corresponding `docs/TECH-STACK.md` change
@@ -130,6 +131,12 @@ Changing one is a **standalone change, never folded into feature work**:
    line listing them.
 3. Get explicit approval.
 4. Land it in its own commit.
+
+**`docs/work/` is exempt.** The `intent.md`, `spec.md`, and `plan.md` a work item produces
+are transient artifacts of that item, not source-of-truth documents — see
+[docs/work/README.md](docs/work/README.md). They ride in the same PR as the change they
+describe, because keeping them out would hand the reviewer a diff without the reasoning that
+produced it. `docs/specs/`, `docs/reviews/`, and `docs/brainstorming/` are **not** exempt.
 
 Keep acronyms defined on first use in any new document, and match the writing standard already
 in `docs/`.

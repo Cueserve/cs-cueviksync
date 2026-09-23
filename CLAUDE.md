@@ -224,7 +224,8 @@ Never touch the following without explicit human instruction:
   that is the mechanical backstop, not a substitute for the rule.
 - **Lock files** — `package-lock.json` is a side-effect of `npm`, not a direct edit.
 - **Database migrations** — creating or editing a migration file is allowed once it implements
-  an approved spec or plan (a `docs/specs/` or `docs/plans/` file you've signed off on).
+  an approved spec or plan — a `docs/specs/` file, or the `spec.md`/`plan.md` of a
+  `docs/work/` item, that you've signed off on.
   **Running one is the exception — never an agent action**, not `npm run db:push`, not
   `npx supabase db push`, not `/db-migrate`. Open a PR that only touches
   `supabase/migrations/`; you apply it after review. Not mechanically enforced beyond the
@@ -252,6 +253,37 @@ Never touch the following without explicit human instruction:
 - **No invented scope** — do not add features, refactors, error handling, or abstractions beyond
   what was requested.
 - **Uncertainty is explicit** — if unsure, say so. Never present a guess as a fact.
+
+## The three-step process
+
+**Every feature, function, or major change goes Plan → Design → Build before any code.** Each
+step is one command, one session, and one artifact, under `docs/work/<YYYY-MM-DD>-<issue#>-<slug>/`:
+
+| Step      | Command          | Artifact    | Answers                                        |
+| --------- | ---------------- | ----------- | ---------------------------------------------- |
+| 1. Plan   | `/work:1-intent` | `intent.md` | what problem, why now, what is out of scope    |
+| 2. Design | `/work:2-spec`   | `spec.md`   | what exactly, under which of this repo's rules |
+| 3. Build  | `/work:3-plan`   | `plan.md`   | which files, in which order, proved how        |
+
+The rules of the folder are in [docs/work/README.md](docs/work/README.md). Three things matter
+more than the rest:
+
+- **Each step reads only the previous artifact, never the conversation that produced it.** A
+  step run in a fresh session is the design working, not a problem to route around.
+- **A step refuses to run until the previous artifact reads `**Status:** Approved`,** and only
+  an explicit human yes sets that. Never set it on your own initiative.
+- **`plan.md` carries an execution contract.** When the repo contradicts the plan mid-flight,
+  stop, append the contradiction to its `## Deviations` section, and open the PR as a **draft**.
+  Never improvise past a wrong plan.
+- **The folder's own `README.md` is the rollup** — preface, progress table, what to run next.
+  Every command regenerates it from the artifacts' `**Status:**` headers, which are the truth.
+- **Status is pipeline position; `shaping` is a label.** Opening a work folder adds `shaping`;
+  `plan.md` approved sets `Ready` and removes it; the build session sets `Working`, then
+  `Reviewing` when the PR opens. `Done` is yours, because you are the one who merges. The full
+  mapping is in [docs/work/README.md](docs/work/README.md).
+
+Work that is not one of the three — a typo, a lint fix, a dependency bump — does not need a
+folder. Anything that needs a migration, a new route, or a new Server Action does.
 
 ## Workflow
 
@@ -286,6 +318,7 @@ specific to working as an agent:
   - `/db-migrate` — applies pending Supabase migrations to the linked hosted project, then
     regenerates types and verifies.
   - `/doc-audit` — audits the documentation set for drift, gaps, and duplication.
+  - `/work:1-intent`, `/work:2-spec`, `/work:3-plan` — one command per step of "The three-step process" above.
 - **Migration guard.** `.claude/hooks/block-applied-migration.mjs` denies edits to any migration
   file already present in `origin/main`, because merged means applied to the hosted project and
   applied migrations are immutable. If it fires, author a **new** migration — do not work around
