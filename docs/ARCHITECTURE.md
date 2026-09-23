@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — System Architecture
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-07-14
+**Last updated:** 2026-09-18
 **Source of truth for:** the system structure, component boundaries, and design decisions that satisfy the CuevikSync Phase 1 thin-core PRD.
 
 > Derived from: docs/PRD.md
@@ -93,8 +93,9 @@ Components:
   (PRD-023, PRD-025, PRD-027, NFR-008)
 - **Capture & Triage module** — the shared inquiry queue, manual logging, priority, and
   provenance. (PRD-002 – PRD-007, PRD-028)
-- **CRM module** — contact and company records, multi-company associations, and
-  duplicate-on-create detection. (PRD-008 – PRD-010)
+- **CRM module** — person and organization records, multi-organization associations,
+  duplicate-on-create detection, the five tenant-configurable value lists, and
+  lifecycle status. (PRD-008 – PRD-010, PRD-045 – PRD-049)
 - **Pipeline module** — configurable pipelines and stages, opportunities with mandatory
   fields, stage movement with history, and terminal outcomes. (PRD-011 – PRD-015)
 - **Quoting module** — quotes, line items, totals, the status lifecycle, issuance, and the
@@ -120,35 +121,43 @@ described by a per-tenant field-definition catalog.
 
 Core entities:
 
-| Entity             | Purpose                                                        | Key relationships                                            |
-| ------------------ | -------------------------------------------------------------- | ------------------------------------------------------------ |
-| Tenant             | The account/isolation boundary                                 | Owns every other record                                      |
-| User               | An authenticated person with one static role                   | Belongs to a Tenant; owns Opportunities/Quotes               |
-| Inquiry            | A captured lead with channel, priority, and provenance         | Optional link to Contact/Company; qualifies into Opportunity |
-| IntakeSubmission   | The durable raw web-form payload before transformation         | Produces an Inquiry (traceable)                              |
-| Contact            | A person record                                                | Many-to-many with Company                                    |
-| Company            | An organization record                                         | Many-to-many with Contact                                    |
-| ContactCompany     | The association enabling multi-company contacts                | Joins Contact and Company (PRD-009)                          |
-| Pipeline           | A tenant-configurable process                                  | Has ordered Stages                                           |
-| Stage              | A named, ordered step, one or more terminal                    | Belongs to a Pipeline                                        |
-| Opportunity        | A deal with a stage, owner, and next action                    | Links Inquiry, Contact, Company, Pipeline                    |
-| StageHistory       | Append-only record of stage moves                              | Belongs to an Opportunity (PRD-013)                          |
-| Quote              | A commercial offer with a status and total                     | Belongs to an Opportunity; has QuoteLines                    |
-| QuoteLine          | A catalog or free-form line with quantity and unit price       | Belongs to a Quote                                           |
-| QuoteStatusHistory | Append-only record of status changes                           | Belongs to a Quote (PRD-019, NFR-011)                        |
-| CatalogItem        | A flat sellable item (name + unit price + active flag)         | Referenced by QuoteLine (PRD-017, PRD-021)                   |
-| Job                | Production work converted from a Won opportunity               | Belongs to an Opportunity; has JobItems (PRD-031)            |
-| JobItem            | A job's item line — description, qty, dates, status flags      | Belongs to a Job (PRD-032 – PRD-037)                         |
-| WasteRework        | A per-job spoilage/reprint log entry                           | Belongs to a Job (PRD-042)                                   |
-| FieldDefinition    | A per-tenant custom-field descriptor (record type, name, type) | Describes JSON values on target records (PRD-022)            |
+| Entity                   | Purpose                                                                                                                           | Key relationships                                                                           |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Tenant                   | The account/isolation boundary                                                                                                    | Owns every other record                                                                     |
+| User                     | An authenticated person with one static role                                                                                      | Belongs to a Tenant; owns Opportunities/Quotes                                              |
+| Inquiry                  | A captured lead with channel, priority, and provenance                                                                            | Optional link to Person/Organization; qualifies into Opportunity                            |
+| IntakeSubmission         | The durable raw web-form payload before transformation                                                                            | Produces an Inquiry (traceable)                                                             |
+| Person                   | An individual contact record; an Organization is optional                                                                         | Many-to-many with Organization; carries a Category and a LifecycleStatus (PRD-008)          |
+| Organization             | A company or institution record                                                                                                   | Many-to-many with Person; relates to other Organizations (PRD-008)                          |
+| PersonOrganization       | The association enabling multi-organization persons                                                                               | Joins Person and Organization, carrying one Role (PRD-009, PRD-048)                         |
+| PersonOrganizationDuty   | A duty a Person holds within one Organization link                                                                                | Belongs to a PersonOrganization (PRD-048)                                                   |
+| OrganizationRelationship | A typed link between two Organizations                                                                                            | Joins two Organizations via an OrganizationRelationshipType (PRD-049)                       |
+| Contact value lists      | Five per-tenant configurable lists — Category, PersonOrganizationRole, ContactDuty, OrganizationRelationshipType, LifecycleStatus | Referenced by the rows above; one shared shape and one deactivation rule (PRD-045, PRD-046) |
+| LifecycleStatusHistory   | Append-only record of lifecycle-status changes                                                                                    | Belongs to a Person or Organization (PRD-047)                                               |
+| Pipeline                 | A tenant-configurable process                                                                                                     | Has ordered Stages                                                                          |
+| Stage                    | A named, ordered step, one or more terminal                                                                                       | Belongs to a Pipeline                                                                       |
+| Opportunity              | A deal with a stage, owner, and next action                                                                                       | Links Inquiry, Person, Organization, Pipeline                                               |
+| StageHistory             | Append-only record of stage moves                                                                                                 | Belongs to an Opportunity (PRD-013)                                                         |
+| Quote                    | A commercial offer with a status and total                                                                                        | Belongs to an Opportunity; has QuoteLines                                                   |
+| QuoteLine                | A catalog or free-form line with quantity and unit price                                                                          | Belongs to a Quote                                                                          |
+| QuoteStatusHistory       | Append-only record of status changes                                                                                              | Belongs to a Quote (PRD-019, NFR-011)                                                       |
+| CatalogItem              | A flat sellable item (name + unit price + active flag)                                                                            | Referenced by QuoteLine (PRD-017, PRD-021)                                                  |
+| Job                      | Production work converted from a Won opportunity                                                                                  | Belongs to an Opportunity; has JobItems (PRD-031)                                           |
+| JobItem                  | A job's item line — description, qty, dates, status flags                                                                         | Belongs to a Job (PRD-032 – PRD-037)                                                        |
+| WasteRework              | A per-job spoilage/reprint log entry                                                                                              | Belongs to a Job (PRD-042)                                                                  |
+| FieldDefinition          | A per-tenant custom-field descriptor (record type, name, type)                                                                    | Describes JSON values on target records (PRD-022)                                           |
 
 Storage rules:
 
 - Core, typed attributes live in native columns; tenant-defined custom values live in one
-  JSON column per record on Inquiry, Contact, Company, and Opportunity, validated in the
+  JSON column per record on Inquiry, Person, Organization, and Opportunity, validated in the
   application layer against the FieldDefinition catalog. (PRD-022)
-- StageHistory and QuoteStatusHistory are append-only and written in the same transaction as
-  the state change they record. (PRD-013, PRD-019, NFR-011)
+- StageHistory, QuoteStatusHistory, and LifecycleStatusHistory are append-only and written in
+  the same transaction as the state change they record. (PRD-013, PRD-019, PRD-047, NFR-011)
+- A Person or Organization draws its category, role, duty, relationship type, and lifecycle
+  status from the per-tenant value lists. A deactivated value stays valid on records that
+  already reference it and is refused on new assignment, which a foreign key alone cannot
+  express. (PRD-045, PRD-046)
 - The IntakeSubmission (raw buffer) retains the original message content so provenance
   survives even if transformation is delayed. (PRD-004, NFR-002)
 
@@ -206,7 +215,8 @@ Other flows all pass through the authenticated API and its authorization pipelin
 - **Manual logging** — a user posts an email/phone/walk-in inquiry with channel and
   priority; it lands in the same shared queue as web captures. (PRD-002, PRD-003)
 - **Triage → qualify** — a user converts an inquiry into an Opportunity attached to a
-  Contact and Company; the Opportunity links back to the originating Inquiry. (PRD-007)
+  Person and, optionally, an Organization; the Opportunity links back to the originating
+  Inquiry. (PRD-007)
 - **Pipeline movement** — a stage move writes a StageHistory row (actor + timestamp) in the
   same transaction; terminal outcomes drop the Opportunity from the active view.
   (PRD-013, PRD-014)
@@ -269,8 +279,10 @@ Structural rules every contributor follows. These are how to build, not the code
   against their FieldDefinition (type and target record) before persistence. (PRD-022)
 - **Enforce mandatory opportunity fields server-side.** Saving an opportunity without a
   stage, owner, and next action MUST be blocked with a validation message. (PRD-012)
-- **Warn, don't block, on duplicates.** Contact/company creation runs duplicate detection at
-  create time and warns; the user may proceed or cancel. (PRD-010)
+- **Warn, don't block, on duplicates.** Person and Organization creation runs duplicate
+  detection on name, email, and phone at create time and warns; the user may proceed or
+  cancel. It is an application-level query, never a unique constraint — two different people
+  may legitimately share a name. (PRD-010)
 - **Server-side is the source of truth for access.** The client MUST NOT be the authority for
   visibility or edit rights; a bypassed client MUST still be denied. (PRD-025, NFR-008)
 
@@ -287,14 +299,14 @@ Structural rules every contributor follows. These are how to build, not the code
 
 **Data classification.** Sensitivity levels: public / internal / confidential / restricted.
 
-| Data category                                    | Classification | Handling                                                                                                                 |
-| ------------------------------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| User credentials                                 | Restricted     | Managed by Supabase Auth (GoTrue) as slow, salted bcrypt hashes at work factor ≥ 12; never logged or returned. (NFR-007) |
-| Contact / company personal data                  | Confidential   | Personal data under GDPR; tenant-scoped, RBAC-gated, deletable with a linked-record warning. (PRD-008, PRD-025)          |
-| Inquiry content & provenance                     | Confidential   | May contain customer personal data; tenant-scoped and role-gated. (PRD-004)                                              |
-| Opportunity & quote commercial data              | Confidential   | Business-sensitive; visible per role and ownership rules. (PRD-027)                                                      |
-| Pipeline / stage / catalog / custom-field config | Internal       | Admin-only write; readable within the tenant. (PRD-026)                                                                  |
-| Tenant & role assignments                        | Internal       | Admin-only; scopes all other access. (PRD-024)                                                                           |
+| Data category                                    | Classification | Handling                                                                                                                                                                                                          |
+| ------------------------------------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| User credentials                                 | Restricted     | Managed by Supabase Auth (GoTrue) as slow, salted bcrypt hashes at work factor ≥ 12; never logged or returned. (NFR-007)                                                                                          |
+| Person / organization personal data              | Confidential   | Personal data under GDPR; tenant-scoped and RBAC-gated. Deletion is refused while an Opportunity or Job references the record, which is set to the Inactive lifecycle status instead. (PRD-008, PRD-025, PRD-047) |
+| Inquiry content & provenance                     | Confidential   | May contain customer personal data; tenant-scoped and role-gated. (PRD-004)                                                                                                                                       |
+| Opportunity & quote commercial data              | Confidential   | Business-sensitive; visible per role and ownership rules. (PRD-027)                                                                                                                                               |
+| Pipeline / stage / catalog / custom-field config | Internal       | Admin-only write; readable within the tenant. (PRD-026)                                                                                                                                                           |
+| Tenant & role assignments                        | Internal       | Admin-only; scopes all other access. (PRD-024)                                                                                                                                                                    |
 
 Payment instruments and financial data are **never stored** — permanently out of scope,
 which keeps the system out of payment-card compliance scope by design. (PRD §11)
@@ -365,17 +377,19 @@ carries quote content only.
 **Data lifecycle & retention.** Raw `IntakeSubmission` payloads are purged 30 days after
 their Inquiry is created; a submission stuck in the dead-letter state is retained until
 resolved, to a 90-day hard cap, then escalated and exported before purge — never silently
-deleted (PRD-029). Erasing a contact or company (PRD-008) removes or pseudonymizes personal
-data in the record and in any raw payload that references it, while the append-only
-`StageHistory` and `QuoteStatusHistory` keep their immutable event skeleton (actor,
-timestamp, transition) with personal data stripped — so audit integrity and the right to
-erasure hold together. Durability boundary: NFR-010 permits up to 24 h of committed data
+deleted (PRD-029). Erasing a Person or Organization removes or pseudonymizes personal data
+in the record and in any raw payload that references it, while the append-only
+`StageHistory`, `QuoteStatusHistory`, and `LifecycleStatusHistory` keep their immutable
+event skeleton (actor, timestamp, transition) with personal data stripped — so audit
+integrity and the right to erasure hold together. Erasure is a data-subject request and is
+distinct from the ordinary delete PRD-008 refuses while an Opportunity or Job still
+references the record. Durability boundary: NFR-010 permits up to 24 h of committed data
 loss on a disaster restore, which applies to acknowledged captures too; the durable buffer
 narrows this window but does not eliminate it.
 
-**Compliance.** GDPR applies (contact data is personal data). The architecture answers with
-tenant isolation, server-side RBAC, explicit data classification, contact/company deletion
-supporting erasure requests, TLS in transit, and hashed credentials. No HIPAA, SOC 2, or
+**Compliance.** GDPR applies (person and organization data is personal data). The
+architecture answers with tenant isolation, server-side RBAC, explicit data classification,
+person and organization erasure, TLS in transit, and hashed credentials. No HIPAA, SOC 2, or
 payment-card obligations are stated in PRD.md, and none are introduced here.
 
 **Threat vectors the design accounts for.**
