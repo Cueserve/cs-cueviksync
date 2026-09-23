@@ -49,7 +49,6 @@ proposing"):
   design could walk into, and §3 for which mandatory test cases apply.
 - [docs/DESIGN-SYSTEM.md](../../../docs/DESIGN-SYSTEM.md) and `src/components/ui/`, if a screen is
   involved.
-- Any approved spec in `docs/specs/` covering the same entities.
 
 Then read the code the slice actually touches. A spec written against the docs alone will
 describe a repo that does not exist — `CLAUDE.md`'s "Project state" is a dated snapshot and

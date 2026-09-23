@@ -136,7 +136,7 @@ Changing one is a **standalone change, never folded into feature work**:
 are transient artifacts of that item, not source-of-truth documents — see
 [docs/work/README.md](docs/work/README.md). They ride in the same PR as the change they
 describe, because keeping them out would hand the reviewer a diff without the reasoning that
-produced it. `docs/specs/`, `docs/reviews/`, and `docs/brainstorming/` are **not** exempt.
+produced it. `docs/reviews/` and `docs/brainstorming/` are **not** exempt.
 
 Keep acronyms defined on first use in any new document, and match the writing standard already
 in `docs/`.
