@@ -21,19 +21,12 @@ from memory.**
 - Backlog and work-item tracking lives in the
   [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17), not in `docs/`.
 
-**Approved design specs** - same authority as the docs above for the slice they cover, but
-**transient**: each is deleted when its content lands in whatever it feeds. They live in
-`docs/specs/`, dated-filename-first.
+**Design lives in work folders, not in a standing spec.** Every new feature, requirement, or
+change to an existing one goes through the three-step process below, and its design is the
+`spec.md` in its own `docs/work/` folder. There is no `docs/specs/` folder.
 
-- [docs/specs/2026-09-17-contact-management.md](docs/specs/2026-09-17-contact-management.md) -
-  Person/Organization data model, categories/roles/duties/lifecycle-status lists, and the
-  Opportunity/Job attachment contract. Deleted once absorbed into PRODUCT.md, PRD.md,
-  ARCHITECTURE.md, and a migration.
-
-When one lands, add it to this list in the same change, and remove it in the change that deletes
-it.
-
-**Everything else in `docs/*.md` is permanent.**
+**Every `docs/*.md` is permanent.** The only transient documents are work artifacts, and they
+live under `docs/work/`.
 
 **Before creating any new route, Server Action, component, `src/lib/` module, or migration,
 consult [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) for where it goes** - its §2
@@ -224,8 +217,7 @@ Never touch the following without explicit human instruction:
   that is the mechanical backstop, not a substitute for the rule.
 - **Lock files** — `package-lock.json` is a side-effect of `npm`, not a direct edit.
 - **Database migrations** — creating or editing a migration file is allowed once it implements
-  an approved spec or plan — a `docs/specs/` file, or the `spec.md`/`plan.md` of a
-  `docs/work/` item, that you've signed off on.
+  an approved `spec.md` or `plan.md` in a `docs/work/` item that you've signed off on.
   **Running one is the exception — never an agent action**, not `npm run db:push`, not
   `npx supabase db push`, not `/db-migrate`. Open a PR that only touches
   `supabase/migrations/`; you apply it after review. Not mechanically enforced beyond the

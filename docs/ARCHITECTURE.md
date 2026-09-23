@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — System Architecture
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-18
+**Last updated:** 2026-09-23
 **Source of truth for:** the system structure, component boundaries, and design decisions that satisfy the CuevikSync Phase 1 thin-core PRD.
 
 > Derived from: docs/PRD.md
@@ -285,6 +285,42 @@ Structural rules every contributor follows. These are how to build, not the code
   may legitimately share a name. (PRD-010)
 - **Server-side is the source of truth for access.** The client MUST NOT be the authority for
   visibility or edit rights; a bypassed client MUST still be denied. (PRD-025, NFR-008)
+- **Opportunity and Job attach to a Person, and optionally an Organization.** Neither table is
+  built yet. This is the contract their migrations MUST follow. (PRD-007, PRD-008, PRD-031,
+  PRD-044, PRD-047, PRD-048)
+  - **Columns.** `person_id uuid not null` and `organization_id uuid` (nullable), both
+    referencing their tables `on delete restrict`. That restriction is PRD-008's rule that a
+    referenced Person or Organization cannot be deleted — it arrives with the table it protects.
+  - **The pair must be linked.** A trigger requires that when `organization_id` is set, a
+    `person_organizations` row exists for that exact `(person_id, organization_id)` pair, active or
+    not. Two independent foreign keys cannot express "this person is actually related to this
+    organization."
+  - **Qualification flow**, when `organization_id` is set or changed: if the pair is not linked,
+    prompt to link it now with a role — nothing is attached silently. If no one linked to the
+    Organization holds the Primary contact duty, prompt to assign it, defaulting to the person
+    being qualified. Only an **active** link's duties count: a person who has left the
+    organization cannot satisfy the check. The Opportunity write succeeds only once both hold.
+  - **Editable until Won, frozen after.** Both columns may change while the Opportunity is open,
+    routing back through the qualification flow if `organization_id` changes. A trigger blocks
+    changing either once the Opportunity reaches Won — the same pattern as the `tenant_id`
+    immutability trigger on `profiles` in `0002`. This is what makes PRD-044's "structurally
+    indistinguishable" Won record stable, and gives Job a fixed value to inherit.
+  - **Job inherits, never edits.** At conversion (PRD-031) the Job copies both columns once from
+    the Won Opportunity and never changes them. No requirement calls for editing a job's
+    customer after creation.
+  - **Reorder copies without re-checking.** PRD-044 takes both columns straight from the source
+    Job. That Job's Opportunity already passed qualification when it was Won, so Reorder does not
+    repeat it.
+  - **An inactive link warns, never blocks.** A person can leave an organization —
+    `person_organizations.active = false` — while an Opportunity naming both is still open. The
+    trigger checks only that a link existed at write time, so nothing breaks retroactively. The
+    Pipeline screen shows a warning and a rep may swap the contact while the Opportunity is
+    open. No schema captures this; it is behaviour for whoever builds that screen.
+  - **Lifecycle events target the Organization when there is one.** Qualifying an Opportunity
+    and winning it each call `set_lifecycle_status`. When `organization_id` is set, the event
+    targets the Organization, not the person who placed the order on its behalf; when it is
+    null, it targets the Person. A person who only ever orders for organizations may therefore
+    never carry a lifecycle status of their own, which is valid.
 
 ## 6. Integration Points
 

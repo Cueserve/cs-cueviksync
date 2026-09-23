@@ -65,9 +65,10 @@ except where Pass B explicitly probes it.
 12. `CLAUDE.md` — agent behaviour, scope, escalation, off-limits.
 13. `README.md` — restates; owns nothing.
 
-**Transient specs** — read whatever is in `docs/specs/`, and cross-check it against the
-"Approved design specs" list in `CLAUDE.md`. A spec not in that list, or a listed spec that no
-longer exists, is a Pass B finding on its own.
+**Transient work folders** — list every folder under `docs/work/` and check the issue number
+in its name. A folder whose issue is closed should have been deleted when its work landed, and is
+a Pass B finding on its own. Do not audit the artifacts inside for drift: they are not
+source-of-truth, and a `docs/` file wins wherever one disagrees.
 
 **Not the corpus:** `docs/brainstorming/` (never authoritative) and `docs/reviews/` (dated
 advisory records — do not report them as drift against current state).
