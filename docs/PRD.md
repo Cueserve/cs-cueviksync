@@ -1,7 +1,7 @@
 # PRD.md — Product Requirements Document
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-07-13
+**Last updated:** 2026-09-18
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
