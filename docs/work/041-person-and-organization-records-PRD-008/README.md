@@ -1,8 +1,8 @@
 # Person and Organization records
 
+**Created:** 2026-09-18
 **Work item:** [#41 PRD-008: Contact and company records (Must)](https://github.com/Cueserve/cs-cueviksync/issues/41)
 **Board:** Backlog · `shaping` · `decision-needed`
-**Folder opened:** 2026-09-18
 
 CuevikSync has no way to store a customer — `tenants` and `profiles` are the only tables that
 exist. This work item creates Person and Organization, the records every inquiry, opportunity,
