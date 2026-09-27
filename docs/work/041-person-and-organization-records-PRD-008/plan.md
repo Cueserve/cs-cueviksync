@@ -258,7 +258,10 @@ set search_path = public`, body `select role from public.profiles where id = aut
   - An admin's update and delete on history affect zero rows (§1.26). Tenant B reads zero of
     tenant A's history (§1.23). Operations reads zero history, and its call raises (§1.27).
   - After a status change, a direct update of `lifecycle_status_id` is still rejected (§1.29).
-  - Deleting a Person keeps its history rows with `person_id` null (spec §2.5).
+  - Deleting a Person keeps its history rows with `person_id` null and `tenant_id` intact; the
+    same for an Organization (spec §2.5).
+  - Deleting a status that appears in history is rejected, even once no record holds it (§1.12,
+    spec §2.5).
 - **proof:** `npx supabase db reset --local && npx vitest run src/lib/supabase/schema/lifecycle.test.ts`
 
 ### Task 7 — Add the action result helper

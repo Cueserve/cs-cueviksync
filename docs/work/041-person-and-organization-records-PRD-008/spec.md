@@ -336,6 +336,7 @@ create table person_organizations (
 );
 create index po_tenant_person_idx on person_organizations (tenant_id, person_id);
 create index po_tenant_org_idx    on person_organizations (tenant_id, organization_id);
+create index po_tenant_role_idx   on person_organizations (tenant_id, role_id);
 
 create table person_organization_duties (
   id                      uuid primary key default gen_random_uuid(),
@@ -349,6 +350,8 @@ create table person_organization_duties (
     references person_organizations (tenant_id, id) on delete cascade,
   foreign key (tenant_id, duty_id) references contact_duties (tenant_id, id)
 );
+create index pod_tenant_link_idx on person_organization_duties (tenant_id, person_organization_id);
+create index pod_tenant_duty_idx on person_organization_duties (tenant_id, duty_id);
 
 create table organization_relationships (
   id                    uuid primary key default gen_random_uuid(),
@@ -366,7 +369,15 @@ create table organization_relationships (
   foreign key (tenant_id, to_organization_id)   references organizations (tenant_id, id) on delete cascade,
   foreign key (tenant_id, relationship_type_id) references organization_relationship_types (tenant_id, id)
 );
+create index orel_tenant_from_idx on organization_relationships (tenant_id, from_organization_id);
+create index orel_tenant_to_idx   on organization_relationships (tenant_id, to_organization_id);
+create index orel_tenant_type_idx on organization_relationships (tenant_id, relationship_type_id);
 ```
+
+**Every foreign key has an index that leads with its columns**, per
+[docs/DATABASE.md](../../DATABASE.md) §4. Each composite index also serves the single-column
+`tenant_id` reference to `tenants`. Postgres indexes the referenced side of a foreign key, never
+the referencing side, so without these a delete on the parent scans the child.
 
 **There is no Person-to-Person link table, and that is the enforcement.** No trigger is needed to
 prevent one because nothing can hold it.
@@ -389,12 +400,29 @@ create table lifecycle_status_history (
   created_at       timestamptz not null default now(),
 
   check (num_nonnulls(person_id, organization_id) <= 1),
-  foreign key (tenant_id, person_id)       references persons (tenant_id, id) on delete set null,
-  foreign key (tenant_id, organization_id) references organizations (tenant_id, id) on delete set null
+  foreign key (tenant_id, person_id)
+    references persons (tenant_id, id) on delete set null (person_id),
+  foreign key (tenant_id, organization_id)
+    references organizations (tenant_id, id) on delete set null (organization_id),
+  foreign key (tenant_id, from_status_id) references lifecycle_statuses (tenant_id, id),
+  foreign key (tenant_id, to_status_id)   references lifecycle_statuses (tenant_id, id)
 );
-create index lsh_tenant_person_idx on lifecycle_status_history (tenant_id, person_id);
-create index lsh_tenant_org_idx    on lifecycle_status_history (tenant_id, organization_id);
+create index lsh_tenant_person_idx      on lifecycle_status_history (tenant_id, person_id);
+create index lsh_tenant_org_idx         on lifecycle_status_history (tenant_id, organization_id);
+create index lsh_tenant_from_status_idx on lifecycle_status_history (tenant_id, from_status_id);
+create index lsh_tenant_to_status_idx   on lifecycle_status_history (tenant_id, to_status_id);
+create index lsh_actor_idx              on lifecycle_status_history (actor_id);
 ```
+
+**`on delete set null (person_id)`, with the column named.** A plain `on delete set null` on a
+composite key nulls every column in it — `tenant_id` included, which is `not null`, so deleting
+any Person with history would fail. Naming the column (PostgreSQL 15 and later) nulls only the
+link.
+
+**The status columns are foreign keys**, so a history row can never point at a status that no
+longer exists. The consequence is deliberate: a status that has appeared in history can be
+deactivated but never deleted — §1.12's rule, applied to the audit trail as well as to live
+records.
 
 **The check is `<= 1`, not `= 1`.** Both references are `on delete set null`, so a row whose
 subject was deleted keeps its event skeleton — actor, timestamp, transition — with the
@@ -813,7 +841,10 @@ All five original boxes were signed off by Viral Parikh on 2026-09-27. The first
 reopened the same day: `/work:3-plan` found that §2.8's record policies checked the tenant alone,
 which let Operations reach every customer record, and that nothing forced a status change
 through `set_lifecycle_status()`. §2.7 and §2.8 were rewritten, the CI box was added, and all
-three were signed off again on 2026-09-27 with the revised spec.
+three were signed off again on 2026-09-27 with the revised spec. Box 1 was reopened once more
+that day and re-signed: §2.4 and §2.5 gained the foreign-key indexes DATABASE.md §4 requires,
+the history table's status columns became foreign keys, and its `on delete set null` names the
+column it nulls.
 
 **No package is added or removed.** Nothing here needs a dependency that is not already in
 `package.json`.
