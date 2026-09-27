@@ -249,7 +249,7 @@ Never touch the following without explicit human instruction:
 ## The three-step process
 
 **Every feature, function, or major change goes Plan → Design → Build before any code.** Each
-step is one command, one session, and one artifact, under `docs/work/<YYYY-MM-DD>-<issue#>-<slug>/`:
+step is one command, one session, and one artifact, under `docs/work/<issue#>-<slug>-<PRD-NNN>/`:
 
 | Step      | Command          | Artifact    | Answers                                        |
 | --------- | ---------------- | ----------- | ---------------------------------------------- |

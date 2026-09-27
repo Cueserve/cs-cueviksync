@@ -1,7 +1,7 @@
 # PROJECT-STRUCTURE.md — Directory Layout & File Placement
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-23
+**Last updated:** 2026-09-27
 **Source of truth for:** where each kind of file lives and the rules for placing new code — so
 features and components land in the right place and don't break the invariants in
 docs/ARCHITECTURE.md.
@@ -173,7 +173,7 @@ Read these before creating any new feature, route, action, or component.
   | Source-of-truth document | `docs/`               | `SCREAMING-KEBAB.md`              | permanent                                    |
   | Advisory review          | `docs/reviews/`       | `YYYY-MM-DD-<subject>-review.md`  | permanent                                    |
   | Pre-decision exploration | `docs/brainstorming/` | `<topic>.md`, `**Status:** Draft` | permanent, never authoritative               |
-  | Work artifact            | `docs/work/`          | `YYYY-MM-DD-<issue#>-<slug>/`     | transient — deleted once the work has landed |
+  | Work artifact            | `docs/work/`          | `<issue#>-<slug>-<PRD-NNN>/`      | transient — deleted once the work has landed |
 
   **Only work artifacts are transient.** Each declares it in its own header, and its folder
   name carries the issue number that says what it belongs to — the board says whether that is
@@ -183,13 +183,14 @@ Read these before creating any new feature, route, action, or component.
   process existed: design now lives in the `spec.md` of the work item that builds it. A design
   that spans several work items belongs in ARCHITECTURE, not in a spec.
 
-  Date-first filenames in `reviews/` and `work/` so a directory listing sorts chronologically,
-  which is how both are read.
+  Date-first filenames in `reviews/` so a directory listing sorts chronologically, which is how
+  it is read.
 
-  **`docs/work/` is a folder per work item, not a file**, and it carries the GitHub issue
-  number as well as the date: `2026-09-18-041-contact-records/`. The date keeps the
-  chronological sort the other folders rely on; the number is the key you actually arrive
-  by, because you reach a work folder from the board and never the reverse. It holds four
+  **`docs/work/` is a folder per work item, not a file**, and it leads with the GitHub issue
+  number instead of a date: `041-contact-records-PRD-008/`. The number is the key you
+  actually arrive by, because you reach a work folder from the board and never the reverse;
+  the PRD suffix, dropped when there is none, says which requirement it builds. The creation
+  date lives in the folder's `README.md`. It holds four
   files under fixed names: `intent.md`, `spec.md`, and `plan.md`, because each is read by the
   command that produces the next one, plus a `README.md` that rolls up which of them are done.
   See [work/README.md](work/README.md).

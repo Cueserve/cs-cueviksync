@@ -107,8 +107,9 @@ creates duplicates" — not an empty bullet.
 
 ## Phase 5 — Write it
 
-Slug the folder `docs/work/<YYYY-MM-DD>-<issue#>-<slug>/`, zero-padding the issue number to
-three digits. The date is today.
+Slug the folder `docs/work/<issue#>-<slug>-<PRD-NNN>/`, zero-padding the issue number to
+three digits. `<PRD-NNN>` is the one the issue title cites; with none, drop the suffix. The
+name is fixed here and never renamed — a PRD number assigned later goes in `spec.md`.
 
 Label the issue `shaping` in the same breath:
 
