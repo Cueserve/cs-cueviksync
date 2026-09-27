@@ -2,7 +2,7 @@
 
 **Work item:** [#41 PRD-008: Contact and company records (Must)](https://github.com/Cueserve/cs-cueviksync/issues/41)
 **Date:** 2026-09-23
-**Status:** Draft
+**Status:** Approved
 **Derived from:** [intent.md](intent.md)
 
 > Transient per [docs/work/README.md](../README.md). Not a source-of-truth document: where
@@ -788,10 +788,10 @@ Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 
 ## 8. Requires human approval before `/work:3-plan`
 
-- [ ] **A schema change, and a large one** — eleven tables, one view, four enum types, six
+- [x] **A schema change, and a large one** — eleven tables, one view, four enum types, six
       functions, and the triggers. CLAUDE.md "Decision escalation" requires sign-off on any new
       table, index, RLS policy, or extension before it is authored.
-- [ ] **RLS policies on eleven tables** — CLAUDE.md "Off-limits" lists RLS as auth-related code
+- [x] **RLS policies on eleven tables** — CLAUDE.md "Off-limits" lists RLS as auth-related code
       requiring explicit instruction. The policies are specified in §2.8; this box is agreement
       that they are correct, not that they exist.
 - [x] **`alter type user_role add value 'operations'`** — a change to the role enum every future
@@ -805,14 +805,15 @@ Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
       its signature a contract. CLAUDE.md "Scope boundaries" puts changes to those paths out of
       bounds without instruction.
 
-- [ ] **`.github/workflows/ci.yml` gains a Supabase stack** — CLAUDE.md "Off-limits" puts CI
+- [x] **`.github/workflows/ci.yml` gains a Supabase stack** — CLAUDE.md "Off-limits" puts CI
       configuration under human review. The `check` job gets `supabase/setup-cli` and
       `supabase start` before `npm run test` (§6).
 
 All five original boxes were signed off by Viral Parikh on 2026-09-27. The first two were
 reopened the same day: `/work:3-plan` found that §2.8's record policies checked the tenant alone,
 which let Operations reach every customer record, and that nothing forced a status change
-through `set_lifecycle_status()`. §2.7 and §2.8 were rewritten, so both boxes need signing again.
+through `set_lifecycle_status()`. §2.7 and §2.8 were rewritten, the CI box was added, and all
+three were signed off again on 2026-09-27 with the revised spec.
 
 **No package is added or removed.** Nothing here needs a dependency that is not already in
 `package.json`.
