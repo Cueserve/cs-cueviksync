@@ -2,7 +2,7 @@
 
 **Created:** 2026-09-18
 **Work item:** [#41 PRD-008: Contact and company records (Must)](https://github.com/Cueserve/cs-cueviksync/issues/41)
-**Board:** Backlog · `shaping` · `decision-needed`
+**Board:** Backlog · `shaping`
 
 CuevikSync has no way to store a customer — `tenants` and `profiles` are the only tables that
 exist. This work item creates Person and Organization, the records every inquiry, opportunity,
@@ -18,6 +18,4 @@ gets tested before any user interface review is added on top.
 | 2. Design | [spec.md](spec.md)     | Approved | 2026-09-23 |
 | 3. Build  | plan.md                | —        | —          |
 
-**Next:** `spec.md` §8 has four unticked boxes, so `/work:3-plan` will refuse. All four are
-sign-off on the design in §2 — the schema, the RLS policies, the `operations` enum value, and the
-seed function. The one documentation change §8 required merged in #98.
+**Next:** run `/work:3-plan`. `spec.md` is approved and every §8 box is ticked.

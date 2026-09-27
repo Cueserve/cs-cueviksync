@@ -716,22 +716,24 @@ Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 
 ## 8. Requires human approval before `/work:3-plan`
 
-- [ ] **A schema change, and a large one** — eleven tables, one view, four enum types, four
+- [x] **A schema change, and a large one** — eleven tables, one view, four enum types, four
       functions, and the triggers. CLAUDE.md "Decision escalation" requires sign-off on any new
       table, index, RLS policy, or extension before it is authored.
-- [ ] **RLS policies on eleven tables** — CLAUDE.md "Off-limits" lists RLS as auth-related code
+- [x] **RLS policies on eleven tables** — CLAUDE.md "Off-limits" lists RLS as auth-related code
       requiring explicit instruction. The policies are specified in §2.8; this box is agreement
       that they are correct, not that they exist.
-- [ ] **`alter type user_role add value 'operations'`** — a change to the role enum every future
+- [x] **`alter type user_role add value 'operations'`** — a change to the role enum every future
       policy in the repo reads, and CLAUDE.md "Decision escalation" names a new runtime role
       explicitly. An enum value is far easier to add than to remove.
 - [x] **`docs/PRD.md` §1's scope sentence is corrected** — merged in #98 on 2026-09-23. It
       had said job execution was deferred, which was the evidence behind the first draft of this
       spec proposing to drop the Operations role.
-- [ ] **`seed_tenant_contact_lists` is adjacent to provisioning**, one of the three service-role
+- [x] **`seed_tenant_contact_lists` is adjacent to provisioning**, one of the three service-role
       system paths. It does not change provisioning, but provisioning will call it, which makes
       its signature a contract. CLAUDE.md "Scope boundaries" puts changes to those paths out of
       bounds without instruction.
+
+All five signed off by Viral Parikh on 2026-09-27.
 
 **No package is added or removed.** Nothing here needs a dependency that is not already in
 `package.json`.
