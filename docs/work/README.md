@@ -6,11 +6,20 @@ Everything here is **transient** — the folder is deleted
 once its content has landed in code, in a migration, and in whatever permanent document it
 feeds.
 
-Naming is `YYYY-MM-DD-<issue#>-<slug>/`, for example `2026-09-18-041-contact-records/`. The
-date is the day `/work:1-intent` ran; the number is the issue on the [CuevikSync
-project](https://github.com/orgs/Cueserve/projects/17). **Every folder here carries an issue
-number** — `/work:1-intent` files the issue when you do not give it one, so there is no work in flight
-that the board does not know about.
+Naming is `<issue#>-<slug>-<PRD-NNN>/`, for example `041-contact-records-PRD-008/`:
+
+- **`<issue#>`** is the issue on the [CuevikSync
+  project](https://github.com/orgs/Cueserve/projects/17), zero-padded to three digits so the
+  listing sorts. **Every folder carries one** — `/work:1-intent` files the issue when you do
+  not give it one, so there is no work in flight that the board does not know about.
+- **`<PRD-NNN>`** is the one the issue title cites. Work that traces to no PRD — a bug fix, a
+  refactor — drops the suffix: `052-fix-login-redirect/`. Work touching several PRDs still
+  names one; `spec.md` lists the rest.
+- **The name is fixed when `/work:1-intent` creates the folder and is never renamed**, so no
+  link, commit, or PR reference to it goes stale. A PRD number assigned later lives in
+  `spec.md`.
+
+The date the folder was created is in its `README.md`, not its name.
 
 ## The three steps
 
@@ -31,7 +40,7 @@ point: an artifact a cold session cannot act on is not finished, and the session
 Four files. Three are the artifacts; the fourth is how you find your way back in.
 
 ```text
-docs/work/2026-09-18-041-contact-records/
+docs/work/041-contact-records-PRD-008/
   README.md    preface + progression + what to run next
   intent.md    step 1
   spec.md      step 2
@@ -49,9 +58,9 @@ opening the folder after two weeks away tells you where you are and what to type
 ```markdown
 # Contact and company records
 
+**Created:** 2026-09-18
 **Work item:** [#41 PRD-008: Contact and company records](https://github.com/Cueserve/cs-cueviksync/issues/41)
 **Board:** Backlog · `shaping`
-**Folder opened:** 2026-09-18
 
 Person and Organization as first-class records, with the duplicate detection PRD-010 requires.
 Scoped to the Print & Signage vertical; the painter's-company variant stays out.
@@ -66,6 +75,9 @@ Scoped to the Print & Signage vertical; the painter's-company variant stays out.
 
 **Next:** approve `spec.md`, or revise it and re-run `/work:2-spec`.
 ```
+
+**Created** is the day `/work:1-intent` made the folder. No artifact header records it, so a
+command regenerating this file copies it from the existing `README.md` and never rewrites it.
 
 The preface is two to four sentences, written from the approved intent and refreshed by a later
 step only if the framing actually changed. **Board** is the Status plus any state label, copied
