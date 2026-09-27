@@ -15,7 +15,9 @@ gets tested before any user interface review is added on top.
 | Step      | Artifact               | Status   | Updated    |
 | --------- | ---------------------- | -------- | ---------- |
 | 1. Plan   | [intent.md](intent.md) | Approved | 2026-09-23 |
-| 2. Design | [spec.md](spec.md)     | Approved | 2026-09-23 |
+| 2. Design | [spec.md](spec.md)     | Draft    | 2026-09-27 |
 | 3. Build  | plan.md                | —        | —          |
 
-**Next:** run `/work:3-plan`. `spec.md` is approved and every §8 box is ticked.
+**Next:** re-approve `spec.md` and sign §8's three open boxes. `/work:3-plan` found that the
+record policies let Operations reach every customer record and that a status could change
+without a history row; §2.7 and §2.8 were rewritten, and `ci.yml` gains a Supabase stack.

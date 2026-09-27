@@ -2,7 +2,7 @@
 
 **Work item:** [#41 PRD-008: Contact and company records (Must)](https://github.com/Cueserve/cs-cueviksync/issues/41)
 **Date:** 2026-09-23
-**Status:** Approved
+**Status:** Draft
 **Derived from:** [intent.md](intent.md)
 
 > Transient per [docs/work/README.md](../README.md). Not a source-of-truth document: where
@@ -92,20 +92,24 @@ Numbered so tests and tasks can cite them. Each traces to a requirement in
 25. Office Administrator may create a Person or Organization and edit its name, email, phone,
     website, and category. It may not set a lifecycle status, create or edit a link, assign a
     duty, create an organization relationship, or delete a record. (PRD-027)
-26. Lifecycle-status history is readable by every tenant member and can only ever be inserted —
-    never updated, never deleted. (NFR-011)
-27. Operations has no access to any record, link, list, or history row in this slice. Its whole
-    permission set is job records, and no job table exists yet. (PRD-027)
+26. Lifecycle-status history is readable by every role that can read records, and can only ever
+    be inserted — never updated, never deleted. (NFR-011)
+27. Operations has no access to any Person, Organization, link, or history row. It reads the five
+    lists, like every role, and cannot edit them. (PRD-027)
 28. Inactive is not shielded from automatic events. Re-qualifying an Inactive record moves it to
     Prospect, and winning a deal for one moves it to Client. Inactive is an ordinary manual label,
     not a do-not-contact flag — if real suppression is ever needed, it is a different mechanism
     from lifecycle status. (PRD-047)
+29. A status can only change through `set_lifecycle_status()`, so no change goes unrecorded. A
+    direct write of the status column, on insert or on update, is refused. The recorded actor is
+    always the caller; nobody can record a change under another user's name. (NFR-011, and
+    CLAUDE.md "Audit in the same transaction")
 
 ---
 
 ## 2. Data model
 
-Eleven new tables, one view, four functions, and four enum types. One existing type is altered:
+Eleven new tables, one view, six functions, and four enum types. One existing type is altered:
 `user_role` gains `operations`, in its own migration file ahead of the rest — see §2.1.
 
 The pattern is copied from `supabase/migrations/0002_tenants_profiles_and_auth.sql`: every policy
@@ -134,8 +138,8 @@ alter type user_role add value 'operations';
 PRD-024 requires five roles and `0001` created four. Jobs is committed thin-core scope —
 PRD-031 through PRD-043, eight of them Must — so Operations is a role this release owes, not a
 placeholder for a deferred module. It lands here because this is the Pull Request (PR) that sets
-every role's access to these tables, and §1.27 cannot say "Operations has none" about a role that
-does not exist.
+every role's access to these tables, and §1.27 cannot keep Operations out of a table on behalf of
+a role that does not exist.
 
 It is a separate file from the contact tables: one logical change per migration
 ([docs/PROJECT-STRUCTURE.md](../../PROJECT-STRUCTURE.md) §5), and PostgreSQL will not let a new
@@ -435,32 +439,48 @@ that raises on any delete where `system_key is not null`, and on any update sett
 `active = false` where `system_key is not null`. Changes to `name` pass. This satisfies §1.13.
 
 **`set_lifecycle_status()`** — the only path that writes a lifecycle status, satisfying §1.16
-through §1.18.
+through §1.18 and §1.29.
+
+**The caller names neither the tenant nor the actor.** Both come from the session —
+`current_tenant_id()` and `auth.uid()` — so a caller reaching this function through the API
+cannot record a change in another tenant or under another user's name. It runs as the invoker,
+so RLS on `persons` and `organizations` still decides whether the caller may touch the record at
+all.
 
 ```sql
 create function set_lifecycle_status(
-  p_tenant_id        uuid,
   p_person_id        uuid,
   p_organization_id  uuid,
   p_new_status_id    uuid,
-  p_source           lifecycle_source,
-  p_actor_id         uuid
+  p_source           lifecycle_source
 ) returns void language plpgsql as $$
 declare
+  v_tenant_id         uuid := current_tenant_id();
+  v_actor_id          uuid := auth.uid();
   v_current_status_id uuid;
   v_client_status_id  uuid;
 begin
+  if v_actor_id is null or v_tenant_id is null then
+    raise exception 'set_lifecycle_status requires an authenticated caller with a tenant';
+  end if;
+  if num_nonnulls(p_person_id, p_organization_id) <> 1 then
+    raise exception 'exactly one of p_person_id and p_organization_id must be given';
+  end if;
+
   if p_person_id is not null then
     select lifecycle_status_id into v_current_status_id from persons
-      where id = p_person_id and tenant_id = p_tenant_id for update;
+      where id = p_person_id and tenant_id = v_tenant_id for update;
   else
     select lifecycle_status_id into v_current_status_id from organizations
-      where id = p_organization_id and tenant_id = p_tenant_id for update;
+      where id = p_organization_id and tenant_id = v_tenant_id for update;
+  end if;
+  if not found then
+    raise exception 'record not found';
   end if;
 
   if p_source = 'qualified' then
     select id into v_client_status_id from lifecycle_statuses
-      where tenant_id = p_tenant_id and system_key = 'client';
+      where tenant_id = v_tenant_id and system_key = 'client';
     if v_current_status_id = v_client_status_id then
       return;
     end if;
@@ -470,20 +490,35 @@ begin
     return;
   end if;
 
+  perform set_config('cueviksync.lifecycle_write', 'on', true);
   if p_person_id is not null then
     update persons set lifecycle_status_id = p_new_status_id where id = p_person_id;
   else
     update organizations set lifecycle_status_id = p_new_status_id where id = p_organization_id;
   end if;
+  perform set_config('cueviksync.lifecycle_write', 'off', true);
 
   insert into lifecycle_status_history
     (tenant_id, person_id, organization_id, from_status_id, to_status_id, source, actor_id)
   values
-    (p_tenant_id, p_person_id, p_organization_id, v_current_status_id, p_new_status_id,
-     p_source, p_actor_id);
+    (v_tenant_id, p_person_id, p_organization_id, v_current_status_id, p_new_status_id,
+     p_source, v_actor_id);
 end;
 $$;
 ```
+
+**`guard_lifecycle_status()`** — a `before insert or update` trigger on `persons` and
+`organizations`. It raises when an insert carries a non-null `lifecycle_status_id`, or an update
+changes it, unless the transaction-local setting `cueviksync.lifecycle_write` is `'on'`. Only
+`set_lifecycle_status()` sets it, and switches it back off straight after its one update. That
+makes the history row impossible to skip, which the write policies alone cannot express.
+
+An API caller cannot set the flag itself: PostgREST exposes only functions in `public`, and
+`set_config` lives in `pg_catalog`.
+
+**`current_user_role()`** — returns the caller's `profiles.role`. `security definer` with
+`search_path = public`, for the same reason as `current_tenant_id()` in `0002`: a policy that
+reads `profiles` directly would recurse through `profiles`' own RLS. §2.8 uses it.
 
 **The forward-only rule reduces to one comparison.** Once a record is at Client, a `'qualified'`
 event does nothing. There is nothing above Client for a `'won'` event to protect against, and a
@@ -503,8 +538,9 @@ for a pilot tenant. It is idempotent: it inserts nothing for a tenant that alrea
 
 Every table above gets `enable row level security`. Policies follow `0002`'s naming and shape.
 
-**The five lists** — read by everyone in the tenant, written by Owner/Admin only. This extends
-PRD-026's admin-only-configuration boundary to these lists.
+**The five lists** — read by every role in the tenant, Operations included, and written by
+Owner/Admin only. That is PRD-027's "every role reads the contact value lists", and it extends
+PRD-026's admin-only-configuration boundary to them.
 
 ```sql
 create policy "categories_select_own_tenant" on categories for select
@@ -518,34 +554,43 @@ create policy "categories_write_admin" on categories for all
 The same pair, renamed, on `person_organization_roles`, `contact_duties`,
 `organization_relationship_types`, and `lifecycle_statuses`.
 
-**Records and links** — read and written by every role in the tenant. The field restriction that
-separates Office Administrator from the sales roles (§1.25) lives in the Server Action, not here;
-§5 explains why.
+**Records and links** — read and written by the four roles PRD-027 grants them to, named in an
+allowlist. The field restriction that separates Office Administrator from the sales roles
+(§1.25) lives in the Server Action, not here; §5 explains why.
 
 ```sql
-create policy "persons_select_own_tenant" on persons for select
-  to authenticated using (tenant_id = current_tenant_id());
-create policy "persons_write_own_tenant" on persons for all
+create policy "persons_select_contact_roles" on persons for select
   to authenticated
-  using (tenant_id = current_tenant_id())
-  with check (tenant_id = current_tenant_id());
+  using (tenant_id = current_tenant_id()
+         and current_user_role() in ('owner_admin', 'sales_manager', 'sales_rep', 'office_admin'));
+create policy "persons_write_contact_roles" on persons for all
+  to authenticated
+  using (tenant_id = current_tenant_id()
+         and current_user_role() in ('owner_admin', 'sales_manager', 'sales_rep', 'office_admin'))
+  with check (tenant_id = current_tenant_id()
+         and current_user_role() in ('owner_admin', 'sales_manager', 'sales_rep', 'office_admin'));
 ```
 
 The same pair on `organizations`, `person_organizations`, `person_organization_duties`, and
 `organization_relationships`.
 
-**Operations** — no policy anywhere names it, so every read and write it attempts is denied by
-RLS default-deny. That is §1.27, and it is deliberate rather than an oversight: writing a policy
-that grants Operations nothing would be a no-op that reads like a grant.
+**Operations** — excluded from records, links, and history by being absent from the allowlist.
+A tenant check alone would not do it: `current_tenant_id()` returns an Operations user's tenant
+like anyone else's. **An allowlist rather than `<> 'operations'`** so a role added later gets
+nothing here until a policy names it — the policies fail closed.
 
-**History** — readable by the tenant, insert-only, with no update or delete policy at all, so
-both are denied by default.
+**History** — readable by the same four roles, insert-only, with no update or delete policy at
+all, so both are denied by default.
 
 ```sql
-create policy "lsh_select_own_tenant" on lifecycle_status_history for select
-  to authenticated using (tenant_id = current_tenant_id());
-create policy "lsh_insert_own_tenant" on lifecycle_status_history for insert
-  to authenticated with check (tenant_id = current_tenant_id());
+create policy "lsh_select_contact_roles" on lifecycle_status_history for select
+  to authenticated
+  using (tenant_id = current_tenant_id()
+         and current_user_role() in ('owner_admin', 'sales_manager', 'sales_rep', 'office_admin'));
+create policy "lsh_insert_contact_roles" on lifecycle_status_history for insert
+  to authenticated
+  with check (tenant_id = current_tenant_id()
+         and current_user_role() in ('owner_admin', 'sales_manager', 'sales_rep', 'office_admin'));
 ```
 
 ---
@@ -585,6 +630,11 @@ default value in any schema, so a caller must choose one. A default would quietl
 `profiles` and rejecting a write outside the permitted fields. `createPerson` and `updatePerson`
 accept the restricted field set for that role; `deletePerson`, `setPersonLifecycleStatus`,
 `linkPersonToOrganization`, `setLinkDuties`, and `relateOrganizations` reject it outright.
+
+**Lifecycle status:** `setPersonLifecycleStatus` and its Organization twin call
+`supabase.rpc('set_lifecycle_status', …)` with source `'manual'`, passing neither tenant nor
+actor. `createPerson` and `createOrganization` take no status field — the guard in §2.7 would
+refuse it — so a record that needs one gets it through a second call.
 
 **Invalidation:** `revalidatePath` after every mutation. There is no client-side cache library
 ([docs/ENGINEERING-RULES.md](../../ENGINEERING-RULES.md) §1).
@@ -632,6 +682,16 @@ whatever loads first.
   would need a column-privilege grant per column plus its own policy, and Server Actions are
   already the only authenticated write path. Revisit if a second write path is ever added —
   that is the condition under which this becomes the wrong call.
+- **Keeping Operations out with `current_user_role() <> 'operations'`.** Rejected: it fails
+  open. A sixth role added later would reach every customer record on the day it is created,
+  without anyone writing a policy for it. The allowlist in §2.8 makes a new role's access a
+  decision someone has to make.
+- **Trusting the Server Actions to be the only writer of `lifecycle_status_id`.** Rejected: the
+  write policy lets any caller in the tenant update the column through the API, and every such
+  update would skip the history row. CLAUDE.md makes "Audit in the same transaction" an
+  invariant, so it is enforced where the column lives — the guard trigger in §2.7.
+- **Passing tenant and actor into `set_lifecycle_status()`.** Rejected: the function is callable
+  through the API, so a caller could name any actor. Both are read from the session instead.
 - **Entity-Attribute-Value tables or per-tenant columns for custom fields.** Banned outright by
   [docs/ENGINEERING-RULES.md](../../ENGINEERING-RULES.md) §2. `custom_fields jsonb` is the
   approved shape.
@@ -653,6 +713,11 @@ whatever loads first.
 Vitest, against the local Supabase stack (`npx supabase start`) — never the hosted project, because
 these cases are destructive ([docs/ENGINEERING-RULES.md](../../ENGINEERING-RULES.md) §3,
 [docs/ENVIRONMENTS.md](../../ENVIRONMENTS.md) §1).
+
+**Where the stack runs.** On the developer machine, Docker Desktop per ENVIRONMENTS §4 steps 1–2,
+installed before the build starts. In CI, `ci.yml`'s `check` job gains `supabase/setup-cli` and
+`supabase start` ahead of `npm run test`, in the same PR as the tests — otherwise the first test
+file turns the gate permanently red.
 
 **Mandatory cases from ENGINEERING-RULES §3 that apply here:**
 
@@ -684,6 +749,10 @@ these cases are destructive ([docs/ENGINEERING-RULES.md](../../ENGINEERING-RULES
 - An Organization cannot be related to itself (§1.22).
 - Office Administrator cannot set a status, link, assign a duty, or delete (§1.25).
 - History cannot be updated or deleted (§1.26).
+- Operations reads zero rows from every record, link, and history table, has every write there
+  rejected, and reads all five lists (§1.27).
+- A direct update of `lifecycle_status_id`, and an insert carrying one, are both rejected; the
+  history row's actor is the caller, whatever else is sent (§1.29).
 - `findDuplicatePersons` returns candidates on a name, an email, and a phone match (§1.6).
 
 **Not testable in this slice:** delete blocked by a referencing Opportunity. No Opportunity table
@@ -711,15 +780,18 @@ Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
    become false when this merges.
 6. **`docs/PROJECT-STRUCTURE.md` §3** — `src/server/actions/` and `src/lib/validation/` stop being
    directories that do not exist yet.
+7. **`docs/ENVIRONMENTS.md` §1 and CLAUDE.md "Project state"** — both say the local stack runs
+   only in `db-replay.yml` and the `test` step gates nothing. Once `ci.yml` starts a stack and
+   the tests exist, both are false.
 
 ---
 
 ## 8. Requires human approval before `/work:3-plan`
 
-- [x] **A schema change, and a large one** — eleven tables, one view, four enum types, four
+- [ ] **A schema change, and a large one** — eleven tables, one view, four enum types, six
       functions, and the triggers. CLAUDE.md "Decision escalation" requires sign-off on any new
       table, index, RLS policy, or extension before it is authored.
-- [x] **RLS policies on eleven tables** — CLAUDE.md "Off-limits" lists RLS as auth-related code
+- [ ] **RLS policies on eleven tables** — CLAUDE.md "Off-limits" lists RLS as auth-related code
       requiring explicit instruction. The policies are specified in §2.8; this box is agreement
       that they are correct, not that they exist.
 - [x] **`alter type user_role add value 'operations'`** — a change to the role enum every future
@@ -733,7 +805,14 @@ Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
       its signature a contract. CLAUDE.md "Scope boundaries" puts changes to those paths out of
       bounds without instruction.
 
-All five signed off by Viral Parikh on 2026-09-27.
+- [ ] **`.github/workflows/ci.yml` gains a Supabase stack** — CLAUDE.md "Off-limits" puts CI
+      configuration under human review. The `check` job gets `supabase/setup-cli` and
+      `supabase start` before `npm run test` (§6).
+
+All five original boxes were signed off by Viral Parikh on 2026-09-27. The first two were
+reopened the same day: `/work:3-plan` found that §2.8's record policies checked the tenant alone,
+which let Operations reach every customer record, and that nothing forced a status change
+through `set_lifecycle_status()`. §2.7 and §2.8 were rewritten, so both boxes need signing again.
 
 **No package is added or removed.** Nothing here needs a dependency that is not already in
 `package.json`.
@@ -749,7 +828,7 @@ Carried from [intent.md](intent.md) §4, plus what this design ruled out:
 - **Delete refused because an Opportunity references the record.** The `on delete restrict`
   foreign keys land in the Opportunity and Job migrations. PRD-008's delete rule is half-satisfied
   here, deliberately.
-- **The Opportunity and Job attachment contract itself** — moving to ARCHITECTURE §5 per §7.2.
+- **The Opportunity and Job attachment contract itself** — in ARCHITECTURE §5 since #99 (§7.3).
 - **Tenant provisioning.** This slice provides the seed function. Nothing here creates a tenant or
   calls it automatically.
 - **Working authentication** (#70–#74). Tests set session claims directly.
