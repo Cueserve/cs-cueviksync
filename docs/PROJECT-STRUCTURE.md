@@ -40,7 +40,7 @@ cs-cueviksync/
 ├─ docs/                           # source-of-truth documents
 │  ├─ brainstorming/               # pre-decision exploration, never authoritative
 │  ├─ reviews/                     # dated advisory reviews
-│  └─ specs/                       # dated transient design specs — README only today
+│  └─ work/                        # one transient folder per work item — see §5
 ├─ public/
 │  └─ brand/                       # logo SVGs served as-is (next/image, unoptimized)
 ├─ src/
