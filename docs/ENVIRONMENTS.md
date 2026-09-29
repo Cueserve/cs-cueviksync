@@ -1,7 +1,7 @@
 # ENVIRONMENTS.md — Where the Database Runs
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-08-11
+**Last updated:** 2026-09-29
 **Source of truth for:** which Supabase environment development runs against, the working
 rules that follow from that, and the plan for adopting the local Docker stack.
 
@@ -88,9 +88,11 @@ required is already fixed by NFR-010 and recorded in docs/TECH-STACK.md §7:
 
 ### Who pays, and when — decided 2026-08-16
 
-**Cueserve stays on the free tier of everything, for the whole of development.** Supabase and
-Vercel both. There is no plan to buy Pro, PITR, database branching, or a paid Vercel plan, and
-a proposal that assumes one is not a proposal for this project.
+**Cueserve stays on the free tier until the first client demo, then moves to paid plans**
+(amended 2026-09-29). Supabase and Vercel both: Vercel's Hobby plan is for personal,
+non-commercial use, which a client demo is not, and Supabase Pro removes the idle pause and
+adds daily backups. PITR and database branching stay unbought; a proposal that assumes either
+is still not a proposal for this project.
 
 **The production project is never Cueserve's.** At production cutover the Supabase project and
 the Vercel project are created under **the client's own account and ownership**, and everything
@@ -100,22 +102,23 @@ record: the durability requirement was never in conflict with the budget, becaus
 different accounts. NFR-010 is unchanged and remains binding on whoever runs production.
 
 **So the real exposure is UAT, not production.** The window that matters is the one where a
-client is exercising the app against a Cueserve-owned free project and generating data they
-care about, before the transfer. Free has **no automated backups at all**, so during that window
-the only recovery mechanism is the one you run yourself:
+client is exercising the app against a Cueserve-owned project and generating data they care
+about, before the transfer. By then that project is on Pro, whose daily backups (7-day
+retention) restore only to the last backup — so a dump before any destructive migration stays
+the rule:
 
 ```bash
 npx supabase db dump --linked -f backup-$(date +%Y%m%d).sql   # before destructive migrations
 ```
 
-**Before UAT starts, that dump stops being a manual habit and becomes a scheduled job.** It is
-the only thing standing between a client's UAT data and permanent loss. Nothing automates it
-today.
+Until the move to Pro, free has **no automated backups at all**, and that dump is the only
+recovery there is.
 
 **Two free-tier limits to plan around rather than discover:**
 
-- **2 active free projects per org.** CuevikSync dev and RedyQuote dev already hold both slots.
-  A third free project does not fit unless it lives in a different organisation.
+- **2 active free projects per org.** RedyQuote dev is paused (2026-09-29) so a second Cuevik
+  product's dev project can take its slot. Until the move to paid, a third free project does
+  not fit unless it lives in a different organisation.
 - **A free project pauses after one week idle.** The first request after that fails until
   someone resumes it in the dashboard. Under a client-owned production project this stops being
   a concern; during UAT it is a real interruption.
@@ -245,8 +248,8 @@ unrepeatable.
 - **§5 is written entirely in the future tense and must be rewritten the day it is executed.** A
   prod-onboarding checklist that still reads as a plan after the project exists is the same
   failure mode as the bullet above.
-- **§2's plan question was settled on 2026-08-16 and is no longer a live contradiction.** Free
-  tier for everything Cueserve owns; the production project is created under the client's
+- **§2's plan question was settled on 2026-08-16 and amended on 2026-09-29.** Free tier until
+  the first client demo, paid after; the production project is created under the client's
   account, and NFR-010's Pro + PITR obligation is met there. If that model ever changes — if
   Cueserve ends up owning a production project — §2 is wrong again and this becomes the most
   urgent line in the file.

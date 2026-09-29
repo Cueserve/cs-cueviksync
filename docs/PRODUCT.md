@@ -1,9 +1,10 @@
 # PRODUCT.md — Product Concept
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-18
+**Last updated:** 2026-09-29
 **Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
-Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and mid-sized businesses, validated first against Print & Signage operations.
+Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and
+mid-sized Print & Signage businesses.
 
 > Derived from: (none — starting point)
 > Downstream: README.md, docs/PRD.md
@@ -26,7 +27,8 @@ Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows fo
 
 ### Vision
 
-An AI-powered platform that helps small and mid-sized businesses capture every inbound inquiry and turn it into revenue.
+An AI-powered platform that helps small and mid-sized print and signage businesses capture
+every inbound inquiry and turn it into revenue.
 
 ### Problem Statement
 
@@ -70,11 +72,11 @@ live in one place. An AI assistant works alongside the team — drafting follow-
 recovering missed calls, suggesting the next action, and flagging deals going cold — but it
 only suggests and drafts; a person approves anything a customer sees.
 
-Because pipelines, custom fields, templates, and permissions are all configurable, very
-different businesses — a professional practice, a field-service crew, an order-fulfillment
-shop — can each run their own process on the same system. A team of ten or fewer can be
-onboarded and working its live pipeline within days, with no consultant and no custom
-development.
+Because pipelines, custom fields, templates, and permissions are all configurable, print
+businesses that work very differently — a commercial offset printer, a wide-format signage
+shop, a promotional-products reseller — can each run their own process on the same system.
+A team of ten or fewer can be onboarded and working its live pipeline within days, with no
+consultant and no custom development.
 
 This document describes the full product model and the current committed scope for
 **Phase 1 thin-core**. Broader capabilities described here remain roadmap intent and
@@ -112,7 +114,8 @@ become commitment only when captured in an approved PRD.
   people across the multiple organizations they belong to, with automatic duplicate
   detection that keeps data clean and reveals cross-sell connections.
 - **Adaptive pipelines** — configurable pipelines that let one lean team run different
-  processes side by side (case files, field estimates, batch orders) without custom code.
+  processes side by side (quick-turn digital orders, case files, field estimates, batch
+  orders, signage installs) without custom code.
 - **Estimation & service catalog** — a configurable catalog of sellable units
   (attribute-matrix products with modifier options) feeding a structured costing engine
   with formulas, quantity-tier price breaks, and a margin-floor guardrail, so estimates are
@@ -244,9 +247,11 @@ does not get re-argued every release:
 - **Consultant-led or code-dependent setup** — any capability that the customer's own team
   cannot configure is out, however valuable. The moment setup needs custom code or a
   certified admin, CuevikSync has become the heavy tool it exists to replace (§6).
-- **Vertical-specific code paths** — verticals are served entirely through configuration;
-  a vertical that needs code is a signal to extend the generic platform, never to fork it
-  (see the rule in §7).
+- **Client branches and forks** — what one client does differently from another is served
+  through that client's tenant configuration first. A need configuration cannot meet, and
+  that no other business would use, is built as an isolated client slice — its own page or
+  module, enabled for that client's tenant only — rather than generalized for the vertical.
+  Never as a client branch inside shared code, and never as a fork (see the rule in §7).
 
 ## 5. Success Criteria
 
@@ -272,8 +277,9 @@ property itself is not negotiable.
   and readable on the record.
 - **Customer-facing output requires a human action** — no artifact reaches a customer
   without a person explicitly sending it.
-- **A vertical ships without code** — pipelines, custom fields, templates, and roles are
-  sufficient to configure one.
+- **A new client onboards without code** — pipelines, custom fields, templates, and roles
+  are sufficient to configure a Print & Signage business. A client slice (§4) adds to a
+  working setup; it is never a prerequisite for going live.
 
 ### Post-Thin-Core Outcomes (Owned Roadmap Targets)
 
@@ -303,17 +309,22 @@ Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD car
 
 ## 7. Roadmap
 
-CuevikSync is architected as a single, horizontal platform. Phase 1 validates the
-core platform against a single vertical. Releases after Phase 1 expand to the verticals
-below — each one runs the same platform engine with different pipeline configurations,
-custom field sets, and workflow templates, not different codebases.
+CuevikSync is built for one vertical: **Print & Signage** — print shops and
+printing-related businesses whose work runs from an inbound inquiry to a tracked job. Its
+roadmap adds capability for that vertical as needs arise (§4); it does not expand into
+other verticals.
 
-> **Rule:** No vertical-specific code enters the platform. Every vertical must be
-> served entirely through configuration — pipelines, custom fields, templates, and
-> role-based access. If serving a vertical requires writing code, that is a signal to
-> extend the generic platform, not to build a vertical fork.
+A business outside Print & Signage is served by a separate Cuevik product, never by
+generalizing this one. Such a product may start from a copy of this codebase's
+foundation — auth, tenancy, UI shell — and then owns its code outright.
 
-### Phase 1 Vertical — Print & Signage
+> **Rule:** Print & Signage behaviour is the product and belongs in code. What one client
+> does differently from another — stage names, fields, catalog, timezone — is that
+> client's tenant configuration first. A client-only need that configuration cannot meet
+> is built as an isolated client slice, enabled for that client's tenant only. Never a
+> client branch inside shared code, and never a fork of this codebase (§4).
+
+### Print & Signage
 
 The first production deployment targets **Print & Signage** operations — businesses
 providing digital printing, commercial offset printing, wide-format output, signage,
@@ -322,9 +333,8 @@ concentrates every core platform challenge in one place: high inquiry volume acr
 multiple channels, complex per-job quoting, artwork and specification approvals, and
 production scheduling — all managed today by phone, email, and spreadsheets.
 
-Building for this vertical first produces a hardened, battle-tested core. Thin-core
-capabilities from §4 are exercised first against real Print & Signage workflows,
-and broader roadmap capabilities are validated in later releases.
+Thin-core capabilities from §4 are exercised first against real Print & Signage
+workflows, and broader roadmap capabilities are validated in later releases.
 
 Print & Signage workflows validated in Phase 1:
 
@@ -335,30 +345,6 @@ Print & Signage workflows validated in Phase 1:
 - Print production status tracking inside the pipeline
 - Substrate and finishing option configuration on quotes
 - Pickup / delivery coordination as a deal attribute
-
-| #   | Vertical                       | Representative Workflows                                                       |
-| --- | ------------------------------ | ------------------------------------------------------------------------------ |
-| 1   | **Print Shops** _(Phase 1)_    | Job quoting, artwork approval, print scheduling, substrate/ink inventory       |
-| 2   | **Contractors**                | Estimates, site measurements, change orders, crew scheduling, client approvals |
-| 3   | **Professional Services**      | Client intake, proposal-to-contract, document collaboration                    |
-| 4   | **Manufacturing**              | Job tickets, BOMs, production scheduling, quality checks, packaging specs      |
-| 5   | **Agencies**                   | Campaign briefs, asset proofing, client approvals, time & resource tracking    |
-| 6   | **Home & Industrial Services** | Dispatching, parts tracking, service scheduling                                |
-| 7   | **B2B Service Providers**      | Contract tracking, SLA tracking, multi-site coordination                       |
-
-> Representative Workflows describe each vertical's real-world process. CuevikSync
-> covers the inquiry-to-order slice of each; billing, invoicing, and payments are
-> handled by the customer's external finance tools (see §4), never in-product.
-
-### What each vertical expansion requires
-
-- Pipeline template pre-configured for the vertical's deal stages
-- Custom field set covering the vertical's job/project attributes
-- Quote line-item templates for common service or product types
-- Onboarding checklist that gets a team live within 3 days (per Success Criteria)
-
-No additional vertical ships until the Phase 1 core is stable and the Success Criteria in
-Section 5 are met in production.
 
 ## Glossary
 

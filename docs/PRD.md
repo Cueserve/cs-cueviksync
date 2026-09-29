@@ -1,7 +1,7 @@
 # PRD.md — Product Requirements Document
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-23
+**Last updated:** 2026-09-29
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
@@ -630,8 +630,10 @@ PRD or a post-Phase 1 PRD unless noted as permanently out.
   General Data Protection Regulation (GDPR) or local equivalents).
 - **No financial data** — the product MUST NOT store payment instruments or process
   payments.
-- **Single validation vertical** — this release is validated only against Print &
-  Signage, and no vertical-specific code may enter the platform.
+- **Single vertical** — the product serves Print & Signage only. What one client does
+  differently from another is tenant configuration; a client-only need configuration
+  cannot meet is an isolated client slice, never a branch in shared code or a fork
+  (docs/PRODUCT.md §4, §7).
 
 ## 12. Risks & Edge Cases
 
