@@ -117,14 +117,14 @@ Every feature in §4 traces to one of these problems.
   without code. (PS-3)
 - **Role-based access control (RBAC)** — role-scoped visibility and edit rights so
   sensitive data stays hidden from users who should not see it. (PS-5)
-- **Job/Order execution & tracking** — convert a Won opportunity into a job with
-  per-item lines, dates, and status, with automatic turnaround and on-time
+- **Job/Order execution & tracking** — convert a Won opportunity into a job, or book an
+  already-decided order straight into one, with per-item lines, dates, and status, with
+  automatic turnaround and on-time
   calculation, a weekly KPI summary, and a waste/rework log, so accepted work is
   tracked from acceptance to delivery. (PS-6)
 - **Repeat-order shortcut** — a "Reorder" action on an existing client's prior job
-  creates a new opportunity pre-filled from that job and immediately marks it Won,
-  producing the same Job/Order handoff as any other Won opportunity, so repeat
-  business skips redundant re-qualification. (PS-7)
+  books a new job pre-filled from it and linked to it — another batch of the same work —
+  so repeat business skips the sales pipeline entirely. (PS-7)
 
 ## 5. User Stories
 
@@ -157,6 +157,8 @@ Every feature in §4 maps to at least one story below.
   that sensitive information stays scoped.
 - As operations staff, I want a Won opportunity to become a trackable job so that I
   know what's been sold and needs to be produced.
+- As office staff, I want to book a walk-in, phone, or email order straight into a job
+  so that work already decided doesn't have to pass through the sales pipeline first.
 - As operations staff, I want to record a job's order, promised, completed, and
   delivered dates so that the team knows what's due and what's late.
 - As operations staff, I want to flag a job item's material shortage or equipment
@@ -326,6 +328,14 @@ MoSCoW priority (Must / Should / Could).
   let a user convert a Won opportunity into a job, carrying forward the linked
   person and organization. This is the handoff from a closed deal into production
   work. (PS-6)
+- **PRD-050** — _**Direct job booking**_ _(Must)_ — The system MUST let a user create a
+  job directly, attached to a person and optionally an organization, with no inquiry or
+  opportunity. When an organization is set, the booking MUST meet the same checks as
+  qualifying an opportunity for it: the person linked to the organization, and a Primary
+  contact on it (PRD-048). Booking a job MUST advance the customer's lifecycle status as
+  winning an opportunity does (PRD-047). A direct-booked job MUST otherwise behave like
+  any other job (PRD-032 – PRD-043) and MUST NOT count as a captured inquiry. This covers orders already decided
+  when they arrive — walk-in, phone, or email. (PS-6, PRODUCT.md §3A)
 - **PRD-032** — _**Job line items**_ _(Must)_ — The system MUST let a job carry one
   or more item lines under a shared job number, each with an item description and
   quantity. A job with three items is three lines sharing one job number, matching
@@ -374,13 +384,15 @@ MoSCoW priority (Must / Should / Could).
 ### Repeat-Order Shortcut
 
 - **PRD-044** — _**Reorder shortcut**_ _(Must)_ — The system MUST let a user
-  trigger a "Reorder" action from an existing client's prior job, creating a new
-  opportunity pre-filled with that job's person, organization, and line items, and
-  immediately setting it to the terminal Won stage. The resulting opportunity MUST
-  be structurally indistinguishable from a manually qualified and Won opportunity
-  — same fields, same audit trail (PRD-013) — and MUST convert to a job through the
-  standard PRD-031 flow. This lets a repeat order skip redundant qualification
-  while preserving the Won-to-Job invariant.
+  trigger a "Reorder" action from an existing client's prior job, creating a new job
+  through direct booking (PRD-050) — pre-filled with that job's organization, person, and
+  item lines, and linked to the job it repeats. No opportunity is created. The
+  organization MUST stay that of the prior job; the person MAY be changed to anyone
+  actively linked to it. The new job MUST take its own order and promised dates
+  (PRD-033). By default every pre-filled field MAY be edited; an administrator MAY
+  configure Reorder as strict for the tenant, allowing only quantities and dates to
+  change. This lets another batch of the same work reach production without passing
+  through the sales pipeline. (PS-7)
 
 ### Configurable Custom Fields
 
@@ -524,6 +536,7 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-020        | A user can generate a printable or shareable quote document and mark the quote sent; the send timestamp is recorded and shown whether delivery is done via in-app email integration or an external/manual channel.                                                                                                                                                                                                                                                                                                                          |
 | PRD-021        | An administrator can add, edit, and deactivate catalog items with a unit price; a deactivated item no longer appears in the line-item picker.                                                                                                                                                                                                                                                                                                                                                                                               |
 | PRD-031        | A Won opportunity can be converted into a job; the job carries forward the linked person and organization.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| PRD-050        | A user can create a job for a person, with or without an organization, and with no inquiry or opportunity; when an organization is set, booking requires the person to be linked to it and a Primary contact on it; the customer's lifecycle status advances as on a Won opportunity; the job takes item lines and dates like any other job, and does not appear in the inquiry queue or in capture metrics.                                                                                                                                |
 | PRD-032        | A job can hold two or more item lines under one shared job number, each with its own description and quantity.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | PRD-033        | Saving a job item line without an order date or a promised date is blocked with a validation message.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | PRD-034        | A user can set a job's completed date and delivered date; a job with no completed date is treated as still in production.                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -536,7 +549,7 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-041        | Jobs with a completed date appear in a Completed view; jobs without one appear in a Pending view, with no manual status field to set.                                                                                                                                                                                                                                                                                                                                                                                                       |
 | PRD-042        | A user can log a spoilage percentage, a reprint Yes/No flag, and a note against a job; no automatic spoilage-rate calculation is performed.                                                                                                                                                                                                                                                                                                                                                                                                 |
 | PRD-043        | A weekly summary table shows jobs completed, average turnaround, on-time percentage, and total invoice value, with one row added per week.                                                                                                                                                                                                                                                                                                                                                                                                  |
-| PRD-044        | Triggering "Reorder" on an existing client's prior job creates a new opportunity pre-filled with that job's person, organization, and line items, already in the terminal Won stage, with an audit entry recording the acting user and timestamp; converting it to a job follows the same PRD-031 flow as any other Won opportunity.                                                                                                                                                                                                        |
+| PRD-044        | Triggering "Reorder" on a prior job creates a new job linked to it, pre-filled with its organization, person, and item lines, with no opportunity created; the new job requires new order and promised dates; with the tenant set to strict, only quantities and dates can be edited.                                                                                                                                                                                                                                                       |
 | PRD-022        | An administrator can add a custom field to a record type without a code deploy; the field appears on that record's form and its value persists.                                                                                                                                                                                                                                                                                                                                                                                             |
 | PRD-023        | An unauthenticated request for any record is denied and redirected to sign-in; no record data is returned.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | PRD-024        | The system provides exactly the thin-core baseline roles (Owner/Admin, Sales Manager, Sales Rep, Office Administrator, Operations), and changing a user's role changes accessible screens and allowed actions accordingly.                                                                                                                                                                                                                                                                                                                  |

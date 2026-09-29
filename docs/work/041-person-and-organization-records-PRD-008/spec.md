@@ -554,9 +554,9 @@ event does nothing. There is nothing above Client for a `'won'` event to protect
 so renaming or reordering statuses cannot change behaviour.
 
 **Which record an automatic event targets is the caller's decision, not this function's.** When
-the future Opportunity carries an organization, the event targets the Organization, not the
-person who placed the order on its behalf. That contract belongs to the Opportunity work, not
-here — see §7.
+the future Opportunity — or, since #106, a directly booked Job — carries an organization, the
+event targets the Organization, not the person who placed the order on its behalf. That contract
+lives in ARCHITECTURE §5, not here — see §7.
 
 **`seed_tenant_contact_lists(p_tenant_id uuid)`** — inserts the starting values in §2.2 for one
 tenant. Tenant provisioning calls it when provisioning exists; until then it is called by hand
@@ -802,6 +802,8 @@ Each is its own Pull Request per [CONTRIBUTING.md](../../../CONTRIBUTING.md).
    `person_id not null`, `organization_id` nullable, both `on delete restrict`; the pair must be
    linked; frozen once Won; Job inherits; Reorder copies without re-checking; an inactive link
    warns; lifecycle events target the Organization when there is one. Added on 2026-09-23.
+   Amended 2026-09-29 (#106): a Job may be booked without an Opportunity, and Reorder is a
+   direct booking — see ARCHITECTURE §5.
 4. **`docs/DATABASE.md`** — §§1–3, 5, and 6 are unwritten. This is the first real domain model in
    the repo and should fill them.
 5. **`CLAUDE.md` "Project state"** — currently says no Server Actions and no tests exist. Both
