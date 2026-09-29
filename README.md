@@ -1,6 +1,6 @@
 # CuevikSync
 
-> An AI-powered platform that helps small and mid-sized businesses capture every inbound inquiry and turn it into revenue.
+> An AI-powered platform that helps small and mid-sized print and signage businesses capture every inbound inquiry and turn it into revenue.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.x-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.x-61dafb.svg)](https://react.dev/)
@@ -290,4 +290,4 @@ Product-level placeholders are tracked in [PRODUCT.md](docs/PRODUCT.md) §3A.
 
 ---
 
-> _Last updated:_ 2026-08-15 · _Owner:_ Viral Parikh
+> _Last updated:_ 2026-09-29 · _Owner:_ Viral Parikh
