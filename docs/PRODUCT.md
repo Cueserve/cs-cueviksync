@@ -125,10 +125,10 @@ become commitment only when captured in an approved PRD.
 - **Job execution & scheduling** — convert won quotes into trackable jobs with milestones
   and change control, then assign people, machines, and time slots on a capacity-aware
   schedule, so accepted work moves to delivery without re-entry or dispatch conflicts.
-- **Repeat-order shortcut** — a "Reorder" action on an existing client's prior job creates
-  a new Opportunity pre-filled from that job and immediately marks it Won, so a repeat
-  order skips redundant re-qualification while still producing the standard
-  Opportunity → Job handoff — no new entity, no bypass of the Won-to-Job rule.
+- **Repeat-order shortcut** — a "Reorder" action on an existing client's prior job books a
+  new Job pre-filled from it and linked to it — another batch of the same work, in the same
+  or a different quantity — so a repeat order skips the sales pipeline entirely. It is a
+  direct booking (§3A): no Opportunity is created.
 - **Unified communication timeline** — one chronological feed per contact combining
   calls, emails, texts, and status updates, so staff have full context before they reply.
 - **AI sales assistant** — automated follow-ups, missed-call recovery, suggested next
@@ -167,12 +167,19 @@ implementation quietly picking a default.
   Product Owner, informed by the Phase 1 Print & Signage validation partner
   (PRD §10).
 
-- **Direct booking with no Inquiry or Opportunity** — undecided. A walk-in or phone order
-  that becomes a Job without ever having been an Inquiry contradicts the zero-leak capture
-  guarantee as PRD-001 and NFR-002 are currently written, and touches both Capture & Triage
-  and Job Execution, neither of which is built. Until resolved, no implementation may
-  create a Job outside the Inquiry-to-Opportunity chain. **Decided by:** Product Owner,
-  informed by the Phase 1 Print & Signage validation partner (PRD §10).
+- **Direct booking with no Inquiry or Opportunity** — **resolved 2026-09-29** (PRD-050).
+  Staff MAY book any order straight into a Job — whatever channel it arrived by, walk-in,
+  phone, or email — attached to a Person and optionally an Organization, with no Inquiry or
+  Opportunity. A direct-booked order is not an inquiry: it sits outside the zero-leak
+  capture guarantee and the capture metrics in §5, and counts in every job-level metric
+  (PRD-039 – PRD-043) like any other Job. PRD-001 and NFR-002 cover web-form submissions
+  only, so neither changes. **Decided by:** Product Owner.
+
+  > Original placeholder: a walk-in or phone order that becomes a Job without ever having
+  > been an Inquiry contradicts the zero-leak capture guarantee as PRD-001 and NFR-002 are
+  > currently written, and touches both Capture & Triage and Job Execution, neither of which
+  > is built. Until resolved, no implementation may create a Job outside the
+  > Inquiry-to-Opportunity chain.
 
 When a placeholder closes, mark it **resolved YYYY-MM-DD** and cite the requirement that
 now owns it. The entry stays in place, resolved — it is the record of the decision.
@@ -185,12 +192,13 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
 - Unified contact/company relationship management with duplicate detection
 - Adaptive, configurable pipelines (no custom code)
 - Basic quotation (manual line items from a flat catalog plus free-form lines)
-- Job/Order execution — convert a Won opportunity into a job with per-item lines,
-  dates, status, and turnaround/on-time tracking (no milestones or change control
+- Job/Order execution — convert a Won opportunity into a job, or book an
+  already-decided order straight into one (§3A), with per-item lines, dates, status,
+  and turnaround/on-time tracking (no milestones or change control
   this release — that stays roadmap depth, see below)
-- Repeat-order shortcut — "Reorder" on an existing client's prior job auto-creates and
-  auto-marks-Won a new Opportunity, which then follows the same Job/Order conversion
-  as any other Won opportunity above
+- Repeat-order shortcut — "Reorder" on an existing client's prior job books a new Job
+  pre-filled from it and linked to it, as a direct booking (§3A); no Opportunity is
+  created
 - Job-level weekly KPI summary — jobs completed, turnaround, on-time %, and invoice
   value, one row per week (table only; no charts this release)
 - Waste/rework logging — per-job spoilage % (manual entry — see §3A) and reprint
