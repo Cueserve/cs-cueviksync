@@ -27,9 +27,8 @@ every inbound inquiry into revenue and every booked job into faster delivery.
 
 ### Vision
 
-An AI-powered platform that helps small and mid-sized Print & Signage businesses turn every
-inbound inquiry into revenue and every booked job into faster delivery — raising customer
-satisfaction.
+Every small Print & Signage business catches every inquiry and delivers every job on time,
+from one workspace where anyone on the team can see where the work stands.
 
 ### Problem Statement
 
