@@ -107,6 +107,9 @@ delivered on time.
 
 ## 3. Features
 
+> Features describe the full product model, including roadmap intent. Only §4 "In scope —
+> Phase 1 thin-core release" is committed.
+
 - **Omnichannel inquiry capture & triage** — a shared queue that pulls every lead (phone,
   email, text, web forms, walk-ins) into one place and auto-prioritizes urgent or
   high-intent messages, so nothing is lost and hot leads surface first.
