@@ -321,7 +321,7 @@ MoSCoW priority (Must / Should / Could).
   deactivated item SHOULD no longer appear in the line-item picker. This keeps the
   sellable-item list current without altering past quotes.
 
-### Job / Order Execution
+### Job Execution
 
 - **PRD-031** — _**Job creation from Won opportunity**_ _(Must)_ — The system MUST
   let a user convert a Won opportunity into a job, carrying forward the linked
