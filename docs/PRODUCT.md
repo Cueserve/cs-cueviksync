@@ -92,7 +92,7 @@ CRMs fit worst; team size is the starting point, not the limit.
 > the salesperson may also quote. These are roles, not headcount. The thin-core baseline
 > role-based access control (RBAC) roles map to these personas: Owner/Admin, Sales Manager,
 > Sales Rep, Office Administrator, and Operations. The business's own customers are not
-> users: they never log in, and client portals are a post-Phase 1 item (§4).
+> users: they never log in, and client portals are on the Wish-list (§4).
 
 - **Business owner** — runs the business and often closes deals too,
   but has no single view of the pipeline, so inquiries slip through and revenue
@@ -256,25 +256,34 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
 
 ### In scope — Phase 1 thin-core release (committed)
 
-- Omnichannel inquiry capture and triage into a single shared queue
-- Unified contact/company relationship management with duplicate detection
-- Adaptive, configurable pipelines (no custom code)
-- Basic quotation (manual line items from a flat catalog plus free-form lines)
-- Job/Order execution — convert a Won opportunity into a job, or book an
-  already-decided order straight into one (§3A), with per-item lines, dates, status,
-  turnaround/on-time tracking, and an overdue flag with days overdue (no milestones or
-  change control
-  this release — that stays roadmap depth, see below)
-- Repeat-order shortcut — "Reorder" on an existing client's prior job books a new Job
-  pre-filled from it and linked to it, as a direct booking (§3A); no Opportunity is
-  created
-- Job-level weekly KPI summary — jobs completed, turnaround, on-time %, and invoice
-  value, one row per week (table only; no charts this release)
-- Waste/rework logging — per-job spoilage % (manual entry — see §3A) and reprint
-  flag
-- Communication notes log — staff record notes, calls, and emails by hand against a
-  Person or Organization, shown in time order
-- Role-based access
+- **Zero-leak inquiry capture** (thin-core part) — web-form submissions captured
+  automatically as one Inquiry each, none dropped (a failed submission is held for a
+  person); staff log email, phone, and walk-in inquiries by hand; one shared queue; each
+  Inquiry keeps its source; priority set manually.
+- **Complete customer record** — Person and Organization records with a lifecycle status,
+  a person's role at each organization, and links between related organizations;
+  inquiries, opportunities, and jobs attached; likely duplicates flagged.
+- **Adaptive pipelines** — stages an Owner/Admin defines, renames, and reorders with no
+  code; several pipelines side by side; every open opportunity has an owner, a stage, and a
+  next action; every stage move recorded; Won or Lost closes a deal.
+- **Quote to order** (thin-core part) — manual line items from a flat catalog plus
+  free-form lines, a quote total, a quote document, and draft → sent → accepted or
+  declined, with "sent" always marked by a person.
+- **Order-to-delivery tracking** — a Won opportunity or a direct booking (§3A) becomes a
+  job with per-item lines, order and promised dates, production issue flags, a this-week
+  flag, an invoice value, computed turnaround and on-time, status derived from its dates,
+  and an overdue flag with days overdue.
+- **One-step reorder** — Reorder on a customer's past job books a new job pre-filled from
+  it and linked to it, with new order and promised dates, as a direct booking (§3A); no
+  Opportunity is created.
+- **Production at a glance** — a weekly summary of jobs completed, turnaround, on-time %,
+  and invoice value, one row per week (table only; no charts this release); per-job
+  spoilage % (manual entry — see §3A) and reprint flag.
+- **Communication center** (thin-core part) — a notes log where staff record notes, calls,
+  and emails by hand against a Person or Organization, shown in time order.
+- **Need-to-see access** — five roles (Owner/Admin, Sales Manager, Sales Rep, Office
+  Administrator, Operations) enforced by the system; pipeline and catalog settings for
+  Owner/Admin only; each business's data isolated from every other's.
 
 > **Commitment rule:** This section is the only committed Phase 1 scope.
 > Any broader capabilities described elsewhere in this document are roadmap intent
@@ -282,34 +291,36 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
 
 ### Planned roadmap after thin-core (timing TBD)
 
-- Configurable service catalog — attribute-matrix sellable units with modifier options
-- Structured estimation engine — formulas, quantity-tier price breaks, and a margin-floor
-  guardrail (formula undefined — see §3A)
-- Structured quotation and order generation depth beyond thin-core
-- Job/Order execution depth beyond thin-core — milestones and formal change
-  control on top of the thin-core job record (§4)
-- AI sales assistant: follow-up/next-action drafting + cold-deal flagging
-- Communication center depth beyond the thin-core notes log — a unified per-contact
-  timeline of calls, emails, texts, and status updates
-- Custom fields — industry-specific fields a business adds without code
-- Deadline early warning — AI-assisted warnings before a job's promised date and
-  escalation to managers, on top of the thin-core overdue flag
-- Pipeline/performance reporting — opportunity-level forecasting and manager
-  analytics (the thin-core job-level weekly KPI summary in §4 is narrower than
-  this and already committed)
+- **Zero-leak inquiry capture** (beyond thin-core) — automatic capture of email, phone,
+  and text inquiries; AI prioritization of urgent and high-intent inquiries.
+- **Margin-safe estimating** — a catalog of products defined by their options, priced by
+  formula with quantity-based price breaks and a minimum margin the shop sets (formulas,
+  price breaks, and margin behaviour are open decisions — see §3A).
+- **Quote to order** (beyond thin-core) — quote versions, pricing from Margin-safe
+  estimating, and AI-drafted quotes from unstructured customer messages (the requirement
+  that unblocks AI drafting is an open decision — see §3A).
+- **Deadline early warning** — AI-assisted warnings before a job's promised date and
+  escalation to managers, on top of the thin-core overdue flag.
+- **Clash-free scheduling** — job milestones and change control; people, machines, and
+  time slots assigned on a schedule, building on the thin-core this-week flag (depth is an
+  open decision — see §3A).
+- **Communication center** (beyond thin-core) — one timeline per Person and Organization of
+  calls, emails, texts, and status updates, with emails and texts from known contacts filed
+  automatically.
+- **Human-approved AI** — drafted follow-ups and missed-call replies (missed-call recovery
+  requires a telephony connector), next-action suggestions, and going-cold and at-risk-job
+  flags; flags are advisory, and a person sends every draft.
+- **No-chase automation** — rules that act on the stage and lifecycle events the thin-core
+  release already records; automated reactions ship in a later Phase 1 release.
+- **Pipeline forecast** — expected revenue by stage and close date, and manager analytics
+  (the thin-core Production at a glance summary is narrower and already committed).
+- **Business-defined fields** — custom fields on inquiries, persons, organizations,
+  opportunities, and jobs, added by an Owner/Admin with no code.
 
-- Work Orders & Scheduling — capacity-aware resource assignment and calendar scheduling on
-  top of job execution (depth is an open decision — see §3A)
-- Workflow Automation — trigger-condition-action orchestration of lifecycle events;
-  the Phase 1 thin-core release emits the stage/lifecycle events, while automated
-  reactions ship in a later Phase 1 release
-- Missed-call recovery (requires telephony connector)
-- AI-drafted quotes from unstructured inbound (unblocking requirement is an open decision —
-  see §3A)
+### Wish-list (not committed)
 
-### In scope — post-Phase 1 releases
-
-Planned for releases after Phase 1, demand-driven — not committed to Phase 1:
+Each item below is out of scope until PRODUCT.md is updated to move it in. Moving one in
+needs a named problem for a §2 persona.
 
 - AI scheduling / appointment booking
 - Mobile field-capture app (voice dictation) — no native mobile surface in this release
@@ -323,9 +334,9 @@ Planned for releases after Phase 1, demand-driven — not committed to Phase 1:
 Permanently excluded — not deferred. Each carries the reason it stays out, so the decision
 does not get re-argued every release:
 
-- **Accounting, invoicing, and payment processing** — CuevikSync tracks quotes and orders
-  through acceptance; financials and collections stay in the customer's existing finance
-  tools. Owning them would pull the product into regulated payment handling and reconciliation
+- **Accounting, invoicing, and payment processing** — CuevikSync tracks quotes through
+  acceptance and records each job's invoice value for reporting, but raises no invoices;
+  financials and collections stay in the customer's existing finance tools. Owning them would pull the product into regulated payment handling and reconciliation
   work that has nothing to do with capturing an inquiry and closing it.
 - **Consultant-led or code-dependent setup** — any capability that the customer's own team
   cannot configure is out, however valuable. The moment setup needs custom code or a
