@@ -72,32 +72,15 @@ In its Phase 1 thin-core release, CuevikSync must let a lean team (10 users or f
 ### Description
 
 CuevikSync is a single workspace where a business runs everything from the first customer
-inquiry to a delivered job. Every inbound request — by phone, email, text, web form, or
-walk-in — lands in one shared queue, is logged as a record, and is prioritized so the team
-sees the most urgent and highest-intent leads first. Each inquiry then becomes a tracked
-contact and deal that moves through a pipeline the business shapes to match its own stages,
-with no code to write.
+inquiry to a delivered job. Web-form inquiries land in a shared queue automatically, and staff
+log phone, email, and walk-in inquiries into the same queue, so every inquiry becomes a
+record. Each inquiry then becomes a tracked contact and opportunity that moves through a
+pipeline the business shapes to match its own stages, with no code to write.
 
-A won deal becomes a job, and an order that is already decided — a walk-in, a phone order, a
-repeat of earlier work — can be booked straight into one. Each job carries its items, dates,
-and status, so the team always knows where the work stands and whether it will be delivered
-on time.
-
-Around that core, CuevikSync brings together the work a lean team usually spreads across
-separate tools and spreadsheets, so contacts, conversations, quotes, jobs, and follow-ups
-all live in one place. An AI assistant works alongside the team — drafting follow-ups,
-recovering missed calls, suggesting the next action, and flagging deals going cold — but it
-only suggests and drafts; a person approves anything a customer sees.
-
-Because pipelines, custom fields, templates, and permissions are all configurable, print
-businesses that work very differently — a commercial offset printer, a wide-format signage
-shop, a promotional-products reseller — can each run their own process on the same system.
-A team of ten or fewer can be onboarded and working its live pipeline within days, with no
-consultant and no custom development.
-
-This document describes the full product model and the current committed scope for
-**Phase 1 thin-core**. Broader capabilities described here remain roadmap intent and
-become commitment only when captured in an approved PRD.
+A won opportunity becomes a job, and an order that is already decided — a walk-in, a phone
+order, a repeat of earlier work — can be booked straight into one. Each job carries its items,
+dates, and status, so the team always knows where the work stands and whether it will be
+delivered on time.
 
 ## 2. Target Users
 
@@ -359,6 +342,12 @@ promotional products, and design services. This vertical is selected because it
 concentrates every core platform challenge in one place: high inquiry volume across
 multiple channels, complex per-job quoting, artwork and specification approvals, and
 production scheduling — all managed today by phone, email, and spreadsheets.
+
+Print & Signage businesses do not all work the same way: a commercial offset printer, a
+wide-format signage shop, and a promotional-products reseller each run a different process.
+Configurable pipelines, custom fields, templates, and permissions let each run its own
+process on the same system — which is why the rule above puts client differences in tenant
+configuration, not code.
 
 Thin-core capabilities from §4 are exercised first against real Print & Signage
 workflows, and broader roadmap capabilities are validated in later releases.
