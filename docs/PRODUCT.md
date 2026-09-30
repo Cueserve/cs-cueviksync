@@ -312,7 +312,7 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
   requires a telephony connector), next-action suggestions, and going-cold and at-risk-job
   flags; flags are advisory, and a person sends every draft.
 - **No-chase automation** — rules that act on the stage and lifecycle events the thin-core
-  release already records; automated reactions ship in a later Phase 1 release.
+  release already records; automated reactions ship in the Next release (§7).
 - **Pipeline forecast** — expected revenue by stage and close date, and manager analytics
   (the thin-core Production at a glance summary is narrower and already committed).
 - **Business-defined fields** — custom fields on inquiries, persons, organizations,
