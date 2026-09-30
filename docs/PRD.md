@@ -289,9 +289,9 @@ MoSCoW priority (Must / Should / Could).
   outcome stage that marks an opportunity Won or Lost. Terminal opportunities MUST
   drop out of the active pipeline view. This keeps the working pipeline focused on
   live deals.
-- **PRD-015** — _**Parallel pipelines**_ _(Should)_ — The system SHOULD support more
+- **PRD-015** — _**Parallel pipelines**_ _(Must)_ — The system MUST support more
   than one configurable pipeline so a lean team can run different processes side by
-  side. Opportunities in each pipeline SHOULD remain independent. This serves teams
+  side. Opportunities in each pipeline MUST remain independent. This serves teams
   whose work splits into distinct flows without custom code.
 
 ### Basic Quotation
