@@ -438,8 +438,6 @@ Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD car
 
 ### Release sequence
 
-Phase 1 is the thin-core release plus Next.
-
 - **Thin-core** — every §3 feature tagged Thin-core or Thin-core (partial), as §4 commits.
   Gate to Next: the §5 thin-core outcomes hold for the Print & Signage validation partner.
 - **Next** — Zero-leak inquiry capture (automatic email, phone, and text capture),
