@@ -495,17 +495,52 @@ starts:
 Canonical object names used across CuevikSync docs. Informal synonyms in parentheses are
 readable but not canonical — prefer the canonical term in specs.
 
-- **Inquiry** — an inbound request at intake/triage, before qualification (informal: "lead").
-- **Opportunity** — a qualified inquiry in the pipeline, with stage, owner, next action and
-  its due date, and
-  expected value/date (informal: "deal").
-- **Quote** — a commercial offer built from catalog and free-form line items (from an estimate
-  once the estimation engine ships, §4); tracks version and acceptance.
-- **Job / Order** — execution work, created from a won Opportunity or booked directly (§3A).
+### Shared terms
+
+- **Thin-core** — the first release; §4 lists what it commits. A §3 feature tagged
+  _Thin-core_ ships in full; _Thin-core (partial)_ ships only the part §4 states.
+- **Roadmap** — planned after thin-core, in the order §7 sets; not committed.
+- **Wish-list** — not planned; an item moves to the roadmap only with a named §2 persona
+  problem.
+- **Tenant** — one business using a Cuevik product, with its data isolated from every
+  other tenant's. In CuevikFlow a tenant is a Firm; in CuevikSync, a Business.
+- **Client slice** — a page or module built for one tenant's need that configuration
+  cannot meet, switched on for that tenant only (§6).
+- **Original date** — the first due or promised date set on a piece of work; kept when the
+  date moves, and used for on-time rates (§6, Hiding slippage).
+- **Past-due** — work whose current due or promised date has passed and is not complete.
+- **Flag** — an advisory signal from a rule or AI that needs no approval; anything else AI
+  produces waits for a person to accept it.
+
+### CuevikSync terms
+
+- **Business** — the Print & Signage company using CuevikSync; a Tenant.
+- **Roles** — Owner/Admin, Sales Manager, Sales Rep, Office Administrator, and Operations.
+- **Inquiry** — an inbound request at intake, before qualification, that keeps its source
+  (informal: "lead").
+- **Queue** — the one shared list where every Inquiry lands for triage.
+- **Opportunity** — a qualified Inquiry in a Pipeline, with a Stage, an owner, a Next
+  action, and an expected value and close date (informal: "deal").
+- **Pipeline** — an ordered set of Stages an Owner/Admin defines; a Business can run
+  several.
+- **Stage** — a step in a Pipeline; Won and Lost are the terminal Stages.
+- **Next action** — the next step on an Opportunity, with a due date; every open
+  Opportunity has one.
+- **Quote** — a commercial offer to a customer, made of catalog and free-form line items,
+  with a status from draft to sent to accepted or declined.
+- **Job** — execution work, created from a won Opportunity or booked directly, with item
+  lines, an order date, and a promised date on each line (informal: "order").
+- **Direct booking** — a Job booked with no Inquiry or Opportunity, such as a walk-in, a
+  phone order, or a Reorder (§3A).
+- **Promised date** — the date a job item line is promised to the customer; its original
+  is kept when it moves (PRD-052).
+- **On-time** — a Job completed on or before its original promised date; for several item
+  lines, the latest original date counts.
 - **Person** — an individual contact record, and the relationship entity an inquiry,
-  opportunity, or job attaches to. An Organization alongside it is optional (informal:
-  "contact").
+  opportunity, or job attaches to. An Organization alongside it is optional.
 - **Organization** — a company or institution record. Optional on any Person, and the
   entity a Person may hold a role and duties within (informal: "company", "account").
 - **Contact** — the user-interface umbrella term for Persons and Organizations shown
   together. Never a synonym for Person alone in a data model or in code.
+- **Customer** — a Person or Organization the Business sells to; a prose term, not a
+  record type.
