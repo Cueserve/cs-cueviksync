@@ -2,7 +2,7 @@
 
 **Owner:** Viral Parikh
 **Last updated:** 2026-09-30
-**Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
+**Source of truth for:** what CuevikSync is, why it exists, who it serves, and the intended end-state scope of
 Phase 1 — an AI-powered platform that helps small and mid-sized Print & Signage businesses turn
 every inbound inquiry into revenue and every booked job into faster delivery.
 
