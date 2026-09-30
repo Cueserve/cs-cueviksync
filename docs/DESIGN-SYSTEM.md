@@ -1,7 +1,7 @@
 # DESIGN-SYSTEM.md — Brand Tokens & UI Rules
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-08-08
+**Last updated:** 2026-09-30
 **Source of truth for:** CuevikSync's design tokens, the rules for using them, and the
 accessibility floor every color must clear.
 
@@ -461,13 +461,12 @@ From the original brand-voice export, and it constrains copy in components:
 
 - **Title Case for top-level labels** — primary nav, page headers, tabs, and section headers use Title Case.
 - **Sentence case for supporting UI copy** — buttons, table headers, form labels, help text, and status copy stay sentence case. No ALL-CAPS.
-- **Buttons are short verb phrases** — "New quote", "Save quote", "Submit for approval".
+- **Buttons are short verb phrases** — "New quote", "Save quote", "Mark sent".
 - **Numbers are the content, not the pitch.** Money, percentages, and counts are primary;
   copy labels a number, it doesn't sell it.
-- **Warnings are factual**, never alarmist: "Margin floor: 20.0% — this quote is 3.2 points
-  below it." No exclamation points. State the fact, never a consequence the system does not
-  enforce — the margin-floor flag is advisory and save/submit remain allowed (PRD-016), and
-  every quote routes for approval regardless of margin (PRD-010).
+- **Warnings are factual**, never alarmist: "Promised 14 Oct — 3 days overdue." No
+  exclamation points. State the fact, never a consequence the system does not enforce — the
+  overdue flag reports a missed promised date (PRD-040); it blocks nothing.
 - **Help text is one calm sentence under a control** — never a tooltip standing in for real
   labeling.
 - **No emoji in-product**, ever. Icons are Lucide (`lucide-react`), used sparingly — row
