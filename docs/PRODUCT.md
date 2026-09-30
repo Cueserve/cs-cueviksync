@@ -63,7 +63,7 @@ In its Phase 1 thin-core release, CuevikSync must let a lean team:
 - **Capture every inquiry** — each inbound inquiry becomes one record, and none is lost
   (§5: No dropped inquiries).
 - **Keep every deal moving** — each active opportunity has an owner, a current stage, and a
-  next action (§5: Pipeline visibility).
+  next action that is not overdue (§5: Pipeline visibility).
 - **Deliver more jobs on time** — each booked job is tracked from order to
   delivery, with its on-time status visible (§5: On-time delivery).
 - **Get there without help** — the team sets up and runs its own process with no consultant
@@ -133,7 +133,8 @@ CRMs fit worst; team size is the starting point, not the limit.
 - **Adaptive pipelines** _(Thin-core)_ — an Owner/Admin defines, renames, and reorders each
   pipeline's stages with no code, and a team can run several pipelines side by side
   (quick-turn digital orders, field estimates, batch orders, signage installs). Every open
-  opportunity must have an owner, a stage, and a next action; every stage move records who
+  opportunity must have an owner, a stage, and a next action with a due date; every stage
+  move records who
   made it and when; and a deal leaves the active pipeline once it is Won or Lost. So no
   deal stalls unnoticed, and each process runs the way the shop actually works.
 - **Margin-safe estimating** _(Roadmap)_ — a catalog of products defined by their options
@@ -265,7 +266,7 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
   inquiries, opportunities, and jobs attached; likely duplicates flagged.
 - **Adaptive pipelines** — stages an Owner/Admin defines, renames, and reorders with no
   code; several pipelines side by side; every open opportunity has an owner, a stage, and a
-  next action; every stage move recorded; Won or Lost closes a deal.
+  next action with a due date; every stage move recorded; Won or Lost closes a deal.
 - **Quote to order** (thin-core part) — manual line items from a flat catalog plus
   free-form lines, a quote total, a quote document, and draft → sent → accepted or
   declined, with "sent" always marked by a person.
@@ -351,11 +352,21 @@ does not get re-argued every release:
 
 ### Thin-Core Release Outcomes (Committed)
 
-- **No dropped inquiries** — >= 99% of inquiries on connected digital channels (email, web form) are captured as records within 2 min; for manual channels, >= 95% of phone and walk-in inquiries are logged the same business day (100% by next business day) and >= 95% of manually logged email inquiries are captured within 4 business hours. A missed inquiry is the one failure the product exists to prevent.
-- **Pipeline visibility** — 100% of active deals show a current stage and a next action; zero deals with no owner or next step.
-- **On-time delivery** — the team's on-time % in the job-level weekly KPI summary (§4) is
-  higher in weeks 9–12 of live use than in weeks 1–4, measured from system records.
-- **Adoption** — a team of 10 users or fewer — the size the first release is proven at — is fully onboarded and running its live pipeline within 3 days of signup, with no custom development.
+- **No dropped inquiries** — at least 99% of web-form submissions become inquiry records
+  within 2 minutes. Of inquiries staff log by hand, at least 95% of phone and walk-in
+  inquiries are logged the same business day and all by the next business day, and at
+  least 95% of email inquiries are logged within 4 business hours, measured from the
+  received time staff record. A missed inquiry is the one failure the product exists to
+  prevent.
+- **Pipeline visibility** — at least 90% of open opportunities have a next action due today
+  or later, measured weekly from system records.
+- **On-time delivery** — the team's on-time % in Production at a glance, measured against
+  each job's original promised date, is higher in weeks 9–12 of live use than in weeks 1–4.
+- **Adoption** — a team of 10 users or fewer — the size the first release is proven at —
+  has every invited user signed in and its first live inquiry logged within 3 days of
+  signup, with no custom development.
+- **Commercial** — 10 businesses on paid subscriptions within 6 months of general
+  availability, with monthly churn at or below 3%.
 
 ### Structural Criteria (Verifiable Before Launch)
 
@@ -363,25 +374,30 @@ Binary properties — true or false on any build, with no adoption data required
 product level; the mechanism that delivers each is ARCHITECTURE.md's to choose, but the
 property itself is not negotiable.
 
+- **Every open opportunity has an owner, a stage, and a next action** — a deal missing any
+  of them, or a next action without a due date, cannot be saved.
 - **One record per inbound submission** — a retried or redelivered submission resolves to
   the one inquiry it represents: never a duplicate, never a lost original.
 - **Nothing is silently discarded** — a submission that cannot be processed surfaces for a
   human with its original content intact, rather than being dropped to keep the queue clean.
 - **Permissions hold outside the UI** — a role restriction denies a direct request for the
   record, not merely hides the control that would have made it.
+- **Each business's data is isolated** — no request from one business returns another
+  business's records.
 - **Every stage change is attributable** — who moved an opportunity, and when, is recorded
   and readable on the record.
 - **Customer-facing output requires a human action** — no artifact reaches a customer
   without a person explicitly sending it.
-- **A new client onboards without code** — pipelines, templates, and roles
-  are sufficient to configure a Print & Signage business. A client slice (§4) adds to a
+- **A new client onboards without code** — pipelines, the flat catalog, contact value
+  lists, and roles are sufficient to configure a Print & Signage business. A client slice (§4) adds to a
   working setup; it is never a prerequisite for going live.
 
 ### Post-Thin-Core Outcomes (Owned Roadmap Targets)
 
-- **Faster response** — median time from inquiry received to first response drops below 1 hour for teams using the AI assistant.
+- **Faster response** — median time from inquiry received to first response drops below 1 hour for teams using Human-approved AI.
 - **Follow-through** — at least 90% of flagged cold deals get a follow-up action logged within 3 days.
-- **Quote velocity** — median time from inquiry to quote sent reduced by 50% versus the team's prior process.
+- **Quote velocity** — median time from inquiry to quote sent in weeks 9–12 after
+  Margin-safe estimating goes live is half that of weeks 1–4.
 
 Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD carry-forward table.
 
@@ -454,7 +470,8 @@ Canonical object names used across CuevikSync docs. Informal synonyms in parenth
 readable but not canonical — prefer the canonical term in specs.
 
 - **Inquiry** — an inbound request at intake/triage, before qualification (informal: "lead").
-- **Opportunity** — a qualified inquiry in the pipeline, with stage, owner, next action, and
+- **Opportunity** — a qualified inquiry in the pipeline, with stage, owner, next action and
+  its due date, and
   expected value/date (informal: "deal").
 - **Quote** — a commercial offer built from catalog and free-form line items (from an estimate
   once the estimation engine ships, §4); tracks version and acceptance.
