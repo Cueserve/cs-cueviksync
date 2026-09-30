@@ -170,8 +170,8 @@ Structural guarantees, not conventions - do not write code that breaks them.
   transformation and runs no business logic inline (NFR-002).
 - **State changes go through the state machine.** Invalid transitions are rejected centrally,
   not field by field.
-- **Audit in the same transaction.** A stage move or status change and its history row commit
-  together.
+- **Audit in the same transaction.** A stage move, status change, or promised-date change and
+  its history row commit together (PRD-052).
 - **Server-side is the source of truth for access.** A bypassed client must still be denied.
 
 ## Scope boundaries
