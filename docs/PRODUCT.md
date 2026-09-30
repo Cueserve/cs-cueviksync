@@ -1,10 +1,10 @@
 # PRODUCT.md — Product Concept
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 **Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
-Phase 1 — an AI-powered platform to accelerate inquiry-to-revenue workflows for small and
-mid-sized Print & Signage businesses.
+Phase 1 — an AI-powered platform that helps small and mid-sized Print & Signage businesses turn
+every inbound inquiry into revenue and every booked job into faster delivery.
 
 > Derived from: (none — starting point)
 > Downstream: README.md, docs/PRD.md
@@ -27,8 +27,9 @@ mid-sized Print & Signage businesses.
 
 ### Vision
 
-An AI-powered platform that helps small and mid-sized print and signage businesses capture
-every inbound inquiry and turn it into revenue.
+An AI-powered platform that helps small and mid-sized Print & Signage businesses turn every
+inbound inquiry into revenue and every booked job into faster delivery — raising customer
+satisfaction.
 
 ### Problem Statement
 
