@@ -5,7 +5,8 @@ import { fontVariables } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "CuevikSync",
-  description: "Capture every inbound inquiry and turn it into revenue.",
+  description:
+    "Turn every inbound inquiry into revenue and every booked job into faster delivery.",
 };
 
 export default function RootLayout({
