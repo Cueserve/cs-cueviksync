@@ -115,10 +115,10 @@ CRMs fit worst; team size is the starting point, not the limit.
 
 > Features describe the full product model, including roadmap intent. Only §4 "In scope —
 > Phase 1 thin-core release" is committed. Each feature is tagged: _Thin-core_ is committed
-> in full, _Thin-core (basic)_ is committed only at the depth §4 states, and _Roadmap_ is
+> in full, _Thin-core (partial)_ is committed only in the part §4 states, and _Roadmap_ is
 > not committed.
 
-- **Omnichannel inquiry capture & triage** _(Thin-core (basic))_ — a shared queue that pulls every lead (phone,
+- **Omnichannel inquiry capture & triage** _(Thin-core (partial))_ — a shared queue that pulls every lead (phone,
   email, text, web forms, walk-ins) into one place and auto-prioritizes urgent or
   high-intent messages, so nothing is lost and hot leads surface first.
 - **Unified relationship management** _(Thin-core)_ — connected contact and company records that map
@@ -131,9 +131,9 @@ CRMs fit worst; team size is the starting point, not the limit.
   (attribute-matrix products with modifier options) feeding a structured costing engine
   with formulas, quantity-tier price breaks, and a margin-floor guardrail, so estimates are
   fast, consistent, and protect margin — no spreadsheets.
-- **Quotation & order generation** _(Thin-core (basic))_ — create, send, and track quotes and orders, including
+- **Quotation & order generation** _(Thin-core (partial))_ — create, send, and track quotes and orders, including
   AI that drafts them from unstructured client messages and prior purchase history.
-- **Job execution & scheduling** _(Thin-core (basic))_ — turn won opportunities and direct
+- **Job execution & scheduling** _(Thin-core (partial))_ — turn won opportunities and direct
   bookings into trackable jobs with milestones
   and change control, then assign people, machines, and time slots on a capacity-aware
   schedule, so accepted work moves to delivery without re-entry or dispatch conflicts.
