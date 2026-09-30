@@ -464,6 +464,12 @@ foundation — auth, tenancy, UI shell — and then owns its code outright.
 > **Rule:** Print & Signage behaviour is the product and belongs in code. What one client
 > does differently from another follows §6, Serving one customer in shared code.
 
+### Markets
+
+CuevikSync launches in the USA first. Later markets follow paying demand: a market opens
+where paying businesses are ready, and only after the product meets that market's privacy
+law (§6).
+
 ### Print & Signage
 
 The first production deployment targets **Print & Signage** operations — businesses
