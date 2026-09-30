@@ -58,10 +58,16 @@ Closing those gaps has to be backed by software the team can trust — specifica
 
 ### Objective
 
-CuevikSync must let a lean team run its entire process in one place, from inbound inquiry to
-delivered job: every inbound lead captured, moved through a pipeline the team controls, and
-closed without deals leaking or stalling; every booked job tracked through to on-time
-delivery — with no consultant and no custom code to get there.
+In its Phase 1 thin-core release, CuevikSync must let a lean team (10 users or fewer):
+
+- **Capture every inquiry** — each inbound inquiry becomes one record, and none is lost
+  (§5: No dropped inquiries).
+- **Keep every deal moving** — each active opportunity has an owner, a current stage, and a
+  next action (§5: Pipeline visibility).
+- **Deliver more jobs on time** — each booked job is tracked from order to
+  delivery, with its on-time status visible (§5: On-time delivery).
+- **Get there without help** — the team sets up and runs its own process with no consultant
+  and no custom code (§5: Adoption).
 
 ### Description
 
@@ -278,6 +284,8 @@ does not get re-argued every release:
 
 - **No dropped inquiries** — >= 99% of inquiries on connected digital channels (email, web form) are captured as records within 2 min; for manual channels, >= 95% of phone and walk-in inquiries are logged the same business day (100% by next business day) and >= 95% of manually logged email inquiries are captured within 4 business hours. A missed inquiry is the one failure the product exists to prevent.
 - **Pipeline visibility** — 100% of active deals show a current stage and a next action; zero deals with no owner or next step.
+- **On-time delivery** — the team's on-time % in the job-level weekly KPI summary (§4) is
+  higher in weeks 9–12 of live use than in weeks 1–4, measured from system records.
 - **Adoption** — a lean team (10 users or fewer) is fully onboarded and running its live pipeline within 3 days of signup, with no custom development.
 
 ### Structural Criteria (Verifiable Before Launch)
