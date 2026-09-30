@@ -1,7 +1,7 @@
 # DATABASE.md — Data Model
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-08-14
+**Last updated:** 2026-09-30
 **Source of truth for:** CuevikSync's entities, their columns and constraints, and the design
 decisions behind why each table looks the way it does.
 
@@ -43,7 +43,7 @@ _Not yet authored._
 
 _Not yet authored._ The domain modules that will own tables are named in
 [docs/ENGINEERING-RULES.md](ENGINEERING-RULES.md) §1: Capture & Triage, CRM, Pipeline, Quoting,
-and Configuration.
+Job/Order Execution, and Configuration.
 
 ## 3. ERD
 
