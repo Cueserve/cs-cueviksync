@@ -108,45 +108,54 @@ CRMs fit worst; team size is the starting point, not the limit.
   moment it arrives so nothing is lost.
 - **Operations staff** — the people who fulfill the order once it's
   won; they record order, promised, and completed dates on each job, so sales always
-  knows where the work stands.
+  knows where the work stands. Spoilage and reprints go unrecorded today, so nobody knows
+  what rework costs.
 
 ## 3. Features
 
 > Features describe the full product model, including roadmap intent. Only §4 "In scope —
-> Phase 1 thin-core release" is committed.
+> Phase 1 thin-core release" is committed. Each feature is tagged: _Thin-core_ is committed
+> in full, _Thin-core (basic)_ is committed only at the depth §4 states, and _Roadmap_ is
+> not committed.
 
-- **Omnichannel inquiry capture & triage** — a shared queue that pulls every lead (phone,
+- **Omnichannel inquiry capture & triage** _(Thin-core (basic))_ — a shared queue that pulls every lead (phone,
   email, text, web forms, walk-ins) into one place and auto-prioritizes urgent or
   high-intent messages, so nothing is lost and hot leads surface first.
-- **Unified relationship management** — connected contact and company records that map
+- **Unified relationship management** _(Thin-core)_ — connected contact and company records that map
   people across the multiple organizations they belong to, with automatic duplicate
   detection that keeps data clean and reveals cross-sell connections.
-- **Adaptive pipelines** — configurable pipelines that let one lean team run different
+- **Adaptive pipelines** _(Thin-core)_ — configurable pipelines that let one lean team run different
   processes side by side (quick-turn digital orders, case files, field estimates, batch
   orders, signage installs) without custom code.
-- **Estimation & service catalog** — a configurable catalog of sellable units
+- **Estimation & service catalog** _(Roadmap)_ — a configurable catalog of sellable units
   (attribute-matrix products with modifier options) feeding a structured costing engine
   with formulas, quantity-tier price breaks, and a margin-floor guardrail, so estimates are
   fast, consistent, and protect margin — no spreadsheets.
-- **Quotation & order generation** — create, send, and track quotes and orders, including
+- **Quotation & order generation** _(Thin-core (basic))_ — create, send, and track quotes and orders, including
   AI that drafts them from unstructured client messages and prior purchase history.
-- **Job execution & scheduling** — convert won quotes into trackable jobs with milestones
+- **Job execution & scheduling** _(Thin-core (basic))_ — turn won opportunities and direct
+  bookings into trackable jobs with milestones
   and change control, then assign people, machines, and time slots on a capacity-aware
   schedule, so accepted work moves to delivery without re-entry or dispatch conflicts.
-- **Repeat-order shortcut** — a "Reorder" action on an existing client's prior job books a
+- **Repeat-order shortcut** _(Thin-core)_ — a "Reorder" action on an existing client's prior job books a
   new Job pre-filled from it and linked to it — another batch of the same work, in the same
   or a different quantity — so a repeat order skips the sales pipeline entirely. It is a
   direct booking (§3A): no Opportunity is created.
-- **Unified communication timeline** — one chronological feed per contact combining
+- **Job performance tracking** _(Thin-core)_ — a weekly summary of jobs completed, average
+  turnaround, on-time %, and invoice value, plus a per-job waste/rework log (spoilage % and
+  reprint flag), so the owner sees production performance and the cost of rework without
+  asking around.
+- **Unified communication timeline** _(Roadmap)_ — one chronological feed per contact combining
   calls, emails, texts, and status updates, so staff have full context before they reply.
-- **AI sales assistant** — automated follow-ups, missed-call recovery, suggested next
+- **AI sales assistant** _(Roadmap)_ — automated follow-ups, missed-call recovery, suggested next
   actions, and cold-deal flagging, so a busy team's follow-through runs itself.
-- **Workflow automation** — a trigger-condition-action engine that fires notifications,
+- **Workflow automation** _(Roadmap)_ — a trigger-condition-action engine that fires notifications,
   task creation, and stage handoffs off lifecycle events, so routine handoffs across the
   pipeline run without manual chasing.
-- **Visibility & reporting** — pipeline and performance insight so managers can forecast
-  and coach.
-- **Configurability & permissions** — industry-specific custom fields plus role-based
+- **Pipeline reporting** _(Roadmap)_ — opportunity-level forecasting and manager analytics:
+  which deals are moving, which are stalling, and where each rep needs coaching, so managers
+  can forecast and coach.
+- **Configurability & permissions** _(Thin-core)_ — industry-specific custom fields plus role-based
   access that keeps interfaces simple and sensitive data hidden.
 
 ## 3A. Decision Placeholders
@@ -379,7 +388,7 @@ readable but not canonical — prefer the canonical term in specs.
 - **Opportunity** — a qualified inquiry in the pipeline, with stage, owner, next action, and
   expected value/date (informal: "deal").
 - **Quote** — a commercial offer generated from an estimate; tracks version and acceptance.
-- **Job / Order** — a won quote converted into execution work.
+- **Job / Order** — execution work, created from a won Opportunity or booked directly (§3A).
 - **Person** — an individual contact record, and the relationship entity an inquiry,
   opportunity, or job attaches to. An Organization alongside it is optional (informal:
   "contact").
