@@ -78,12 +78,6 @@ Both ramps were re-verified monotonic in OKLCH lightness after this construction
 `src/app/globals.css`, a full re-derivation of both ramps (not a simple substitution — see
 above), a re-solve of `--clay-450` and `--moss-650` (§5), a re-solve of the chart series
 (§10), and this table.
-| Editable-vs-calculated field convention | Shared with RedyQuote verbatim â amber/warning-tinted, not brand-tinted. See Â§7. |
-
-**What replacing the anchors would cost, if Cueserve's palette ever changes.** Two hex values in
-`src/app/globals.css`, a full re-derivation of both ramps (not a simple substitution â see
-above), a re-solve of `--clay-450` and `--moss-650` (Â§5), a re-solve of the chart series
-(Â§10), and this table.
 
 ## 2. The three tiers
 
