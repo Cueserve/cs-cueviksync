@@ -1,7 +1,7 @@
 # ENGINEERING-RULES.md — Coding Conventions, Banned Patterns, Testing
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-08-09
+**Last updated:** 2026-09-30
 **Source of truth for:** the engineering rules every change to the CuevikSync codebase must
 follow, whoever or whatever writes it.
 
@@ -31,13 +31,13 @@ follow, whoever or whatever writes it.
   tables, indexes, RLS policies, extensions, and history tables included. Editing schema by
   hand in the Supabase dashboard is prohibited.
 - **Validation:** Zod is the single schema-validation tool of record. All external input
-  (API bodies, the intake payload, custom-field values) MUST be validated against a Zod schema
+  (API bodies, the intake payload) MUST be validated against a Zod schema
   server-side before it reaches a domain module or the datastore.
 - **File structure:** the application lives under `src/` — routes in `src/app/` (App Router),
   shared UI in `src/components/`, framework-free modules in `src/lib/`. The `@/*` alias resolves
   to `./src/*`. `supabase/` holds migrations and Edge Functions; `docs/` holds the
   source-of-truth documents. Keep domain logic in its module (Capture & Triage, CRM, Pipeline,
-  Quoting, Configuration); do not scatter a module's rules across unrelated files. See
+  Quoting, Job/Order Execution, Configuration); do not scatter a module's rules across unrelated files. See
   `docs/PROJECT-STRUCTURE.md` for the full placement rules.
 - **Package manager:** `npm` only (bundled with Node.js 24 Long-Term Support (LTS)). Do not use
   `pnpm` or `yarn`.
@@ -67,7 +67,11 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
 - **Hand-rolled authentication or a custom credential store** — authentication is Supabase Auth
   (GoTrue); do not re-implement it.
 - **Entity-Attribute-Value tables or per-tenant physical columns for custom fields** — custom
-  values live in the per-record JSON column validated against the FieldDefinition catalog.
+  fields are deferred (PRD-022 retired); when they return, values live in a per-record JSON
+  column validated against a field-definition catalog (ARCHITECTURE §4).
+- **Overwriting a job item's original promised date** — it is set when the line is created
+  and never updated; a promised-date change writes a PromisedDateHistory row in the same
+  transaction (PRD-052).
 - **Pages Router, `next lint`, or `next build`-time linting** — all removed/disallowed under
   Next 16.
 - **Headless-browser PDF rendering (Puppeteer / Chromium)** — quote documents are generated
@@ -100,6 +104,9 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
   rejected. This is the NFR-008 guarantee and is not optional coverage.
 - **Worker idempotency MUST be tested:** one IntakeSubmission yields exactly one Inquiry across
   redelivery/retry.
+- **Promised-date history MUST be tested:** changing a promised date leaves the original
+  unchanged and writes exactly one history row in the same transaction, and on-time uses the
+  latest original promised date across a job's lines.
 - State-machine tests MUST cover rejected invalid transitions, not only the happy path.
 - Do not mock away the security boundary (RLS, authorization) to make a test pass — a test that
   green-lights a bypassed client is invalid.
@@ -107,5 +114,5 @@ Each is banned because it breaks a decision in [ARCHITECTURE.md](ARCHITECTURE.md
   Vitest. New feature work MUST land with unit tests in the gate. **There is no numeric
   line-coverage gate by decision** — coverage is judged by behavior, not line count: a feature is
   adequately tested when its PRD-traced behavior, its failure/rejection paths, and any mandatory
-  cases in this section that apply (tenant isolation, worker idempotency, state-machine
-  rejections) are asserted. A single happy-path test does not satisfy this.
+  cases in this section that apply (tenant isolation, worker idempotency, promised-date
+  history, state-machine rejections) are asserted. A single happy-path test does not satisfy this.
