@@ -386,6 +386,8 @@ property itself is not negotiable.
   business's records.
 - **Every stage change is attributable** — who moved an opportunity, and when, is recorded
   and readable on the record.
+- **A moved promised date stays visible** — changing a job's promised date keeps the
+  original date and records the change, who made it, and when.
 - **Customer-facing output requires a human action** — no artifact reaches a customer
   without a person explicitly sending it.
 - **A new client onboards without code** — pipelines, the flat catalog, contact value
@@ -403,21 +405,35 @@ Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD car
 
 ## 6. Anti-Patterns
 
-- **Do not rebuild an enterprise CRM.** The moment setup requires a consultant or an admin
-  certification, we have become the heavy tool we are replacing. Every feature must be
-  usable by a lean team out of the box.
-- **Do not force teams to change how they work.** Adapt to the customer's existing process;
-  never impose a rigid workflow they must conform to.
-- **Do not let AI act silently on the customer's behalf.** AI suggests, drafts, and flags —
-  a human stays in control of anything client-facing. No auto-sent messages the user did
-  not see or approve.
-- **Do not bury the core flow under configuration.** Capturing an inquiry and moving it
-  toward revenue must stay fast; customization is optional depth, never a prerequisite to
-  start.
-- **Do not build features without a named user problem.** Every capability traces to a
-  target-user problem in this document; no "nice to have" additions.
-- **Do not sacrifice zero-leak capture for polish.** Reliability of intake beats new
-  surface area — a missed inquiry is the one failure the product exists to prevent.
+- **Serving one customer in shared code** — a need one business has MUST be met through
+  that business's tenant configuration first; if configuration cannot meet it and no other
+  business would use it, it MUST be built as an isolated client slice switched on for that
+  business only (§4, §7), never as a client branch in shared code and never as a fork.
+  Shared code that bends to one customer stops serving the vertical.
+- **Treating customer personal data as ordinary app data** — each business's data MUST be
+  isolated from every other business's, and the product MUST meet the privacy law of each
+  market before businesses in that market use it. Inquiries carry customers' contact
+  details; a leak ends a shop's trust, and ours.
+- **AI that acts without a person** — AI MUST NOT send anything to a customer, change a
+  record, or produce a figure the business relies on, such as a quote price, until a person
+  accepts it; flags are advisory. A shop answers for every quote it sends.
+- **Forcing structure onto simple work** — capturing an inquiry and moving it toward
+  revenue MUST work out of the box; customization is optional depth, never a prerequisite,
+  and the product adapts to the team's existing process rather than imposing one. A rigid
+  workflow sends lean teams back to sticky notes.
+- **Hiding slippage** — a promised date moved after a job is booked MUST remain visible as
+  a change, and on-time rates MUST be measured against the original date; otherwise
+  on-time rates look healthy while deliveries slip.
+- **Reminder noise** — warnings and notifications SHOULD reach only someone who can act on
+  them and stop once the action is done; alerts staff learn to ignore are worse than none.
+- **Features without a named user problem** — every capability MUST trace to a problem a
+  §2 persona has; a feature that cannot name one goes on the Wish-list, not the roadmap.
+- **Trading the core guarantee for polish** — every inquiry that reaches the business MUST
+  become a record; reliable intake beats new surface area, because a missed inquiry is the
+  failure this product exists to prevent.
+- **Rebuilding an enterprise CRM** — every feature MUST be usable by a lean team out of the
+  box; the moment setup needs a consultant or an admin certification, CuevikSync has become
+  the heavy tool it replaces.
 
 ## 7. Roadmap
 
