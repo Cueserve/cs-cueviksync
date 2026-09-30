@@ -349,12 +349,12 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-035** — _**Overdue reason capture**_ _(Should)_ — The system SHOULD let a
   user record a reason when a job is overdue against its promised date. This
   preserves the context behind a late job without blocking the record.
-- **PRD-036** — _**This-week scheduling flag**_ _(Should)_ — The system SHOULD let
+- **PRD-036** — _**This-week scheduling flag**_ _(Must)_ — The system MUST let
   a user flag a job as scheduled for the current week and present those flagged
   jobs in a filtered view. This is a manual Yes/No flag, not capacity- or
   resource-aware scheduling, which remains out of scope (see §9).
-- **PRD-037** — _**Material and equipment issue flags**_ _(Should)_ — The system
-  SHOULD let a user flag a material shortage or equipment issue per job item, with
+- **PRD-037** — _**Material and equipment issue flags**_ _(Must)_ — The system
+  MUST let a user flag a material shortage or equipment issue per job item, with
   a free-text note. This surfaces production blockers on the item they affect.
 - **PRD-038** — _**Job invoice value**_ _(Must)_ — The system MUST let a user
   record an invoice value at the job level. This MAY differ from the originating
@@ -370,7 +370,7 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-041** — _**Job status derivation**_ _(Must)_ — The system MUST derive a
   job's status as Completed or Pending from whether its completed date is set,
   and present Completed and Pending jobs as separate filtered views.
-- **PRD-042** — _**Waste/rework log**_ _(Should)_ — The system SHOULD let a user
+- **PRD-042** — _**Waste/rework log**_ _(Must)_ — The system MUST let a user
   log a spoilage percentage (manual entry — no computed formula this release, see
   PRODUCT.md §3A), a reprint Yes/No flag, and a note against a job. This captures
   waste data even before a spoilage-rate calculation is decided.
