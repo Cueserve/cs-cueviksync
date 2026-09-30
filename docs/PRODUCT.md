@@ -3,7 +3,7 @@
 **Owner:** Viral Parikh
 **Last updated:** 2026-09-30
 **Source of truth for:** what CuevikSync is, why it exists, who it serves, and the intended end-state scope of
-Phase 1 — an AI-powered platform that helps small and mid-sized Print & Signage businesses turn
+Phase 1 — an AI-powered platform that helps Print & Signage businesses turn
 every inbound inquiry into revenue and every booked job into faster delivery.
 
 > Derived from: (none — starting point)
@@ -27,7 +27,7 @@ every inbound inquiry into revenue and every booked job into faster delivery.
 
 ### Vision
 
-Every small Print & Signage business catches every inquiry and delivers every job on time,
+Every Print & Signage business catches every inquiry and delivers every job on time,
 from one workspace where anyone on the team can see where the work stands.
 
 ### Problem Statement
@@ -58,7 +58,7 @@ Closing those gaps has to be backed by software the team can trust — specifica
 
 ### Objective
 
-In its Phase 1 thin-core release, CuevikSync must let a lean team (10 users or fewer):
+In its Phase 1 thin-core release, CuevikSync must let a lean team:
 
 - **Capture every inquiry** — each inbound inquiry becomes one record, and none is lost
   (§5: No dropped inquiries).
@@ -84,10 +84,15 @@ delivered on time.
 
 ## 2. Target Users
 
-> In a lean team, one person often wears several of these hats — the owner may
-> also sell, the salesperson may also quote. These are roles, not headcount.
-> Thin-core baseline RBAC roles map to these personas: Owner/Admin, Sales Manager,
-> Sales Rep, and Office Administrator.
+CuevikSync is for Print & Signage businesses (§7) that win work from inbound inquiries and
+deliver it as jobs. It starts with lean teams, where a lost inquiry hurts most and enterprise
+CRMs fit worst; team size is the starting point, not the limit.
+
+> In a lean team, one person often wears several of these hats — the owner may also sell,
+> the salesperson may also quote. These are roles, not headcount. The thin-core baseline
+> role-based access control (RBAC) roles map to these personas: Owner/Admin, Sales Manager,
+> Sales Rep, Office Administrator, and Operations. The business's own customers are not
+> users: they never log in, and client portals are a post-Phase 1 item (§4).
 
 - **Business owner** — runs the business and often closes deals too,
   but has no single view of the pipeline, so inquiries slip through and revenue
@@ -102,8 +107,8 @@ delivered on time.
   inquiry by phone, email, web form, or walk-in; needs every lead logged the
   moment it arrives so nothing is lost.
 - **Operations staff** — the people who fulfill the order once it's
-  won; they update job status in the pipeline so sales and the customer always
-  know where things stand.
+  won; they record order, promised, and completed dates on each job, so sales always
+  knows where the work stands.
 
 ## 3. Features
 
@@ -272,7 +277,7 @@ does not get re-argued every release:
 - **Pipeline visibility** — 100% of active deals show a current stage and a next action; zero deals with no owner or next step.
 - **On-time delivery** — the team's on-time % in the job-level weekly KPI summary (§4) is
   higher in weeks 9–12 of live use than in weeks 1–4, measured from system records.
-- **Adoption** — a lean team (10 users or fewer) is fully onboarded and running its live pipeline within 3 days of signup, with no custom development.
+- **Adoption** — a team of 10 users or fewer — the size the first release is proven at — is fully onboarded and running its live pipeline within 3 days of signup, with no custom development.
 
 ### Structural Criteria (Verifiable Before Launch)
 
