@@ -39,7 +39,12 @@ form, and walk-in, and there's no single place to catch and track them all. Big 
 exist, but they're built for large corporate sales teams — too heavy, too rigid, and too
 expensive for a small team to actually use.
 
-Closing that gap has to be backed by software the team can trust — specifically:
+Winning the work is only half of it. Once an order is booked, the job is tracked on a
+whiteboard, in a spreadsheet, or in someone's head, so nobody can say where it stands or
+whether it will be delivered on time. A late job costs the customer's trust, however well
+the sale was handled.
+
+Closing those gaps has to be backed by software the team can trust — specifically:
 
 - **Zero-leak capture** — an inbound request that reaches the business must become a
   record. Losing one is the single failure this product exists to prevent, so intake
@@ -54,22 +59,28 @@ Closing that gap has to be backed by software the team can trust — specificall
 
 ### Objective
 
-CuevikSync must let a lean team run its entire inquiry-to-revenue process in one place:
-every inbound lead captured, moved through a pipeline the team controls, and closed
-without deals leaking or stalling — with no consultant and no custom code to get there.
+CuevikSync must let a lean team run its entire process in one place, from inbound inquiry to
+delivered job: every inbound lead captured, moved through a pipeline the team controls, and
+closed without deals leaking or stalling; every booked job tracked through to on-time
+delivery — with no consultant and no custom code to get there.
 
 ### Description
 
 CuevikSync is a single workspace where a business runs everything from the first customer
-inquiry to a closed order. Every inbound request — by phone, email, text, web form, or
+inquiry to a delivered job. Every inbound request — by phone, email, text, web form, or
 walk-in — lands in one shared queue, is logged as a record, and is prioritized so the team
 sees the most urgent and highest-intent leads first. Each inquiry then becomes a tracked
 contact and deal that moves through a pipeline the business shapes to match its own stages,
 with no code to write.
 
+A won deal becomes a job, and an order that is already decided — a walk-in, a phone order, a
+repeat of earlier work — can be booked straight into one. Each job carries its items, dates,
+and status, so the team always knows where the work stands and whether it will be delivered
+on time.
+
 Around that core, CuevikSync brings together the work a lean team usually spreads across
-separate tools and spreadsheets, so contacts, conversations, quotes, and follow-ups all
-live in one place. An AI assistant works alongside the team — drafting follow-ups,
+separate tools and spreadsheets, so contacts, conversations, quotes, jobs, and follow-ups
+all live in one place. An AI assistant works alongside the team — drafting follow-ups,
 recovering missed calls, suggesting the next action, and flagging deals going cold — but it
 only suggests and drafts; a person approves anything a customer sees.
 
