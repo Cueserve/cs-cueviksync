@@ -118,54 +118,96 @@ CRMs fit worst; team size is the starting point, not the limit.
 > in full, _Thin-core (partial)_ is committed only in the part §4 states, and _Roadmap_ is
 > not committed.
 
-- **Zero-leak inquiry capture** _(Thin-core (partial))_ — a shared queue that pulls every lead (phone,
-  email, text, web forms, walk-ins) into one place and auto-prioritizes urgent or
-  high-intent messages, so nothing is lost and hot leads surface first.
-- **Complete customer record** _(Thin-core)_ — connected contact and company records that map
-  people across the multiple organizations they belong to, with automatic duplicate
-  detection that keeps data clean and reveals cross-sell connections.
-- **Adaptive pipelines** _(Thin-core)_ — configurable pipelines that let one lean team run different
-  processes side by side (quick-turn digital orders, case files, field estimates, batch
-  orders, signage installs) without custom code.
-- **Margin-safe estimating** _(Roadmap)_ — a configurable catalog of sellable units
-  (attribute-matrix products with modifier options) feeding a structured costing engine
-  with formulas, quantity-tier price breaks, and a margin-floor guardrail, so estimates are
-  fast, consistent, and protect margin — no spreadsheets.
-- **Quote to order** _(Thin-core (partial))_ — create, send, and track quotes and orders, including
-  AI that drafts them from unstructured client messages and prior purchase history.
-- **Order-to-delivery tracking** _(Thin-core)_ — turn won opportunities and direct bookings
-  into trackable jobs with items, dates, and status, and list past-due jobs with days
-  overdue, so accepted work moves to delivery without re-entry.
-- **Deadline early warning** _(Roadmap)_ — AI-assisted deadline checks that warn before a
-  job's promised date and escalate to managers, so late work surfaces before the customer
-  has to chase it. The thin-core release lists past-due jobs in Order-to-delivery tracking.
-- **Capacity-aware scheduling** _(Roadmap)_ — milestones and change control on each job,
-  then people, machines, and time slots assigned on a capacity-aware schedule, so work
-  moves to delivery without dispatch conflicts.
-- **One-step reorder** _(Thin-core)_ — a "Reorder" action on an existing client's prior job books a
-  new Job pre-filled from it and linked to it — another batch of the same work, in the same
-  or a different quantity — so a repeat order skips the sales pipeline entirely. It is a
-  direct booking (§3A): no Opportunity is created.
+- **Zero-leak inquiry capture** _(Thin-core (partial))_ — every inquiry, from web form,
+  email, phone, text, or walk-in, lands in one shared queue as one record that keeps its
+  source, and is prioritized so the most urgent and highest-intent inquiries are answered
+  first; a submission that cannot be processed is held for a person, never dropped. So no
+  inquiry is lost, and the hottest are handled first. The thin-core release captures web
+  forms automatically, lets staff log email, phone, and walk-in inquiries by hand, and sets
+  priority manually.
+- **Complete customer record** _(Thin-core)_ — one record for each Person and Organization,
+  with a lifecycle status, the role a person holds at each organization they work with, and
+  links between related organizations. Every inquiry, opportunity, and job attaches to it,
+  and likely duplicates are flagged. So anyone on the team knows who a customer is and what
+  has happened with them before they reply.
+- **Adaptive pipelines** _(Thin-core)_ — an Owner/Admin defines, renames, and reorders each
+  pipeline's stages with no code, and a team can run several pipelines side by side
+  (quick-turn digital orders, field estimates, batch orders, signage installs). Every open
+  opportunity must have an owner, a stage, and a next action; every stage move records who
+  made it and when; and a deal leaves the active pipeline once it is Won or Lost. So no
+  deal stalls unnoticed, and each process runs the way the shop actually works.
+- **Margin-safe estimating** _(Roadmap)_ — a catalog of products defined by their options
+  (for example size, substrate, quantity, and finishing), where each option adds its own
+  cost, priced by formula with quantity-based price breaks and a minimum margin the shop
+  sets. The formulas, the price-break structure, and what happens below the minimum margin
+  are open decisions (§3A). So estimates are fast, consistent, and protect margin, without
+  a spreadsheet.
+- **Quote to order** _(Thin-core (partial))_ — quotes built from catalog and free-form line
+  items, with a total, issued as a document, and tracked from draft to sent to accepted or
+  declined; each revision is kept as a version, and a won opportunity with an accepted
+  quote becomes the job. Pricing comes from Margin-safe estimating, and AI drafts quotes
+  from unstructured customer messages and past orders. A person reviews and sends every
+  quote. So an inquiry becomes a priced, tracked offer quickly, and a yes becomes work. The
+  thin-core release ships manual line items from a flat catalog plus free-form lines, the
+  quote document, and the status lifecycle.
+- **Order-to-delivery tracking** _(Thin-core)_ — a won opportunity or a direct booking
+  becomes a Job with its item lines, order and promised dates, and any production issues.
+  Turnaround and on-time are computed, and status follows from the job's dates, so no one
+  has to keep it updated. Past-due jobs are listed with days overdue. So the team always
+  knows where each job stands and whether it will ship on time, without re-entering the
+  order.
+- **Deadline early warning** _(Roadmap)_ — AI checks each Job's progress against its
+  promised date (time left, open production issues, and whether it is scheduled this week)
+  and warns operations staff, then escalates to a manager, when a job is at risk or past
+  due. Warnings reach only someone who can act, stop once the job is back on track, and
+  never reach the customer. It builds on the past-due list in Order-to-delivery tracking.
+  So late work surfaces before the customer has to chase it.
+- **Clash-free scheduling** _(Roadmap)_ — milestones on each job (for example proof
+  approved, printed, finished) and change control that records a customer's changes after
+  approval with their effect on price and dates; then people, machines, and time slots
+  assigned on a schedule, so two jobs are never booked on the same press at once. How deep
+  scheduling goes, from a calendar with assignments to full capacity planning, is an open
+  decision (§3A). It builds on the thin-core this-week flag. So work moves to delivery
+  without clashes over people or machines.
+- **One-step reorder** _(Thin-core)_ — a Reorder action on a customer's past job books a
+  new Job pre-filled from it and linked to it (the same work again, in the same or a
+  different quantity) with new order and promised dates. It is a direct booking (§3A): no
+  Opportunity is created. So a repeat order skips the sales pipeline and is booked in one
+  step.
 - **Production at a glance** _(Thin-core)_ — a weekly summary of jobs completed, average
-  turnaround, on-time %, and invoice value, plus a per-job waste/rework log (spoilage % and
-  reprint flag), so the owner sees production performance and the cost of rework without
+  turnaround, on-time %, and invoice value, with a spoilage % and reprint flag logged on
+  each job. So the owner sees production performance and how much work is redone, without
   asking around.
-- **Communication center** _(Thin-core (partial))_ — one chronological feed per contact
-  combining calls, emails, texts, and status updates, so staff have full context before
-  they reply. The thin-core release ships a manual notes log: staff record notes, calls,
-  and emails against a Person or Organization, shown in time order.
-- **Human-approved AI** _(Roadmap)_ — automated follow-ups, missed-call recovery, suggested next
-  actions, and cold-deal flagging, so a busy team's follow-through runs itself.
-- **No-chase automation** _(Roadmap)_ — a trigger-condition-action engine that fires notifications,
-  task creation, and stage handoffs off lifecycle events, so routine handoffs across the
-  pipeline run without manual chasing.
-- **Pipeline forecast** _(Roadmap)_ — opportunity-level forecasting and manager analytics:
-  which deals are moving, which are stalling, and where each rep needs coaching, so managers
-  can forecast and coach.
-- **Need-to-see access** _(Thin-core)_ — role-based access that keeps interfaces simple and
-  sensitive data hidden.
-- **Business-defined fields** _(Roadmap)_ — industry-specific custom fields a business adds
-  to its records without code, so each shop captures what its work needs.
+- **Communication center** _(Thin-core (partial))_ — one timeline per Person and
+  Organization of every call, email, text, note, and status update; emails and texts from
+  known contacts are filed automatically by their address or number. So staff have full
+  context before they reply. The thin-core release ships a manual notes log: staff record
+  notes, calls, and emails by hand against a Person or Organization, shown in time order.
+- **Human-approved AI** _(Roadmap)_ — AI that drafts follow-ups and replies to missed calls,
+  suggests each deal's next action, flags deals going cold, and flags jobs at risk of
+  missing their promised date. Flags are advisory; a draft reaches a customer only when a
+  person sends it. So a busy team's follow-through keeps pace without losing control of
+  what customers see.
+- **No-chase automation** _(Roadmap)_ — Owner/Admin-defined rules in the form "when this
+  happens, if this is true, do this": for example, when an opportunity is won, notify
+  operations; when a job passes its promised date, create a follow-up task. Rules act
+  inside the business (notify, create tasks, hand off to the next stage) and never send
+  anything to a customer, and every change a rule makes records the rule as its author.
+  They run on the stage and lifecycle events the thin-core release already records. So
+  routine hand-offs happen without anyone chasing them.
+- **Pipeline forecast** _(Roadmap)_ — expected revenue from open opportunities by stage and
+  expected close date, and which deals are moving, which are stalling, and where each rep
+  needs coaching. So managers can forecast revenue and coach the team.
+- **Need-to-see access** _(Thin-core)_ — five roles (Owner/Admin, Sales Manager, Sales Rep,
+  Office Administrator, and Operations), each seeing and editing only what its work needs,
+  with every restriction enforced by the system, not just hidden on screen. Only
+  Owner/Admin can change pipelines and the catalog. Each business's data is isolated from
+  every other's, and every stage move records who made it and when. So screens stay simple,
+  sensitive data stays hidden, and every change to a deal can be traced.
+- **Business-defined fields** _(Roadmap)_ — an Owner/Admin adds custom fields to inquiries,
+  persons, organizations, opportunities, and jobs (text, number, date, or a choice list)
+  with no code, and each appears on its record's form. So each shop captures what its work
+  needs, such as substrate, finish, or install site, without waiting for a release.
 
 ## 3A. Decision Placeholders
 
