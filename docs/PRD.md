@@ -1,7 +1,7 @@
 # PRD.md — Product Requirements Document
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
@@ -37,7 +37,7 @@ quote, and from a won quote to a tracked job.
 
 The Phase 1 thin-core release covers inquiry capture, person/organization management,
 adaptive pipelines, basic quotation, job/order execution as a flat tracking record, the
-repeat-order shortcut, custom fields, and role-based access. It is validated against
+repeat-order shortcut, a communication notes log, and role-based access. It is validated against
 Print & Signage operations (see PRODUCT.md §7). Estimation depth, job execution beyond
 a flat tracking record, the AI sales assistant, workflow automation, and
 opportunity-level reporting are deferred to later Phase 1 PRDs and listed in §9.
@@ -113,11 +113,9 @@ Every feature in §4 traces to one of these problems.
 - **Basic quotation** — create a line-item quote from a flat service catalog or
   free-form lines, produce a sendable document, and track its status from draft to
   accepted or declined, so demand converts to a tracked commercial offer. (PS-4)
-- **Configurable custom fields** — add fields to records to match the team's process,
-  without code. (PS-3)
 - **Role-based access control (RBAC)** — role-scoped visibility and edit rights so
   sensitive data stays hidden from users who should not see it. (PS-5)
-- **Job/Order execution & tracking** — convert a Won opportunity into a job, or book an
+- **Job execution & tracking** — convert a Won opportunity into a job, or book an
   already-decided order straight into one, with per-item lines, dates, and status, with
   automatic turnaround and on-time
   calculation, a weekly KPI summary, and a waste/rework log, so accepted work is
@@ -151,8 +149,6 @@ Every feature in §4 maps to at least one story below.
   send it so that a captured inquiry becomes a tracked offer.
 - As a sales rep, I want to see whether a sent quote is accepted or declined so that I
   know which deals to advance.
-- As a business owner, I want to add custom fields to records so that we track the
-  attributes our work needs.
 - As a business owner, I want to control which roles can see and edit which data so
   that sensitive information stays scoped.
 - As operations staff, I want a Won opportunity to become a trackable job so that I
@@ -271,6 +267,9 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-049** — _**Organization relationships**_ _(Should)_ — The system SHOULD let one
   organization be linked to another with a configurable relationship type (PRD-045), so
   a parent company, a franchise, or a referring partner is visible from either record.
+- **PRD-051** — _**Communication notes log**_ _(Should)_ — The system SHOULD let a user record
+  a note, call, or email by hand against a person or organization, with its date, type, and
+  text, and show them in time order on that record.
 
 ### Adaptive Pipelines
 
@@ -279,8 +278,8 @@ MoSCoW priority (Must / Should / Could).
   Changes MUST take effect without a deploy. This lets each team shape the pipeline to
   its own process.
 - **PRD-012** — _**Mandatory opportunity fields**_ _(Must)_ — The system MUST require
-  every opportunity to have a current stage, an owner, and a next action. Saving
-  without all three MUST be blocked with a validation message. This guarantees no deal
+  every opportunity to have a current stage, an owner, and a next action with a due
+  date. Saving without all of them MUST be blocked with a validation message. This guarantees no deal
   sits in the pipeline without someone responsible and a defined next step.
 - **PRD-013** — _**Stage movement with audit**_ _(Must)_ — The system MUST let a user
   move an opportunity between stages, recording the acting user and timestamp. The
@@ -290,9 +289,9 @@ MoSCoW priority (Must / Should / Could).
   outcome stage that marks an opportunity Won or Lost. Terminal opportunities MUST
   drop out of the active pipeline view. This keeps the working pipeline focused on
   live deals.
-- **PRD-015** — _**Parallel pipelines**_ _(Should)_ — The system SHOULD support more
+- **PRD-015** — _**Parallel pipelines**_ _(Must)_ — The system MUST support more
   than one configurable pipeline so a lean team can run different processes side by
-  side. Opportunities in each pipeline SHOULD remain independent. This serves teams
+  side. Opportunities in each pipeline MUST remain independent. This serves teams
   whose work splits into distinct flows without custom code.
 
 ### Basic Quotation
@@ -322,7 +321,7 @@ MoSCoW priority (Must / Should / Could).
   deactivated item SHOULD no longer appear in the line-item picker. This keeps the
   sellable-item list current without altering past quotes.
 
-### Job / Order Execution
+### Job Execution
 
 - **PRD-031** — _**Job creation from Won opportunity**_ _(Must)_ — The system MUST
   let a user convert a Won opportunity into a job, carrying forward the linked
@@ -344,26 +343,32 @@ MoSCoW priority (Must / Should / Could).
   order date and a promised date on every job item line. Saving a line missing
   either date MUST be blocked with a validation message, mirroring the mandatory
   stage/owner/next-action guarantee on opportunities (PRD-012).
+- **PRD-052** — _**Promised-date history**_ _(Must)_ — The system MUST keep the original
+  promised date of every job item line when its promised date changes, and record each
+  change with the old date, the new date, the acting user, and the timestamp, viewable on
+  the job. This keeps slipped deliveries visible (PRODUCT.md §6, Hiding slippage).
 - **PRD-034** — _**Completion and delivery tracking**_ _(Must)_ — The system MUST
   let a user record a job's completed date and delivered date at the job level.
   An unset completed date means the job is still in production.
 - **PRD-035** — _**Overdue reason capture**_ _(Should)_ — The system SHOULD let a
   user record a reason when a job is overdue against its promised date. This
   preserves the context behind a late job without blocking the record.
-- **PRD-036** — _**This-week scheduling flag**_ _(Should)_ — The system SHOULD let
+- **PRD-036** — _**This-week scheduling flag**_ _(Must)_ — The system MUST let
   a user flag a job as scheduled for the current week and present those flagged
   jobs in a filtered view. This is a manual Yes/No flag, not capacity- or
   resource-aware scheduling, which remains out of scope (see §9).
-- **PRD-037** — _**Material and equipment issue flags**_ _(Should)_ — The system
-  SHOULD let a user flag a material shortage or equipment issue per job item, with
+- **PRD-037** — _**Material and equipment issue flags**_ _(Must)_ — The system
+  MUST let a user flag a material shortage or equipment issue per job item, with
   a free-text note. This surfaces production blockers on the item they affect.
 - **PRD-038** — _**Job invoice value**_ _(Must)_ — The system MUST let a user
   record an invoice value at the job level. This MAY differ from the originating
   quote total to account for rework or scope change during production.
 - **PRD-039** — _**Turnaround and on-time calculation**_ _(Must)_ — The system
   MUST automatically compute a completed job's turnaround in days (completed date
-  minus order date) and whether it was on-time (completed date on or before
-  promised date). This removes manual date math from the weekly review.
+  minus order date) and whether it was on-time (completed date on or before the
+  job's original promised date, PRD-052). For a job with several item lines, the job's
+  original promised date is the latest original promised date across its lines. This
+  removes manual date math from the weekly review.
 - **PRD-040** — _**Overdue flag and days overdue**_ _(Must)_ — The system MUST
   automatically flag an incomplete job as overdue once its promised date has
   passed, and show the number of days overdue. This surfaces at-risk jobs without
@@ -371,11 +376,11 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-041** — _**Job status derivation**_ _(Must)_ — The system MUST derive a
   job's status as Completed or Pending from whether its completed date is set,
   and present Completed and Pending jobs as separate filtered views.
-- **PRD-042** — _**Waste/rework log**_ _(Should)_ — The system SHOULD let a user
+- **PRD-042** — _**Waste/rework log**_ _(Must)_ — The system MUST let a user
   log a spoilage percentage (manual entry — no computed formula this release, see
   PRODUCT.md §3A), a reprint Yes/No flag, and a note against a job. This captures
   waste data even before a spoilage-rate calculation is decided.
-- **PRD-043** — _**Weekly job KPI summary**_ _(Should)_ — The system SHOULD present
+- **PRD-043** — _**Weekly job KPI summary**_ _(Must)_ — The system MUST present
   a weekly summary table of jobs completed, average turnaround, on-time
   percentage, and total invoice value, one row per week. This release ships the
   summary as a table; chart visualization is deferred pending a charting-library
@@ -394,13 +399,6 @@ MoSCoW priority (Must / Should / Could).
   change. This lets another batch of the same work reach production without passing
   through the sales pipeline. (PS-7)
 
-### Configurable Custom Fields
-
-- **PRD-022** — _**Custom fields**_ _(Must)_ — The system MUST let an administrator add
-  configurable custom fields to inquiry, person, organization, and opportunity records
-  without code. Added fields MUST appear on the record form and persist their values.
-  This lets a team capture the attributes its work needs without a code change.
-
 ### Role-Based Access Control
 
 - **PRD-023** — _**Authentication**_ _(Must)_ — The system MUST authenticate a user
@@ -413,7 +411,7 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-027** — _**Baseline permission boundaries**_ _(Must)_ — The system MUST enforce
   this minimum permission baseline for thin-core roles:
   - Owner/Admin: full read/write on inquiry, person, organization, opportunity, and quote
-    records; can configure pipelines, custom fields, catalog, users, role assignments, and
+    records; can configure pipelines, catalog, users, role assignments, and
     the contact value lists (PRD-045).
   - Sales Manager: read/write on inquiry, person, organization, opportunity, and quote
     records; can assign ownership and update stage/next action; cannot access admin
@@ -436,7 +434,7 @@ MoSCoW priority (Must / Should / Could).
   the client alone. A user whose role lacks access MUST be denied even if the client
   is bypassed. This prevents access rules from being trivially circumvented.
 - **PRD-026** — _**Admin-only configuration**_ _(Must)_ — The system MUST restrict
-  pipeline, custom-field, and catalog configuration to the Owner/Admin role.
+  pipeline and catalog configuration to the Owner/Admin role.
   Non-admin roles MUST NOT reach those configuration screens or endpoints. This keeps
   structural changes in trusted hands.
 
@@ -452,7 +450,7 @@ latency is written `p95` / `p99`.
 - **NFR-003 — Capture availability.** The web-form intake endpoint MUST maintain
   > = 99.5% monthly uptime, because a missed inquiry is the product's defining failure.
 - **NFR-004 — Onboarding time.** A team of 10 users or fewer MUST be able to configure
-  a pipeline, custom fields, roles, and a flat catalog and begin logging live
+  a pipeline, roles, and a flat catalog and begin logging live
   inquiries within 3 days of signup, with no custom development.
 - **NFR-005 — Interactive performance.** Queue, pipeline, job, and record views MUST
   return in p95 < 2 s and p99 < 5 s with 10 concurrent users.
@@ -487,8 +485,12 @@ shape a decision must take before it can be built against — it goes here, not 
 Testable conditions that define "done" for each requirement.
 
 > **Success-criteria scope.** This release binds acceptance to PRODUCT.md §5 criteria
-> it can prove: zero-leak web-form capture (NFR-001, NFR-002), pipeline visibility
-> (PRD-012), manual-channel discipline (PRD-028), and 3-day onboarding (NFR-004). The three criteria that depend on
+> it can prove: zero-leak web-form capture (NFR-001, NFR-002), the stage, owner, and
+> dated next-action guarantee (PRD-012), manual-channel discipline (PRD-028), on-time measurement (PRD-039, PRD-043),
+> and 3-day onboarding (NFR-004). The on-time criterion compares weeks 9–12 of live use
+> against weeks 1–4, so this release is done when on-time % is computed; the improvement
+> is judged after launch, as is the Pipeline visibility rate of current next actions. The
+> three criteria that depend on
 > deferred features — median first response < 1 hour (AI assistant), quote velocity
 > −50% (estimation engine), and 90% cold-deal follow-through (AI flagging) — are
 > **Post-Thin-Core release targets** and are not part of this release's definition of done.
@@ -524,8 +526,9 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-047        | Qualifying an already-Client record does not return it to Prospect; an administrator can set the status back by hand and the record can then advance again; each change records the acting user and timestamp.                                                                                                                                                                                                                                                                                                                              |
 | PRD-048        | A person linked to an organization can be given one role and any number of duties from the configured lists; qualifying an order for an organization with no Primary contact is blocked until one is set.                                                                                                                                                                                                                                                                                                                                   |
 | PRD-049        | Two organizations can be linked with a configured relationship type, and the link is visible from either record.                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| PRD-051        | A user can log a note, call, or email against a person or organization, and it appears on that record in date order.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | PRD-011        | An administrator can add, rename, reorder, and remove pipeline stages and the change takes effect without a code deploy.                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| PRD-012        | An opportunity cannot be saved without a stage, an owner, and a next action; missing any one blocks save with a validation message.                                                                                                                                                                                                                                                                                                                                                                                                         |
+| PRD-012        | An opportunity cannot be saved without a stage, an owner, and a next action with a due date; missing any one blocks save with a validation message.                                                                                                                                                                                                                                                                                                                                                                                         |
 | PRD-013        | Moving an opportunity to another stage records the acting user and timestamp, viewable in the opportunity's history.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | PRD-014        | An opportunity can be set to a terminal Won or Lost stage; terminal opportunities no longer appear in the active pipeline view.                                                                                                                                                                                                                                                                                                                                                                                                             |
 | PRD-015        | An administrator can create a second pipeline with its own stages; opportunities in each pipeline are independent.                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -539,23 +542,23 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-050        | A user can create a job for a person, with or without an organization, and with no inquiry or opportunity; when an organization is set, booking requires the person to be linked to it and a Primary contact on it; the customer's lifecycle status advances as on a Won opportunity; the job takes item lines and dates like any other job, and does not appear in the inquiry queue or in capture metrics.                                                                                                                                |
 | PRD-032        | A job can hold two or more item lines under one shared job number, each with its own description and quantity.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | PRD-033        | Saving a job item line without an order date or a promised date is blocked with a validation message.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| PRD-052        | Changing a job item line's promised date keeps the original date and shows each change with its old and new date, who made it, and when.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | PRD-034        | A user can set a job's completed date and delivered date; a job with no completed date is treated as still in production.                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | PRD-035        | A user can record a reason on an overdue job; the reason is visible on the job record.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | PRD-036        | A user can flag a job as scheduled for the current week and see it in a filtered this-week view; the flag has no effect on capacity or resource assignment.                                                                                                                                                                                                                                                                                                                                                                                 |
 | PRD-037        | A user can flag a material shortage or equipment issue on a job item with a free-text note, and the flag is visible on that item.                                                                                                                                                                                                                                                                                                                                                                                                           |
 | PRD-038        | A user can set a job's invoice value independent of the originating quote total.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| PRD-039        | For a completed job, the displayed turnaround (days) and on-time flag are computed automatically from order, promised, and completed dates without manual entry.                                                                                                                                                                                                                                                                                                                                                                            |
+| PRD-039        | For a completed job, the displayed turnaround (days) and on-time flag are computed automatically from order, original promised, and completed dates without manual entry.                                                                                                                                                                                                                                                                                                                                                                   |
 | PRD-040        | An incomplete job past its promised date is automatically flagged overdue with a computed days-overdue count.                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | PRD-041        | Jobs with a completed date appear in a Completed view; jobs without one appear in a Pending view, with no manual status field to set.                                                                                                                                                                                                                                                                                                                                                                                                       |
 | PRD-042        | A user can log a spoilage percentage, a reprint Yes/No flag, and a note against a job; no automatic spoilage-rate calculation is performed.                                                                                                                                                                                                                                                                                                                                                                                                 |
 | PRD-043        | A weekly summary table shows jobs completed, average turnaround, on-time percentage, and total invoice value, with one row added per week.                                                                                                                                                                                                                                                                                                                                                                                                  |
 | PRD-044        | Triggering "Reorder" on a prior job creates a new job linked to it, pre-filled with its organization, person, and item lines, with no opportunity created; the new job requires new order and promised dates; with the tenant set to strict, only quantities and dates can be edited.                                                                                                                                                                                                                                                       |
-| PRD-022        | An administrator can add a custom field to a record type without a code deploy; the field appears on that record's form and its value persists.                                                                                                                                                                                                                                                                                                                                                                                             |
 | PRD-023        | An unauthenticated request for any record is denied and redirected to sign-in; no record data is returned.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | PRD-024        | The system provides exactly the thin-core baseline roles (Owner/Admin, Sales Manager, Sales Rep, Office Administrator, Operations), and changing a user's role changes accessible screens and allowed actions accordingly.                                                                                                                                                                                                                                                                                                                  |
 | PRD-027        | Permission checks match the baseline boundaries: Owner/Admin can configure and assign roles; Sales Manager can manage pipeline work but cannot access admin configuration; Sales Rep can manage owned opportunities/quotes plus shared inquiry queue access and has full read/write on person and organization records; Office Administrator can log inquiries and person/organization basics but cannot configure structure; Operations can reach job records only. Every role reads the contact value lists; only Owner/Admin edits them. |
 | PRD-025        | A user whose role lacks read access to a record cannot retrieve it through the UI or a direct record request; the denial is enforced server-side, not merely hidden in the UI.                                                                                                                                                                                                                                                                                                                                                              |
-| PRD-026        | A non-admin role cannot open or call the pipeline, custom-field, or catalog configuration screens or endpoints.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| PRD-026        | A non-admin role cannot open or call the pipeline or catalog configuration screens or endpoints.                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | NFR-001        | Under test, 99% of web-form submissions surface as records within 2 minutes (measured at p99).                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | NFR-002        | In a batch of submissions to the intake endpoint, >= 99% are persisted as records and zero are dropped without an error being recorded.                                                                                                                                                                                                                                                                                                                                                                                                     |
 | NFR-003        | Monitored over a calendar month, the intake endpoint reports >= 99.5% uptime.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -582,11 +585,13 @@ PRD or a post-Phase 1 PRD unless noted as permanently out.
   walk-in are logged manually.
 - **AI intent auto-prioritization** — automatic ranking of urgent or high-intent
   messages; priority is set manually this release.
+- **Custom fields (was PRD-022)** — administrator-added fields on inquiry, person,
+  organization, and opportunity records without code; deferred to a later release.
 - **Attribute-matrix product catalog and modifier options** — the release ships a
   flat catalog (item plus unit price) only.
 - **Estimation engine** — costing formulas, quantity-tier price breaks, and the
   margin-floor guardrail; quotes are manual line items this release.
-- **Job/Order execution depth beyond thin-core** — milestones and formal change
+- **Job execution depth beyond thin-core** — milestones and formal change
   control on a job; this release's job record is a flat tracking record only (see
   PRD-031–043).
 - **Work orders and scheduling** — capacity-aware resource assignment and calendar
@@ -620,8 +625,9 @@ PRD or a post-Phase 1 PRD unless noted as permanently out.
   can still be shared through external/manual channels and then marked sent in-product.
 - **User identity / authentication** — accounts are provisioned and an authentication
   mechanism exists before RBAC can apply (see PRD-023).
-- **Assumption: SMB scale** — teams are 10 users or fewer; sizing, performance
-  (NFR-005/006), and onboarding (NFR-004) targets assume this.
+- **Assumption: first-release scale** — the first release is sized for teams of 10 users
+  or fewer; sizing, performance (NFR-005/006), and onboarding (NFR-004) targets assume this.
+  Larger teams are the product's aim, not yet a sizing target.
 - **Assumption: external finance tools** — customers handle invoicing and payments
   outside CuevikSync; the product never stores payment data.
 - **Assumption: Print & Signage validation partner** — a real Print & Signage

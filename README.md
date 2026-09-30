@@ -1,6 +1,6 @@
 # CuevikSync
 
-> An AI-powered platform that helps small and mid-sized Print & Signage businesses turn every inbound inquiry into revenue and every booked job into faster delivery — raising customer satisfaction.
+> An AI-powered platform that helps Print & Signage businesses turn every inbound inquiry into revenue and every booked job into faster delivery — raising customer satisfaction.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.x-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.x-61dafb.svg)](https://react.dev/)
@@ -12,11 +12,13 @@
 
 CuevikSync gives you one workspace to capture every inbound inquiry — phone, email,
 web form, or walk-in — into a single shared queue. Each inquiry moves through a
-configurable pipeline until it is won, so no deal leaks or stalls.
+configurable pipeline until it is won, so no deal leaks or stalls, and every won or
+directly booked job is tracked against its promised date through to delivery.
 
-The _**Phase-01 (Thin-Core release)**_ covers omnichannel capture and triage, unified
-contact/company management, adaptive pipelines, basic quotation, and role-based custom
-fields. See [PRODUCT.md](docs/PRODUCT.md) for the full product concept and scope.
+The _**thin-core release**_ (the first release) covers zero-leak inquiry capture, complete
+customer records, adaptive pipelines, basic quoting, order-to-delivery job tracking, one-step
+reorders, a weekly production summary, a communication notes log, and role-based access. See
+[PRODUCT.md](docs/PRODUCT.md) §4 for the committed scope and §7 for what comes next.
 
 Under the hood, CuevikSync is a multi-tenant Next.js modular monolith app backed by Supabase
 (Postgres, Auth, and Edge Functions). The inbound-capture path is split into two isolated runtime
@@ -27,8 +29,8 @@ roles, so a lead is never dropped even when the main app is degraded — see [AR
 - **Inquiry** — an inbound request at intake or triage, before it is qualified (informal:
   "lead"). Capturing every inquiry with zero leaks is the one failure the product exists
   to prevent.
-- **Opportunity** — a qualified inquiry in the pipeline, with a stage, owner, next
-  action, and expected value/date (informal: "deal").
+- **Opportunity** — a qualified inquiry in the pipeline, with a stage, an owner, a next
+  action with a due date, and an expected value and close date (informal: "deal").
 - **Zero-leak capture** — the core flow. A public Intake Receiver saves each raw
   web-form submission to a durable queue _before_ any processing (persist-before-process).
   A scheduled Ingestion Worker then turns it into an Inquiry, retrying on failure so
@@ -37,8 +39,8 @@ roles, so a lead is never dropped even when the main app is degraded — see [AR
   Supabase JSON Web Token (JWT) to Postgres, where Row-Level Security (RLS) filters every
   row by `tenant_id`. The database — not the application code — enforces this, so a
   forgotten filter fails closed (returns zero rows) rather than leaking across tenants.
-- **Configuration is data, not code** — pipelines, stages, custom fields, and the catalog
-  are read from tenant configuration at runtime. Changing them takes effect with no deploy.
+- **Configuration is data, not code** — pipelines, stages, and the catalog are read from
+  tenant configuration at runtime. Changing them takes effect with no deploy.
 
 ## Prerequisites
 
@@ -290,4 +292,4 @@ Product-level placeholders are tracked in [PRODUCT.md](docs/PRODUCT.md) §3A.
 
 ---
 
-> _Last updated:_ 2026-09-29 · _Owner:_ Viral Parikh
+> _Last updated:_ 2026-09-30 · _Owner:_ Viral Parikh
