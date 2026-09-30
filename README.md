@@ -1,6 +1,6 @@
 # CuevikSync
 
-> An AI-powered platform that helps small and mid-sized print and signage businesses capture every inbound inquiry and turn it into revenue.
+> An AI-powered platform that helps small and mid-sized Print & Signage businesses turn every inbound inquiry into revenue and every booked job into faster delivery — raising customer satisfaction.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.x-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.x-61dafb.svg)](https://react.dev/)
