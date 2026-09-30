@@ -320,7 +320,7 @@ property itself is not negotiable.
   and readable on the record.
 - **Customer-facing output requires a human action** — no artifact reaches a customer
   without a person explicitly sending it.
-- **A new client onboards without code** — pipelines, custom fields, templates, and roles
+- **A new client onboards without code** — pipelines, templates, and roles
   are sufficient to configure a Print & Signage business. A client slice (§4) adds to a
   working setup; it is never a prerequisite for going live.
 
