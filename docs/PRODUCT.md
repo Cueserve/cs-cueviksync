@@ -387,7 +387,8 @@ readable but not canonical — prefer the canonical term in specs.
 - **Inquiry** — an inbound request at intake/triage, before qualification (informal: "lead").
 - **Opportunity** — a qualified inquiry in the pipeline, with stage, owner, next action, and
   expected value/date (informal: "deal").
-- **Quote** — a commercial offer generated from an estimate; tracks version and acceptance.
+- **Quote** — a commercial offer built from catalog and free-form line items (from an estimate
+  once the estimation engine ships, §4); tracks version and acceptance.
 - **Job / Order** — execution work, created from a won Opportunity or booked directly (§3A).
 - **Person** — an individual contact record, and the relationship entity an inquiry,
   opportunity, or job attaches to. An Organization alongside it is optional (informal:
