@@ -1,7 +1,7 @@
 # PRD.md — Product Requirements Document
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 **Source of truth for:** the testable requirements for the CuevikSync Phase 1 thin-core release — inquiry capture, configurable pipeline, and basic quoting.
 
 > Derived from: docs/PRODUCT.md
@@ -375,7 +375,7 @@ MoSCoW priority (Must / Should / Could).
   log a spoilage percentage (manual entry — no computed formula this release, see
   PRODUCT.md §3A), a reprint Yes/No flag, and a note against a job. This captures
   waste data even before a spoilage-rate calculation is decided.
-- **PRD-043** — _**Weekly job KPI summary**_ _(Should)_ — The system SHOULD present
+- **PRD-043** — _**Weekly job KPI summary**_ _(Must)_ — The system MUST present
   a weekly summary table of jobs completed, average turnaround, on-time
   percentage, and total invoice value, one row per week. This release ships the
   summary as a table; chart visualization is deferred pending a charting-library
@@ -488,7 +488,10 @@ Testable conditions that define "done" for each requirement.
 
 > **Success-criteria scope.** This release binds acceptance to PRODUCT.md §5 criteria
 > it can prove: zero-leak web-form capture (NFR-001, NFR-002), pipeline visibility
-> (PRD-012), manual-channel discipline (PRD-028), and 3-day onboarding (NFR-004). The three criteria that depend on
+> (PRD-012), manual-channel discipline (PRD-028), on-time measurement (PRD-039, PRD-043),
+> and 3-day onboarding (NFR-004). The on-time criterion compares weeks 9–12 of live use
+> against weeks 1–4, so this release is done when on-time % is computed; the improvement
+> is judged after launch. The three criteria that depend on
 > deferred features — median first response < 1 hour (AI assistant), quote velocity
 > −50% (estimation engine), and 90% cold-deal follow-through (AI flagging) — are
 > **Post-Thin-Core release targets** and are not part of this release's definition of done.
