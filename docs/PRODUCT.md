@@ -290,7 +290,7 @@ now owns it. The entry stays in place, resolved — it is the record of the deci
 > Any broader capabilities described elsewhere in this document are roadmap intent
 > and become commitment only when promoted into an approved PRD.
 
-### Planned roadmap after thin-core (timing TBD)
+### Planned roadmap after thin-core (order in §7)
 
 - **Zero-leak inquiry capture** (beyond thin-core) — automatic capture of email, phone,
   and text inquiries; AI prioritization of urgent and high-intent inquiries.
@@ -329,6 +329,8 @@ needs a named problem for a §2 persona.
   inquiry-to-delivery flow)
 - White-label branding / client portals
 - Marketing campaign / email-blast automation
+- Artwork and file capture at intake, with proof approval
+- Pickup and delivery coordination on the job
 
 ### Out of scope
 
@@ -342,11 +344,8 @@ does not get re-argued every release:
 - **Consultant-led or code-dependent setup** — any capability that the customer's own team
   cannot configure is out, however valuable. The moment setup needs custom code or a
   certified admin, CuevikSync has become the heavy tool it exists to replace (§6).
-- **Client branches and forks** — what one client does differently from another is served
-  through that client's tenant configuration first. A need configuration cannot meet, and
-  that no other business would use, is built as an isolated client slice — its own page or
-  module, enabled for that client's tenant only — rather than generalized for the vertical.
-  Never as a client branch inside shared code, and never as a fork (see the rule in §7).
+- **Client branches and forks** — a client-specific need is never met by a branch in shared
+  code or a fork; it follows §6, Serving one customer in shared code.
 
 ## 5. Success Criteria
 
@@ -408,7 +407,7 @@ Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD car
 - **Serving one customer in shared code** — a need one business has MUST be met through
   that business's tenant configuration first; if configuration cannot meet it and no other
   business would use it, it MUST be built as an isolated client slice switched on for that
-  business only (§4, §7), never as a client branch in shared code and never as a fork.
+  business only, never as a client branch in shared code and never as a fork.
   Shared code that bends to one customer stops serving the vertical.
 - **Treating customer personal data as ordinary app data** — each business's data MUST be
   isolated from every other business's, and the product MUST meet the privacy law of each
@@ -437,6 +436,22 @@ Ownership and measurement for Post-Thin-Core outcomes are tracked in the PRD car
 
 ## 7. Roadmap
 
+### Release sequence
+
+Phase 1 is the thin-core release plus Next.
+
+- **Thin-core** — every §3 feature tagged Thin-core or Thin-core (partial), as §4 commits.
+  Gate to Next: the §5 thin-core outcomes hold for the Print & Signage validation partner.
+- **Next** — Zero-leak inquiry capture (automatic email, phone, and text capture),
+  Margin-safe estimating, Quote to order (versions and estimate-based pricing),
+  Business-defined fields, and No-chase automation. Margin-safe estimating starts only
+  once its §3A decision is made. Gate to Later: the Quote velocity outcome (§5) holds.
+- **Later** — Human-approved AI (including AI-drafted quotes, once its §3A trigger is
+  written), Deadline early warning, Communication center (the full timeline), Clash-free
+  scheduling (once its §3A depth decision is made), and Pipeline forecast.
+
+### Vertical
+
 CuevikSync is built for one vertical: **Print & Signage** — print shops and
 printing-related businesses whose work runs from an inbound inquiry to a tracked job. Its
 roadmap adds capability for that vertical as needs arise (§4); it does not expand into
@@ -447,10 +462,7 @@ generalizing this one. Such a product may start from a copy of this codebase's
 foundation — auth, tenancy, UI shell — and then owns its code outright.
 
 > **Rule:** Print & Signage behaviour is the product and belongs in code. What one client
-> does differently from another — stage names, fields, catalog, timezone — is that
-> client's tenant configuration first. A client-only need that configuration cannot meet
-> is built as an isolated client slice, enabled for that client's tenant only. Never a
-> client branch inside shared code, and never a fork of this codebase (§4).
+> does differently from another follows §6, Serving one customer in shared code.
 
 ### Print & Signage
 
@@ -463,22 +475,20 @@ production scheduling — all managed today by phone, email, and spreadsheets.
 
 Print & Signage businesses do not all work the same way: a commercial offset printer, a
 wide-format signage shop, and a promotional-products reseller each run a different process.
-Configurable pipelines, custom fields, templates, and permissions let each run its own
-process on the same system — which is why the rule above puts client differences in tenant
-configuration, not code.
+Configurable pipelines, the flat catalog, contact value lists, and roles let each run its
+own process on the same system today, with Business-defined fields to follow.
 
-Thin-core capabilities from §4 are exercised first against real Print & Signage
-workflows, and broader roadmap capabilities are validated in later releases.
+### Validation
 
-Print & Signage workflows validated in Phase 1:
+The Print & Signage validation partner (PRD §10) exercises each release before the next
+starts:
 
-- Job quoting from unstructured inbound requests (phone, email, web form) —
-  rep-driven, using structured catalog + estimation (AI extraction is deferred to a
-  later Phase 1 release, not the Phase 1 thin-core release)
-- Artwork and file specification capture at intake
-- Print production status tracking inside the pipeline
-- Substrate and finishing option configuration on quotes
-- Pickup / delivery coordination as a deal attribute
+- **Thin-core** — web-form and logged inquiries (Zero-leak inquiry capture); quotes from a
+  flat catalog and free-form lines (Quote to order); jobs from booking to delivery, with
+  overdue and on-time (Order-to-delivery tracking, Production at a glance); repeat orders
+  (One-step reorder).
+- **Next** — pricing with substrate and finishing options (Margin-safe estimating); quote
+  versions (Quote to order).
 
 ## Glossary
 
