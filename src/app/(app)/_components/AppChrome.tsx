@@ -29,7 +29,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // permanent `UserMenu` and takes its identity from props. Nothing to remove
 // later.
 
-// Grouped by where a record sits in the inquiry-to-revenue funnel
+// Grouped by where a record sits in the inquiry-to-delivery flow
 // (PRODUCT.md §4): Sales covers everything before an opportunity is Won,
 // Jobs covers execution after. Control Center groups shared records and
 // settings that are not a sales or jobs stage.
