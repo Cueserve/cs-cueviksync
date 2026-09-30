@@ -278,8 +278,8 @@ MoSCoW priority (Must / Should / Could).
   Changes MUST take effect without a deploy. This lets each team shape the pipeline to
   its own process.
 - **PRD-012** — _**Mandatory opportunity fields**_ _(Must)_ — The system MUST require
-  every opportunity to have a current stage, an owner, and a next action. Saving
-  without all three MUST be blocked with a validation message. This guarantees no deal
+  every opportunity to have a current stage, an owner, and a next action with a due
+  date. Saving without all of them MUST be blocked with a validation message. This guarantees no deal
   sits in the pipeline without someone responsible and a defined next step.
 - **PRD-013** — _**Stage movement with audit**_ _(Must)_ — The system MUST let a user
   move an opportunity between stages, recording the acting user and timestamp. The
@@ -479,11 +479,12 @@ shape a decision must take before it can be built against — it goes here, not 
 Testable conditions that define "done" for each requirement.
 
 > **Success-criteria scope.** This release binds acceptance to PRODUCT.md §5 criteria
-> it can prove: zero-leak web-form capture (NFR-001, NFR-002), pipeline visibility
-> (PRD-012), manual-channel discipline (PRD-028), on-time measurement (PRD-039, PRD-043),
+> it can prove: zero-leak web-form capture (NFR-001, NFR-002), the stage, owner, and
+> dated next-action guarantee (PRD-012), manual-channel discipline (PRD-028), on-time measurement (PRD-039, PRD-043),
 > and 3-day onboarding (NFR-004). The on-time criterion compares weeks 9–12 of live use
 > against weeks 1–4, so this release is done when on-time % is computed; the improvement
-> is judged after launch. The three criteria that depend on
+> is judged after launch, as is the Pipeline visibility rate of current next actions. The
+> three criteria that depend on
 > deferred features — median first response < 1 hour (AI assistant), quote velocity
 > −50% (estimation engine), and 90% cold-deal follow-through (AI flagging) — are
 > **Post-Thin-Core release targets** and are not part of this release's definition of done.
@@ -521,7 +522,7 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-049        | Two organizations can be linked with a configured relationship type, and the link is visible from either record.                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | PRD-051        | A user can log a note, call, or email against a person or organization, and it appears on that record in date order.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | PRD-011        | An administrator can add, rename, reorder, and remove pipeline stages and the change takes effect without a code deploy.                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| PRD-012        | An opportunity cannot be saved without a stage, an owner, and a next action; missing any one blocks save with a validation message.                                                                                                                                                                                                                                                                                                                                                                                                         |
+| PRD-012        | An opportunity cannot be saved without a stage, an owner, and a next action with a due date; missing any one blocks save with a validation message.                                                                                                                                                                                                                                                                                                                                                                                         |
 | PRD-013        | Moving an opportunity to another stage records the acting user and timestamp, viewable in the opportunity's history.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | PRD-014        | An opportunity can be set to a terminal Won or Lost stage; terminal opportunities no longer appear in the active pipeline view.                                                                                                                                                                                                                                                                                                                                                                                                             |
 | PRD-015        | An administrator can create a second pipeline with its own stages; opportunities in each pipeline are independent.                                                                                                                                                                                                                                                                                                                                                                                                                          |
