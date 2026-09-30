@@ -37,7 +37,7 @@ quote, and from a won quote to a tracked job.
 
 The Phase 1 thin-core release covers inquiry capture, person/organization management,
 adaptive pipelines, basic quotation, job/order execution as a flat tracking record, the
-repeat-order shortcut, custom fields, and role-based access. It is validated against
+repeat-order shortcut, a communication notes log, and role-based access. It is validated against
 Print & Signage operations (see PRODUCT.md §7). Estimation depth, job execution beyond
 a flat tracking record, the AI sales assistant, workflow automation, and
 opportunity-level reporting are deferred to later Phase 1 PRDs and listed in §9.
@@ -113,8 +113,6 @@ Every feature in §4 traces to one of these problems.
 - **Basic quotation** — create a line-item quote from a flat service catalog or
   free-form lines, produce a sendable document, and track its status from draft to
   accepted or declined, so demand converts to a tracked commercial offer. (PS-4)
-- **Configurable custom fields** — add fields to records to match the team's process,
-  without code. (PS-3)
 - **Role-based access control (RBAC)** — role-scoped visibility and edit rights so
   sensitive data stays hidden from users who should not see it. (PS-5)
 - **Job/Order execution & tracking** — convert a Won opportunity into a job, or book an
@@ -151,8 +149,6 @@ Every feature in §4 maps to at least one story below.
   send it so that a captured inquiry becomes a tracked offer.
 - As a sales rep, I want to see whether a sent quote is accepted or declined so that I
   know which deals to advance.
-- As a business owner, I want to add custom fields to records so that we track the
-  attributes our work needs.
 - As a business owner, I want to control which roles can see and edit which data so
   that sensitive information stays scoped.
 - As operations staff, I want a Won opportunity to become a trackable job so that I
@@ -271,6 +267,9 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-049** — _**Organization relationships**_ _(Should)_ — The system SHOULD let one
   organization be linked to another with a configurable relationship type (PRD-045), so
   a parent company, a franchise, or a referring partner is visible from either record.
+- **PRD-051** — _**Communication notes log**_ _(Should)_ — The system SHOULD let a user record
+  a note, call, or email by hand against a person or organization, with its date, type, and
+  text, and show them in time order on that record.
 
 ### Adaptive Pipelines
 
@@ -394,13 +393,6 @@ MoSCoW priority (Must / Should / Could).
   change. This lets another batch of the same work reach production without passing
   through the sales pipeline. (PS-7)
 
-### Configurable Custom Fields
-
-- **PRD-022** — _**Custom fields**_ _(Must)_ — The system MUST let an administrator add
-  configurable custom fields to inquiry, person, organization, and opportunity records
-  without code. Added fields MUST appear on the record form and persist their values.
-  This lets a team capture the attributes its work needs without a code change.
-
 ### Role-Based Access Control
 
 - **PRD-023** — _**Authentication**_ _(Must)_ — The system MUST authenticate a user
@@ -413,7 +405,7 @@ MoSCoW priority (Must / Should / Could).
 - **PRD-027** — _**Baseline permission boundaries**_ _(Must)_ — The system MUST enforce
   this minimum permission baseline for thin-core roles:
   - Owner/Admin: full read/write on inquiry, person, organization, opportunity, and quote
-    records; can configure pipelines, custom fields, catalog, users, role assignments, and
+    records; can configure pipelines, catalog, users, role assignments, and
     the contact value lists (PRD-045).
   - Sales Manager: read/write on inquiry, person, organization, opportunity, and quote
     records; can assign ownership and update stage/next action; cannot access admin
@@ -436,7 +428,7 @@ MoSCoW priority (Must / Should / Could).
   the client alone. A user whose role lacks access MUST be denied even if the client
   is bypassed. This prevents access rules from being trivially circumvented.
 - **PRD-026** — _**Admin-only configuration**_ _(Must)_ — The system MUST restrict
-  pipeline, custom-field, and catalog configuration to the Owner/Admin role.
+  pipeline and catalog configuration to the Owner/Admin role.
   Non-admin roles MUST NOT reach those configuration screens or endpoints. This keeps
   structural changes in trusted hands.
 
@@ -452,7 +444,7 @@ latency is written `p95` / `p99`.
 - **NFR-003 — Capture availability.** The web-form intake endpoint MUST maintain
   > = 99.5% monthly uptime, because a missed inquiry is the product's defining failure.
 - **NFR-004 — Onboarding time.** A team of 10 users or fewer MUST be able to configure
-  a pipeline, custom fields, roles, and a flat catalog and begin logging live
+  a pipeline, roles, and a flat catalog and begin logging live
   inquiries within 3 days of signup, with no custom development.
 - **NFR-005 — Interactive performance.** Queue, pipeline, job, and record views MUST
   return in p95 < 2 s and p99 < 5 s with 10 concurrent users.
@@ -527,6 +519,7 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-047        | Qualifying an already-Client record does not return it to Prospect; an administrator can set the status back by hand and the record can then advance again; each change records the acting user and timestamp.                                                                                                                                                                                                                                                                                                                              |
 | PRD-048        | A person linked to an organization can be given one role and any number of duties from the configured lists; qualifying an order for an organization with no Primary contact is blocked until one is set.                                                                                                                                                                                                                                                                                                                                   |
 | PRD-049        | Two organizations can be linked with a configured relationship type, and the link is visible from either record.                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| PRD-051        | A user can log a note, call, or email against a person or organization, and it appears on that record in date order.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | PRD-011        | An administrator can add, rename, reorder, and remove pipeline stages and the change takes effect without a code deploy.                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | PRD-012        | An opportunity cannot be saved without a stage, an owner, and a next action; missing any one blocks save with a validation message.                                                                                                                                                                                                                                                                                                                                                                                                         |
 | PRD-013        | Moving an opportunity to another stage records the acting user and timestamp, viewable in the opportunity's history.                                                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -553,12 +546,11 @@ Carry-forward review cadence: owners review OUT-001/002/003 weekly and publish s
 | PRD-042        | A user can log a spoilage percentage, a reprint Yes/No flag, and a note against a job; no automatic spoilage-rate calculation is performed.                                                                                                                                                                                                                                                                                                                                                                                                 |
 | PRD-043        | A weekly summary table shows jobs completed, average turnaround, on-time percentage, and total invoice value, with one row added per week.                                                                                                                                                                                                                                                                                                                                                                                                  |
 | PRD-044        | Triggering "Reorder" on a prior job creates a new job linked to it, pre-filled with its organization, person, and item lines, with no opportunity created; the new job requires new order and promised dates; with the tenant set to strict, only quantities and dates can be edited.                                                                                                                                                                                                                                                       |
-| PRD-022        | An administrator can add a custom field to a record type without a code deploy; the field appears on that record's form and its value persists.                                                                                                                                                                                                                                                                                                                                                                                             |
 | PRD-023        | An unauthenticated request for any record is denied and redirected to sign-in; no record data is returned.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | PRD-024        | The system provides exactly the thin-core baseline roles (Owner/Admin, Sales Manager, Sales Rep, Office Administrator, Operations), and changing a user's role changes accessible screens and allowed actions accordingly.                                                                                                                                                                                                                                                                                                                  |
 | PRD-027        | Permission checks match the baseline boundaries: Owner/Admin can configure and assign roles; Sales Manager can manage pipeline work but cannot access admin configuration; Sales Rep can manage owned opportunities/quotes plus shared inquiry queue access and has full read/write on person and organization records; Office Administrator can log inquiries and person/organization basics but cannot configure structure; Operations can reach job records only. Every role reads the contact value lists; only Owner/Admin edits them. |
 | PRD-025        | A user whose role lacks read access to a record cannot retrieve it through the UI or a direct record request; the denial is enforced server-side, not merely hidden in the UI.                                                                                                                                                                                                                                                                                                                                                              |
-| PRD-026        | A non-admin role cannot open or call the pipeline, custom-field, or catalog configuration screens or endpoints.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| PRD-026        | A non-admin role cannot open or call the pipeline or catalog configuration screens or endpoints.                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | NFR-001        | Under test, 99% of web-form submissions surface as records within 2 minutes (measured at p99).                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | NFR-002        | In a batch of submissions to the intake endpoint, >= 99% are persisted as records and zero are dropped without an error being recorded.                                                                                                                                                                                                                                                                                                                                                                                                     |
 | NFR-003        | Monitored over a calendar month, the intake endpoint reports >= 99.5% uptime.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -585,6 +577,8 @@ PRD or a post-Phase 1 PRD unless noted as permanently out.
   walk-in are logged manually.
 - **AI intent auto-prioritization** — automatic ranking of urgent or high-intent
   messages; priority is set manually this release.
+- **Custom fields (was PRD-022)** — administrator-added fields on inquiry, person,
+  organization, and opportunity records without code; deferred to a later release.
 - **Attribute-matrix product catalog and modifier options** — the release ships a
   flat catalog (item plus unit price) only.
 - **Estimation engine** — costing formulas, quantity-tier price breaks, and the
