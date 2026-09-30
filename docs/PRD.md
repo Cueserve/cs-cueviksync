@@ -115,7 +115,7 @@ Every feature in §4 traces to one of these problems.
   accepted or declined, so demand converts to a tracked commercial offer. (PS-4)
 - **Role-based access control (RBAC)** — role-scoped visibility and edit rights so
   sensitive data stays hidden from users who should not see it. (PS-5)
-- **Job/Order execution & tracking** — convert a Won opportunity into a job, or book an
+- **Job execution & tracking** — convert a Won opportunity into a job, or book an
   already-decided order straight into one, with per-item lines, dates, and status, with
   automatic turnaround and on-time
   calculation, a weekly KPI summary, and a waste/rework log, so accepted work is
@@ -591,7 +591,7 @@ PRD or a post-Phase 1 PRD unless noted as permanently out.
   flat catalog (item plus unit price) only.
 - **Estimation engine** — costing formulas, quantity-tier price breaks, and the
   margin-floor guardrail; quotes are manual line items this release.
-- **Job/Order execution depth beyond thin-core** — milestones and formal change
+- **Job execution depth beyond thin-core** — milestones and formal change
   control on a job; this release's job record is a flat tracking record only (see
   PRD-031–043).
 - **Work orders and scheduling** — capacity-aware resource assignment and calendar

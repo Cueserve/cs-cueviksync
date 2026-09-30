@@ -37,7 +37,7 @@ follow, whoever or whatever writes it.
   shared UI in `src/components/`, framework-free modules in `src/lib/`. The `@/*` alias resolves
   to `./src/*`. `supabase/` holds migrations and Edge Functions; `docs/` holds the
   source-of-truth documents. Keep domain logic in its module (Capture & Triage, CRM, Pipeline,
-  Quoting, Job/Order Execution, Configuration); do not scatter a module's rules across unrelated files. See
+  Quoting, Job Execution, Configuration); do not scatter a module's rules across unrelated files. See
   `docs/PROJECT-STRUCTURE.md` for the full placement rules.
 - **Package manager:** `npm` only (bundled with Node.js 24 Long-Term Support (LTS)). Do not use
   `pnpm` or `yarn`.

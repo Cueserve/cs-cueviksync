@@ -60,7 +60,7 @@ flowchart TB
 
     subgraph app["Primary Application (Next.js — Server Components + Server Actions)"]
         authz["Authorization — Supabase Auth · JWT → RLS · route guards<br/>cross-cutting: every request passes through"]
-        modules["Capture &amp; Triage · CRM · Pipeline · Quoting · Job/Order Execution · Configuration"]
+        modules["Capture &amp; Triage · CRM · Pipeline · Quoting · Job Execution · Configuration"]
         authz --> modules
     end
 
@@ -100,7 +100,7 @@ Components:
   fields (including a next action with a due date), stage movement with history, and terminal outcomes. (PRD-011 – PRD-015)
 - **Quoting module** — quotes, line items, totals, the status lifecycle, issuance, and the
   flat catalog. (PRD-016 – PRD-021)
-- **Job/Order Execution module** — job creation from a Won opportunity or by direct booking
+- **Job Execution module** — job creation from a Won opportunity or by direct booking
   (including Reorder), per-item job lines, date and status tracking, turnaround/on-time and
   overdue calculation, promised-date history, the waste/rework log, and the weekly job KPI
   summary. (PRD-031 – PRD-044, PRD-050, PRD-052)

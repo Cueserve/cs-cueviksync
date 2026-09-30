@@ -230,7 +230,7 @@ implementation quietly picking a default.
   requirement that unblocks it is not written down. Until it exists as an approved
   requirement, no implementation may add inbound-message parsing for quote drafting.
   **Decided by:** Product Owner.
-- **Spoilage % calculation method** — undecided. The Job/Order Waste/Rework log
+- **Spoilage % calculation method** — undecided. The Job Waste/Rework log
   (§4) ships with manual entry only this release; no implementation may derive or
   infer a spoilage-percentage formula until this is resolved. **Decided by:**
   Product Owner, informed by the Phase 1 Print & Signage validation partner

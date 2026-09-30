@@ -43,7 +43,7 @@ _Not yet authored._
 
 _Not yet authored._ The domain modules that will own tables are named in
 [docs/ENGINEERING-RULES.md](ENGINEERING-RULES.md) §1: Capture & Triage, CRM, Pipeline, Quoting,
-Job/Order Execution, and Configuration.
+Job Execution, and Configuration.
 
 ## 3. ERD
 
