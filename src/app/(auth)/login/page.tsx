@@ -57,7 +57,8 @@ export default function LoginPage() {
           className="hidden dark:block"
         />
         <p className="text-sm text-muted-foreground">
-          Capture every inbound inquiry and turn it into revenue.
+          Turn every inbound inquiry into revenue and every booked job into
+          faster delivery.
         </p>
       </div>
 
