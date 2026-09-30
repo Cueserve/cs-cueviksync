@@ -250,8 +250,8 @@ Planned for releases after Phase 1, demand-driven — not committed to Phase 1:
 
 - AI scheduling / appointment booking
 - Mobile field-capture app (voice dictation) — no native mobile surface in this release
-- Recurring account & contract management (post-sale account management, outside the
-  inquiry-to-revenue funnel)
+- Recurring account & contract management (post-delivery account management, outside the
+  inquiry-to-delivery flow)
 - White-label branding / client portals
 - Marketing campaign / email-blast automation
 
