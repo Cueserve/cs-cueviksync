@@ -623,8 +623,9 @@ PRD or a post-Phase 1 PRD unless noted as permanently out.
   can still be shared through external/manual channels and then marked sent in-product.
 - **User identity / authentication** — accounts are provisioned and an authentication
   mechanism exists before RBAC can apply (see PRD-023).
-- **Assumption: SMB scale** — teams are 10 users or fewer; sizing, performance
-  (NFR-005/006), and onboarding (NFR-004) targets assume this.
+- **Assumption: first-release scale** — the first release is sized for teams of 10 users
+  or fewer; sizing, performance (NFR-005/006), and onboarding (NFR-004) targets assume this.
+  Larger teams are the product's aim, not yet a sizing target.
 - **Assumption: external finance tools** — customers handle invoicing and payments
   outside CuevikSync; the product never stores payment data.
 - **Assumption: Print & Signage validation partner** — a real Print & Signage
