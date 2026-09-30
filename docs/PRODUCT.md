@@ -2,7 +2,7 @@
 
 **Owner:** Viral Parikh
 **Last updated:** 2026-09-30
-**Source of truth for:** what CuevikSync is, why it exists, and the intended end-state scope of
+**Source of truth for:** what CuevikSync is, why it exists, who it serves, and the intended end-state scope of
 Phase 1 — an AI-powered platform that helps small and mid-sized Print & Signage businesses turn
 every inbound inquiry into revenue and every booked job into faster delivery.
 
@@ -27,9 +27,8 @@ every inbound inquiry into revenue and every booked job into faster delivery.
 
 ### Vision
 
-An AI-powered platform that helps small and mid-sized Print & Signage businesses turn every
-inbound inquiry into revenue and every booked job into faster delivery — raising customer
-satisfaction.
+Every small Print & Signage business catches every inquiry and delivers every job on time,
+from one workspace where anyone on the team can see where the work stands.
 
 ### Problem Statement
 
