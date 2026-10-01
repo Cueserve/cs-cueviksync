@@ -65,12 +65,12 @@ except where Pass B explicitly probes it.
 12. `CLAUDE.md` — agent behaviour, scope, escalation, off-limits.
 13. `README.md` — restates; owns nothing.
 
-**Transient work folders** — list every folder under `docs/work/` and check the issue number
-in its name. A folder whose issue is closed should have been deleted when its work landed, and is
+**Transient work folders** — list every numbered folder under `docs/work/` (`[0-9]*/`;
+`docs/work/brainstorming/` is not one) and check the issue number in its name. A folder whose issue is closed should have been deleted when its work landed, and is
 a Pass B finding on its own. Do not audit the artifacts inside for drift: they are not
 source-of-truth, and a `docs/` file wins wherever one disagrees.
 
-**Not the corpus:** `docs/brainstorming/` (never authoritative) and `docs/reviews/` (dated
+**Not the corpus:** `docs/work/brainstorming/` (ideas, never authoritative) and `docs/reviews/` (dated
 advisory records — do not report them as drift against current state).
 
 ## 2. Authority ladder — who wins when two files disagree
@@ -110,7 +110,7 @@ Three exceptions, all deliberate:
   verification that did not happen.
 - **A doc specifying intent the repo hasn't built yet is not wrong.** Distinguish "the doc lies
   about what exists" (finding) from "the doc specifies what should exist" (backlog — belongs in
-  the [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue,
+  the [CuevikSync Tracker](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue,
   not this report). When unsure, say which reading you took.
 - **The ladder ranks authority, not quality.** A lower-rung file can hold a _better_ explanation of
   a fact it doesn't own. That is not a drift finding — it is an `absorb` finding (step 5), and the
@@ -296,10 +296,15 @@ exists to prevent.
 
 ## 5C. Absorption candidates
 
-Tier 3 is transient by design. For each `docs/brainstorming/*.md` and `docs/reviews/*.md`,
+Tier 3 is transient by design. For each `docs/work/brainstorming/*.md` and `docs/reviews/*.md`,
 determine per-section whether it is **fully absorbed** into its Tier 2 target, **partly absorbed**,
 or **not yet**. A review whose findings are all marked resolved _and_ verified present in the
 target is deletable; one with an open finding is not.
+
+An idea is different: a `Ratified` or `Rejected` idea is the kept record of a decision, so
+report it as absorbed, never as deletable. Do check a `Ratified` idea's `## 9. Ratified as`
+list against PRD.md — an ID there that PRD.md does not carry is a finding. Only a `Draft` or
+`Approved` idea gets the fully / partly / not-yet treatment.
 
 Also flag the reverse: a Tier 3 section contradicting what actually landed. The landed doc wins,
 and the Tier 3 text needs a resolution note before anyone reads it as current.
@@ -387,7 +392,7 @@ Present each Approval-tier fix as a diff and stop.
   but the rule stands alone: a wrong applied migration is fixed by a **new** migration.
 - Rewrite a doc to match the repo when the doc is a **specification** of work not yet done. That
   erases the requirement — route it to the
-  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue.
+  [CuevikSync Tracker](https://github.com/orgs/Cueserve/projects/17) or a GitHub Issue.
 - Treat a `Tier 3` brainstorming or review file as authoritative over a Tier 2 doc.
 - Treat a labelled "Pending scaffold — unverified" block as drift. The label is the correct
   behavior; a _missing_ label is the finding.
