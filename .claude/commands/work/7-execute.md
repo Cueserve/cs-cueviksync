@@ -1,5 +1,5 @@
 ---
-description: Step 7 of 7 (Implement) — run step 6's approved plan.md unattended in a cloud session: gates and hands you the launch locally, executes it inside the cloud one
+description: "Step 7 of 7 (Implement) — run step 6's approved plan.md unattended in a cloud session: gates and hands you the launch locally, executes it inside the cloud one"
 allowed-tools: Bash, Read, Glob, Grep, Write, Edit, Agent, Skill, AskUserQuestion
 argument-hint: "<issue#> | <folder>"
 ---
