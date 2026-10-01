@@ -1,7 +1,7 @@
 # PROJECT-STRUCTURE.md — Directory Layout & File Placement
 
 **Owner:** Viral Parikh
-**Last updated:** 2026-09-27
+**Last updated:** 2026-10-01
 **Source of truth for:** where each kind of file lives and the rules for placing new code — so
 features and components land in the right place and don't break the invariants in
 docs/ARCHITECTURE.md.
@@ -38,9 +38,9 @@ cs-cueviksync/
 ├─ .github/workflows/ci.yml        # the one blocking job
 ├─ .husky/pre-commit               # npx lint-staged
 ├─ docs/                           # source-of-truth documents
-│  ├─ brainstorming/               # pre-decision exploration, never authoritative
 │  ├─ reviews/                     # dated advisory reviews
 │  └─ work/                        # one transient folder per work item — see §5
+│     └─ brainstorming/            # one file per idea, never authoritative — see §5
 ├─ public/
 │  └─ brand/                       # logo SVGs served as-is (next/image, unoptimized)
 ├─ src/
@@ -168,18 +168,18 @@ Read these before creating any new feature, route, action, or component.
 - **Docs** — top-level `docs/*.md`, named by content in SCREAMING-KEBAB (`ARCHITECTURE.md`,
   `TECH-STACK.md`). Four kinds of document live under `docs/`, and the folder says which:
 
-  | Kind                     | Path                  | Filename                          | Lifetime                                     |
-  | ------------------------ | --------------------- | --------------------------------- | -------------------------------------------- |
-  | Source-of-truth document | `docs/`               | `SCREAMING-KEBAB.md`              | permanent                                    |
-  | Advisory review          | `docs/reviews/`       | `YYYY-MM-DD-<subject>-review.md`  | permanent                                    |
-  | Pre-decision exploration | `docs/brainstorming/` | `<topic>.md`, `**Status:** Draft` | permanent, never authoritative               |
-  | Work artifact            | `docs/work/`          | `<issue#>-<slug>-<PRD-NNN>/`      | transient — deleted once the work has landed |
+  | Kind                     | Path                       | Filename                                | Lifetime                                     |
+  | ------------------------ | -------------------------- | --------------------------------------- | -------------------------------------------- |
+  | Source-of-truth document | `docs/`                    | `SCREAMING-KEBAB.md`                    | permanent                                    |
+  | Advisory review          | `docs/reviews/`            | `YYYY-MM-DD-<subject>-review.md`        | permanent                                    |
+  | Idea (pre-decision)      | `docs/work/brainstorming/` | `<NNN>-<slug>.md`, `**Status:**` header | permanent record, never authoritative        |
+  | Work artifact            | `docs/work/`               | `<issue#>-<slug>-<PRD-NNN>/`            | transient — deleted once the work has landed |
 
   **Only work artifacts are transient.** Each declares it in its own header, and its folder
   name carries the issue number that says what it belongs to — the board says whether that is
   still open. Every other document under `docs/` is permanent.
 
-  **There is no `docs/specs/` folder.** A standing design spec was retired once the three-step
+  **There is no `docs/specs/` folder.** A standing design spec was retired once the work-folder
   process existed: design now lives in the `spec.md` of the work item that builds it. A design
   that spans several work items belongs in ARCHITECTURE, not in a spec.
 
@@ -194,6 +194,12 @@ Read these before creating any new feature, route, action, or component.
   files under fixed names: `intent.md`, `spec.md`, and `plan.md`, because each is read by the
   command that produces the next one, plus a `README.md` that rolls up which of them are done.
   See [work/README.md](work/README.md).
+
+  **The one exception is `docs/work/brainstorming/`**, which holds ideas, not work items: one
+  file per idea, `<NNN>-<slug>.md`, where `NNN` is an idea number, not an issue number.
+  `/work:1-brainstorm` writes them and `/work:2-audit-prd` ratifies them into PRD.md, after
+  which PRD.md is the authority. A decided idea stays as the record of the decision. See
+  [work/brainstorming/README.md](work/brainstorming/README.md).
 
 ## 6. Keeping This File Honest
 

@@ -4,7 +4,7 @@
 **Last updated:** 2026-08-22
 **Status:** Draft
 
-Companion doc: [oss-landscape-sales.md](oss-landscape-sales.md) covers Inquiry Intake, CRM,
+Companion doc: [004-oss-landscape-sales.md](004-oss-landscape-sales.md) covers Inquiry Intake, CRM,
 Pipeline, Catalog, Estimation, and Quote Management. This doc covers Project/Job/Order
 Execution, Work Orders & Scheduling, and — researched deeper, per your steer that job tracking
 and an intelligent weekly/monthly/quarterly/yearly dashboard are the client's first preference —
@@ -32,11 +32,11 @@ doc because it's the stated client priority.
 
 ## 2. Closest OSS Analogs — Job/Order Execution
 
-| CuevikSync Module (system-modules.md)    | Closest OSS Match                                                                   | What It Actually Covers                                                                                                                                                                     | What It Doesn't                                                                                                                                                                                                                                                                             |
-| ---------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Project / Job / Order Execution          | **ERPNext manufacturing** (job cards, work orders), **OpenProject**, **Focalboard** | ERPNext auto-creates job cards from a work order and tracks them through production, with operating-cost rollup per job card. OpenProject/Focalboard give generic kanban/Gantt task boards. | Nothing OSS models a **won-quote → job with an immutable spec snapshot** the way PRODUCT.md's Job/Order does; ERPNext job cards are shop-floor manufacturing units, not sales-linked execution records with turnaround/on-time KPIs baked in.                                               |
-| Work Orders & Scheduling (staged, Later) | **ERPNext work orders**, **OpenProject Gantt**                                      | Resource/time-slot assignment against a work order; ERPNext ties this to BOM consumption.                                                                                                   | Neither is built for named, throughput-rated resources (a wide-format plotter vs. an offset press) as first-class scheduling entities — that's the print-vertical-template layer system-modules.md already scopes as custom, not platform.                                                  |
-| Print & Signage-specific MIS             | **None found.**                                                                     | —                                                                                                                                                                                           | Every print-shop MIS surfaced (PrintPLANR, shopVOX, Printavo, InfoFlo Print, PrintSmith Vision) is closed-source SaaS. There is no open-source reference implementation for print-vertical job/production tracking at all — see §3 for the same finding applied to dashboards specifically. |
+| CuevikSync Module (002-system-modules.md) | Closest OSS Match                                                                   | What It Actually Covers                                                                                                                                                                     | What It Doesn't                                                                                                                                                                                                                                                                             |
+| ----------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project / Job / Order Execution           | **ERPNext manufacturing** (job cards, work orders), **OpenProject**, **Focalboard** | ERPNext auto-creates job cards from a work order and tracks them through production, with operating-cost rollup per job card. OpenProject/Focalboard give generic kanban/Gantt task boards. | Nothing OSS models a **won-quote → job with an immutable spec snapshot** the way PRODUCT.md's Job/Order does; ERPNext job cards are shop-floor manufacturing units, not sales-linked execution records with turnaround/on-time KPIs baked in.                                               |
+| Work Orders & Scheduling (staged, Later)  | **ERPNext work orders**, **OpenProject Gantt**                                      | Resource/time-slot assignment against a work order; ERPNext ties this to BOM consumption.                                                                                                   | Neither is built for named, throughput-rated resources (a wide-format plotter vs. an offset press) as first-class scheduling entities — that's the print-vertical-template layer 002-system-modules.md already scopes as custom, not platform.                                              |
+| Print & Signage-specific MIS              | **None found.**                                                                     | —                                                                                                                                                                                           | Every print-shop MIS surfaced (PrintPLANR, shopVOX, Printavo, InfoFlo Print, PrintSmith Vision) is closed-source SaaS. There is no open-source reference implementation for print-vertical job/production tracking at all — see §3 for the same finding applied to dashboards specifically. |
 
 Sources: [ERPNext manufacturing/work orders](https://frappe.io/erpnext/manufacturing/work-orders), [ERPNext job cards](https://frappe.io/erpnext/manufacturing/job-cards), [ERPNext manufacturing dashboard](https://docs.frappe.io/erpnext/manufacturing-dashboard), [PrintPLANR](https://www.printplanr.com/), [SoftwareConnect print shop roundup](https://softwareconnect.com/roundups/best-print-shop-management-software/).
 
@@ -138,10 +138,10 @@ doesn't need to be. Three tiers, cheapest first:
    package beyond the charting library.
 2. **Threshold-based flags** — an on-time % or turnaround trend crossing a configured
    threshold gets visually flagged. Same deterministic-rule pattern already approved for
-   cold-deal flagging in ai-features.md §5 ("auto-flagged," not AI) — reusable pattern, no new
+   cold-deal flagging in 001-ai-features.md §5 ("auto-flagged," not AI) — reusable pattern, no new
    AI surface.
 3. **AI-narrated dashboard** ("explain why turnaround dipped this month") — this is already
-   scoped in ai-features.md §2/§3 as **Wave 3, gated behind Dashboards & Operational Reporting
+   scoped in 001-ai-features.md §2/§3 as **Wave 3, gated behind Dashboards & Operational Reporting
    being Must-have-delivered first, and explicitly deferred to AI Copilot (Later)**. Nothing in
    this research changes that gating — it's flagged here only so "intelligent dashboard" isn't
    read as license to pull Wave 3 forward.
@@ -220,7 +220,7 @@ signal to invest the _extra_ research/design effort specifically in §3's dashbo
   ship job tracking/dashboards _before_ the rest, or build the rest to committed thin-core scope
   and put the extra depth into dashboards specifically?
 - Does "intelligent dashboard" mean §3.5 tier 1 (trend/comparison, no AI), tier 2 (threshold
-  flags), or does the client actually want tier 3 (AI-narrated) sooner than ai-features.md's
+  flags), or does the client actually want tier 3 (AI-narrated) sooner than 001-ai-features.md's
   Wave 3 gating currently allows?
 - Tremor vs. plain Recharts (§3.3) — worth a half-day spike building PRD-043's weekly table as a
   chart before committing the TECH-STACK.md package decision either way?

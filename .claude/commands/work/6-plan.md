@@ -1,12 +1,12 @@
 ---
-description: Step 3 of 3 (Build) — turn an approved spec.md into plan.md, a dependency-ordered task list an agent can execute cold
+description: Step 6 of 7 (Build) — turn an approved spec.md into plan.md, a dependency-ordered task list an agent can execute cold
 allowed-tools: Bash, Read, Glob, Grep, Write, Edit, AskUserQuestion
 argument-hint: "[<issue#> | <folder>]"
 ---
 
 # Plan
 
-Step 3 of the three-step process ([docs/work/README.md](../../../docs/work/README.md)). Turn an
+Step 6 of the seven-step process ([docs/work/README.md](../../../docs/work/README.md)). Turn an
 approved `spec.md` into `plan.md`: a dependency-ordered set of task blocks that a session with
 no memory of this conversation can execute and turn into a Pull Request (PR).
 
@@ -32,12 +32,12 @@ only folder with an approved `spec.md` and no `plan.md`; if there is more than o
 Two, both hard:
 
 1. **`spec.md` exists and reads `**Status:** Approved`.** Missing or `Draft` → stop, and say to
-   run `/work:2-spec`.
+   run `/work:5-spec`.
 2. **Every box in `spec.md` §8 is ticked.** An unticked escalation trigger — a migration, a
    package, an auth or RLS change, a service-role path — means the human has not signed off on
    something the plan would tell an agent to do. Stop, name the unticked boxes, and ask. Do not
    plan around it, and do not plan it as a "pending approval" task. The issue should already
-   carry `decision-needed` from `/work:2-spec`; add it if it does not.
+   carry `decision-needed` from `/work:5-spec`; add it if it does not.
 
 Once both gates pass, drop `decision-needed` if it is there — the decision has been made:
 

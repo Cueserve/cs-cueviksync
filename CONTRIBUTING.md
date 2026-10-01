@@ -64,7 +64,7 @@ reviewer can see which boxes you actually ticked.
       invented scope, no opportunistic refactor, no "while I was in there".
 - [ ] No source-of-truth document under `docs/`, nor `CLAUDE.md`, nor this file, is touched in
       this PR — unless the PR is _only_ that documentation change (see "Documentation changes").
-      Files under `docs/work/` do not count; they are expected here.
+      Files under `docs/work/<issue#>-*/` do not count; they are expected here.
 - [ ] No secret, key, connection string, or `.env*` value appears anywhere in the diff, in a
       code comment, or in a fixture.
 - [ ] No dependency added or removed without the corresponding `docs/TECH-STACK.md` change
@@ -134,9 +134,23 @@ Changing one is a **standalone change, never folded into feature work**:
 
 **`docs/work/` is exempt.** The `intent.md`, `spec.md`, and `plan.md` a work item produces
 are transient artifacts of that item, not source-of-truth documents — see
-[docs/work/README.md](docs/work/README.md). They ride in the same PR as the change they
-describe, because keeping them out would hand the reviewer a diff without the reasoning that
-produced it. `docs/reviews/` and `docs/brainstorming/` are **not** exempt.
+[docs/work/README.md](docs/work/README.md). They are never kept out of review, because that
+would hand the reviewer a diff without the reasoning that produced it. Which PR carries them
+depends on how the plan is executed:
+
+- **In a cloud session** (`/work:7-execute`) — they land first, in a `docs(work)` PR of their
+  own. The cloud session clones `origin/main`, and step 7's gate refuses a plan that is not
+  there.
+- **In a local session** — they ride in the same PR as the change they describe.
+
+`docs/reviews/` is **not** exempt.
+
+**An idea in `docs/work/brainstorming/` rides in a docs PR, never a feature PR.**
+`/work:1-brainstorm` writes it on a `docs/idea-<NNN>-<slug>` branch, and `/work:2-audit-prd`
+opens the docs PR on that same branch with the PRODUCT.md and PRD.md change it produced — the PR
+is still only documentation, and the idea is the reasoning behind its diff. Each source-of-truth
+document in that PR still follows steps 1–4 above, in its own commit. A `Rejected` idea, kept
+for the record, goes in a small docs PR of its own.
 
 Keep acronyms defined on first use in any new document, and match the writing standard already
 in `docs/`.

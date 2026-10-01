@@ -1,18 +1,18 @@
 ---
-description: Step 2 of 3 (Design) — turn an approved intent.md into spec.md, with policy applied as it is written
+description: Step 5 of 7 (Design) — turn an approved intent.md into spec.md, with policy applied as it is written
 allowed-tools: Bash, Read, Glob, Grep, Write, Edit, Skill, AskUserQuestion
 argument-hint: "[<issue#> | <folder>]"
 ---
 
 # Spec
 
-Step 2 of the three-step process ([docs/work/README.md](../../../docs/work/README.md)). Turn an
+Step 5 of the seven-step process ([docs/work/README.md](../../../docs/work/README.md)). Turn an
 approved `intent.md` into `spec.md`: requirements and design in one pass, with this repo's
 policy applied while it is written rather than discovered in review.
 
 **This command designs. It does not sequence work and does not name a branch.** That is
-`/work:3-plan`. It also does not revisit whether the thing should be built — `intent.md` settled that,
-and reopening it here means going back to `/work:1-intent`, not arguing it in the spec.
+`/work:6-plan`. It also does not revisit whether the thing should be built — `intent.md` settled that,
+and reopening it here means going back to `/work:4-intent`, not arguing it in the spec.
 
 Arguments (optional): `$ARGUMENTS` — an issue number or a folder name. Empty resolves to the
 only folder with an approved `intent.md` and no `spec.md`; if there is more than one, ask.
@@ -30,9 +30,9 @@ only folder with an approved `intent.md` and no `spec.md`; if there is more than
 
 `intent.md` must exist and its header must read `**Status:** Approved`.
 
-Missing, or still `Draft` → **stop**. Report which, and say to run `/work:1-intent`. Do not offer to
+Missing, or still `Draft` → **stop**. Report which, and say to run `/work:4-intent`. Do not offer to
 write the intent yourself in this session; the steps are separate so that each one is read
-cold, and collapsing them defeats the only reason there are three.
+cold, and collapsing them defeats the point.
 
 ## Phase 2 — Load the policy
 
@@ -74,8 +74,8 @@ The spec is where a governance problem is supposed to surface, not the PR. Walk
 package, a change to a service-role path, anything touching auth or Row-Level Security (RLS),
 a new runtime role.
 
-Flagging is not approval. §8 is a list of what the human has to sign off before `/work:3-plan` runs,
-and `/work:3-plan` reads it.
+Flagging is not approval. §8 is a list of what the human has to sign off before `/work:6-plan` runs,
+and `/work:6-plan` reads it.
 
 ## Phase 5 — Write it
 
@@ -131,7 +131,7 @@ reason.>
 <Which files under `docs/` this makes stale, and what each needs. Each lands in its own Pull
 Request (PR) per CONTRIBUTING.md. "None" is a valid answer.>
 
-## 8. Requires human approval before `/work:3-plan`
+## 8. Requires human approval before `/work:6-plan`
 
 - [ ] <trigger from CLAUDE.md "Decision escalation" or "Off-limits">, because <reason>
 
@@ -165,7 +165,7 @@ gh issue edit <n> --repo Cueserve/cs-cueviksync --add-label decision-needed
 Its description is exactly this case — "Open product decision; no code until decided." An
 approved spec with an unticked escalation trigger is a design waiting on a person, and the
 board should say so rather than leaving it indistinguishable from one that is ready to plan.
-`/work:3-plan` removes the label when it gets past that gate.
+`/work:6-plan` removes the label when it gets past that gate.
 
 If §8 is empty or fully ticked, add nothing.
 
@@ -180,4 +180,4 @@ headers; never carry a status over from memory.
 Refresh the preface **only if the design changed what this work item is**. A spec that merely
 detailed the intent leaves it alone.
 
-Report the path and stop. Do not invoke `/work:3-plan`.
+Report the path and stop. Do not invoke `/work:6-plan`.
