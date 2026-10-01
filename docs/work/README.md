@@ -21,6 +21,70 @@ Naming is `<issue#>-<slug>-<PRD-NNN>/`, for example `041-contact-records-PRD-008
 
 The date the folder was created is in its `README.md`, not its name.
 
+## End-to-end workflow
+
+From an idea to a merged PR. Each step is one command in its own fresh session. It produces one
+artifact and waits for your explicit yes before the next step will run. Plans execute
+unattended in a Claude cloud session. Review, merge, and the `Reviewing`/`Done` card moves stay
+with you.
+
+| Step               | Command                                     | Runs in          | Produces                                            | Gate · board                             |
+| ------------------ | ------------------------------------------- | ---------------- | --------------------------------------------------- | ---------------------------------------- |
+| 1. Brainstorm      | `/work:1-brainstorm "<topic>"`              | local            | `docs/brainstorming/<topic>.md` (Draft)             | you decide it should exist               |
+| 1b. Ratify         | `/work:1b-ratify <brainstorm file>`         | local            | new `PRD-NNN` in `docs/PRODUCT.md` + `docs/PRD.md`  | standalone docs PR, you merge            |
+| 2. Epic + PBIs     | `/work:2-epic PRD-NNN..PRD-MMM`             | local → GitHub   | `Epic:` issue + `PRD-NNN:` sub-issues on Project 17 | you approve before filing · `Backlog`    |
+| 3. Intent          | `/work:3-intent <issue#>`                   | local            | `intent.md`                                         | Approved · +`shaping`                    |
+| 4. Spec            | `/work:4-spec <issue#>`                     | local            | `spec.md`                                           | Approved · +`decision-needed` if §8 open |
+| 5. Plan            | `/work:5-plan <issue#>`                     | local            | `plan.md`, then a `docs(work)` PR you merge         | Approved · `Ready` · −`shaping`          |
+| 6. Execute         | `/work:6-execute <issue#>`                  | local            | card → `Working`, prints the launch line            | plan on `origin/main`, card `Ready`      |
+|                    | `claude --cloud "/work:6-execute <folder>"` | terminal → cloud | `feat/<slug>` branch + PR (draft if blocked)        | lint · typecheck · format:check · test   |
+| After the PR (you) | `/code-review <PR#>`, `/db-migrate`         | local            | review, merge                                       | `Reviewing` → `Done`                     |
+
+Superpowers used along the way: `superpowers:brainstorming` (steps 1 and 3),
+`/impeccable shape` (step 4, UI slices only), `superpowers:test-driven-development` (step 5 —
+every `proof` fails before its task), `superpowers:dispatching-parallel-agents` and
+`superpowers:verification-before-completion` (step 6, in the cloud),
+`superpowers:systematic-debugging` and `superpowers:receiving-code-review` (after the PR).
+
+```mermaid
+flowchart TD
+    S1["1 · Brainstorm the feature<br/>/work:1-brainstorm"]:::local
+    D1{"Should it exist?"}:::human
+    X["Stays in docs/brainstorming<br/>never a reason to write code"]:::muted
+    S1b["1b · Ratify into PRODUCT + PRD<br/>/work:1b-ratify"]:::local
+    PR1[["Docs PR · review · you merge"]]:::human
+    S2["2 · Create epic + PBIs<br/>/work:2-epic"]:::local
+    S3["3 · Plan: intent.md<br/>/work:3-intent 41"]:::local
+    S4["4 · Design: spec.md<br/>/work:4-spec 41"]:::local
+    S5["5 · Build: plan.md<br/>/work:5-plan 41"]:::local
+    PR2[["docs(work) PR · review · you merge"]]:::human
+    S6a["6 · Execute, local gate<br/>/work:6-execute 41"]:::local
+    S6b["6 · Execute, cloud run<br/>claude --cloud ..."]:::cloud
+    PR3[["Code PR · /code-review · you merge"]]:::human
+    DONE(("Done")):::human
+
+    S1 --> D1
+    D1 -- no --> X
+    D1 -- yes --> S1b --> PR1
+    PR1 -- "new PRD-NNN on main" --> S2
+    S2 -- "Backlog" --> S3
+    S3 -- "approved · +shaping" --> S4
+    S4 -- "approved · +decision-needed if 8 open" --> S5
+    S5 -- "approved · Ready · -shaping" --> PR2
+    PR2 -- "plan on origin/main" --> S6a
+    S6a -- "Working · you paste the launch line" --> S6b
+    S6b -- "regular or draft PR" --> PR3
+    PR3 -- "Reviewing then Done" --> DONE
+
+    classDef local fill:transparent,stroke:#2384c6,stroke-width:2px
+    classDef cloud fill:transparent,stroke:#11806a,stroke-width:2px
+    classDef human fill:transparent,stroke:#a8620a,stroke-width:2px,stroke-dasharray:5 3
+    classDef muted fill:transparent,stroke:#8a8a8a,stroke-dasharray:3 3
+```
+
+Blue is a local Claude session, green the cloud session, dashed amber is you. The three PRs are
+the only way anything reaches `main`.
+
 ## The three steps
 
 Each step is its own command, its own session, and its own approval.
