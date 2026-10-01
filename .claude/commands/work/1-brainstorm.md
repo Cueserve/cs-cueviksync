@@ -37,7 +37,8 @@ Arguments (optional): `$ARGUMENTS` —
    ```
 
 2. If `$ARGUMENTS` is an idea number, or names the topic of an idea that is still `Draft`,
-   **this is a resume**: check out its branch, read the file, say which sections are thin or
+   **this is a resume**: check out its branch — or, for an idea only on `main` (`001`–`004`
+   predate branches), create `docs/idea-<NNN>-<slug>` from `origin/main` — read the file, say which sections are thin or
    which open questions are unanswered, and refine that file. Do not start a second one.
 3. If it matches one that is `Approved`, `Rejected`, or `Ratified`, say so and stop — that idea
    has been decided. A new angle on it is a new idea with its own number.

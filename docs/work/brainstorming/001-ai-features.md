@@ -30,7 +30,7 @@ Scoring criteria and rollout waves are defined in Sections 4 and 5.
 
 ## 1) Product Positioning
 
-AI is a shared platform capability, not a separate destination. Models, confidence handling, and policy live in an isolated AI layer (see system-modules.md); every high-value assist is surfaced inline in the module where the user already works — to reduce manual effort, improve decision quality, and accelerate cycle time.
+AI is a shared platform capability, not a separate destination. Models, confidence handling, and policy live in an isolated AI layer (see 002-system-modules.md); every high-value assist is surfaced inline in the module where the user already works — to reduce manual effort, improve decision quality, and accelerate cycle time.
 
 Working principle:
 
@@ -41,7 +41,7 @@ Working principle:
 
 ## 2) Capability Inventory by Business Area
 
-Terminology: this doc's "Lead" maps to the canonical objects in system-modules.md — an Inquiry at intake, an Opportunity once in the pipeline. "Conversion probability" (Lead Management) is the inquiry→qualified-opportunity prediction; "Opportunity win probability" (Sales Intelligence) is the distinct opportunity→closed-won prediction — two funnel stages, not the same score.
+Terminology: this doc's "Lead" maps to the canonical objects in 002-system-modules.md — an Inquiry at intake, an Opportunity once in the pipeline. "Conversion probability" (Lead Management) is the inquiry→qualified-opportunity prediction; "Opportunity win probability" (Sales Intelligence) is the distinct opportunity→closed-won prediction — two funnel stages, not the same score.
 
 ### Lead Management
 
@@ -65,7 +65,7 @@ Terminology: this doc's "Lead" maps to the canonical objects in system-modules.m
 
 - Opportunity win probability prediction
 - Cross-sell / upsell / smart product recommendations
-- Reorder likelihood / dormant-customer flag (predicts repeat buyers overdue for their next order; feeds reorder acceleration in the Customer 360 profile — a one-click clone of the prior order into a new pipeline draft, i.e. a qualified opportunity, not a raw inquiry; system-modules.md)
+- Reorder likelihood / dormant-customer flag (predicts repeat buyers overdue for their next order; feeds reorder acceleration in the Customer 360 profile — a one-click clone of the prior order into a new pipeline draft, i.e. a qualified opportunity, not a raw inquiry; 002-system-modules.md)
 - Cold-deal / stalled-deal flagging (Phase 1 slice — see §5)
 
 ### Communication Intelligence
@@ -87,14 +87,14 @@ Terminology: this doc's "Lead" maps to the canonical objects in system-modules.m
 
 ### Proofing and Prepress
 
-- AI artwork defect detection (computer-vision check of uploaded artwork vs. order specs — dimensions, resolution, safe margins; advisory only, no auto-reject). Depends on the Documents & Customer Portal upload surface (Later, system-modules.md §9). The generic check is platform; print thresholds (bleed, Pantone, safe margins) are vertical-template config, not platform code (PRODUCT.md §7).
+- AI artwork defect detection (computer-vision check of uploaded artwork vs. order specs — dimensions, resolution, safe margins; advisory only, no auto-reject). Depends on the Documents & Customer Portal upload surface (Later, 002-system-modules.md §9). The generic check is platform; print thresholds (bleed, Pantone, safe margins) are vertical-template config, not platform code (PRODUCT.md §7).
 
 ### Search, Analytics, and Leadership Insights
 
 - Natural language CRM search (example: "Show overdue quotes over $10,000")
 - Executive daily briefing with key metrics and priorities (depends on Dashboards & Operational Reporting, Must-have, plus accumulated transactional data; still not a Phase 1 quick win)
 - AI-powered dashboard narratives explaining changes in sales, production, and revenue (depends on Dashboards & Operational Reporting, Must-have; the AI narrative layer itself is deferred — AI Copilot, Later)
-- Revenue forecasting (base weighted forecast is a deterministic Dashboards rollup per system-modules.md — win-rate × expected value; AI adds an optional predictive adjustment only)
+- Revenue forecasting (base weighted forecast is a deterministic Dashboards rollup per 002-system-modules.md — win-rate × expected value; AI adds an optional predictive adjustment only)
 
 ## 3) AI Surface Map (Where AI Appears in Product)
 

@@ -27,7 +27,8 @@ Arguments (optional): `$ARGUMENTS` —
 
 ## Phase 0 — Where are we
 
-1. `ls docs/work/` and read the `**Status:**` line in each artifact of each folder.
+1. `ls -d docs/work/[0-9]*/` — the work folders; `docs/work/brainstorming/` is not one — and
+   read the `**Status:**` line in each artifact of each folder.
 2. Print the state table for the folder this run concerns (or all of them, if `$ARGUMENTS` is
    empty), in the format in `docs/work/README.md`.
 3. If this work item already has a folder with an `intent.md`, **this is a resume**: read it,
@@ -56,7 +57,7 @@ gh project item-add 17 --owner Cueserve --url <issue url>
 
 Leave the board Status at its default. This command does not move cards.
 
-**Given nothing:** list the folders under `docs/work/` whose `plan.md` is missing or `Draft`,
+**Given nothing:** list the work folders (`docs/work/[0-9]*/`) whose `plan.md` is missing or `Draft`,
 and ask which one to resume.
 
 ## Phase 2 — Pick the mode
