@@ -1,13 +1,13 @@
 ---
-description: Run step 3's approved plan.md unattended in a cloud session — gates and hands you the launch locally, executes it inside the cloud one
+description: Step 7 of 7 (Implement) — run step 6's approved plan.md unattended in a cloud session: gates and hands you the launch locally, executes it inside the cloud one
 allowed-tools: Bash, Read, Glob, Grep, Write, Edit, Agent, Skill, AskUserQuestion
 argument-hint: "<issue#> | <folder>"
 ---
 
 # Execute
 
-The runner for step 3 of the three-step process ([docs/work/README.md](../../../docs/work/README.md)).
-It is not a fourth step: it writes no artifact. It takes an approved `plan.md` and gets it
+Step 7 of the seven-step process ([docs/work/README.md](../../../docs/work/README.md)).
+It writes no artifact: it takes an approved `plan.md` and gets it
 executed in a cloud session, so the build runs without you and stops where the plan hands
 control back.
 
@@ -21,7 +21,7 @@ echo "$CLAUDE_CODE_REMOTE"
 
 Arguments (required): `$ARGUMENTS` — an issue number (`41` or `041`) or a folder name
 (`041-person-and-organization-records-PRD-008`). **Empty → stop and ask for one.** Unlike
-`/work:3-plan`, this command does not pick a default: starting a cloud run is too consequential
+`/work:6-plan`, this command does not pick a default: starting a cloud run is too consequential
 to guess.
 
 ---
@@ -31,7 +31,7 @@ to guess.
 1. A number → zero-pad it to three digits and match `docs/work/<NNN>-*/`. Exactly one match, or
    stop and list what matched.
 2. Anything else → `docs/work/$ARGUMENTS/` must exist, or stop.
-3. `plan.md` must exist in that folder, or stop and say to run `/work:3-plan`.
+3. `plan.md` must exist in that folder, or stop and say to run `/work:6-plan`.
 4. `plan.md` reads `**Status:** Approved`. `Draft` → stop, and say to approve it. Checked in
    both modes: a cloud session never builds from a plan the human has not approved.
 
@@ -70,7 +70,7 @@ Then, in order:
    terminal at the repo root, still on `main`:
 
    ```sh
-   claude --cloud "/work:4-execute <folder>"
+   claude --cloud "/work:7-execute <folder>"
    ```
 
 3. **Stop.** Say that the card now reads `Working`, so a launch that never happens should set it

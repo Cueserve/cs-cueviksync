@@ -1,17 +1,17 @@
 ---
-description: Step 1 of 3 (Plan) — interrogate a work item until the problem is stated, then write intent.md
+description: Step 4 of 7 (Plan) — interrogate a work item until the problem is stated, then write intent.md
 allowed-tools: Bash, Read, Glob, Grep, Write, Edit, Skill, AskUserQuestion
 argument-hint: "[<issue#> | <free description>]"
 ---
 
 # Intent
 
-Step 1 of the three-step process ([docs/work/README.md](../../../docs/work/README.md)). Produce
+Step 4 of the seven-step process ([docs/work/README.md](../../../docs/work/README.md)). Produce
 `intent.md`: the problem, stated, before anyone has proposed a solution to it.
 
 **This command does not design and does not plan.** No schema, no file names, no components,
 no libraries. The moment a solution appears in this session, the step has failed at the only
-thing it exists to do — which is to stop you reaching for one. `/work:2-spec` designs. `/work:3-plan` plans.
+thing it exists to do — which is to stop you reaching for one. `/work:5-spec` designs. `/work:6-plan` plans.
 
 **Every question is batched.** Ask them in groups, never one per message
 ([CLAUDE.md](../../../CLAUDE.md), "Ask, don't assume").
@@ -94,7 +94,7 @@ soft answer here is a hole in the file:
   `docs/ARCHITECTURE.md §2`, not "the architecture says". Read the file. Never recall it
   ([CLAUDE.md](../../../CLAUDE.md), "Read before proposing").
 - **Open questions.** What you do not know yet, and which of those must be settled before
-  `/work:2-spec` can run.
+  `/work:5-spec` can run.
 
 Challenge the answers. Agreement before pressure-testing is worth nothing here.
 
@@ -118,7 +118,7 @@ gh issue edit <n> --repo Cueserve/cs-cueviksync --add-label shaping
 ```
 
 **`shaping` on an issue means a work folder exists for it whose plan is not approved** —
-`/work:3-plan` removes it. That biconditional is the whole value of the label: the board can be
+`/work:6-plan` removes it. That biconditional is the whole value of the label: the board can be
 scanned for what is in your hands without opening anything. Do not apply it before the folder
 exists, and do not leave it on after the plan lands.
 
@@ -165,20 +165,20 @@ terms, with no solution in it.>
 ## 7. Open questions
 
 - **<question>** — answered: <answer>
-- **<question>** — deferred: <reason it can wait past `/work:2-spec`>
+- **<question>** — deferred: <reason it can wait past `/work:5-spec`>
 ```
 
 ## Phase 6 — Approve
 
 Show the file. Ask whether it is approved.
 
-On an explicit yes, and only then, change the header to `**Status:** Approved`. `/work:2-spec`
+On an explicit yes, and only then, change the header to `**Status:** Approved`. `/work:5-spec`
 refuses to run against a `Draft`, so this flip is the gate — never set it on your own
 initiative, and never because the file looks finished to you.
 
-**The board Status does not move here, and neither does it at `/work:2-spec`.** The item is
+**The board Status does not move here, and neither does it at `/work:5-spec`.** The item is
 not `Ready` until there is a plan to build from; until then the `shaping` label carries the
-only true statement available — that this one is in your hands. `/work:3-plan` sets `Ready`.
+only true statement available — that this one is in your hands. `/work:6-plan` sets `Ready`.
 
 ## Phase 7 — Write the folder README
 
@@ -190,4 +190,4 @@ what to run next.
 The preface is for you in three weeks, not for the agent. Say what this work item is, not what
 the file contains.
 
-Report both paths and stop. Do not invoke `/work:2-spec`. It is a separate session by design.
+Report both paths and stop. Do not invoke `/work:5-spec`. It is a separate session by design.
