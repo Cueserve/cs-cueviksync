@@ -35,6 +35,12 @@ A step reads only the previous artifact, never the conversation that produced it
 point: an artifact a cold session cannot act on is not finished, and the session that executes
 `plan.md` is the coldest one of all.
 
+**Executing `plan.md` is not a fourth step** — it writes no artifact. Run it in a fresh local
+session, or unattended with `/work:4-execute <issue#>`: run locally, that checks the plan is
+approved and pushed, sets the card to `Working`, and prints the `claude --cloud` line for you to
+paste into a terminal. The cloud session runs the same command and stops where the plan's
+Delivery hands control back to you.
+
 ## What a folder holds
 
 Four files. Three are the artifacts; the fourth is how you find your way back in.
@@ -90,15 +96,15 @@ has changed. Shaping is carried by a **label** instead, because one single-selec
 say both "how far along is this" and "is this in my hands right now" without being wrong
 somewhere in the week.
 
-| When                            | Status      | Label                         | Set by                |
-| ------------------------------- | ----------- | ----------------------------- | --------------------- |
-| a new issue is filed            | `Backlog`   | —                             | `/work:1-intent`      |
-| the work folder is created      | `Backlog`   | +`shaping`                    | `/work:1-intent`      |
-| `spec.md` approved, §8 unticked | unchanged   | +`decision-needed`            | `/work:2-spec`        |
-| `plan.md` approved              | `Ready`     | −`shaping` −`decision-needed` | `/work:3-plan`        |
-| the build session starts        | `Working`   | —                             | the executing session |
-| the PR opens                    | `Reviewing` | —                             | the executing session |
-| the PR merges                   | `Done`      | —                             | **you**               |
+| When                            | Status      | Label                         | Set by                                                                 |
+| ------------------------------- | ----------- | ----------------------------- | ---------------------------------------------------------------------- |
+| a new issue is filed            | `Backlog`   | —                             | `/work:1-intent`                                                       |
+| the work folder is created      | `Backlog`   | +`shaping`                    | `/work:1-intent`                                                       |
+| `spec.md` approved, §8 unticked | unchanged   | +`decision-needed`            | `/work:2-spec`                                                         |
+| `plan.md` approved              | `Ready`     | −`shaping` −`decision-needed` | `/work:3-plan`                                                         |
+| the build session starts        | `Working`   | —                             | the executing session, or `/work:4-execute` locally before a cloud run |
+| the PR opens                    | `Reviewing` | —                             | the executing session; **you** after a cloud run                       |
+| the PR merges                   | `Done`      | —                             | **you**                                                                |
 
 **`shaping` on an issue means a work folder is open for it whose plan is not approved.** That
 biconditional is the whole value of the label: the board answers "what am I in the middle of"

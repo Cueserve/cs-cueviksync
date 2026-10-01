@@ -271,8 +271,10 @@ more than the rest:
   Every command regenerates it from the artifacts' `**Status:**` headers, which are the truth.
 - **Status is pipeline position; `shaping` is a label.** Opening a work folder adds `shaping`;
   `plan.md` approved sets `Ready` and removes it; the build session sets `Working`, then
-  `Reviewing` when the PR opens. `Done` is yours, because you are the one who merges. The full
-  mapping is in [docs/work/README.md](docs/work/README.md).
+  `Reviewing` when the PR opens. A cloud run cannot reach the board: `/work:4-execute` sets
+  `Working` locally before it hands you the launch, and `Reviewing` is yours. `Done` is yours,
+  because you are the one who merges. The full mapping is in
+  [docs/work/README.md](docs/work/README.md).
 
 Work that is not one of the three — a typo, a lint fix, a dependency bump — does not need a
 folder. Anything that needs a migration, a new route, or a new Server Action does.
@@ -311,6 +313,8 @@ specific to working as an agent:
     regenerates types and verifies.
   - `/doc-audit` — audits the documentation set for drift, gaps, and duplication.
   - `/work:1-intent`, `/work:2-spec`, `/work:3-plan` — one command per step of "The three-step process" above.
+  - `/work:4-execute <issue# | folder>` — runs an approved `plan.md` unattended in a cloud
+    session. The runner for step 3, not a fourth step: it writes no artifact.
 - **Migration guard.** `.claude/hooks/block-applied-migration.mjs` denies edits to any migration
   file already present in `origin/main`, because merged means applied to the hosted project and
   applied migrations are immutable. If it fires, author a **new** migration — do not work around
