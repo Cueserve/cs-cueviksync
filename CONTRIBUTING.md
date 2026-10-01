@@ -134,9 +134,16 @@ Changing one is a **standalone change, never folded into feature work**:
 
 **`docs/work/` is exempt.** The `intent.md`, `spec.md`, and `plan.md` a work item produces
 are transient artifacts of that item, not source-of-truth documents — see
-[docs/work/README.md](docs/work/README.md). They ride in the same PR as the change they
-describe, because keeping them out would hand the reviewer a diff without the reasoning that
-produced it. `docs/reviews/` is **not** exempt.
+[docs/work/README.md](docs/work/README.md). They are never kept out of review, because that
+would hand the reviewer a diff without the reasoning that produced it. Which PR carries them
+depends on how the plan is executed:
+
+- **In a cloud session** (`/work:7-execute`) — they land first, in a `docs(work)` PR of their
+  own. The cloud session clones `origin/main`, and step 7's gate refuses a plan that is not
+  there.
+- **In a local session** — they ride in the same PR as the change they describe.
+
+`docs/reviews/` is **not** exempt.
 
 **An idea in `docs/work/brainstorming/` rides in a docs PR, never a feature PR.**
 `/work:1-brainstorm` writes it on a `docs/idea-<NNN>-<slug>` branch, and `/work:2-audit-prd`
