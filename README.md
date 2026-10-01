@@ -264,7 +264,7 @@ The complete document set, listed in the order each derives from the one above i
 - [TECH-STACK.md](docs/TECH-STACK.md) — approved technologies and usage rules
 - [ENGINEERING-RULES.md](docs/ENGINEERING-RULES.md) — coding conventions, banned patterns, testing
 - Backlog / work items — tracked in the
-  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17), not in this repo.
+  [CuevikSync Tracker](https://github.com/orgs/Cueserve/projects/17), not in this repo.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — branching, commits, review flow, and run commands
 - [CLAUDE.md](CLAUDE.md) — how Claude Code must behave in this repository
 
