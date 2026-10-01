@@ -19,14 +19,15 @@ from memory.**
 - [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) - brand tokens, the semantic-token rule, the WCAG AA floor
 - [docs/DATABASE.md](docs/DATABASE.md) - the data model. **Stub: not yet authored.**
 - Backlog and work-item tracking lives in the
-  [Cueserve GitHub Project](https://github.com/orgs/Cueserve/projects/17), not in `docs/`.
+  [CuevikSync Tracker](https://github.com/orgs/Cueserve/projects/17), not in `docs/`.
 
 **Design lives in work folders, not in a standing spec.** Every new feature, requirement, or
-change to an existing one goes through the three-step process below, and its design is the
+change to an existing one goes through the seven-step process below, and its design is the
 `spec.md` in its own `docs/work/` folder. There is no `docs/specs/` folder.
 
 **Every `docs/*.md` is permanent.** The only transient documents are work artifacts, and they
-live under `docs/work/`.
+live under `docs/work/<issue#>-*/`. Ideas live beside them in `docs/work/brainstorming/` — kept
+as the record of each decision, never authoritative.
 
 **Before creating any new route, Server Action, component, `src/lib/` module, or migration,
 consult [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) for where it goes** - its §2
@@ -246,38 +247,52 @@ Never touch the following without explicit human instruction:
   what was requested.
 - **Uncertainty is explicit** — if unsure, say so. Never present a guess as a fact.
 
-## The three-step process
+## The seven-step process
 
-**Every feature, function, or major change goes Plan → Design → Build before any code.** Each
-step is one command, one session, and one artifact, under `docs/work/<issue#>-<slug>-<PRD-NNN>/`:
+**Every new feature or requirement goes Requirements → Plan → Design → Build before any code,
+then Implement.** Each step is one command and one session, and produces one artifact — or, for
+step 3, one set of issues:
 
-| Step      | Command          | Artifact    | Answers                                        |
-| --------- | ---------------- | ----------- | ---------------------------------------------- |
-| 1. Plan   | `/work:1-intent` | `intent.md` | what problem, why now, what is out of scope    |
-| 2. Design | `/work:2-spec`   | `spec.md`   | what exactly, under which of this repo's rules |
-| 3. Build  | `/work:3-plan`   | `plan.md`   | which files, in which order, proved how        |
+| Phase        | Step | Command                          | Produces                                  | Answers                                        |
+| ------------ | ---- | -------------------------------- | ----------------------------------------- | ---------------------------------------------- |
+| Requirements | 1    | `/work:1-brainstorm ["<topic>"]` | `docs/work/brainstorming/<NNN>-<slug>.md` | should this exist, and in what shape           |
+|              | 2    | `/work:2-audit-prd <idea#>`      | PRODUCT.md / PRD.md change, docs PR       | which requirements, new or changed             |
+|              | 3    | `/work:3-epic <idea#>`           | epic and PBI issues                       | what goes on the board                         |
+| Plan         | 4    | `/work:4-intent <issue#>`        | `intent.md`                               | what problem, why now, what is out of scope    |
+| Design       | 5    | `/work:5-spec <issue#>`          | `spec.md`                                 | what exactly, under which of this repo's rules |
+| Build        | 6    | `/work:6-plan <issue#>`          | `plan.md`                                 | which files, in which order, proved how        |
+| Implement    | 7    | `/work:7-execute <issue#>`       | code PR                                   | built, proved, and ready for review            |
 
-The rules of the folder are in [docs/work/README.md](docs/work/README.md). Three things matter
-more than the rest:
+Steps 4–7 work in `docs/work/<issue#>-<slug>-<PRD-NNN>/`. **A bug fix or refactor that changes
+no requirement starts at step 4** — `/work:4-intent` files its issue from a free description.
+
+The rules are in [docs/work/README.md](docs/work/README.md) and, for ideas,
+[docs/work/brainstorming/README.md](docs/work/brainstorming/README.md). These matter more than
+the rest:
 
 - **Each step reads only the previous artifact, never the conversation that produced it.** A
   step run in a fresh session is the design working, not a problem to route around.
 - **A step refuses to run until the previous artifact reads `**Status:** Approved`,** and only
-  an explicit human yes sets that. Never set it on your own initiative.
+  an explicit human yes sets that. Never set it on your own initiative. Step 3 is stricter: the
+  idea must read `Ratified` **on `main`**, so requirements are never filed before their docs PR
+  merges.
 - **`plan.md` carries an execution contract.** When the repo contradicts the plan mid-flight,
   stop, append the contradiction to its `## Deviations` section, and open the PR as a **draft**.
   Never improvise past a wrong plan.
 - **The folder's own `README.md` is the rollup** — preface, progress table, what to run next.
   Every command regenerates it from the artifacts' `**Status:**` headers, which are the truth.
-- **Status is pipeline position; `shaping` is a label.** Opening a work folder adds `shaping`;
-  `plan.md` approved sets `Ready` and removes it; the build session sets `Working`, then
-  `Reviewing` when the PR opens. A cloud run cannot reach the board: `/work:4-execute` sets
-  `Working` locally before it hands you the launch, and `Reviewing` is yours. `Done` is yours,
-  because you are the one who merges. The full mapping is in
-  [docs/work/README.md](docs/work/README.md).
+- **Status is pipeline position; `shaping` is a label.** A filed PBI starts in `Backlog`; opening
+  a work folder adds `shaping`; `plan.md` approved sets `Ready` and removes it; the build
+  session sets `Working`, then `Reviewing` when the PR opens. A cloud run cannot reach the
+  board: `/work:7-execute` sets `Working` locally before it hands you the launch, and
+  `Reviewing` is yours. `Done` is yours, because you are the one who merges. The full mapping is
+  in [docs/work/README.md](docs/work/README.md).
+- **Steps 2 and 3 may run in an interactive cloud session; step 7 runs in one unattended.** The
+  cloud cannot reach Projects v2, so no cloud session moves a card or adds an issue to the
+  board.
 
-Work that is not one of the three — a typo, a lint fix, a dependency bump — does not need a
-folder. Anything that needs a migration, a new route, or a new Server Action does.
+Work that needs none of this — a typo, a lint fix, a dependency bump — does not need a folder.
+Anything that needs a migration, a new route, or a new Server Action does.
 
 ## Workflow
 
@@ -312,9 +327,10 @@ specific to working as an agent:
   - `/db-migrate` — applies pending Supabase migrations to the linked hosted project, then
     regenerates types and verifies.
   - `/doc-audit` — audits the documentation set for drift, gaps, and duplication.
-  - `/work:1-intent`, `/work:2-spec`, `/work:3-plan` — one command per step of "The three-step process" above.
-  - `/work:4-execute <issue# | folder>` — runs an approved `plan.md` unattended in a cloud
-    session. The runner for step 3, not a fourth step: it writes no artifact.
+  - `/work:1-brainstorm` through `/work:6-plan` — one command per step of "The seven-step
+    process" above.
+  - `/work:7-execute <issue# | folder>` — step 7: runs an approved `plan.md` unattended in a
+    cloud session. It writes no artifact; its output is the code PR.
 - **Migration guard.** `.claude/hooks/block-applied-migration.mjs` denies edits to any migration
   file already present in `origin/main`, because merged means applied to the hosted project and
   applied migrations are immutable. If it fires, author a **new** migration — do not work around
