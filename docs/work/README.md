@@ -37,8 +37,9 @@ point: an artifact a cold session cannot act on is not finished, and the session
 
 **Executing `plan.md` is not a fourth step** — it writes no artifact. Run it in a fresh local
 session, or unattended with `/work:4-execute <issue#>`: run locally, that checks the plan is
-approved and pushed, sets the card to `Working`, and launches a cloud session that runs the
-same command and stops where the plan's Delivery hands control back to you.
+approved and pushed, sets the card to `Working`, and prints the `claude --cloud` line for you to
+paste into a terminal. The cloud session runs the same command and stops where the plan's
+Delivery hands control back to you.
 
 ## What a folder holds
 

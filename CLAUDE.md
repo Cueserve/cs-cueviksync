@@ -272,8 +272,9 @@ more than the rest:
 - **Status is pipeline position; `shaping` is a label.** Opening a work folder adds `shaping`;
   `plan.md` approved sets `Ready` and removes it; the build session sets `Working`, then
   `Reviewing` when the PR opens. A cloud run cannot reach the board: `/work:4-execute` sets
-  `Working` locally before it launches one, and `Reviewing` is yours. `Done` is yours, because
-  you are the one who merges. The full mapping is in [docs/work/README.md](docs/work/README.md).
+  `Working` locally before it hands you the launch, and `Reviewing` is yours. `Done` is yours,
+  because you are the one who merges. The full mapping is in
+  [docs/work/README.md](docs/work/README.md).
 
 Work that is not one of the three — a typo, a lint fix, a dependency bump — does not need a
 folder. Anything that needs a migration, a new route, or a new Server Action does.
