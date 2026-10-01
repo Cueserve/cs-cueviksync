@@ -198,8 +198,8 @@ by these commands and free for you.
 
 **The cloud cannot reach the board.** Its GitHub proxy blocks Projects v2, so no cloud session
 moves a card or adds an issue. Issues filed by a cloud run of `/work:3-epic` reach the board
-only through the project's **Auto-add** workflow (Project settings → Workflows, filter
-`repo:Cueserve/cs-cueviksync is:issue`); without it, add them locally with
+only through the project's **Auto-add** workflow (Project settings → Workflows, repository
+`cs-cueviksync`, filter `is:issue`); without it, add them locally with
 `gh project item-add`.
 
 ### The calls
