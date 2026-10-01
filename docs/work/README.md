@@ -75,18 +75,18 @@ flowchart LR
     subgraph R["Requirements"]
         direction TB
         S1["1 · Brainstorm<br/>/work:1-brainstorm"]:::local
-        S2["2 · Audit PRD<br/>/work:2-audit-prd 5"]:::either
+        S2["2 · Audit PRD<br/>/work:2-audit-prd IDEA"]:::either
         PR1[["Docs PR · you merge"]]:::human
-        S3["3 · Epic + PBIs<br/>/work:3-epic 5"]:::either
+        S3["3 · Epic + PBIs<br/>/work:3-epic IDEA"]:::either
         S1 -- "Approved" --> S2
         S2 -- "Ratified" --> PR1
         PR1 -- "PRD-NNN on main" --> S3
     end
     subgraph W["Plan · Design · Build"]
         direction TB
-        S4["4 · Plan: intent.md<br/>/work:4-intent 41"]:::local
-        S5["5 · Design: spec.md<br/>/work:5-spec 41"]:::local
-        S6["6 · Build: plan.md<br/>/work:6-plan 41"]:::local
+        S4["4 · Plan: intent.md<br/>/work:4-intent ISSUE"]:::local
+        S5["5 · Design: spec.md<br/>/work:5-spec ISSUE"]:::local
+        S6["6 · Build: plan.md<br/>/work:6-plan ISSUE"]:::local
         PR2[["docs(work) PR · you merge"]]:::human
         S4 -- "+shaping" --> S5
         S5 -- "+decision-needed if §8 open" --> S6
@@ -94,7 +94,7 @@ flowchart LR
     end
     subgraph I["Implement"]
         direction TB
-        S7a["7 · Local gate<br/>/work:7-execute 41"]:::local
+        S7a["7 · Local gate<br/>/work:7-execute ISSUE"]:::local
         S7b["7 · Cloud run<br/>claude --cloud ..."]:::cloud
         PR3[["Code PR · /code-review · you merge"]]:::human
         DONE(("Done")):::human
@@ -108,7 +108,7 @@ flowchart LR
     BUG -.-> W
     W -- "plan on origin/main" --> I
 
-    classDef local fill:transparent,stroke:#2384c6,stroke-width:2px
+    classDef local fill:transparent,stroke:#3366cc,stroke-width:2px
     classDef cloud fill:transparent,stroke:#11806a,stroke-width:2px
     classDef either fill:transparent,stroke:#11806a,stroke-width:2px,stroke-dasharray:2 2
     classDef human fill:transparent,stroke:#a8620a,stroke-width:2px,stroke-dasharray:5 3
@@ -116,7 +116,7 @@ flowchart LR
 ```
 
 Blue is a local Claude session, green the cloud, dotted green either one, and dashed amber is
-you. A printable version is [CuevikSync-Delivery-Workflow.pdf](CuevikSync-Delivery-Workflow.pdf).
+you. A printable version is [delivery-workflow.pdf](delivery-workflow.pdf).
 
 ## What a folder holds
 
