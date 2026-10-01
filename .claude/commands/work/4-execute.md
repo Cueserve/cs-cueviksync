@@ -1,5 +1,5 @@
 ---
-description: Run step 3's approved plan.md unattended in a cloud session — launches it from a local session, executes it inside the cloud one
+description: Run step 3's approved plan.md unattended in a cloud session — gates and hands you the launch locally, executes it inside the cloud one
 allowed-tools: Bash, Read, Glob, Grep, Write, Edit, Agent, Skill, AskUserQuestion
 argument-hint: "<issue#> | <folder>"
 ---
@@ -38,9 +38,9 @@ to guess.
 Read `plan.md` in full. Nothing else from the folder — the plan is the only input, as in every
 other step.
 
-## Local mode — gate, then launch
+## Local mode — gate, then hand over the launch
 
-Every gate is hard. Fail one → say which and stop. Launch nothing.
+Every gate is hard. Fail one → say which and stop. Move nothing, print no launch command.
 
 1. **The cloud will clone what you have.** `git fetch origin`, then: the current branch is
    `main`, `git rev-parse HEAD` equals `git rev-parse origin/main`, and
@@ -53,6 +53,9 @@ Every gate is hard. Fail one → say which and stop. Launch nothing.
    `gh project item-list 17 --owner Cueserve --format json --limit 100 --jq '.items[] | select(.content.number==<n>) | "\(.id) \(.status)"'`.
    `Working` usually means a run is already live — ask before going on. Anything else other
    than `Ready` → stop and report it.
+4. **The cloud environment is pinned.** `.claude/settings.local.json` holds
+   `remote.defaultEnvironmentId` — there is no per-run flag for an Anthropic-hosted environment.
+   Missing → say to run `/remote-env` once in a standalone `claude` terminal.
 
 Then, in order:
 
@@ -62,21 +65,18 @@ Then, in order:
    gh project item-edit --id <item id> --project-id PVT_kwDOAWKwws4BgZo3 --field-id PVTSSF_lADOAWKwws4BgZo3zhay328 --single-select-option-id f75ad846
    ```
 
-2. **Launch:**
+2. **Hand over the launch — do not run it.** `claude --cloud` refuses to start without an
+   interactive terminal, and the Bash tool is not one. Print this for the human to paste into a
+   terminal at the repo root, still on `main`:
 
    ```sh
    claude --cloud "/work:4-execute <folder>"
    ```
 
-   The cloud environment comes from `remote.defaultEnvironmentId` in
-   `.claude/settings.local.json`; there is no per-run flag for an Anthropic-hosted environment.
-   Missing → stop and say to run `/remote-env` once in a standalone `claude` terminal.
+3. **Stop.** Say that the card now reads `Working`, so a launch that never happens should set it
+   back to `Ready`. Following the run is the human's, at claude.ai/code or in the Claude app.
 
-3. **Report** the session URL the launch printed, and stop. Following the run is yours, at
-   claude.ai/code or in the Claude app.
-
-Both writes prompt. Let them — the launch prompt is the last human check before an unattended
-run.
+The card move prompts. Let it.
 
 ## Cloud mode — execute the plan
 
